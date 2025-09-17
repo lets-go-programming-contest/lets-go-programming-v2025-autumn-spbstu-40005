@@ -1,7 +1,7 @@
 package main
 
 import "fmt"
-import "first/calculator"
+import "gordey.shapkov/task-1/calculator"
 
 func main() {
   var (
