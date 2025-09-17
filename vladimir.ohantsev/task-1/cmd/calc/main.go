@@ -42,7 +42,7 @@ func main() {
 		fmt.Fprintln(os.Stderr, "Invalid second operand")
 		os.Exit(1)
 	}
-	fmt.Scan(&op)
+	_, _ = fmt.Scan(&op)
 	if f, ok := m[op]; ok {
 		res, err := f(x, y)
 		if err != nil {
