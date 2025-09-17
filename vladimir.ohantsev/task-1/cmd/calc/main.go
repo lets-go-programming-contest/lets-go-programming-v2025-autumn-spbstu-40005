@@ -36,22 +36,22 @@ func main() {
 	var op string
 	if _, err := fmt.Scan(&x); err != nil {
 		fmt.Fprintln(os.Stderr, "Invalid first operand")
-		os.Exit(1)
+		return
 	}
 	if _, err := fmt.Scan(&y); err != nil {
 		fmt.Fprintln(os.Stderr, "Invalid second operand")
-		os.Exit(1)
+		return
 	}
 	_, _ = fmt.Scan(&op)
 	if f, ok := m[op]; ok {
 		res, err := f(x, y)
 		if err != nil {
 			fmt.Fprintln(os.Stderr, err.Error())
-			os.Exit(1)
+			return
 		}
 		fmt.Println(res)
 	} else {
 		fmt.Fprintln(os.Stderr, "Invalid operation")
-		os.Exit(1)
+		return
 	}
 }
