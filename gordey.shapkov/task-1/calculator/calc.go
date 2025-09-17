@@ -1,22 +1,22 @@
 package calculator
 
-import "fmt"
+import "errors"
 
-func Calc(a float64, b float64, op string) {
+func Calc(a int, b int, op string) (int, error) {
   switch op {
     case "+":
-      fmt.Println(a + b)
+      return a + b, nil
     case "-":
-      fmt.Println(a - b)
+      return a - b, nil
     case "*":
-      fmt.Println(a * b)
+      return a * b, nil
     case "/":
       if b == 0 {
-        fmt.Println("Division by zero!")
+        return 0, errors.New("Division by zero")
       } else {
-        fmt.Println(a / b)
+        return a / b, nil
       }
     default:
-      fmt.Println("Invalid operation")
+      return 0, errors.New("Invalid operation")
   }
 }
