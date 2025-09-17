@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"os"
 )
 
 func main() {
@@ -12,11 +11,11 @@ func main() {
 
 	if err1 != nil {
 		fmt.Println("Invalid first operand")
-		os.Exit(1)
+		return
 	}
 	if err2 != nil {
 		fmt.Println("Invalid second operand")
-		os.Exit(1)
+		return
 	}
 
 	var operation string
@@ -35,12 +34,11 @@ func main() {
 	case "/":
 		if op2 == 0 {
 			fmt.Println("Division by zero")
-			os.Exit(1)
+			return
 		}
 		fmt.Println(op1 / op2)
 
 	default:
 		fmt.Println("Invalid operation")
 	}
-
 }
