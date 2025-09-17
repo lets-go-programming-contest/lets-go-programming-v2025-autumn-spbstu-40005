@@ -1,18 +1,17 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+)
 
 func main() {
-
 	var (
 		leftOperand  int
 		rightOperand int
 		operation    string
 		result       int
 	)
-
 	n, err := fmt.Scan(&leftOperand, &rightOperand)
-
 	if err != nil {
 		if n == 0 {
 			fmt.Println("Invalid first operand")
@@ -21,13 +20,11 @@ func main() {
 		}
 		return
 	}
-
 	_, err = fmt.Scan(&operation)
 	if err != nil {
 		fmt.Println("Invalid operation")
 		return
 	}
-
 	switch operation {
 	case "+":
 		result = leftOperand + rightOperand
