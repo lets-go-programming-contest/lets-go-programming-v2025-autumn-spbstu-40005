@@ -22,7 +22,11 @@ func main() {
 		return
 	}
 
-	fmt.Scan(&operation)
+	_, err = fmt.Scan(&operation)
+	if err != nil {
+		fmt.Println("Invalid operation")
+		return
+	}
 
 	switch operation {
 	case "+":
