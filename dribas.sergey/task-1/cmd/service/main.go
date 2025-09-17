@@ -9,7 +9,6 @@ func main() {
 		leftOperand  int
 		rightOperand int
 		operation    string
-		result       int
 	)
 	n, err := fmt.Scan(&leftOperand, &rightOperand)
 	if err != nil {
@@ -27,20 +26,19 @@ func main() {
 	}
 	switch operation {
 	case "+":
-		result = leftOperand + rightOperand
+		fmt.Println(leftOperand + rightOperand)
 	case "-":
-		result = leftOperand - rightOperand
+		fmt.Println(leftOperand - rightOperand)
 	case "*":
-		result = leftOperand * rightOperand
+		fmt.Println(leftOperand * rightOperand)
 	case "/":
 		if rightOperand == 0 {
 			fmt.Println("Division by zero")
 			return
 		}
-		result = leftOperand / rightOperand
+		fmt.Println(leftOperand / rightOperand)
 	default:
 		fmt.Println("Invalid operation")
 		return
 	}
-	fmt.Println(result)
 }
