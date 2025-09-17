@@ -8,8 +8,8 @@ import (
 
 func main() {
 	var (
-		a, b int
-		operation   string
+		a, b      int
+		operation string
 	)
 	_, err := fmt.Scan(&a)
 	if err != nil {
