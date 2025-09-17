@@ -1,11 +1,11 @@
 package main
 
-import "fmt"
-import "gordey.shapkov/task-1/calculator"
+import ("fmt"
+        "gordey.shapkov/task-1/calculator")
 
 func main() {
   var (
-      a, b float64
+      a, b int
       op string
       )
   _, err := fmt.Scan(&a)
@@ -18,6 +18,15 @@ func main() {
     fmt.Println("Invalid second operand")
     return
   }
-  fmt.Scan(&op)
-  calculator.Calc(a, b, op)
+  _, err = fmt.Scan(&op)
+  if err != nil {
+    fmt.Println("Invalid operator")
+    return
+  }
+  res, err := calculator.Calc(a, b, op)
+  if err != nil {
+    fmt.Println(err)
+    return
+  }
+  fmt.Println(res)
 }
