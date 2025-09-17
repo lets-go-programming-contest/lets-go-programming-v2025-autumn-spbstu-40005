@@ -6,19 +6,18 @@ import (
 
 func main() {
 	var op1, op2 int
+	var operation string
+
 	_, err := fmt.Scan(&op1)
 	if err != nil {
 		fmt.Println("Invalid first operand")
 		return
 	}
-
 	_, err = fmt.Scan(&op2)
 	if err != nil {
 		fmt.Println("Invalid second operand")
 		return
 	}
-
-	var operation string
 	_, err = fmt.Scan(&operation)
 	if err != nil {
 		fmt.Println("Operation input error")
