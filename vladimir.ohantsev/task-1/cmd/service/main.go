@@ -3,7 +3,6 @@ package main
 import (
 	"errors"
 	"fmt"
-	"os"
 )
 
 func plus(x, y int) (int, error) {
@@ -26,35 +25,37 @@ func div(x, y int) (int, error) {
 }
 
 func main() {
-	m := map[string]func(x, y int) (int, error){
+	mapper := map[string]func(x, y int) (int, error){
 		"+": plus,
 		"-": minus,
 		"*": mult,
 		"/": div,
 	}
-	var x, y int
-	var op string
+	var (
+		x, y int
+		op   string
+	)
 	if _, err := fmt.Scan(&x); err != nil {
-		fmt.Fprintln(os.Stderr, "Invalid first operand")
+		fmt.Println("Invalid first operand")
 		return
 	}
 	if _, err := fmt.Scan(&y); err != nil {
-		fmt.Fprintln(os.Stderr, "Invalid second operand")
+		fmt.Println("Invalid second operand")
 		return
 	}
 	if _, err := fmt.Scan(&op); err != nil {
-		fmt.Fprintln(os.Stderr, "Input error")
+		fmt.Println("Invalid operation")
 		return
 	}
-	if f, ok := m[op]; ok {
+	if f, ok := mapper[op]; ok {
 		res, err := f(x, y)
 		if err != nil {
-			fmt.Fprintln(os.Stderr, err.Error())
+			fmt.Println(err.Error())
 			return
 		}
 		fmt.Println(res)
 	} else {
-		fmt.Fprintln(os.Stderr, "Invalid operation")
+		fmt.Println("Invalid operation")
 		return
 	}
 }
