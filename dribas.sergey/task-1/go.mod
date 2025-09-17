@@ -1,3 +1,3 @@
-module TASK1
+module dribas.sergey-task-1
 
-go 1.25
+go 1.22.7
