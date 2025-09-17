@@ -42,7 +42,10 @@ func main() {
 		fmt.Fprintln(os.Stderr, "Invalid second operand")
 		return
 	}
-	_, _ = fmt.Scan(&op)
+	if _, err := fmt.Scan(&op); err != nil {
+		fmt.Fprintln(os.Stderr, "Input error")
+		return
+	}
 	if f, ok := m[op]; ok {
 		res, err := f(x, y)
 		if err != nil {
