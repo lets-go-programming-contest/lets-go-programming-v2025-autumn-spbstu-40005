@@ -9,7 +9,7 @@ import (
 func main() {
 	var (
 		a, b int
-		op   string
+		operation   string
 	)
 	_, err := fmt.Scan(&a)
 	if err != nil {
@@ -21,12 +21,12 @@ func main() {
 		fmt.Println("Invalid second operand")
 		return
 	}
-	_, err = fmt.Scan(&op)
+	_, err = fmt.Scan(&operation)
 	if err != nil {
 		fmt.Println("Invalid operator")
 		return
 	}
-	res, err := calculator.Calc(a, b, op)
+	res, err := calculator.Calc(a, b, operation)
 	if err != nil {
 		fmt.Println(err)
 		return
