@@ -5,6 +5,8 @@ import (
 	"fmt"
 )
 
+var errDivisionByZero = errors.New("Division by zero")
+
 func plus(x, y int) (int, error) {
 	return x + y, nil
 }
@@ -19,7 +21,7 @@ func mult(x, y int) (int, error) {
 
 func div(x, y int) (int, error) {
 	if y == 0 {
-		return 0, errors.New("Division by zero")
+		return 0, errDivisionByZero
 	}
 	return x / y, nil
 }
