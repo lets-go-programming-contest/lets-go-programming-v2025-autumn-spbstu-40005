@@ -6,9 +6,8 @@ import (
 
 func main() {
 	var (
-		leftOperand  int
-		rightOperand int
-		operation    string
+		leftOperand, rightOperand int
+		operation                 string
 	)
 	n, err := fmt.Scan(&leftOperand, &rightOperand)
 	if err != nil {
@@ -39,6 +38,5 @@ func main() {
 		fmt.Println(leftOperand / rightOperand)
 	default:
 		fmt.Println("Invalid operation")
-		return
 	}
 }
