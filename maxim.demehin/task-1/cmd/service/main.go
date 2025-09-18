@@ -5,8 +5,10 @@ import (
 )
 
 func main() {
-	var op1, op2 int
-	var operation string
+	var (
+		op1, op2  int
+		operation string
+	)
 
 	_, err := fmt.Scan(&op1)
 	if err != nil {
@@ -20,7 +22,7 @@ func main() {
 	}
 	_, err = fmt.Scan(&operation)
 	if err != nil {
-		fmt.Println("Operation input error")
+		fmt.Println("Invalid operation")
 	}
 
 	switch operation {
