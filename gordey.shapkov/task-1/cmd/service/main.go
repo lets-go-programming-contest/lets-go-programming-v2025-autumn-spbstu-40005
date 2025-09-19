@@ -26,7 +26,7 @@ func main() {
 		fmt.Println("Invalid operator")
 		return
 	}
-	res, err := calculator.Calc(a, b, operation)
+	res, err := calculator.Calculation(a, b, operation)
 	if err != nil {
 		fmt.Println(err)
 		return

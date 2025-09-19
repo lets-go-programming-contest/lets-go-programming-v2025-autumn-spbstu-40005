@@ -7,7 +7,7 @@ var (
 	errInvalidOperation = errors.New("Invalid operation")
 )
 
-func Calc(a int, b int, op string) (int, error) {
+func Calculation(a, b int, op string) (int, error) {
 	switch op {
 	case "+":
 		return a + b, nil
