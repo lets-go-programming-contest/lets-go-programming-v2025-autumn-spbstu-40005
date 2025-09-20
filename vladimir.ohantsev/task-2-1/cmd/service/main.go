@@ -10,6 +10,11 @@ const (
 	GreaterEqual
 )
 
+const (
+	UpperLimit = 30
+	LowerLimit = 15
+)
+
 var (
 	errInputFail          = errors.New("input error")
 	errInvalidOperation   = errors.New("invalid operation")
@@ -38,20 +43,20 @@ func scanTemp() (int, error) {
 		return 0, errInvalidTemperature
 	}
 
-	if temp > 30 {
-		return 30, nil
+	if temp > UpperLimit {
+		return UpperLimit, nil
 	}
 
-	if temp < 15 {
-		return 15, nil
+	if temp < LowerLimit {
+		return LowerLimit, nil
 	}
 
 	return temp, nil
 }
 
 func processDepartment(countWorkers int) error {
-	maxT := 30
-	minT := 15
+	maxT := UpperLimit
+	minT := LowerLimit
 
 	for range countWorkers {
 		operation, err := scanOperator()
