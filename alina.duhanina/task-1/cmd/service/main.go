@@ -24,8 +24,6 @@ func main() {
     fmt.Println(number1 - number2)
   case "*":
     fmt.Println(number1 * number2)
-  case "*":
-    fmt.Println(number1 * number2)
   case "/":
     if number2 == 0 {
       fmt.Println("Division by zero")
