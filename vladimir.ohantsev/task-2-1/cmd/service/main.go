@@ -51,18 +51,18 @@ func processDepartment(countWorkers int) error {
 			return err
 		}
 
-		t, err := scanTemp()
+		temp, err := scanTemp()
 		if err != nil {
 			return err
 		}
 
 		if operation == LessEqual {
-			if maxT > t {
-				maxT = t
+			if maxT > temp {
+				maxT = temp
 			}
 		} else {
-			if minT < t {
-				minT = t
+			if minT < temp {
+				minT = temp
 			}
 		}
 
@@ -84,6 +84,7 @@ func main() {
 	var countDepartments int
 	if _, err := fmt.Scan(&countDepartments); err != nil {
 		fmt.Println(errInputFail.Error())
+
 		return
 	}
 
@@ -91,11 +92,13 @@ func main() {
 		var countWorkers int
 		if _, err := fmt.Scan(&countWorkers); err != nil {
 			fmt.Println(errInputFail.Error())
+
 			return
 		}
 
 		if err := processDepartment(countWorkers); err != nil {
 			fmt.Println(err.Error())
+
 			return
 		}
 	}
