@@ -6,8 +6,8 @@ import (
 )
 
 const (
-	LessEqual    = false
-	GreaterEqual = true
+	LessEqual = iota
+	GreaterEqual
 )
 
 var (
@@ -16,10 +16,10 @@ var (
 	errInvalidTemperature = errors.New("invalid temperature")
 )
 
-func scanOperator() (bool, error) {
+func scanOperator() (int, error) {
 	var op string
 	if _, err := fmt.Scan(&op); err != nil {
-		return false, errInputFail
+		return 0, errInputFail
 	}
 
 	switch op {
@@ -27,24 +27,26 @@ func scanOperator() (bool, error) {
 		return LessEqual, nil
 	case ">=":
 		return GreaterEqual, nil
-	default:
-		return false, errInvalidOperation
 	}
+
+	return 0, errInvalidOperation
 }
 
 func scanTemp() (int, error) {
-	var t int
-	if _, err := fmt.Scan(&t); err != nil || t > 30 || t < 15 {
+	var temp int
+	if _, err := fmt.Scan(&temp); err != nil || temp > 30 || temp < 15 {
 		return 0, errInvalidTemperature
 	}
-	return t, nil
+
+	return temp, nil
 }
 
-func processDepartment(k int) error {
+func processDepartment(countWorkers int) error {
 	maxT := 30
 	minT := 15
-	for range k {
-		op, err := scanOperator()
+
+	for range countWorkers {
+		operation, err := scanOperator()
 		if err != nil {
 			return err
 		}
@@ -54,7 +56,7 @@ func processDepartment(k int) error {
 			return err
 		}
 
-		if op == LessEqual {
+		if operation == LessEqual {
 			if maxT > t {
 				maxT = t
 			}
@@ -66,6 +68,7 @@ func processDepartment(k int) error {
 
 		fmt.Println(curOptimum(minT, maxT))
 	}
+
 	return nil
 }
 
@@ -73,24 +76,25 @@ func curOptimum(minT, maxT int) int {
 	if maxT < minT {
 		return -1
 	}
+
 	return minT
 }
 
 func main() {
-	var n int
-	if _, err := fmt.Scan(&n); err != nil {
+	var countDepartments int
+	if _, err := fmt.Scan(&countDepartments); err != nil {
 		fmt.Println(errInputFail.Error())
 		return
 	}
 
-	for range n {
-		var k int
-		if _, err := fmt.Scan(&k); err != nil {
+	for range countDepartments {
+		var countWorkers int
+		if _, err := fmt.Scan(&countWorkers); err != nil {
 			fmt.Println(errInputFail.Error())
 			return
 		}
 
-		if err := processDepartment(k); err != nil {
+		if err := processDepartment(countWorkers); err != nil {
 			fmt.Println(err.Error())
 			return
 		}
