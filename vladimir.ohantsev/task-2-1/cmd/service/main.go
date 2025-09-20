@@ -34,8 +34,16 @@ func scanOperator() (int, error) {
 
 func scanTemp() (int, error) {
 	var temp int
-	if _, err := fmt.Scan(&temp); err != nil || temp > 30 || temp < 15 {
+	if _, err := fmt.Scan(&temp); err != nil {
 		return 0, errInvalidTemperature
+	}
+
+	if temp > 30 {
+		return 30, nil
+	}
+
+	if temp < 15 {
+		return 15, nil
 	}
 
 	return temp, nil
