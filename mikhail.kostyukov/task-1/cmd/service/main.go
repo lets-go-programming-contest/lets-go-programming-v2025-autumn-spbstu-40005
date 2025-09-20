@@ -4,8 +4,8 @@ import "fmt"
 
 func main() {
 	var (
-		operand1, operand2	int
-		operation			string
+		operand1, operand2 int
+		operation          string
 	)
 
 	_, err := fmt.Scan(&operand1)
