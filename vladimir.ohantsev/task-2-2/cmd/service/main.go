@@ -14,7 +14,9 @@ var (
 type intHeap []int
 
 func (h *intHeap) Push(x any) {
-	*h = append(*h, x.(int))
+	if x, ok := x.(int); ok {
+		*h = append(*h, x)
+	}
 }
 
 func (h *intHeap) Pop() any {
@@ -32,6 +34,7 @@ func main() {
 	var dishes int
 	if _, err := fmt.Scan(&dishes); err != nil || dishes <= 0 {
 		fmt.Println(errInputFail.Error())
+
 		return
 	}
 
@@ -41,6 +44,7 @@ func main() {
 		var cost int
 		if _, err := fmt.Scan(&cost); err != nil {
 			fmt.Println(errInputFail.Error())
+
 			return
 		}
 
@@ -50,11 +54,13 @@ func main() {
 	var need int
 	if _, err := fmt.Scan(&need); err != nil || need <= 0 {
 		fmt.Println(errInputFail.Error())
+
 		return
 	}
 
 	if need > dishesHeap.Len() {
 		fmt.Println(errInvalidRequest.Error())
+
 		return
 	}
 
@@ -62,5 +68,6 @@ func main() {
 		heap.Pop(dishesHeap)
 	}
 
-	fmt.Println(heap.Pop(dishesHeap).(int))
+	res, _ := heap.Pop(dishesHeap).(int)
+	fmt.Println(res)
 }
