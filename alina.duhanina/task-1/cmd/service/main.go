@@ -17,21 +17,24 @@ func main() {
   }
   var oper string
   fmt.Scan(&oper)
+  _, err := fmt.Scan(&oper)
+  if err != nil {
+    fmt.Println("Error reading input")
+  }
   switch oper {
-  case "+":
-    fmt.Println(number1 + number2)
-  case "-":
-    fmt.Println(number1 - number2)
-  case "*":
-    fmt.Println(number1 * number2)
-  case "/":
-    if number2 == 0 {
-      fmt.Println("Division by zero")
-      return
-    }
-    fmt.Println(number1 / number2)
-  default:
-    fmt.Println("Invalid operation")
+    case "+":
+      fmt.Println(number1 + number2)
+    case "-":
+      fmt.Println(number1 - number2)
+    case "*":
+      fmt.Println(number1 * number2)
+    case "/":
+      if number2 == 0 {
+        fmt.Println("Division by zero")
+        return
+      }
+      fmt.Println(number1 / number2)
+    default:
+      fmt.Println("Invalid operation")
   }
 }
-
