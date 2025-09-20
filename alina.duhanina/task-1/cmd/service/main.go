@@ -16,7 +16,6 @@ func main() {
 		return
 	}
 	var oper string
-	fmt.Scan(&oper)
 	_, err := fmt.Scan(&oper)
 	if err != nil {
 		fmt.Println("Error reading input")
