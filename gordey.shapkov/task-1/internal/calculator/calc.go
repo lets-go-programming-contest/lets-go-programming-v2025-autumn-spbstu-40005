@@ -18,9 +18,8 @@ func Calculation(a, b int, op string) (int, error) {
 	case "/":
 		if b == 0 {
 			return 0, errDivisionByZero
-		} else {
-			return a / b, nil
 		}
+		return a / b, nil
 	default:
 		return 0, errInvalidOperation
 	}
