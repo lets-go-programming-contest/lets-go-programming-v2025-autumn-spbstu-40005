@@ -12,6 +12,7 @@ func main() {
 
 	if _, err := fmt.Scan(&countDepartaments); err != nil || countDepartaments < 1 {
 		fmt.Println("Incorrect countDepartaments")
+
 		return
 	}
 
