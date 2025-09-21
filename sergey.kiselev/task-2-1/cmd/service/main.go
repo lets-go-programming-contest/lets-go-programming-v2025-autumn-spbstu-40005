@@ -1,11 +1,50 @@
 package main
 
-import "fmt"
+import (
+	"errors"
+	"fmt"
+)
 
 const (
 	maxTemperature = 30
 	minTemperature = 15
 )
+
+func processEmployees(countEmployees int) error {
+	maxT := maxTemperature
+	minT := minTemperature
+
+	for range countEmployees {
+		var (
+			operator    string
+			temperature int
+		)
+
+		if _, err := fmt.Scan(&operator, &temperature); err != nil {
+			return errors.New("invalid input for operator and temperature")
+		}
+
+		switch operator {
+		case "<=":
+			if temperature < maxT {
+				maxT = temperature
+			}
+		case ">=":
+			if temperature > minT {
+				minT = temperature
+			}
+		default:
+			return errors.New("incorrect operator")
+		}
+
+		if minT <= maxT {
+			fmt.Println(minT)
+		} else {
+			fmt.Println(-1)
+		}
+	}
+	return nil
+}
 
 func main() {
 	var countDepartaments int
@@ -25,41 +64,10 @@ func main() {
 			return
 		}
 
-		maxT := maxTemperature
-		minT := minTemperature
+		if err := processEmployees(countEmployees); err != nil {
+			fmt.Println(err.Error())
 
-		for range countEmployees {
-			var (
-				operator    string
-				temperature int
-			)
-
-			if _, err := fmt.Scan(&operator, &temperature); err != nil {
-				fmt.Println("Invalid input for operator and temperature")
-
-				return
-			}
-
-			switch operator {
-			case "<=":
-				if temperature < maxT {
-					maxT = temperature
-				}
-			case ">=":
-				if temperature > minT {
-					minT = temperature
-				}
-			default:
-				fmt.Println("Incorrect operator")
-
-				return
-			}
-
-			if minT <= maxT {
-				fmt.Println(minT)
-			} else {
-				fmt.Println(-1)
-			}
+			return
 		}
 	}
 }
