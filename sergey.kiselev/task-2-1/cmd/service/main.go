@@ -15,18 +15,19 @@ func main() {
 		return
 	}
 
-	for i := 0; i < countDepartaments; i++ {
+	for range countDepartaments {
 		var countEmployees int
 
 		if _, err := fmt.Scan(&countEmployees); err != nil || countEmployees < 1 {
 			fmt.Println("Incorrect countEmployees")
+
 			return
 		}
 
 		maxT := maxTemperature
 		minT := minTemperature
 
-		for j := 0; j < countEmployees; j++ {
+		for range countEmployees {
 			var (
 				operator    string
 				temperature int
@@ -34,6 +35,7 @@ func main() {
 
 			if _, err := fmt.Scan(&operator, &temperature); err != nil {
 				fmt.Println("Invalid input for operator and temperature")
+
 				return
 			}
 
@@ -48,6 +50,7 @@ func main() {
 				}
 			default:
 				fmt.Println("Incorrect operator")
+
 				return
 			}
 
