@@ -10,6 +10,11 @@ const (
 	minTemperature = 15
 )
 
+var (
+	errInput    = errors.New("invalid input")
+	errOperator = errors.New("incorrect operator")
+)
+
 func processEmployees(countEmployees int) error {
 	maxT := maxTemperature
 	minT := minTemperature
@@ -21,7 +26,7 @@ func processEmployees(countEmployees int) error {
 		)
 
 		if _, err := fmt.Scan(&operator, &temperature); err != nil {
-			return errors.New("invalid input for operator and temperature")
+			return errInput
 		}
 
 		switch operator {
@@ -34,7 +39,7 @@ func processEmployees(countEmployees int) error {
 				minT = temperature
 			}
 		default:
-			return errors.New("incorrect operator")
+			return errOperator
 		}
 
 		if minT <= maxT {
@@ -43,6 +48,7 @@ func processEmployees(countEmployees int) error {
 			fmt.Println(-1)
 		}
 	}
+
 	return nil
 }
 
@@ -50,7 +56,7 @@ func main() {
 	var countDepartaments int
 
 	if _, err := fmt.Scan(&countDepartaments); err != nil || countDepartaments < 1 {
-		fmt.Println("Incorrect countDepartaments")
+		fmt.Println(errInput.Error())
 
 		return
 	}
@@ -59,7 +65,7 @@ func main() {
 		var countEmployees int
 
 		if _, err := fmt.Scan(&countEmployees); err != nil || countEmployees < 1 {
-			fmt.Println("Incorrect countEmployees")
+			fmt.Println(errInput.Error())
 
 			return
 		}
