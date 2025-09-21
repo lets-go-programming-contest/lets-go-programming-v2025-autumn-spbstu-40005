@@ -4,14 +4,14 @@ import "fmt"
 
 func main() {
 	var number1 int
-	_, error1 := fmt.Scan(&number1)
-	if error1 != nil {
+	_, err := fmt.Scan(&number1)
+	if err != nil {
 		fmt.Println("Invalid first operand")
 		return
 	}
 	var number2 int
-	_, error2 := fmt.Scan(&number2)
-	if error2 != nil {
+	_, err := fmt.Scan(&number2)
+	if err != nil {
 		fmt.Println("Invalid second operand")
 		return
 	}
