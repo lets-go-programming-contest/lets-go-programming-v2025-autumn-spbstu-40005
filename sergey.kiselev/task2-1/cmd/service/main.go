@@ -10,8 +10,7 @@ const (
 func main() {
 	var countDepartaments int
 
-	_, err := fmt.Scan(&countDepartaments)
-	if err != nil {
+	if _, err := fmt.Scan(&countDepartaments); err != nil || countDepartaments < 1 {
 		fmt.Println("Incorrect countDepartaments")
 		return
 	}
@@ -19,8 +18,7 @@ func main() {
 	for i := 0; i < countDepartaments; i++ {
 		var countEmployees int
 
-		_, err = fmt.Scan(&countEmployees)
-		if err != nil {
+		if _, err := fmt.Scan(&countEmployees); err != nil || countEmployees < 1 {
 			fmt.Println("Incorrect countEmployees")
 			return
 		}
@@ -34,8 +32,7 @@ func main() {
 				temperature int
 			)
 
-			_, err = fmt.Scan(&operator, &temperature)
-			if err != nil {
+			if _, err := fmt.Scan(&operator, &temperature); err != nil {
 				fmt.Println("Invalid input for operator and temperature")
 				return
 			}
@@ -50,7 +47,7 @@ func main() {
 					minT = temperature
 				}
 			default:
-				fmt.Print("Incorrect operator")
+				fmt.Println("Incorrect operator")
 				return
 			}
 
