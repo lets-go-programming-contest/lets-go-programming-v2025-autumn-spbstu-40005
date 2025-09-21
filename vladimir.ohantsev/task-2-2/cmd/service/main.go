@@ -40,7 +40,7 @@ func main() {
 
 	dishesSlice := make([]int, dishesCount)
 
-	for index := 0; index < dishesCount; index++ {
+	for index := range dishesCount {
 		var cost int
 		if _, err := fmt.Scan(&cost); err != nil {
 			fmt.Println(errInputFail.Error())
