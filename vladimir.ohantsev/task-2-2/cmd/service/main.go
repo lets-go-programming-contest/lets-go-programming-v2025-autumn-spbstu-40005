@@ -20,27 +20,27 @@ func (h *intHeap) Push(x any) {
 }
 
 func (h *intHeap) Pop() any {
-	val := (*h)[len(*h)-1]
-	*h = (*h)[:len(*h)-1]
+	val := (*h)[0]
+	*h = (*h)[1:]
 
 	return val
 }
 
 func (h *intHeap) Len() int           { return len(*h) }
-func (h *intHeap) Less(i, j int) bool { return (*h)[i] > (*h)[j] }
+func (h *intHeap) Less(i, j int) bool { return (*h)[i] < (*h)[j] }
 func (h *intHeap) Swap(i, j int)      { (*h)[i], (*h)[j] = (*h)[j], (*h)[i] }
 
 func main() {
-	var dishes int
-	if _, err := fmt.Scan(&dishes); err != nil || dishes <= 0 {
+	var dishesCount int
+	if _, err := fmt.Scan(&dishesCount); err != nil || dishesCount <= 0 {
 		fmt.Println(errInputFail.Error())
 
 		return
 	}
 
-	dishesHeap := &intHeap{}
+	dishesSlice := make([]int, dishesCount)
 
-	for range dishes {
+	for i := range dishesCount {
 		var cost int
 		if _, err := fmt.Scan(&cost); err != nil {
 			fmt.Println(errInputFail.Error())
@@ -48,7 +48,7 @@ func main() {
 			return
 		}
 
-		heap.Push(dishesHeap, cost)
+		dishesSlice[i] = cost
 	}
 
 	var need int
@@ -58,16 +58,23 @@ func main() {
 		return
 	}
 
-	if need > dishesHeap.Len() {
+	if need > dishesCount {
 		fmt.Println(errInvalidRequest.Error())
 
 		return
 	}
 
-	for range need - 1 {
-		heap.Pop(dishesHeap)
+	dishesHeap := &intHeap{}
+	*dishesHeap = intHeap(dishesSlice[:need])
+	heap.Init(dishesHeap)
+
+	dishesSlice = dishesSlice[need:]
+	for _, cost := range dishesSlice {
+		if cost > (*dishesHeap)[0] {
+			(*dishesHeap)[0] = cost
+			heap.Fix(dishesHeap, 0)
+		}
 	}
 
-	res, _ := heap.Pop(dishesHeap).(int)
-	fmt.Println(res)
+	fmt.Println((*dishesHeap)[0])
 }
