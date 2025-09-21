@@ -10,13 +10,13 @@ func main() {
 		return
 	}
 	var number2 int
-	_, err := fmt.Scan(&number2)
+	_, err = fmt.Scan(&number2)
 	if err != nil {
 		fmt.Println("Invalid second operand")
 		return
 	}
 	var oper string
-	_, err := fmt.Scan(&oper)
+	_, err = fmt.Scan(&oper)
 	if err != nil {
 		fmt.Println("Invalid operation")
 	}
