@@ -4,20 +4,20 @@ import "fmt"
 
 func main() {
 	var a int
-	var b int
-	var oper string
-	_, er1 := fmt.Scan(&a)
-	_, er2 := fmt.Scan(&b)
-	_, er3 := fmt.Scan(&oper)
-	if er1 != nil {
+	_, err := fmt.Scan(&a)
+	if err != nil {
 		fmt.Println("Invalid first operand")
 		return
 	}
-	if er2 != nil {
+	var b int
+	_, err = fmt.Scan(&b)
+	if err != nil {
 		fmt.Println("Invalid second operand")
 		return
 	}
-	if er3 != nil {
+	var oper string
+	_, err = fmt.Scan(&oper)
+	if err != nil {
 		fmt.Println("Invalid operation")
 		return
 	}
@@ -35,6 +35,6 @@ func main() {
 		}
 		fmt.Println(a / b)
 	default:
-		fmt.Println("Invalid command")
+		fmt.Println("Invalid operation")
 	}
 }
