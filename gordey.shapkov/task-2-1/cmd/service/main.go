@@ -9,7 +9,6 @@ import (
 func main() {
 	var number, count int
 	_, err := fmt.Scan(&number)
-
 	if err != nil {
 		return
 	}
@@ -57,18 +56,15 @@ func changeTemperature(preferences []string) {
 
 		if preferedTemp < MinTemp || preferedTemp > MaxTemp {
 			currTemp = -1
-		} else {
-			if idx == 0 {
-				if sign == ">=" {
-					currTemp = preferedTemp
-				} else {
-					currTemp = MinTemp
-				}
+		} else if idx == 0 {
+			if sign == ">=" {
+				currTemp = preferedTemp
+			} else {
+				currTemp = MinTemp
 			}
-
+		} else {
 			switch sign {
 			case ">=":
-
 				if preferedTemp > maxTemp {
 					currTemp = -1
 				} else if preferedTemp > currTemp {
@@ -84,6 +80,7 @@ func changeTemperature(preferences []string) {
 				} else if preferedTemp < currTemp {
 					currTemp = preferedTemp
 				}
+
 				if preferedTemp < maxTemp {
 					maxTemp = preferedTemp
 				}
