@@ -56,7 +56,9 @@ func changeTemperature(preferences []string) {
 
 		if preferedTemp < MinTemp || preferedTemp > MaxTemp {
 			currTemp = -1
-		} else if idx == 0 {
+		}
+
+		if idx == 0 {
 			if sign == ">=" {
 				currTemp = preferedTemp
 			} else {
