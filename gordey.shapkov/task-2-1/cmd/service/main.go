@@ -59,7 +59,7 @@ func changeTemperature(preferences []string) {
 	} else {
 		currTemp = MinTemp
 	}
-
+	fmt.Println(currTemp)
 	for idx := 1; idx < len(preferences); idx++ {
 		parts := strings.Fields(preferences[idx])
 		preferedTemp, _ := strconv.Atoi(parts[1])
