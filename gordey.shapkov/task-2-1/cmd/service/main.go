@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"strconv"
 	"strings"
@@ -10,6 +11,37 @@ const (
 	MaxTemp = 30
 	MinTemp = 15
 )
+
+var (
+	errInput = errors.New("invalid input")
+	errSign  = errors.New("invalid operator")
+)
+
+func computeCurrTemp(currTemp, minTemp, maxTemp, preferredTemp int, sign string) int {
+	switch sign {
+	case ">=":
+		if preferredTemp > maxTemp {
+			return -1
+		} else if preferredTemp > currTemp {
+			currTemp = preferredTemp
+		}
+		if preferredTemp > minTemp {
+			minTemp = preferredTemp
+		}
+	case "<=":
+		if preferredTemp < minTemp {
+			return -1
+		} else if preferredTemp < currTemp {
+			currTemp = preferredTemp
+		}
+		if preferredTemp < maxTemp {
+			maxTemp = preferredTemp
+		}
+	default:
+		return -1
+	}
+	return currTemp
+}
 
 func changeTemperature(preferences []string) {
 	maxTemp := MaxTemp
@@ -21,22 +53,18 @@ func changeTemperature(preferences []string) {
 		preferredTemp, _ := strconv.Atoi(parts[1])
 		sign := parts[0]
 
-		if sign == ">=" {
-			currTemp = preferredTemp
+		if preferredTemp < MinTemp || preferredTemp > MaxTemp {
+			currTemp = -1
 		} else {
-			currTemp = MinTemp
+			if sign == ">=" {
+				currTemp = preferredTemp
+			} else {
+				currTemp = MinTemp
+			}
 		}
-
-		if currTemp < MinTemp {
-			currTemp = MinTemp
-		}
-		if currTemp > MaxTemp {
-			currTemp = MaxTemp
-		}
-
-		if printOrReturn(currTemp, len(preferences)-1) {
-			return
-		}
+		fmt.Println(currTemp)
+		minTemp = preferredTemp
+		maxTemp = preferredTemp
 	}
 
 	for idx := 1; idx < len(preferences); idx++ {
@@ -47,74 +75,47 @@ func changeTemperature(preferences []string) {
 		if preferredTemp < MinTemp || preferredTemp > MaxTemp {
 			currTemp = -1
 		} else {
-			currTemp, minTemp, maxTemp = computeCurrTemp(sign, preferredTemp, currTemp, minTemp, maxTemp)
+			currTemp = computeCurrTemp(currTemp, minTemp, maxTemp, preferredTemp, sign)
 		}
 
-		if printOrReturn(currTemp, len(preferences)-idx-1) {
+		if currTemp == -1 {
+			for empIdx := idx; empIdx < len(preferences); empIdx++ {
+				fmt.Println(currTemp)
+			}
 			return
 		}
+		fmt.Println(currTemp)
 	}
-}
-
-func computeCurrTemp(sign string, preferredTemp, currTemp, minTemp, maxTemp int) (int, int, int) {
-	switch sign {
-	case ">=":
-		if preferredTemp > maxTemp {
-			currTemp = -1
-		} else if preferredTemp > currTemp {
-			currTemp = preferredTemp
-		}
-		if preferredTemp > minTemp {
-			minTemp = preferredTemp
-		}
-	case "<=":
-		if preferredTemp < minTemp {
-			currTemp = -1
-		} else if preferredTemp < currTemp {
-			currTemp = preferredTemp
-		}
-		if preferredTemp < maxTemp {
-			maxTemp = preferredTemp
-		}
-	default:
-		currTemp = -1
-	}
-	return currTemp, minTemp, maxTemp
-}
-
-func printOrReturn(currTemp int, remain int) bool {
-	if currTemp == -1 {
-		for idx := 0; idx < remain+1; idx++ {
-			fmt.Println(currTemp)
-		}
-		return true
-	}
-	fmt.Println(currTemp)
-	return false
 }
 
 func main() {
-	var number int
-	if _, err := fmt.Scan(&number); err != nil {
+	var countDeparts int
+
+	if _, err := fmt.Scan(&countDeparts); err != nil || countDeparts < 1 {
+		fmt.Println(errInput.Error())
 		return
 	}
 
-	for deptIdx := 0; deptIdx < number; deptIdx++ {
-		var count int
-		if _, err := fmt.Scan(&count); err != nil {
+	for departIdx := 0; departIdx < countDeparts; departIdx++ {
+		var countWorkers int
+		if _, err := fmt.Scan(&countWorkers); err != nil || countWorkers < 1 {
+			fmt.Println(errInput.Error())
 			return
 		}
 
-		preferences := make([]string, 0, count)
-		for empIdx := 0; empIdx < count; empIdx++ {
+		prefs := make([]string, 0, countWorkers)
+
+		for workerIdx := 0; workerIdx < countWorkers; workerIdx++ {
 			var sign string
 			var preferredTemp int
 			if _, err := fmt.Scan(&sign, &preferredTemp); err != nil {
+				fmt.Println(errInput.Error())
 				return
 			}
-			preferences = append(preferences, sign+" "+strconv.Itoa(preferredTemp))
+
+			temp := sign + " " + strconv.Itoa(preferredTemp)
+			prefs = append(prefs, temp)
 		}
-		changeTemperature(preferences)
+		changeTemperature(prefs)
 	}
 }
-
