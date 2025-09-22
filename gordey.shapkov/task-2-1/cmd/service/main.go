@@ -80,6 +80,12 @@ func changeTemperature(preferences []string) {
 				currTemp = -1
 			}
 		}
+		if currTemp == -1 {
+			for j := i; j < len(preferences); j++ {
+                                fmt.Println(currTemp)
+                        }
+                        return
+		}
 		fmt.Println(currTemp)
 	}
 }
