@@ -37,7 +37,7 @@ func main() {
 func changeTemperature(preferences []string) {
 	const (
 		MAX_TEMP = 30
-		MIN_TEMP = 0
+		MIN_TEMP = 15
 	)
 	var (
 		maxTemp  int = MAX_TEMP
@@ -52,7 +52,11 @@ func changeTemperature(preferences []string) {
 			currTemp = -1
 		} else {
 			if i == 0 {
-				currTemp = preferedTemp
+				if sign == ">=" {
+					currTemp = preferedTemp
+				} else {
+					currTemp = MIN_TEMP
+				}
 			}
 			if sign == ">=" {
 				if preferedTemp > maxTemp {
