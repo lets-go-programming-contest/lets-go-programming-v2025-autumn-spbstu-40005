@@ -54,6 +54,11 @@ func changeTemperature(preferences []string) {
 	sign := parts[0]
 	if preferedTemp < MinTemp || preferedTemp > MaxTemp {
 		currTemp = -1
+		for range preferences {
+			fmt.Println(currTemp)
+		}
+
+		return
 	} else if sign == ">=" {
 		currTemp = preferedTemp
 	} else {
