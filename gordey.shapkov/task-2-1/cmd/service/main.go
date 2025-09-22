@@ -12,7 +12,7 @@ func main() {
 	if err != nil {
 		return
 	}
-	for i := range number {
+	for _ = range number {
 		_, err = fmt.Scan(&count)
 		if err != nil {
 			return
@@ -22,7 +22,7 @@ func main() {
 			preferedTemp int
 			preferences  []string
 		)
-		for j := range count {
+		for _ = range count {
 			_, err = fmt.Scan(&sign, &preferedTemp)
 			if err != nil {
 				return
