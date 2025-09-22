@@ -49,65 +49,66 @@ func changeTemperature(preferences []string) {
 	minTemp := MinTemp
 	currTemp := 0
 
-	parts := strings.Fields(preferences[0])
-	preferedTemp, _ := strconv.Atoi(parts[1])
-	sign := parts[0]
-	if preferedTemp < MinTemp || preferedTemp > MaxTemp {
-		currTemp = -1
-		for range preferences {
-			fmt.Println(currTemp)
-		}
-
-		return
-	} else if sign == ">=" {
-		currTemp = preferedTemp
-	} else {
-		currTemp = MinTemp
-	}
-	fmt.Println(currTemp)
-	for idx := 1; idx < len(preferences); idx++ {
+	for idx := range preferences {
 		parts := strings.Fields(preferences[idx])
 		preferedTemp, _ := strconv.Atoi(parts[1])
 		sign := parts[0]
 
 		if preferedTemp < MinTemp || preferedTemp > MaxTemp {
 			currTemp = -1
-
+		} else if idx == 0 {
+			currTemp = MinTemp
+			if sign == ">=" {
+				currTemp = preferedTemp
+			}
 		} else {
 			switch sign {
 			case ">=":
-				if preferedTemp > maxTemp {
-					currTemp = -1
-				} else if preferedTemp > currTemp {
-					currTemp = preferedTemp
-				}
-
-				if preferedTemp > minTemp {
-					minTemp = preferedTemp
-				}
+				currTemp = handleGreaterEqual(preferedTemp, currTemp, &minTemp, maxTemp)
 			case "<=":
-				if preferedTemp < minTemp {
-					currTemp = -1
-				} else if preferedTemp < currTemp {
-					currTemp = preferedTemp
-				}
-
-				if preferedTemp < maxTemp {
-					maxTemp = preferedTemp
-				}
+				currTemp = handleLessEqual(preferedTemp, currTemp, minTemp, &maxTemp)
 			default:
 				currTemp = -1
 			}
 		}
 
 		if currTemp == -1 {
-			for range len(preferences) - idx {
-				fmt.Println(currTemp)
-			}
-
+			printRemaining(currTemp, len(preferences)-idx)
 			return
 		}
 
 		fmt.Println(currTemp)
+	}
+}
+
+func handleGreaterEqual(preferedTemp, currTemp int, minTemp *int, maxTemp int) int {
+	if preferedTemp > maxTemp {
+		return -1
+	}
+	if preferedTemp > currTemp {
+		currTemp = preferedTemp
+	}
+	if preferedTemp > *minTemp {
+		*minTemp = preferedTemp
+	}
+	return currTemp
+}
+
+func handleLessEqual(preferedTemp, currTemp int, minTemp int, maxTemp *int) int {
+	if preferedTemp < minTemp {
+		return -1
+	}
+	if preferedTemp < currTemp {
+		currTemp = preferedTemp
+	}
+	if preferedTemp < *maxTemp {
+		*maxTemp = preferedTemp
+	}
+	return currTemp
+}
+
+func printRemaining(value, count int) {
+	for range count {
+		fmt.Println(value)
 	}
 }
