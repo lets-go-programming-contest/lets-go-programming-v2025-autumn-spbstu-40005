@@ -9,6 +9,7 @@ import (
 func main() {
 	var number, count int
 	_, err := fmt.Scan(&number)
+
 	if err != nil {
 		return
 	}
@@ -49,7 +50,7 @@ func changeTemperature(preferences []string) {
 	minTemp := MinTemp
 	currTemp := 0
 
-	for idx := 0; idx < len(preferences); idx++ {
+	for idx := range len(preferences) {
 		parts := strings.Fields(preferences[idx])
 		preferedTemp, _ := strconv.Atoi(parts[1])
 		sign := parts[0]
