@@ -9,6 +9,7 @@ import (
 func main() {
 	var number, count int
 	_, err := fmt.Scan(&number)
+
 	if err != nil {
 		return
 	}
