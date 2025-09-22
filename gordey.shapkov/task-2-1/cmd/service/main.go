@@ -1,112 +1,87 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"strconv"
 	"strings"
 )
 
+const (
+	MaxTemperature = 30
+	MinTemperature = 15
+)
+
+var (
+	errInput    = errors.New("invalid input")
+	errOperator = errors.New("incorrect operator")
+)
+
+func changeTemperature(preferences []string) error {
+	maxT := MaxTemperature
+	minT := MinTemperature
+
+	for _, pref := range preferences {
+		parts := strings.Fields(pref)
+		operator := parts[0]
+
+		temp, err := strconv.Atoi(parts[1])
+		if err != nil {
+			return errInput
+		}
+
+		switch operator {
+		case "<=":
+			if temp < maxT {
+				maxT = temp
+			}
+		case ">=":
+			if temp > minT {
+				minT = temp
+			}
+		default:
+			return errOperator
+		}
+
+		if minT <= maxT {
+			fmt.Println(minT)
+		} else {
+			fmt.Println(-1)
+		}
+	}
+
+	return nil
+}
+
 func main() {
-	var number, count int
-	_, err := fmt.Scan(&number)
-	if err != nil {
+	var countDepartments int
+	if _, err := fmt.Scan(&countDepartments); err != nil || countDepartments < 1 {
+		fmt.Println(errInput.Error())
 		return
 	}
 
-	for idx := 0; idx < number; idx++ {
-		_, err = fmt.Scan(&count)
-		if err != nil {
+	for d := 0; d < countDepartments; d++ {
+		var countEmployees int
+		if _, err := fmt.Scan(&countEmployees); err != nil || countEmployees < 1 {
+			fmt.Println(errInput.Error())
 			return
 		}
 
 		var preferences []string
-		for innerIdx := 0; innerIdx < count; innerIdx++ {
-			var sign string
-			var preferedTemp int
-			_, err = fmt.Scan(&sign, &preferedTemp)
-			if err != nil {
+		for e := 0; e < countEmployees; e++ {
+			var operator string
+			var temperature int
+			if _, err := fmt.Scan(&operator, &temperature); err != nil {
+				fmt.Println(errInput.Error())
 				return
 			}
-			preferences = append(preferences, sign+" "+strconv.Itoa(preferedTemp))
+
+			preferences = append(preferences, operator+" "+strconv.Itoa(temperature))
 		}
 
-		changeTemperature(preferences)
-	}
-}
-
-func changeTemperature(preferences []string) {
-	const (
-		MaxTemp = 30
-		MinTemp = 15
-	)
-
-	maxTemp := MaxTemp
-	minTemp := MinTemp
-	currTemp := 0
-
-	firstParts := strings.Fields(preferences[0])
-	firstSign := firstParts[0]
-	firstTemp, _ := strconv.Atoi(firstParts[1])
-
-	if firstTemp < MinTemp || firstTemp > MaxTemp {
-		currTemp = -1
-		fmt.Println(currTemp)
-		for j := 1; j < len(preferences); j++ {
-			fmt.Println(currTemp)
-		}
-		fmt.Println()
-		return
-	}
-
-	if firstSign == ">=" {
-		currTemp = firstTemp
-	} else {
-		currTemp = MinTemp
-	}
-	fmt.Println(currTemp)
-
-	for idx := 1; idx < len(preferences); idx++ {
-		parts := strings.Fields(preferences[idx])
-		sign := parts[0]
-		preferedTemp, _ := strconv.Atoi(parts[1])
-
-		currTemp = computeCurrTemp(currTemp, sign, preferedTemp, &minTemp, &maxTemp)
-		if currTemp == -1 {
-			for j := idx; j < len(preferences); j++ {
-				fmt.Println(currTemp)
-			}
-			fmt.Println()
+		if err := changeTemperature(preferences); err != nil {
+			fmt.Println(err.Error())
 			return
 		}
-		fmt.Println(currTemp)
 	}
 }
-
-func computeCurrTemp(currTemp int, sign string, preferedTemp int, minTemp *int, maxTemp *int) int {
-	switch sign {
-	case ">=":
-		if preferedTemp > *maxTemp {
-			return -1
-		}
-		if preferedTemp > currTemp {
-			currTemp = preferedTemp
-		}
-		if preferedTemp > *minTemp {
-			*minTemp = preferedTemp
-		}
-	case "<=":
-		if preferedTemp < *minTemp {
-			return -1
-		}
-		if preferedTemp < currTemp {
-			currTemp = preferedTemp
-		}
-		if preferedTemp < *maxTemp {
-			*maxTemp = preferedTemp
-		}
-	default:
-		return -1
-	}
-	return currTemp
-}
-
