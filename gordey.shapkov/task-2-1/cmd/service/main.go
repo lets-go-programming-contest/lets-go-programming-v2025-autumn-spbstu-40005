@@ -14,7 +14,7 @@ func main() {
 		return
 	}
 
-	for _ = range number {
+	for range number {
 		_, err = fmt.Scan(&count)
 		if err != nil {
 			return
@@ -26,7 +26,7 @@ func main() {
 			preferences  []string
 		)
 
-		for _ = range count {
+		for range count {
 			_, err = fmt.Scan(&sign, &preferedTemp)
 			if err != nil {
 				return
@@ -50,7 +50,7 @@ func changeTemperature(preferences []string) {
 	minTemp := MinTemp
 	currTemp := 0
 
-	for idx := range len(preferences) {
+	for idx := range preferences {
 		parts := strings.Fields(preferences[idx])
 		preferedTemp, _ := strconv.Atoi(parts[1])
 		sign := parts[0]
@@ -68,11 +68,13 @@ func changeTemperature(preferences []string) {
 
 			switch sign {
 			case ">=":
+
 				if preferedTemp > maxTemp {
 					currTemp = -1
 				} else if preferedTemp > currTemp {
 					currTemp = preferedTemp
 				}
+
 				if preferedTemp > minTemp {
 					minTemp = preferedTemp
 				}
@@ -91,7 +93,7 @@ func changeTemperature(preferences []string) {
 		}
 
 		if currTemp == -1 {
-			for _ = range len(preferences) - idx {
+			for range len(preferences) - idx {
 				fmt.Println(currTemp)
 			}
 
