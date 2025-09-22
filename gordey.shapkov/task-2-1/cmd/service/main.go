@@ -9,33 +9,28 @@ import (
 func main() {
 	var number, count int
 	_, err := fmt.Scan(&number)
-
 	if err != nil {
 		return
 	}
 
 	for range number {
 		_, err = fmt.Scan(&count)
-
 		if err != nil {
 			return
 		}
 
-		var (
-			sign         string
-			preferedTemp int
-			preferences  []string
-		)
+		var preferences []string
 		for range count {
-			_, err = fmt.Scan(&sign, &preferedTemp)
-
+			var sign string
+			var preferredTemp int
+			_, err = fmt.Scan(&sign, &preferredTemp)
 			if err != nil {
 				return
 			}
-
-			var temp = sign + " " + strconv.Itoa(preferedTemp)
+			temp := sign + " " + strconv.Itoa(preferredTemp)
 			preferences = append(preferences, temp)
 		}
+
 		changeTemperature(preferences)
 	}
 }
@@ -45,56 +40,70 @@ func changeTemperature(preferences []string) {
 		MaxTemp = 30
 		MinTemp = 15
 	)
+
 	var (
+		currTemp int
 		maxTemp  = MaxTemp
 		minTemp  = MinTemp
-		currTemp int
 	)
-	for i := range preferences {
-		parts := strings.Fields(preferences[i])
-		preferedTemp, _ := strconv.Atoi(parts[1])
+
+	for idx := range preferences {
+		parts := strings.Fields(preferences[idx])
+		preferredTemp, _ := strconv.Atoi(parts[1])
 		sign := parts[0]
 
-		if preferedTemp < MinTemp || preferedTemp > MaxTemp {
+		if preferredTemp < MinTemp || preferredTemp > MaxTemp {
 			currTemp = -1
 		} else {
-			if i == 0 {
+			if idx == 0 {
 				if sign == ">=" {
-					currTemp = preferedTemp
+					currTemp = preferredTemp
 				} else {
 					currTemp = MinTemp
 				}
 			}
-			switch sign {
-			case ">=":
-				if preferedTemp > maxTemp {
-					currTemp = -1
-				} else if preferedTemp > currTemp {
-					currTemp = preferedTemp
-				}
-				if preferedTemp > minTemp {
-					minTemp = preferedTemp
-				}
-			case "<=":
-				if preferedTemp < minTemp {
-					currTemp = -1
-				} else if preferedTemp < currTemp {
-					currTemp = preferedTemp
-				}
-				if preferedTemp < maxTemp {
-					maxTemp = preferedTemp
-				}
-			default:
-				currTemp = -1
-			}
+
+			currTemp = computeCurrTemp(preferredTemp, sign, currTemp, &minTemp, &maxTemp)
 		}
 
 		if currTemp == -1 {
-			for j := i; j < len(preferences); j++ {
+
+			for j := idx; j < len(preferences); j++ {
 				fmt.Println(currTemp)
 			}
+
 			return
 		}
+
 		fmt.Println(currTemp)
 	}
+}
+
+func computeCurrTemp(preferredTemp int, sign string, currTemp int, minTemp *int, maxTemp *int) int {
+	switch sign {
+	case ">=":
+		if preferredTemp > *maxTemp {
+			return -1
+		}
+		if preferredTemp > currTemp {
+			currTemp = preferredTemp
+		}
+		if preferredTemp > *minTemp {
+			*minTemp = preferredTemp
+		}
+	case "<=":
+		if preferredTemp < *minTemp {
+			return -1
+		}
+		if preferredTemp < currTemp {
+			currTemp = preferredTemp
+		}
+		if preferredTemp < *maxTemp {
+			*maxTemp = preferredTemp
+		}
+	default:
+		return -1
+	}
+
+	return currTemp
 }
