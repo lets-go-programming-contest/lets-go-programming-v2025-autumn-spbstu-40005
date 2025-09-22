@@ -62,7 +62,7 @@ func changeTemperature(preferences []string) {
 				if sign == ">=" {
 					currTemp = preferedTemp
 				} else {
-					currTemp = MIN_TEMP
+					currTemp = MinTemp
 				}
 			}
 			switch sign {
