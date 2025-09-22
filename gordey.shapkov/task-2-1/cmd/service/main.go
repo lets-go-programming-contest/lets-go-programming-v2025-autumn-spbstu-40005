@@ -13,19 +13,19 @@ func main() {
 		return
 	}
 
-	for idx := 0; idx < number; idx++ {
+	for _ = range number {
 		_, err = fmt.Scan(&count)
 		if err != nil {
 			return
 		}
 
 		var (
-			sign        string
+			sign         string
 			preferedTemp int
 			preferences  []string
 		)
 
-		for innerIdx := 0; innerIdx < count; innerIdx++ {
+		for _ = range count {
 			_, err = fmt.Scan(&sign, &preferedTemp)
 			if err != nil {
 				return
@@ -90,9 +90,10 @@ func changeTemperature(preferences []string) {
 		}
 
 		if currTemp == -1 {
-			for innerIdx := idx; innerIdx < len(preferences); innerIdx++ {
+			for _ = range len(preferences) - idx {
 				fmt.Println(currTemp)
 			}
+
 			return
 		}
 
