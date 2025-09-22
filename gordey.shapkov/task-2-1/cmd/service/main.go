@@ -49,21 +49,25 @@ func changeTemperature(preferences []string) {
 	minTemp := MinTemp
 	currTemp := 0
 
-	for idx := range preferences {
+	parts := strings.Fields(preferences[0])
+	preferedTemp, _ := strconv.Atoi(parts[1])
+	sign := parts[0]
+	if preferedTemp < MinTemp || preferedTemp > MaxTemp {
+		currTemp = -1
+	} else if sign == ">=" {
+		currTemp = preferedTemp
+	} else {
+		currTemp = MinTemp
+	}
+
+	for idx := 1; idx < len(preferences); idx++ {
 		parts := strings.Fields(preferences[idx])
 		preferedTemp, _ := strconv.Atoi(parts[1])
 		sign := parts[0]
 
 		if preferedTemp < MinTemp || preferedTemp > MaxTemp {
 			currTemp = -1
-		}
 
-		if idx == 0 {
-			if sign == ">=" {
-				currTemp = preferedTemp
-			} else {
-				currTemp = MinTemp
-			}
 		} else {
 			switch sign {
 			case ">=":
