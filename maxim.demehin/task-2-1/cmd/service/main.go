@@ -16,20 +16,25 @@ const (
 	upperLimit = 30
 )
 
-func printOptimalTemperature(cmp string, curr int, lower, upper *int) error {
+func handleOptimalTemperature(cmp string, curr int, lower, upper *int) error {
 	switch cmp {
 	case ">=":
-		if curr > *lower && curr <= *upper {
+		if curr >= *lower && curr <= *upper {
 			*lower = curr
 			fmt.Println(*lower)
-		} else {
+		} else if curr > *upper {
 			fmt.Println(-1)
+		} else {
+			fmt.Println(*lower)
 		}
 	case "<=":
-		if curr < *upper && curr >= *lower {
+		if curr <= *upper && curr >= *lower {
+			*upper = curr
 			fmt.Println(*lower)
-		} else {
+		} else if curr < *lower {
 			fmt.Println(-1)
+		} else {
+			fmt.Println(*lower)
 		}
 	default:
 		return cmpInputError
@@ -37,7 +42,7 @@ func printOptimalTemperature(cmp string, curr int, lower, upper *int) error {
 	return nil
 }
 
-func handleTemperatures(workersCnt int) error {
+func handleDepartmentTemperatures(workersCnt int) error {
 	var (
 		currLower   = lowerLimit
 		currUpper   = upperLimit
@@ -45,7 +50,7 @@ func handleTemperatures(workersCnt int) error {
 		cmpSign     string
 	)
 
-	for workersInd := 0; workersInd < workersCnt; workersInd++ {
+	for range workersCnt {
 		_, err := fmt.Scan(&cmpSign)
 		if err != nil {
 			return inputError
@@ -58,7 +63,7 @@ func handleTemperatures(workersCnt int) error {
 			return outOfRangeError
 		}
 
-		err = printOptimalTemperature(cmpSign, temperature, &currLower, &currUpper)
+		err = handleOptimalTemperature(cmpSign, temperature, &currLower, &currUpper)
 		if err != nil {
 			return err
 		}
@@ -85,7 +90,7 @@ func main() {
 			return
 		}
 
-		err = handleTemperatures(workersCount)
+		err = handleDepartmentTemperatures(workersCount)
 		if err != nil {
 			fmt.Print(err.Error())
 			return
