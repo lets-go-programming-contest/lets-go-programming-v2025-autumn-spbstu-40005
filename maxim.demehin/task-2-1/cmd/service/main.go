@@ -1,7 +1,14 @@
 package main
 
 import (
+	"errors"
 	"fmt"
+)
+
+var (
+	cmpInputError   = errors.New("Unknown comparator")
+	inputError      = errors.New("Input error")
+	outOfRangeError = errors.New("Temperature is out of range")
 )
 
 const (
@@ -9,35 +16,79 @@ const (
 	upperLimit = 30
 )
 
-func selectOptimalTemperature(workersCnt int) (int, error) {
+func printOptimalTemperature(cmp string, curr int, lower, upper *int) error {
+	switch cmp {
+	case ">=":
+		if curr > *lower && curr <= *upper {
+			*lower = curr
+			fmt.Println(*lower)
+		} else {
+			fmt.Println(-1)
+		}
+	case "<=":
+		if curr < *upper && curr >= *lower {
+			fmt.Println(*lower)
+		} else {
+			fmt.Println(-1)
+		}
+	default:
+		return cmpInputError
+	}
+	return nil
+}
 
+func handleTemperatures(workersCnt int) error {
+	var (
+		currLower   = lowerLimit
+		currUpper   = upperLimit
+		temperature int
+		cmpSign     string
+	)
+
+	for workersInd := 0; workersInd < workersCnt; workersInd++ {
+		_, err := fmt.Scan(&cmpSign)
+		if err != nil {
+			return inputError
+		}
+		_, err = fmt.Scan(&temperature)
+		if err != nil {
+			return inputError
+		}
+		if temperature > upperLimit || temperature < lowerLimit {
+			return outOfRangeError
+		}
+
+		err = printOptimalTemperature(cmpSign, temperature, &currLower, &currUpper)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func main() {
-	var departsCount int
+	var (
+		departsCount int
+		workersCount int
+	)
 
 	_, err := fmt.Scan(&departsCount)
 	if err != nil {
-		fmt.Println("Invalid count of departments")
+		fmt.Println(inputError.Error())
 		return
 	}
 
-	var (
-		workersCount int
-		temperature  int
-		cmpSign      string
-	)
-
-	for departsInd := 0; departsInd < departsCount; departsInd++ {
+	for range departsCount {
 		_, err = fmt.Scan(&workersCount)
 		if err != nil {
-			fmt.Println("Invalid count of workers")
+			fmt.Println(inputError.Error())
 			return
 		}
-		for workersInd := 0; workersInd < workersCount; workersInd++ {
 
+		err = handleTemperatures(workersCount)
+		if err != nil {
+			fmt.Print(err.Error())
+			return
 		}
-
 	}
-
 }
