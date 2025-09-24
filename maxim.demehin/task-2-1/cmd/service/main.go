@@ -34,7 +34,6 @@ func handleOptimalTemperature(cmp string, curr int, lower, upper *int) error {
 	case "<=":
 		result, isValid = handleLessEqual(curr, lower, upper)
 	default:
-
 		return errCmpInput
 	}
 
@@ -55,7 +54,6 @@ func handleGreaterEqual(curr int, lower, upper *int) (int, bool) {
 	}
 
 	if curr < *lower {
-
 		return *lower, true
 	}
 
@@ -71,7 +69,6 @@ func handleLessEqual(curr int, lower, upper *int) (int, bool) {
 		return 0, false
 	}
 	if curr > *upper {
-
 		return *lower, true
 	}
 
@@ -91,9 +88,9 @@ func handleDepartmentTemperatures(workersCnt int) error {
 	for range workersCnt {
 		_, err := fmt.Scan(&cmpSign, &temperature)
 		if err != nil {
-
 			return errInput
 		}
+
 		if temperature > upperLimit || temperature < lowerLimit {
 
 			return errOutOfRange
@@ -101,7 +98,6 @@ func handleDepartmentTemperatures(workersCnt int) error {
 
 		err = handleOptimalTemperature(cmpSign, temperature, &currLower, &currUpper)
 		if err != nil {
-
 			return err
 		}
 	}
