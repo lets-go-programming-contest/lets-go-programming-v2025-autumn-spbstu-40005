@@ -3,10 +3,10 @@ package main
 import (
 	"fmt"
 
-	"sergey.kiselev/task-2-1/internal/temperaturemanager"
+	"sergey.kiselev/task-2-1/internal/temperature"
 )
 
-func processEmployee(manager *temperaturemanager.TemperatureManager) error {
+func processEmployee(manager *temperature.TemperatureManager) error {
 	var (
 		operator    string
 		temperature int
@@ -36,7 +36,7 @@ func processDepartment() error {
 		return fmt.Errorf("invalid argument: %v", countEmployees)
 	}
 
-	manager := temperaturemanager.New()
+	manager := temperature.New()
 
 	for range countEmployees {
 		if err := processEmployee(manager); err != nil {

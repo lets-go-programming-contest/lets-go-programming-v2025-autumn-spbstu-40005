@@ -1,4 +1,4 @@
-package temperaturemanager
+package temperature
 
 import "errors"
 
