@@ -44,6 +44,7 @@ func (temp *TemperatureManager) GetComfortTemp() int {
 
 	return -1
 }
+
 func processEmployees(countEmployees int) error {
 	manadger := TemperatureManager{maxTemperature, minTemperature}
 
