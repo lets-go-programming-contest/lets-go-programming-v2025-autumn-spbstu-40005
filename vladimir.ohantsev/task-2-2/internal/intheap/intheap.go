@@ -22,14 +22,14 @@ func (h *IntHeap) Pop() any {
 	return val
 }
 
-func (h IntHeap) Len() int { //nolint
+func (h IntHeap) Len() int { //nolint:gocritic
 	return len(h)
 }
 
-func (h IntHeap) Less(i, j int) bool { //nolint
+func (h IntHeap) Less(i, j int) bool { //nolint:gocritic
 	return h[i] < h[j]
 }
 
-func (h IntHeap) Swap(i, j int) { //nolint
+func (h IntHeap) Swap(i, j int) { //nolint:gocritic
 	h[i], h[j] = h[j], h[i]
 }
