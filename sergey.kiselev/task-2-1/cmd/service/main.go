@@ -3,50 +3,16 @@ package main
 import (
 	"errors"
 	"fmt"
-)
 
-const (
-	maxTemperature = 30
-	minTemperature = 15
+	"sergey.kiselev/task-2-1/internal/temperatureManager"
 )
 
 var (
 	errInput    = errors.New("invalid input")
-	errOperator = errors.New("incorrect operator")
 	errArgument = errors.New("invalid argument")
 )
 
-type TemperatureManager struct {
-	maxTemp int
-	minTemp int
-}
-
-func (temp *TemperatureManager) Update(operator string, temperature int) error {
-	switch operator {
-	case "<=":
-		if temperature < temp.maxTemp {
-			temp.maxTemp = temperature
-		}
-	case ">=":
-		if temperature > temp.minTemp {
-			temp.minTemp = temperature
-		}
-	default:
-		return errOperator
-	}
-
-	return nil
-}
-
-func (temp *TemperatureManager) GetComfortTemp() int {
-	if temp.minTemp <= temp.maxTemp {
-		return temp.minTemp
-	}
-
-	return -1
-}
-
-func processEmployee(manager *TemperatureManager) error {
+func processEmployee(manager *temperatureManager.TemperatureManager) error {
 	var (
 		operator    string
 		temperature int
@@ -76,10 +42,10 @@ func processDepartment() error {
 		return errArgument
 	}
 
-	manager := TemperatureManager{maxTemperature, minTemperature}
+	manager := temperatureManager.NewTemperatureManager()
 
 	for range countEmployees {
-		if err := processEmployee(&manager); err != nil {
+		if err := processEmployee(manager); err != nil {
 			return err
 		}
 	}
@@ -97,14 +63,14 @@ func main() {
 	}
 
 	if countDepartaments < 1 {
-		fmt.Print(errArgument.Error())
+		fmt.Println(errArgument.Error())
 
 		return
 	}
 
 	for range countDepartaments {
 		if err := processDepartment(); err != nil {
-			fmt.Print(err.Error())
+			fmt.Println(err.Error())
 
 			return
 		}
