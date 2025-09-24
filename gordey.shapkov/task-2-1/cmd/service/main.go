@@ -39,7 +39,6 @@ func main() {
 			if err != nil {
 				return
 			}
-
 			changeTemperature(sign, preferedTemp, &temp)
 			if temp.currTemp == -1 {
 				printRemaining(temp.currTemp, count-idx)
@@ -70,6 +69,7 @@ func changeTemperature(sign string, preferedTemp int, temp *TemperaturePreferenc
 func handleGreaterEqual(preferedTemp int, temp *TemperaturePreference) {
 	if preferedTemp > temp.maxTemp {
 		temp.currTemp = -1
+		return
 	}
 
 	if preferedTemp > temp.currTemp {
@@ -84,6 +84,7 @@ func handleGreaterEqual(preferedTemp int, temp *TemperaturePreference) {
 func handleLessEqual(preferedTemp int, temp *TemperaturePreference) {
 	if preferedTemp < temp.minTemp {
 		temp.currTemp = -1
+		return
 	}
 
 	if preferedTemp < temp.currTemp {
