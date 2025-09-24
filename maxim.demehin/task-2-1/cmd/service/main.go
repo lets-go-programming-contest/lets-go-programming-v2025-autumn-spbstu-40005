@@ -68,6 +68,7 @@ func handleLessEqual(curr int, lower, upper *int) (int, bool) {
 
 		return 0, false
 	}
+
 	if curr > *upper {
 		return *lower, true
 	}
@@ -92,7 +93,6 @@ func handleDepartmentTemperatures(workersCnt int) error {
 		}
 
 		if temperature > upperLimit || temperature < lowerLimit {
-
 			return errOutOfRange
 		}
 
