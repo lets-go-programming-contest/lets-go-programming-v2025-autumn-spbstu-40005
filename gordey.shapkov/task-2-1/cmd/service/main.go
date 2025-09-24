@@ -34,15 +34,15 @@ func main() {
 		temp.minTemp = MinTemp
 		temp.currTemp = MinTemp
 
-		for idx := range count {
+		for range count {
 			_, err = fmt.Scan(&sign, &preferedTemp)
 			if err != nil {
 				return
 			}
 			changeTemperature(sign, preferedTemp, &temp)
 			if temp.currTemp == -1 {
-				printRemaining(temp.currTemp, count-idx)
-				return
+				fmt.Println(temp.currTemp)
+				continue
 			}
 			fmt.Println(temp.currTemp)
 		}
@@ -93,11 +93,5 @@ func handleLessEqual(preferedTemp int, temp *TemperaturePreference) {
 
 	if preferedTemp < temp.maxTemp {
 		temp.maxTemp = preferedTemp
-	}
-}
-
-func printRemaining(value, count int) {
-	for range count {
-		fmt.Println(value)
 	}
 }
