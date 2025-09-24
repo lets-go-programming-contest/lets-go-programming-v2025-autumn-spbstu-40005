@@ -1,6 +1,6 @@
 package intheap
 
-type IntHeap []int
+type IntHeap []int //nolint:recvcheck
 
 func (h *IntHeap) Push(val any) {
 	intVal, ok := val.(int)
@@ -22,14 +22,14 @@ func (h *IntHeap) Pop() any {
 	return val
 }
 
-func (h IntHeap) Len() int { //nolint:recvcheck
+func (h IntHeap) Len() int {
 	return len(h)
 }
 
-func (h IntHeap) Less(i, j int) bool { //nolint:recvcheck
+func (h IntHeap) Less(i, j int) bool {
 	return h[i] < h[j]
 }
 
-func (h IntHeap) Swap(i, j int) { //nolint:recvcheck
+func (h IntHeap) Swap(i, j int) {
 	h[i], h[j] = h[j], h[i]
 }
