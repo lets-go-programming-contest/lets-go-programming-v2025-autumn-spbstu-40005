@@ -39,11 +39,11 @@ func main() {
 			if err != nil {
 				return
 			}
-			changeTemperature(sign, preferedTemp, &temp)
 			if temp.currTemp == -1 {
-				fmt.Println(temp.currTemp)
-				continue
-			}
+                                fmt.Println(temp.currTemp)
+                                continue
+                        }
+			changeTemperature(sign, preferedTemp, &temp)
 			fmt.Println(temp.currTemp)
 		}
 
