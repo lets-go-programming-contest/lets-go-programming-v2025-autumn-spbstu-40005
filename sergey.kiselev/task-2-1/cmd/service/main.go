@@ -15,10 +15,35 @@ var (
 	errOperator = errors.New("incorrect operator")
 )
 
-func processEmployees(countEmployees int) error {
-	maxT := maxTemperature
-	minT := minTemperature
+type TemperatureManager struct {
+	maxTemp int
+	minTemp int
+}
 
+func (temp *TemperatureManager) Update(operator string, temperature int) error {
+	switch operator {
+	case "<=":
+		if temperature < temp.maxTemp {
+			temp.maxTemp = temperature
+		}
+	case ">=":
+		if temperature > temp.minTemp {
+			temp.minTemp = temperature
+		}
+	default:
+		return errOperator
+	}
+	return nil
+}
+
+func (temp *TemperatureManager) GetComfortTemp() int {
+	if temp.minTemp <= temp.maxTemp {
+		return temp.minTemp
+	}
+	return -1
+}
+func processEmployees(countEmployees int) error {
+	manadger := TemperatureManager{maxTemperature, minTemperature}
 	for range countEmployees {
 		var (
 			operator    string
@@ -29,24 +54,10 @@ func processEmployees(countEmployees int) error {
 			return errInput
 		}
 
-		switch operator {
-		case "<=":
-			if temperature < maxT {
-				maxT = temperature
-			}
-		case ">=":
-			if temperature > minT {
-				minT = temperature
-			}
-		default:
-			return errOperator
+		if err := manadger.Update(operator, temperature); err != nil {
+			return err
 		}
-
-		if minT <= maxT {
-			fmt.Println(minT)
-		} else {
-			fmt.Println(-1)
-		}
+		fmt.Println(manadger.GetComfortTemp())
 	}
 
 	return nil
