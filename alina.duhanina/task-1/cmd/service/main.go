@@ -19,6 +19,7 @@ func main() {
 	_, err = fmt.Scan(&oper)
 	if err != nil {
 		fmt.Println("Invalid operation")
+		return
 	}
 	switch oper {
 	case "+":
