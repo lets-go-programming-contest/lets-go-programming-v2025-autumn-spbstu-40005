@@ -61,6 +61,7 @@ func processEmployee(manager *TemperatureManager) error {
 	}
 
 	fmt.Println(manager.GetComfortTemp())
+
 	return nil
 }
 
@@ -77,7 +78,7 @@ func processDepartment() error {
 
 	manager := TemperatureManager{maxTemperature, minTemperature}
 
-	for i := 0; i < countEmployees; i++ {
+	for range countEmployees {
 		if err := processEmployee(&manager); err != nil {
 			return err
 		}
@@ -85,6 +86,7 @@ func processDepartment() error {
 
 	return nil
 }
+
 func main() {
 	var countDepartaments int
 
