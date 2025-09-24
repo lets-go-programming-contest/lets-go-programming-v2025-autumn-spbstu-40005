@@ -17,8 +17,8 @@ const (
 var errInvalidOperation = errors.New("invalid operation")
 
 func processWorker(dep *department.Department) error {
-	var op comparisonOperator
-	if _, err := fmt.Scan(&op); err != nil {
+	var operator comparisonOperator
+	if _, err := fmt.Scan(&operator); err != nil {
 		return fmt.Errorf("failed to scan operator: %w", err)
 	}
 
@@ -27,7 +27,7 @@ func processWorker(dep *department.Department) error {
 		return fmt.Errorf("failed to scan temperature: %w", err)
 	}
 
-	switch op {
+	switch operator {
 	case LessEqual:
 		dep.SetMax(temp)
 	case GreaterEqual:
@@ -45,6 +45,7 @@ func processDepartment(countWorkers int) error {
 		if err := processWorker(dep); err != nil {
 			return fmt.Errorf("process worker fail: %w", err)
 		}
+
 		fmt.Println(dep.Optimum())
 	}
 
