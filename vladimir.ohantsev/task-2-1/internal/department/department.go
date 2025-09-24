@@ -32,5 +32,6 @@ func (d *Department) Optimum() int {
 	if d.maxT < d.minT {
 		return -1
 	}
+
 	return d.minT
 }
