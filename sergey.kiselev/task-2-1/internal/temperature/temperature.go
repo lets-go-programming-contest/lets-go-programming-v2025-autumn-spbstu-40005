@@ -7,9 +7,7 @@ const (
 	minTemperature = 15
 )
 
-var (
-	errOperator = errors.New("incorrect operator")
-)
+var errOperator = errors.New("incorrect operator")
 
 type TemperatureManager struct {
 	maxTemp int
