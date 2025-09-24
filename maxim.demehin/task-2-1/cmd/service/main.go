@@ -19,6 +19,7 @@ const (
 func handleOptimalTemperature(cmp string, curr int, lower, upper *int) error {
 	if *lower > *upper {
 		fmt.Println(-1)
+
 		return nil
 	}
 
