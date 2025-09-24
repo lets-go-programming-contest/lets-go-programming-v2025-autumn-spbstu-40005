@@ -33,6 +33,7 @@ func (temp *TemperatureManager) Update(operator string, temperature int) error {
 	default:
 		return errOperator
 	}
+
 	return nil
 }
 
@@ -40,10 +41,12 @@ func (temp *TemperatureManager) GetComfortTemp() int {
 	if temp.minTemp <= temp.maxTemp {
 		return temp.minTemp
 	}
+
 	return -1
 }
 func processEmployees(countEmployees int) error {
 	manadger := TemperatureManager{maxTemperature, minTemperature}
+
 	for range countEmployees {
 		var (
 			operator    string
@@ -57,6 +60,7 @@ func processEmployees(countEmployees int) error {
 		if err := manadger.Update(operator, temperature); err != nil {
 			return err
 		}
+
 		fmt.Println(manadger.GetComfortTemp())
 	}
 
