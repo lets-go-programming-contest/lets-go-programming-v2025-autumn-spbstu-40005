@@ -2,8 +2,15 @@ package main
 
 import (
 	"fmt"
-	"strconv"
-	"strings"
+)
+
+type TemperaturePreference struct {
+	maxTemp, minTemp, currTemp int
+}
+
+const (
+	MaxTemp = 30
+	MinTemp = 15
 )
 
 func main() {
@@ -21,101 +28,71 @@ func main() {
 		var (
 			sign         string
 			preferedTemp int
-			preferences  []string
+			temp         TemperaturePreference
 		)
+		temp.maxTemp = MaxTemp
+		temp.minTemp = MinTemp
+		temp.currTemp = MinTemp
 
-		for range count {
+		for idx := range count {
 			_, err = fmt.Scan(&sign, &preferedTemp)
 			if err != nil {
 				return
 			}
 
-			temp := sign + " " + strconv.Itoa(preferedTemp)
-			preferences = append(preferences, temp)
-		}
-
-		changeTemperature(preferences)
-	}
-}
-
-func changeTemperature(preferences []string) {
-	const (
-		MaxTemp = 30
-		MinTemp = 15
-	)
-
-	maxTemp := MaxTemp
-	minTemp := MinTemp
-	currTemp := 0
-
-	for idx := range preferences {
-		parts := strings.Fields(preferences[idx])
-		preferedTemp, _ := strconv.Atoi(parts[1])
-		sign := parts[0]
-
-		if preferedTemp < MinTemp || preferedTemp > MaxTemp {
-			currTemp = -1
-		}
-
-		if idx == 0 {
-			currTemp = MinTemp
-			if sign == ">=" {
-				currTemp = preferedTemp
-				minTemp = preferedTemp
-			} else {
-				maxTemp = preferedTemp
+			changeTemperature(sign, preferedTemp, &temp)
+			if temp.currTemp == -1 {
+				printRemaining(temp.currTemp, count-idx)
+				return
 			}
-		} else {
-			switch sign {
-			case ">=":
-				currTemp = handleGreaterEqual(preferedTemp, currTemp, &minTemp, maxTemp)
-			case "<=":
-				currTemp = handleLessEqual(preferedTemp, currTemp, minTemp, &maxTemp)
-			default:
-				currTemp = -1
-			}
+			fmt.Println(temp.currTemp)
 		}
 
-		if currTemp == -1 {
-			printRemaining(currTemp, len(preferences)-idx)
-
-			return
-		}
-
-		fmt.Println(currTemp)
 	}
 }
 
-func handleGreaterEqual(preferedTemp, currTemp int, minTemp *int, maxTemp int) int {
-	if preferedTemp > maxTemp {
-		return -1
+func changeTemperature(sign string, preferedTemp int, temp *TemperaturePreference) {
+
+	if preferedTemp < MinTemp || preferedTemp > MaxTemp {
+		temp.currTemp = -1
+	}
+	switch sign {
+	case ">=":
+		handleGreaterEqual(preferedTemp, temp)
+	case "<=":
+		handleLessEqual(preferedTemp, temp)
+	default:
+		temp.currTemp = -1
 	}
 
-	if preferedTemp > currTemp {
-		currTemp = preferedTemp
-	}
-
-	if preferedTemp > *minTemp {
-		*minTemp = preferedTemp
-	}
-
-	return currTemp
 }
 
-func handleLessEqual(preferedTemp, currTemp int, minTemp int, maxTemp *int) int {
-	if preferedTemp < minTemp {
-		return -1
+func handleGreaterEqual(preferedTemp int, temp *TemperaturePreference) {
+	if preferedTemp > temp.maxTemp {
+		temp.currTemp = -1
 	}
 
-	if preferedTemp < currTemp {
-		currTemp = preferedTemp
+	if preferedTemp > temp.currTemp {
+		temp.currTemp = preferedTemp
 	}
 
-	if preferedTemp < *maxTemp {
-		*maxTemp = preferedTemp
+	if preferedTemp > temp.minTemp {
+		temp.minTemp = preferedTemp
+	}
+}
+
+func handleLessEqual(preferedTemp int, temp *TemperaturePreference) {
+	if preferedTemp < temp.minTemp {
+		temp.currTemp = -1
 	}
 
-	return currTemp
+	if preferedTemp < temp.currTemp {
+		temp.currTemp = preferedTemp
+	}
+
+	if preferedTemp < temp.maxTemp {
+		temp.maxTemp = preferedTemp
+	}
 }
 
 func printRemaining(value, count int) {
