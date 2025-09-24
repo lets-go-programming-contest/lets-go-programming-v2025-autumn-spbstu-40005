@@ -3,100 +3,58 @@ package main
 import (
 	"errors"
 	"fmt"
+
+	"github.com/P3rCh1/task-2-1/internal/department"
 )
+
+type comparisonOperator string
 
 const (
-	LessEqual = iota
-	GreaterEqual
+	LessEqual    comparisonOperator = "<="
+	GreaterEqual comparisonOperator = ">="
 )
 
-const (
-	UpperLimit = 30
-	LowerLimit = 15
-)
+var errInvalidOperation = errors.New("invalid operation")
 
-var (
-	errInputFail          = errors.New("input error")
-	errInvalidOperation   = errors.New("invalid operation")
-	errInvalidTemperature = errors.New("invalid temperature")
-)
-
-func scanOperator() (int, error) {
-	var op string
+func processWorker(dep *department.Department) error {
+	var op comparisonOperator
 	if _, err := fmt.Scan(&op); err != nil {
-		return 0, errInputFail
+		return fmt.Errorf("failed to scan operator: %w", err)
+	}
+
+	var temp int
+	if _, err := fmt.Scan(&temp); err != nil {
+		return fmt.Errorf("failed to scan temperature: %w", err)
 	}
 
 	switch op {
-	case "<=":
-		return LessEqual, nil
-	case ">=":
-		return GreaterEqual, nil
-	}
-
-	return 0, errInvalidOperation
-}
-
-func scanTemp() (int, error) {
-	var temp int
-	if _, err := fmt.Scan(&temp); err != nil {
-		return 0, errInvalidTemperature
-	}
-
-	if temp > UpperLimit {
-		return UpperLimit, nil
-	}
-
-	if temp < LowerLimit {
-		return LowerLimit, nil
-	}
-
-	return temp, nil
-}
-
-func processDepartment(countWorkers int) error {
-	maxT := UpperLimit
-	minT := LowerLimit
-
-	for range countWorkers {
-		operation, err := scanOperator()
-		if err != nil {
-			return err
-		}
-
-		temp, err := scanTemp()
-		if err != nil {
-			return err
-		}
-
-		if operation == LessEqual {
-			if maxT > temp {
-				maxT = temp
-			}
-		} else {
-			if minT < temp {
-				minT = temp
-			}
-		}
-
-		fmt.Println(curOptimum(minT, maxT))
+	case LessEqual:
+		dep.SetMax(temp)
+	case GreaterEqual:
+		dep.SetMin(temp)
+	default:
+		return errInvalidOperation
 	}
 
 	return nil
 }
 
-func curOptimum(minT, maxT int) int {
-	if maxT < minT {
-		return -1
+func processDepartment(countWorkers int) error {
+	dep := department.New()
+	for range countWorkers {
+		if err := processWorker(dep); err != nil {
+			return fmt.Errorf("process worker fail: %w", err)
+		}
+		fmt.Println(dep.Optimum())
 	}
 
-	return minT
+	return nil
 }
 
 func main() {
 	var countDepartments int
 	if _, err := fmt.Scan(&countDepartments); err != nil {
-		fmt.Println(errInputFail.Error())
+		fmt.Printf("failed to scan count departments: %s\n", err)
 
 		return
 	}
@@ -104,13 +62,13 @@ func main() {
 	for range countDepartments {
 		var countWorkers int
 		if _, err := fmt.Scan(&countWorkers); err != nil {
-			fmt.Println(errInputFail.Error())
+			fmt.Printf("failed to scan count workers: %s\n", err)
 
 			return
 		}
 
 		if err := processDepartment(countWorkers); err != nil {
-			fmt.Println(err.Error())
+			fmt.Printf("process department fail: %s\n", err)
 
 			return
 		}
