@@ -30,6 +30,7 @@ func main() {
 			preferedTemp int
 			temp         TemperaturePreference
 		)
+
 		temp.maxTemp = MaxTemp
 		temp.minTemp = MinTemp
 		temp.currTemp = MinTemp
@@ -39,22 +40,24 @@ func main() {
 			if err != nil {
 				return
 			}
+
 			if temp.currTemp == -1 {
-                                fmt.Println(temp.currTemp)
-                                continue
-                        }
+				fmt.Println(temp.currTemp)
+
+				continue
+			}
+
 			changeTemperature(sign, preferedTemp, &temp)
 			fmt.Println(temp.currTemp)
 		}
-
 	}
 }
 
 func changeTemperature(sign string, preferedTemp int, temp *TemperaturePreference) {
-
 	if preferedTemp < MinTemp || preferedTemp > MaxTemp {
 		temp.currTemp = -1
 	}
+
 	switch sign {
 	case ">=":
 		handleGreaterEqual(preferedTemp, temp)
@@ -63,12 +66,12 @@ func changeTemperature(sign string, preferedTemp int, temp *TemperaturePreferenc
 	default:
 		temp.currTemp = -1
 	}
-
 }
 
 func handleGreaterEqual(preferedTemp int, temp *TemperaturePreference) {
 	if preferedTemp > temp.maxTemp {
 		temp.currTemp = -1
+
 		return
 	}
 
@@ -84,6 +87,7 @@ func handleGreaterEqual(preferedTemp int, temp *TemperaturePreference) {
 func handleLessEqual(preferedTemp int, temp *TemperaturePreference) {
 	if preferedTemp < temp.minTemp {
 		temp.currTemp = -1
+
 		return
 	}
 
