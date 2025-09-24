@@ -39,7 +39,12 @@ func processWorker(dep *department.Department) error {
 	return nil
 }
 
-func processDepartment(countWorkers int) error {
+func processDepartment() error {
+	var countWorkers int
+	if _, err := fmt.Scan(&countWorkers); err != nil {
+		return fmt.Errorf("failed to scan count workers: %w", err)
+	}
+
 	dep := department.New()
 	for range countWorkers {
 		if err := processWorker(dep); err != nil {
@@ -61,14 +66,7 @@ func main() {
 	}
 
 	for range countDepartments {
-		var countWorkers int
-		if _, err := fmt.Scan(&countWorkers); err != nil {
-			fmt.Printf("failed to scan count workers: %s\n", err)
-
-			return
-		}
-
-		if err := processDepartment(countWorkers); err != nil {
+		if err := processDepartment(); err != nil {
 			fmt.Printf("process department fail: %s\n", err)
 
 			return
