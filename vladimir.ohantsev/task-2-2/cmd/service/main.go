@@ -4,31 +4,14 @@ import (
 	"container/heap"
 	"errors"
 	"fmt"
+
+	"github.com/P3rCh1/task-2-2/internal/intheap"
 )
 
 var (
 	errInputFail      = errors.New("input error")
 	errInvalidRequest = errors.New("invalid request")
 )
-
-type intHeap []int
-
-func (h *intHeap) Push(x any) {
-	if x, ok := x.(int); ok {
-		*h = append(*h, x)
-	}
-}
-
-func (h *intHeap) Pop() any {
-	val := (*h)[0]
-	*h = (*h)[1:]
-
-	return val
-}
-
-func (h *intHeap) Len() int           { return len(*h) }
-func (h *intHeap) Less(i, j int) bool { return (*h)[i] < (*h)[j] }
-func (h *intHeap) Swap(i, j int)      { (*h)[i], (*h)[j] = (*h)[j], (*h)[i] }
 
 func main() {
 	var dishesCount int
@@ -64,8 +47,8 @@ func main() {
 		return
 	}
 
-	dishesHeap := &intHeap{}
-	*dishesHeap = intHeap(dishesSlice[:need])
+	dishesHeap := new(intheap.IntHeap)
+	*dishesHeap = intheap.IntHeap(dishesSlice[:need])
 	heap.Init(dishesHeap)
 
 	dishesSlice = dishesSlice[need:]
