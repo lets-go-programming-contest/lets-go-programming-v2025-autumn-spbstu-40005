@@ -1,10 +1,14 @@
-package temperatureManager
+package temperaturemanager
 
-import "fmt"
+import "errors"
 
 const (
 	maxTemperature = 30
 	minTemperature = 15
+)
+
+var (
+	errOperator = errors.New("incorrect operator")
 )
 
 type TemperatureManager struct {
@@ -30,7 +34,7 @@ func (temp *TemperatureManager) Update(operator string, temperature int) error {
 			temp.minTemp = temperature
 		}
 	default:
-		return fmt.Errorf("incorrect operator")
+		return errOperator
 	}
 
 	return nil
