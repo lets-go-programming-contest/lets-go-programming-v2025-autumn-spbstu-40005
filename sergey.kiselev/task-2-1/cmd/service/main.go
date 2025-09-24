@@ -42,7 +42,7 @@ func processDepartment() error {
 		return errArgument
 	}
 
-	manager := temperatureManager.NewTemperatureManager()
+	manager := temperatureManager.New()
 
 	for range countEmployees {
 		if err := processEmployee(manager); err != nil {
