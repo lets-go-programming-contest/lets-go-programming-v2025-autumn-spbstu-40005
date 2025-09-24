@@ -22,33 +22,51 @@ func handleOptimalTemperature(cmp string, curr int, lower, upper *int) error {
 		return nil
 	}
 
+	var (
+		result  int
+		isValid bool
+	)
+
 	switch cmp {
 	case ">=":
-		switch {
-		case curr >= *lower && curr <= *upper:
-			*lower = curr
-			fmt.Println(*lower)
-		case curr > *upper:
-			*lower = *upper + 1
-			fmt.Println(-1)
-		default:
-			fmt.Println(*lower)
-		}
+		result, isValid = handleGreaterEqual(curr, lower, upper)
 	case "<=":
-		switch {
-		case curr <= *upper && curr >= *lower:
-			*upper = curr
-			fmt.Println(*lower)
-		case curr < *lower:
-			*upper = *lower - 1
-			fmt.Println(-1)
-		default:
-			fmt.Println(*lower)
-		}
+		result, isValid = handleLessEqual(curr, lower, upper)
 	default:
 		return errCmpInput
 	}
+
+	if isValid {
+		fmt.Println(result)
+	} else {
+		fmt.Println(-1)
+	}
+
 	return nil
+}
+
+func handleGreaterEqual(curr int, lower, upper *int) (int, bool) {
+	if curr > *upper {
+		*lower = *upper + 1
+		return 0, false
+	}
+	if curr < *lower {
+		return *lower, true
+	}
+	*lower = curr
+	return *lower, true
+}
+
+func handleLessEqual(curr int, lower, upper *int) (int, bool) {
+	if curr < *lower {
+		*upper = *lower - 1
+		return 0, false
+	}
+	if curr > *upper {
+		return *lower, true
+	}
+	*upper = curr
+	return *lower, true
 }
 
 func handleDepartmentTemperatures(workersCnt int) error {
