@@ -13,7 +13,7 @@ var (
 	errNumber = errors.New("this number is not suitable")
 )
 
-func findLargest(nums []int, k int) int {
+func findLargest(nums []int, number int) int {
 	dishesHeap := &maxheap.MaxHeap{}
 	heap.Init(dishesHeap)
 
@@ -21,7 +21,7 @@ func findLargest(nums []int, k int) int {
 		heap.Push(dishesHeap, num)
 	}
 
-	for range k - 1 {
+	for range number - 1 {
 		heap.Pop(dishesHeap)
 	}
 
@@ -43,32 +43,32 @@ func main() {
 	}
 
 	nums := make([]int, dishesCount)
-	for i := range dishesCount {
-		if _, err := fmt.Scan(&nums[i]); err != nil {
+	for index := range dishesCount {
+		if _, err := fmt.Scan(&nums[index]); err != nil {
 			fmt.Println(errInput.Error())
 
 			return
 		}
 
-		if nums[i] < -10000 || nums[i] > 10000 {
+		if nums[index] < -10000 || nums[index] > 10000 {
 			fmt.Println(errNumber.Error())
 
 			return
 		}
 	}
 
-	var k int
-	if _, err := fmt.Scan(&k); err != nil {
+	var number int
+	if _, err := fmt.Scan(&number); err != nil {
 		fmt.Println(errInput.Error())
 
 		return
 	}
 
-	if k < 1 || k > dishesCount {
+	if number < 1 || number > dishesCount {
 		fmt.Println(errNumber)
 
 		return
 	}
 
-	fmt.Println(findLargest(nums, k))
+	fmt.Println(findLargest(nums, number))
 }
