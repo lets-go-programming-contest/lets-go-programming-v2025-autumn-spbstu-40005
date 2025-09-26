@@ -7,7 +7,7 @@ import (
 )
 
 func ScanWorkerRequest() (*department.ChangeRequest, error) {
-	req := &department.ChangeRequest{}
+	req := new(department.ChangeRequest)
 	if _, err := fmt.Scan(&req.Operator); err != nil {
 		return nil, fmt.Errorf("failed to scan operator: %w", err)
 	}
@@ -26,7 +26,7 @@ func processDepartment() error {
 	}
 
 	dep := department.New()
-	for range countWorkers {
+	for range countWorkers { // nolint:wsl
 		req, err := ScanWorkerRequest()
 		if err != nil {
 			return fmt.Errorf("process worker fail: %w", err)
