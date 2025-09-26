@@ -8,6 +8,22 @@ type TemperaturePreference struct {
 	maxTemp, minTemp, currTemp int
 }
 
+func NewTemperaturePreference(maxTemp, minTemp, currTemp int) *TemperaturePreference {
+	return &TemperaturePreference{maxTemp, minTemp, currTemp}
+}
+
+func (temp *TemperaturePreference) setMaxTemp(maxTemp int) {
+	temp.maxTemp = maxTemp
+}
+
+func (temp *TemperaturePreference) setMinTemp(minTemp int) {
+	temp.minTemp = minTemp
+}
+
+func (temp *TemperaturePreference) setCurrTemp(currTemp int) {
+	temp.currTemp = currTemp
+}
+
 const (
 	MaxTemp = 30
 	MinTemp = 15
@@ -28,12 +44,9 @@ func main() {
 		var (
 			sign         string
 			preferedTemp int
-			temp         TemperaturePreference
 		)
 
-		temp.maxTemp = MaxTemp
-		temp.minTemp = MinTemp
-		temp.currTemp = MinTemp
+		temp := NewTemperaturePreference(MaxTemp, MinTemp, MinTemp)
 
 		for range count {
 			_, err = fmt.Scan(&sign, &preferedTemp)
@@ -47,15 +60,15 @@ func main() {
 				continue
 			}
 
-			changeTemperature(sign, preferedTemp, &temp)
+			temp.changeTemperature(sign, preferedTemp)
 			fmt.Println(temp.currTemp)
 		}
 	}
 }
 
-func changeTemperature(sign string, preferedTemp int, temp *TemperaturePreference) {
+func (temp *TemperaturePreference) changeTemperature(sign string, preferedTemp int) {
 	if preferedTemp < MinTemp || preferedTemp > MaxTemp {
-		temp.currTemp = -1
+		temp.setCurrTemp(-1)
 	}
 
 	switch sign {
@@ -64,38 +77,38 @@ func changeTemperature(sign string, preferedTemp int, temp *TemperaturePreferenc
 	case "<=":
 		handleLessEqual(preferedTemp, temp)
 	default:
-		temp.currTemp = -1
+		temp.setCurrTemp(-1)
 	}
 }
 
 func handleGreaterEqual(preferedTemp int, temp *TemperaturePreference) {
 	if preferedTemp > temp.maxTemp {
-		temp.currTemp = -1
+		temp.setCurrTemp(-1)
 
 		return
 	}
 
 	if preferedTemp > temp.currTemp {
-		temp.currTemp = preferedTemp
+		temp.setCurrTemp(preferedTemp)
 	}
 
 	if preferedTemp > temp.minTemp {
-		temp.minTemp = preferedTemp
+		temp.setMinTemp(preferedTemp)
 	}
 }
 
 func handleLessEqual(preferedTemp int, temp *TemperaturePreference) {
 	if preferedTemp < temp.minTemp {
-		temp.currTemp = -1
+		temp.setCurrTemp(-1)
 
 		return
 	}
 
 	if preferedTemp < temp.currTemp {
-		temp.currTemp = preferedTemp
+		temp.setCurrTemp(preferedTemp)
 	}
 
 	if preferedTemp < temp.maxTemp {
-		temp.maxTemp = preferedTemp
+		temp.setMaxTemp(preferedTemp)
 	}
 }
