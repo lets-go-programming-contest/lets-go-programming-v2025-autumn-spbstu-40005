@@ -1,3 +1,5 @@
+package maxheap
+
 type MaxHeap []int
 
 func (h MaxHeap) Len() int {
