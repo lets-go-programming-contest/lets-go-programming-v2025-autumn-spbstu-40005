@@ -1,42 +1,22 @@
 package main
 
 import (
-	"errors"
 	"fmt"
 
 	"github.com/P3rCh1/task-2-1/internal/department"
 )
 
-type comparisonOperator string
-
-const (
-	LessEqual    comparisonOperator = "<="
-	GreaterEqual comparisonOperator = ">="
-)
-
-var errInvalidOperation = errors.New("invalid operation")
-
-func processWorker(dep *department.Department) error {
-	var operator comparisonOperator
-	if _, err := fmt.Scan(&operator); err != nil {
-		return fmt.Errorf("failed to scan operator: %w", err)
+func ScanWorkerRequest() (*department.ChangeRequest, error) {
+	req := &department.ChangeRequest{}
+	if _, err := fmt.Scan(&req.Operator); err != nil {
+		return nil, fmt.Errorf("failed to scan operator: %w", err)
 	}
 
-	var temp int
-	if _, err := fmt.Scan(&temp); err != nil {
-		return fmt.Errorf("failed to scan temperature: %w", err)
+	if _, err := fmt.Scan(&req.Temperature); err != nil {
+		return nil, fmt.Errorf("failed to scan temperature: %w", err)
 	}
 
-	switch operator {
-	case LessEqual:
-		dep.SetMax(temp)
-	case GreaterEqual:
-		dep.SetMin(temp)
-	default:
-		return errInvalidOperation
-	}
-
-	return nil
+	return req, nil
 }
 
 func processDepartment() error {
@@ -47,11 +27,12 @@ func processDepartment() error {
 
 	dep := department.New()
 	for range countWorkers {
-		if err := processWorker(dep); err != nil {
+		req, err := ScanWorkerRequest()
+		if err != nil {
 			return fmt.Errorf("process worker fail: %w", err)
 		}
 
-		fmt.Println(dep.Optimum())
+		fmt.Println(dep.Recalculate(req))
 	}
 
 	return nil
