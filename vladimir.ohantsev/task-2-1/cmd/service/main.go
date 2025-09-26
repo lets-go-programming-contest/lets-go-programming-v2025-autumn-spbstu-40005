@@ -6,7 +6,7 @@ import (
 	"github.com/P3rCh1/task-2-1/internal/department"
 )
 
-func ScanWorkerRequest() (*department.ChangeRequest, error) {
+func scanWorkerRequest() (*department.ChangeRequest, error) {
 	req := new(department.ChangeRequest)
 	if _, err := fmt.Scan(&req.Operator); err != nil {
 		return nil, fmt.Errorf("failed to scan operator: %w", err)
@@ -27,12 +27,17 @@ func processDepartment() error {
 
 	dep := department.New()
 	for range countWorkers { //nolint:wsl
-		req, err := ScanWorkerRequest()
+		req, err := scanWorkerRequest()
 		if err != nil {
 			return fmt.Errorf("process worker fail: %w", err)
 		}
 
-		fmt.Println(dep.Recalculate(req))
+		optimum, err := dep.Recalculate(req)
+		if err != nil {
+			return fmt.Errorf("recalculate temperature fail: %w", err)
+		}
+
+		fmt.Println(optimum)
 	}
 
 	return nil
