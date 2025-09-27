@@ -31,7 +31,7 @@ func findLargest(nums []int, number int) int {
 func main() {
 	var dishesCount int
 	if _, err := fmt.Scan(&dishesCount); err != nil {
-		fmt.Println(errInput.Error())
+		fmt.Printf("%s: %v\n", errInput.Error(), err)
 
 		return
 	}
@@ -45,7 +45,7 @@ func main() {
 	nums := make([]int, dishesCount)
 	for index := range dishesCount {
 		if _, err := fmt.Scan(&nums[index]); err != nil {
-			fmt.Println(errInput.Error())
+			fmt.Printf("%s: %v\n", errInput.Error(), err)
 
 			return
 		}
@@ -59,7 +59,7 @@ func main() {
 
 	var number int
 	if _, err := fmt.Scan(&number); err != nil {
-		fmt.Println(errInput.Error())
+		fmt.Printf("%s: %v\n", errInput.Error(), err)
 
 		return
 	}
