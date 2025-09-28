@@ -11,10 +11,11 @@ func (h *IntHeap) Pop() any {
 		panic("error: heap underflow")
 	}
 
-	val := (*h)[0]
-	*h = (*h)[1:]
-
-	return val
+	orig := *h
+	len := len(orig)
+	toreturn := orig[len-1]
+	*h = orig[0 : len-1]
+	return toreturn
 }
 
 func (h IntHeap) Len() int {
@@ -22,7 +23,7 @@ func (h IntHeap) Len() int {
 }
 
 func (h IntHeap) Less(i, j int) bool {
-	return h[i] < h[j]
+	return h[i] > h[j]
 }
 
 func (h IntHeap) Swap(i, j int) {
