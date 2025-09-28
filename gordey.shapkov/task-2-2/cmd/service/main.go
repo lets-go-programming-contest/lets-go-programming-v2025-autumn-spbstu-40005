@@ -3,6 +3,7 @@ package main
 import (
 	"container/heap"
 	"fmt"
+
 	"gordey.shapkov/task-2-2/internal/intheap"
 )
 
@@ -35,6 +36,7 @@ func main() {
 
 func findDish(dishes *intheap.IntHeap, number int) int {
 	var value int
+
 	for range dishes.Len() - number + 1 {
 		x := heap.Pop(dishes)
 		value, _ = x.(int)
