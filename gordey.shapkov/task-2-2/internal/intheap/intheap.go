@@ -1,6 +1,6 @@
-package IntHeap
+package intheap
 
-type IntHeap []int
+type IntHeap []int //nolint:recvcheck
 
 func (h IntHeap) Len() int {
 	return len(h)
@@ -11,9 +11,7 @@ func (h IntHeap) Less(i, j int) bool {
 }
 
 func (h IntHeap) Swap(i, j int) {
-	temp := h[i]
-	h[i] = h[j]
-	h[j] = temp
+	h[i], h[j] = h[j], h[i]
 }
 
 func (h *IntHeap) Push(x any) {
@@ -21,6 +19,7 @@ func (h *IntHeap) Push(x any) {
 	if !ok {
 		panic("Invalid type")
 	}
+
 	*h = append(*h, value)
 }
 
@@ -28,6 +27,7 @@ func (h *IntHeap) Pop() any {
 	if h.Len() == 0 {
 		panic("Underflow")
 	}
+
 	old := *h
 	n := len(old)
 	x := old[n-1]
