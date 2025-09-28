@@ -41,9 +41,10 @@ func (h *IntHeap) GetNth(n int) int {
 	copy(temp, *h)
 	heap.Init(&temp)
 
+	var res int
 	for range n {
-		heap.Pop(&temp)
+		res = heap.Pop(&temp).(int)
 	}
 
-	return temp[0]
+	return res
 }
