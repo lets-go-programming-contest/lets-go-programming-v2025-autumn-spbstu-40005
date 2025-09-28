@@ -12,6 +12,20 @@ var (
 	errInput = errors.New("input error")
 )
 
+func fillHeap(h *int_heap.IntHeap, cnt int) error {
+	var dishRating int
+	for range cnt {
+		_, err := fmt.Scan(&dishRating)
+		if err != nil {
+			return err
+		}
+
+		heap.Push(h, dishRating)
+	}
+
+	return nil
+}
+
 func main() {
 	var dishesCnt int
 	_, err := fmt.Scan(&dishesCnt)
@@ -24,23 +38,12 @@ func main() {
 	h := &int_heap.IntHeap{}
 	heap.Init(h)
 
-	var dishRating int
-	for range dishesCnt {
-		_, err = fmt.Scan(&dishRating)
-		if err != nil {
-			fmt.Println(errInput.Error())
-
-			return
-		}
-
-		heap.Push(h, dishRating)
+	err = fillHeap(h, dishesCnt)
+	if err != nil {
+		fmt.Println(err.Error())
 	}
 
-	var (
-		desire int
-		result int
-	)
-
+	var desire int
 	_, err = fmt.Scan(&desire)
 	if err != nil {
 		fmt.Println(errInput.Error())
@@ -48,10 +51,6 @@ func main() {
 		return
 	}
 
-	for range desire {
-		result = heap.Pop(h).(int)
-	}
-
-	fmt.Println(result)
-
+	res := h.GetNth(desire)
+	fmt.Println(res)
 }
