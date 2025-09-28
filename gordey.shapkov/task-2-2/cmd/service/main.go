@@ -3,7 +3,7 @@ package main
 import (
 	"container/heap"
 	"fmt"
-	"gordey.shapkov/task-2-2/internal/IntHeap"
+	"gordey.shapkov/task-2-2/internal/intheap"
 )
 
 func main() {
@@ -12,12 +12,14 @@ func main() {
 		return
 	}
 
-	dishes := &IntHeap.IntHeap{}
+	dishes := &intheap.IntHeap{}
+
 	for range amount {
 		var pref int
 		if _, err := fmt.Scan(&pref); err != nil {
 			return
 		}
+
 		heap.Push(dishes, pref)
 	}
 
@@ -26,10 +28,17 @@ func main() {
 		return
 	}
 
-	var result int
-	for range amount - number + 1 {
-		popped := heap.Pop(dishes)
-		result = popped.(int)
-	}
+	result := findDish(dishes, number)
+
 	fmt.Println(result)
+}
+
+func findDish(dishes *intheap.IntHeap, number int) int {
+	var value int
+	for range dishes.Len() - number + 1 {
+		x := heap.Pop(dishes)
+		value, _ = x.(int)
+	}
+
+	return value
 }
