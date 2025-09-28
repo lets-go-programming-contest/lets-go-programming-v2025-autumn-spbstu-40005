@@ -17,12 +17,16 @@ func (h IntHeap) Swap(i, j int) {
 }
 
 func (h *IntHeap) Push(x any) {
-	*h = append(*h, x.(int))
+	value, ok := x.(int)
+	if !ok {
+		panic("Invalid type")
+	}
+	*h = append(*h, value)
 }
 
 func (h *IntHeap) Pop() any {
 	if h.Len() == 0 {
-		return nil
+		panic("Underflow")
 	}
 	old := *h
 	n := len(old)
