@@ -1,5 +1,9 @@
 package int_heap
 
+import (
+	"container/heap"
+)
+
 type IntHeap []int
 
 func (h *IntHeap) Push(val any) {
@@ -30,4 +34,16 @@ func (h IntHeap) Swap(i, j int) {
 	tmp := h[i]
 	h[i] = h[j]
 	h[j] = tmp
+}
+
+func (h *IntHeap) GetNth(n int) int {
+	temp := make(IntHeap, h.Len())
+	copy(temp, *h)
+	heap.Init(&temp)
+
+	for range n {
+		heap.Pop(&temp)
+	}
+
+	return temp[0]
 }
