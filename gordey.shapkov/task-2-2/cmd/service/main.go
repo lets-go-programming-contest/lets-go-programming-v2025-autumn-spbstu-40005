@@ -7,7 +7,29 @@ import (
 )
 
 func main() {
-	h := &IntHeap.IntHeap{3, 2, 1, 5, 6, 6}
-	heap.Init(h)
-	fmt.Println(heap.Remove(h, 1))
+	var amount int
+	if _, err := fmt.Scan(&amount); err != nil {
+		return
+	}
+
+	dishes := &IntHeap.IntHeap{}
+	for range amount {
+		var pref int
+		if _, err := fmt.Scan(&pref); err != nil {
+			return
+		}
+		heap.Push(dishes, pref)
+	}
+
+	var number int
+	if _, err := fmt.Scan(&number); err != nil {
+		return
+	}
+
+	var result int
+	for range amount - number + 1 {
+		popped := heap.Pop(dishes)
+		result = popped.(int)
+	}
+	fmt.Println(result)
 }
