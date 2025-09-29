@@ -12,12 +12,12 @@ func main(){
         fmt.Println("Invalid first operand")
         return
     }
-    _, err := fmt.Scan(&operand2)
+    _, err = fmt.Scan(&operand2)
     if err != nil {
         fmt.Println("Invalid second operand")
         return
     }
-    _, err := fmt.Scan(&icon)
+    _, err = fmt.Scan(&icon)
     if err != nil {
         fmt.Println("Invalid operation")
         return
