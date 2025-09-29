@@ -1,32 +1,28 @@
 package main
 
-import "fmt"
+import "fmt'
 
-func main() {
+func main(){
     var (
         operand1, operand2 int
         icon               string
     )
-
     _, err := fmt.Scan(&operand1)
     if err != nil {
         fmt.Println("Invalid first operand")
         return
     }
-
-    _, err = fmt.Scan(&operand2)
+    _, err := fmt.Scan(&operand2)
     if err != nil {
         fmt.Println("Invalid second operand")
         return
     }
-
-    _, err = fmt.Scan(&icon)
+    _, err := fmt.Scan(&icon)
     if err != nil {
         fmt.Println("Invalid operation")
         return
     }
-
-    switch icon {
+    switch icon{
     case "+":
         fmt.Println(operand1 + operand2)
     case "-":
@@ -43,4 +39,3 @@ func main() {
         fmt.Println("Invalid operation")
     }
 }
-
