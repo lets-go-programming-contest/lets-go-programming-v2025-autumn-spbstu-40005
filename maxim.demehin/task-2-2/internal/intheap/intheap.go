@@ -1,4 +1,4 @@
-package int_heap
+package intheap
 
 import (
 	"container/heap"
@@ -7,7 +7,12 @@ import (
 type IntHeap []int
 
 func (h *IntHeap) Push(val any) {
-	*h = append(*h, val.(int))
+	intValue, err := val.(int)
+	if !err {
+		panic("invalid type pushed to IntHeap")
+	}
+
+	*h = append(*h, intValue)
 }
 
 func (h *IntHeap) Pop() any {
@@ -16,9 +21,9 @@ func (h *IntHeap) Pop() any {
 	}
 
 	orig := *h
-	len := len(orig)
-	toreturn := orig[len-1]
-	*h = orig[0 : len-1]
+	origLength := len(orig)
+	toreturn := orig[origLength-1]
+	*h = orig[0 : origLength-1]
 	return toreturn
 }
 
@@ -31,20 +36,17 @@ func (h IntHeap) Less(i, j int) bool {
 }
 
 func (h IntHeap) Swap(i, j int) {
-	tmp := h[i]
-	h[i] = h[j]
-	h[j] = tmp
+	h[i], h[j] = h[j], h[i]
 }
 
-func (h *IntHeap) GetNth(n int) int {
+func (h *IntHeap) GetNth(numberOfElement int) int {
 	temp := make(IntHeap, h.Len())
 	copy(temp, *h)
 	heap.Init(&temp)
 
-	var res int
-	for range n {
-		res = heap.Pop(&temp).(int)
+	for range numberOfElement - 1 {
+		heap.Pop(&temp)
 	}
 
-	return res
+	return temp[0]
 }

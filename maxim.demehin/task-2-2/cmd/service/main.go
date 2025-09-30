@@ -5,19 +5,19 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/TvoyBatyA12343/task-2-2/internal/int_heap"
+	"github.com/TvoyBatyA12343/task-2-2/internal/intheap"
 )
 
 var (
 	errInput = errors.New("input error")
 )
 
-func fillHeap(h *int_heap.IntHeap, cnt int) error {
+func fillHeap(h *intheap.IntHeap, cnt int) error {
 	var dishRating int
 	for range cnt {
 		_, err := fmt.Scan(&dishRating)
 		if err != nil {
-			return err
+			return errInput
 		}
 
 		heap.Push(h, dishRating)
@@ -28,6 +28,7 @@ func fillHeap(h *int_heap.IntHeap, cnt int) error {
 
 func main() {
 	var dishesCnt int
+
 	_, err := fmt.Scan(&dishesCnt)
 	if err != nil {
 		fmt.Println(errInput.Error())
@@ -35,15 +36,16 @@ func main() {
 		return
 	}
 
-	h := &int_heap.IntHeap{}
-	heap.Init(h)
+	dishesHeap := &intheap.IntHeap{}
+	heap.Init(dishesHeap)
 
-	err = fillHeap(h, dishesCnt)
+	err = fillHeap(dishesHeap, dishesCnt)
 	if err != nil {
 		fmt.Println(err.Error())
 	}
 
 	var desire int
+
 	_, err = fmt.Scan(&desire)
 	if err != nil {
 		fmt.Println(errInput.Error())
@@ -51,6 +53,6 @@ func main() {
 		return
 	}
 
-	res := h.GetNth(desire)
+	res := dishesHeap.GetNth(desire)
 	fmt.Println(res)
 }
