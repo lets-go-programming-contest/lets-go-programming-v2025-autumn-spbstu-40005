@@ -8,11 +8,9 @@ import (
 	"github.com/TvoyBatyA12343/task-2-2/internal/intheap"
 )
 
-var (
-	errInput = errors.New("input error")
-)
+var errInput = errors.New("input error")
 
-func fillHeap(h *intheap.IntHeap, cnt int) error {
+func fillHeap(heapToFill *intheap.IntHeap, cnt int) error {
 	var dishRating int
 	for range cnt {
 		_, err := fmt.Scan(&dishRating)
@@ -20,7 +18,7 @@ func fillHeap(h *intheap.IntHeap, cnt int) error {
 			return errInput
 		}
 
-		heap.Push(h, dishRating)
+		heap.Push(heapToFill, dishRating)
 	}
 
 	return nil
