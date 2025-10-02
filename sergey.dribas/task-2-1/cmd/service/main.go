@@ -3,14 +3,14 @@ package main
 import "fmt"
 
 func processDepartment() bool {
-	var k int
-	_, err := fmt.Scan(&k)
+	var departmentSize int
+	_, err := fmt.Scan(&departmentSize)
 	if err != nil {
 		return false
 	}
 	minTemp := 15
 	maxTemp := 30
-	for i := 0; i < k; i++ {
+	for i := 0; i < departmentSize; i++ {
 		var operand string
 		var temp int
 		_, err := fmt.Scan(&operand, &temp)
