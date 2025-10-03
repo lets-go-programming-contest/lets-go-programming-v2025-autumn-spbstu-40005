@@ -8,9 +8,7 @@ import (
 	"github.com/P3rCh1/task-2-2/internal/intheap"
 )
 
-var (
-	errInvalidNeed = errors.New("dishes count should be less then needed element")
-)
+var errInvalidNeed = errors.New("dishes count should be less then needed element")
 
 func main() {
 	var dishesCount int
