@@ -9,55 +9,53 @@ import (
 )
 
 var (
-	errInputFail      = errors.New("input error")
-	errInvalidRequest = errors.New("invalid request")
+	errInvalidNeed = errors.New("dishes count should be less then needed element")
 )
 
 func main() {
 	var dishesCount int
 	if _, err := fmt.Scan(&dishesCount); err != nil || dishesCount <= 0 {
-		fmt.Println(errInputFail.Error())
+		fmt.Printf("failed to dishes count: %s\n", err)
 
 		return
 	}
 
-	dishesSlice := make([]int, dishesCount)
+	dishes := make([]int, dishesCount)
 
 	for index := range dishesCount {
 		var cost int
 		if _, err := fmt.Scan(&cost); err != nil {
-			fmt.Println(errInputFail.Error())
+			fmt.Printf("failed to scan cost: %s\n", err)
 
 			return
 		}
 
-		dishesSlice[index] = cost
+		dishes[index] = cost
 	}
 
 	var need int
 	if _, err := fmt.Scan(&need); err != nil || need <= 0 {
-		fmt.Println(errInputFail.Error())
+		fmt.Printf("failed to scan needed element: %s\n", err)
 
 		return
 	}
 
 	if need > dishesCount {
-		fmt.Println(errInvalidRequest.Error())
+		fmt.Println(errInvalidNeed.Error())
 
 		return
 	}
 
-	dishesHeap := new(intheap.IntHeap)
-	*dishesHeap = intheap.IntHeap(dishesSlice[:need])
-	heap.Init(dishesHeap)
+	window := new(intheap.IntHeap)
+	*window = intheap.IntHeap(dishes[:need])
+	heap.Init(window)
 
-	dishesSlice = dishesSlice[need:]
-	for _, cost := range dishesSlice {
-		if cost > (*dishesHeap)[0] {
-			(*dishesHeap)[0] = cost
-			heap.Fix(dishesHeap, 0)
+	dishes = dishes[need:]
+	for _, cost := range dishes {
+		if cost > window.Top() {
+			window.ReplaceTop(cost)
 		}
 	}
 
-	fmt.Println((*dishesHeap)[0])
+	fmt.Println(window.Top())
 }
