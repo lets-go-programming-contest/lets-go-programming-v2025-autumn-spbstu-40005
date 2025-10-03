@@ -5,6 +5,7 @@ import "fmt"
 func processDepartment() bool {
 	var departmentSize int
 	_, err := fmt.Scan(&departmentSize)
+
 	if err != nil {
 		return false
 	}
@@ -13,6 +14,7 @@ func processDepartment() bool {
 	maxTemp := 30
 
 	for range departmentSize {
+
 		var operand string
 		var temp int
 
@@ -47,9 +49,11 @@ func processDepartment() bool {
 func main() {
 	var size int
 	_, err := fmt.Scan(&size)
+
 	if err != nil {
 		return
 	}
+
 	for range size {
 		if !processDepartment() {
 			return
