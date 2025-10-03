@@ -44,6 +44,7 @@ func findDish(dishes *intheap.IntHeap, number int) int {
 	value, ok := x.(int)
 	if !ok {
 		fmt.Println("Invalid type")
+
 		return 0
 	}
 

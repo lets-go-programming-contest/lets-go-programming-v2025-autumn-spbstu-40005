@@ -20,6 +20,7 @@ func (h *IntHeap) Push(x any) {
 	value, ok := x.(int)
 	if !ok {
 		fmt.Println("Invalid type")
+
 		return
 	}
 
@@ -28,7 +29,8 @@ func (h *IntHeap) Push(x any) {
 
 func (h *IntHeap) Pop() any {
 	if h.Len() == 0 {
-		 fmt.Println("Underflow")
+		fmt.Println("Underflow")
+
 		return nil
 	}
 
