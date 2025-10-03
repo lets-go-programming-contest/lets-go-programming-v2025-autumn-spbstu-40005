@@ -9,6 +9,7 @@ func processDepartment() bool {
 	if err != nil {
 		return false
 	}
+
 	minTemp := 15
 	maxTemp := 30
 
@@ -40,6 +41,7 @@ func processDepartment() bool {
 			fmt.Println(minTemp)
 		}
 	}
+
 	return true
 }
 
@@ -50,7 +52,6 @@ func main() {
 	if err != nil {
 		return
 	}
-	
 	for range size {
 		if !processDepartment() {
 			return
