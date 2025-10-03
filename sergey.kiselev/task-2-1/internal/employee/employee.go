@@ -17,6 +17,7 @@ func New(oper string, temp int) *Employee {
 		temperature: temp,
 	}
 }
+
 func (employee *Employee) Process(manager *temperature.TemperatureManager) (int, error) {
 	if err := manager.Update(employee.operator, employee.temperature); err != nil {
 		return 0, fmt.Errorf("error update temperature: %w", err)
