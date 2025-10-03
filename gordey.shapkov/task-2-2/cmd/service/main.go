@@ -35,11 +35,16 @@ func main() {
 }
 
 func findDish(dishes *intheap.IntHeap, number int) int {
-	var value int
+	for range dishes.Len() - number {
+		heap.Pop(dishes)
+	}
 
-	for range dishes.Len() - number + 1 {
-		x := heap.Pop(dishes)
-		value, _ = x.(int)
+	x := heap.Pop(dishes)
+
+	value, ok := x.(int)
+	if !ok {
+		fmt.Println("Invalid type")
+		return 0
 	}
 
 	return value
