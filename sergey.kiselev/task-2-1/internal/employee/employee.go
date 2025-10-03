@@ -1,6 +1,10 @@
 package employee
 
-import "sergey.kiselev/task-2-1/internal/temperature"
+import (
+	"fmt"
+
+	"sergey.kiselev/task-2-1/internal/temperature"
+)
 
 type Employee struct {
 	operator    string
@@ -15,7 +19,7 @@ func New(oper string, temp int) *Employee {
 }
 func (employee *Employee) Process(manager *temperature.TemperatureManager) (int, error) {
 	if err := manager.Update(employee.operator, employee.temperature); err != nil {
-		return 0, err
+		return 0, fmt.Errorf("error update temperature: %w", err)
 	}
 
 	return manager.GetComfortTemp(), nil

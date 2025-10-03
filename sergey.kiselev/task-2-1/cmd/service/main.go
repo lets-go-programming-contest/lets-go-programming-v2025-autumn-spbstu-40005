@@ -32,13 +32,14 @@ func processDepartment() error {
 	for range countEmployees {
 		empl, err := readEmployee()
 		if err != nil {
-			return err
+			return fmt.Errorf("error readEmployee : %w", err)
 		}
 
 		comfortTemp, err := empl.Process(manager)
 		if err != nil {
-			return err
+			return fmt.Errorf("error process : %w", err)
 		}
+
 		fmt.Println(comfortTemp)
 	}
 
