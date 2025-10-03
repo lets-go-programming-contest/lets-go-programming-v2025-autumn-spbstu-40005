@@ -16,11 +16,11 @@ func processEmployee(manager *temperature.TemperatureManager) error {
 	)
 
 	if _, err := fmt.Scan(&operator, &temperature); err != nil {
-		return fmt.Errorf("invalid input: %w", err)
+		return err
 	}
 
 	if err := manager.Update(operator, temperature); err != nil {
-		return fmt.Errorf("%w", err)
+		return err
 	}
 
 	fmt.Println(manager.GetComfortTemp())
@@ -29,21 +29,17 @@ func processEmployee(manager *temperature.TemperatureManager) error {
 }
 
 func processDepartment() error {
-	var countEmployees int
+	var countEmployees uint
 
 	if _, err := fmt.Scan(&countEmployees); err != nil {
-		return fmt.Errorf("invalid input: %w", err)
-	}
-
-	if countEmployees < 1 {
-		return fmt.Errorf("%w: employee count must be positive", errArgument)
+		return err
 	}
 
 	manager := temperature.New()
 
 	for range countEmployees {
 		if err := processEmployee(manager); err != nil {
-			return fmt.Errorf("%w", err)
+			return err
 		}
 	}
 
@@ -51,16 +47,10 @@ func processDepartment() error {
 }
 
 func main() {
-	var countDepartaments int
+	var countDepartaments uint
 
 	if _, err := fmt.Scan(&countDepartaments); err != nil {
 		fmt.Printf("failed to read department count: %s\n", err)
-
-		return
-	}
-
-	if countDepartaments < 1 {
-		fmt.Println("department count must be positive")
 
 		return
 	}
