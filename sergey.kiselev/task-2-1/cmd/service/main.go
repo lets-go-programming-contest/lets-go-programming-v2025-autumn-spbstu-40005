@@ -28,11 +28,13 @@ func processDepartment() error {
 	}
 
 	manager := temperature.New()
-	empl, err := readEmployee()
-	if err != nil {
-		return err
-	}
+
 	for range countEmployees {
+		empl, err := readEmployee()
+		if err != nil {
+			return err
+		}
+
 		comfortTemp, err := empl.Process(manager)
 		if err != nil {
 			return err
