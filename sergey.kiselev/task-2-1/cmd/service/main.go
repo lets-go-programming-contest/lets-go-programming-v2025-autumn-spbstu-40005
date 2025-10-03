@@ -1,46 +1,43 @@
 package main
 
 import (
-	"errors"
 	"fmt"
 
+	"sergey.kiselev/task-2-1/internal/employee"
 	"sergey.kiselev/task-2-1/internal/temperature"
 )
 
-var errArgument = errors.New("invalid argument")
-
-func processEmployee(manager *temperature.TemperatureManager) error {
+func readEmployee() (*employee.Employee, error) {
 	var (
 		operator    string
 		temperature int
 	)
 
 	if _, err := fmt.Scan(&operator, &temperature); err != nil {
-		return err
+		return nil, fmt.Errorf("failed to read temperature and operator: %w", err)
 	}
 
-	if err := manager.Update(operator, temperature); err != nil {
-		return err
-	}
-
-	fmt.Println(manager.GetComfortTemp())
-
-	return nil
+	return employee.New(operator, temperature), nil
 }
 
 func processDepartment() error {
 	var countEmployees uint
 
 	if _, err := fmt.Scan(&countEmployees); err != nil {
-		return err
+		return fmt.Errorf("failed to read countEmployees: %w", err)
 	}
 
 	manager := temperature.New()
-
+	empl, err := readEmployee()
+	if err != nil {
+		return err
+	}
 	for range countEmployees {
-		if err := processEmployee(manager); err != nil {
+		comfortTemp, err := empl.Process(manager)
+		if err != nil {
 			return err
 		}
+		fmt.Println(comfortTemp)
 	}
 
 	return nil
