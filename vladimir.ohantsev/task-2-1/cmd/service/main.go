@@ -26,7 +26,8 @@ func processDepartment() error {
 	}
 
 	dep := department.New()
-	for range countWorkers { //nolint:wsl
+
+	for range countWorkers {
 		req, err := scanWorkerRequest()
 		if err != nil {
 			return fmt.Errorf("process worker fail: %w", err)
