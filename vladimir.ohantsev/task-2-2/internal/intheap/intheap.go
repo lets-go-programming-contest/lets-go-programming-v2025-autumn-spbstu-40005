@@ -1,5 +1,7 @@
 package intheap
 
+import "container/heap"
+
 type IntHeap []int //nolint:recvcheck
 
 func (h *IntHeap) Push(val any) {
@@ -32,4 +34,21 @@ func (h IntHeap) Less(i, j int) bool {
 
 func (h IntHeap) Swap(i, j int) {
 	h[i], h[j] = h[j], h[i]
+}
+
+func (h IntHeap) ReplaceTop(value int) {
+	if h.Len() == 0 {
+		return
+	}
+
+	h[0] = value
+	heap.Fix(&h, 0)
+}
+
+func (h IntHeap) Top() int {
+	if h.Len() == 0 {
+		return 0
+	}
+
+	return h[0]
 }
