@@ -15,14 +15,18 @@ func (h *MaxHeap) Swap(i, j int) {
 }
 
 func (h *MaxHeap) Push(x any) {
-	if val, ok := x.(int); ok {
-		*h = append(*h, val)
-	} else {
+	val, ok := x.(int)
+	if !ok {
 		panic("value is not an int")
 	}
+	*h = append(*h, val)
 }
 
 func (h *MaxHeap) Pop() any {
+	if h.Len() == 0 {
+		return nil
+	}
+
 	old := *h
 	n := len(old)
 	x := old[n-1]
