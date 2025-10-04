@@ -21,6 +21,7 @@ func getKDish(dishes []int, k int) int {
 	}
 
 	top, _ := window.Top()
+
 	return top
 }
 
