@@ -19,6 +19,7 @@ func (h *MaxHeap) Push(x any) {
 	if !ok {
 		panic("value is not an int")
 	}
+
 	*h = append(*h, val)
 }
 
