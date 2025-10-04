@@ -2,12 +2,13 @@ package main
 
 import (
 	"container/heap"
+	"errors"
 	"fmt"
 
 	"sergey.kiselev/task-2-2/internal/intheap"
 )
 
-func findLargest(nums []int, number int) int {
+func findLargest(nums []int, number int) (int, error) {
 	dishesHeap := &intheap.IntHeap{}
 	heap.Init(dishesHeap)
 
@@ -19,8 +20,11 @@ func findLargest(nums []int, number int) int {
 		heap.Pop(dishesHeap)
 	}
 
-	return heap.Pop(dishesHeap).(int)
-
+	value, ok := heap.Pop(dishesHeap).(int)
+	if !ok {
+		return 0, errors.New("not integer in heap")
+	}
+	return value, nil
 }
 
 func main() {
@@ -53,5 +57,9 @@ func main() {
 		return
 	}
 
-	fmt.Println(findLargest(nums, number))
+	res, err := findLargest(nums, number)
+	if err != nil {
+		fmt.Printf("error in findLarge: %v", err)
+	}
+	fmt.Println(res)
 }
