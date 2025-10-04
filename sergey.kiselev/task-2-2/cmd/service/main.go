@@ -26,6 +26,7 @@ func findLargest(nums []int, number int) (int, error) {
 	if !ok {
 		return 0, errConvert
 	}
+
 	return value, nil
 }
 
@@ -63,5 +64,6 @@ func main() {
 	if err != nil {
 		fmt.Println(errConvert)
 	}
+
 	fmt.Println(res)
 }
