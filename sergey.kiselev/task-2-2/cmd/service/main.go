@@ -4,11 +4,11 @@ import (
 	"container/heap"
 	"fmt"
 
-	"sergey.kiselev/task-2-2/internal/maxheap"
+	"sergey.kiselev/task-2-2/internal/intheap"
 )
 
 func findLargest(nums []int, number int) int {
-	dishesHeap := &maxheap.MaxHeap{}
+	dishesHeap := &intheap.IntHeap{}
 	heap.Init(dishesHeap)
 
 	for _, num := range nums {
@@ -19,7 +19,8 @@ func findLargest(nums []int, number int) int {
 		heap.Pop(dishesHeap)
 	}
 
-	return (*dishesHeap)[0]
+	return heap.Pop(dishesHeap).(int)
+
 }
 
 func main() {
