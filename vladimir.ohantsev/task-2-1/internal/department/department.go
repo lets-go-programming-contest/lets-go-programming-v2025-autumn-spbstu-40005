@@ -32,13 +32,13 @@ func New() *Department {
 	}
 }
 
-func (d *Department) SetMax(temp int) {
+func (d *Department) setMax(temp int) {
 	if d.maxT > temp {
 		d.maxT = temp
 	}
 }
 
-func (d *Department) SetMin(temp int) {
+func (d *Department) setMin(temp int) {
 	if d.minT < temp {
 		d.minT = temp
 	}
@@ -47,9 +47,9 @@ func (d *Department) SetMin(temp int) {
 func (d *Department) Recalculate(req *ChangeRequest) (int, error) {
 	switch req.Operator {
 	case LessEqual:
-		d.SetMax(req.Temperature)
+		d.setMax(req.Temperature)
 	case GreaterEqual:
-		d.SetMin(req.Temperature)
+		d.setMin(req.Temperature)
 	default:
 		return -1, errInvalidOperation
 	}
