@@ -2,9 +2,14 @@ package main
 
 import (
 	"container/heap"
+	"errors"
 	"fmt"
 
 	"gordey.shapkov/task-2-2/internal/intheap"
+)
+
+var (
+	errInvalidType = errors.New("Invalid type")
 )
 
 func main() {
@@ -18,6 +23,8 @@ func main() {
 	for range amount {
 		var pref int
 		if _, err := fmt.Scan(&pref); err != nil {
+			fmt.Println("Failed to read dishes")
+
 			return
 		}
 
@@ -34,7 +41,7 @@ func main() {
 	fmt.Println(result)
 }
 
-func findDish(dishes *intheap.IntHeap, number int) int {
+func findDish(dishes *intheap.IntHeap, number int) (int, error) {
 	for range dishes.Len() - number {
 		heap.Pop(dishes)
 	}
@@ -43,10 +50,8 @@ func findDish(dishes *intheap.IntHeap, number int) int {
 
 	value, ok := x.(int)
 	if !ok {
-		fmt.Println("Invalid type")
-
-		return 0
+		return 0, errInvalidType
 	}
 
-	return value
+	return value, nil
 }
