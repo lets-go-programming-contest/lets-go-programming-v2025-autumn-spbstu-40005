@@ -1,6 +1,11 @@
 package intheap
 
-import "container/heap"
+import (
+	"container/heap"
+	"errors"
+)
+
+var errEmptyHeap = errors.New("empty heap")
 
 type IntHeap []int //nolint:recvcheck
 
@@ -15,7 +20,7 @@ func (h *IntHeap) Push(val any) {
 
 func (h *IntHeap) Pop() any {
 	if h.Len() == 0 {
-		panic("heap underflow")
+		return nil
 	}
 
 	val := (*h)[0]
@@ -45,10 +50,10 @@ func (h IntHeap) ReplaceTop(value int) {
 	heap.Fix(&h, 0)
 }
 
-func (h IntHeap) Top() int {
+func (h IntHeap) Top() (int, error) {
 	if h.Len() == 0 {
-		return 0
+		return 0, errEmptyHeap
 	}
 
-	return h[0]
+	return h[0], nil
 }

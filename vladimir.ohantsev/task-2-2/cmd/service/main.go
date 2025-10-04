@@ -2,13 +2,27 @@ package main
 
 import (
 	"container/heap"
-	"errors"
 	"fmt"
 
 	"github.com/P3rCh1/task-2-2/internal/intheap"
 )
 
-var errInvalidNeed = errors.New("dishes count should be less then needed element")
+func getKDish(dishes []int, k int) int {
+	window := new(intheap.IntHeap)
+	*window = intheap.IntHeap(dishes[:k])
+	heap.Init(window)
+
+	dishes = dishes[k:]
+	for _, cost := range dishes {
+		top, _ := window.Top()
+		if cost > top {
+			window.ReplaceTop(cost)
+		}
+	}
+
+	top, _ := window.Top()
+	return top
+}
 
 func main() {
 	var dishesCount int
@@ -39,21 +53,10 @@ func main() {
 	}
 
 	if need > dishesCount {
-		fmt.Println(errInvalidNeed.Error())
+		fmt.Println("dishes count should be less then needed element")
 
 		return
 	}
 
-	window := new(intheap.IntHeap)
-	*window = intheap.IntHeap(dishes[:need])
-	heap.Init(window)
-
-	dishes = dishes[need:]
-	for _, cost := range dishes {
-		if cost > window.Top() {
-			window.ReplaceTop(cost)
-		}
-	}
-
-	fmt.Println(window.Top())
+	fmt.Println(getKDish(dishes, need))
 }
