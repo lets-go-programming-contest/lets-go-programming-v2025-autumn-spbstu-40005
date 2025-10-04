@@ -1,7 +1,5 @@
 package intheap
 
-import "fmt"
-
 type IntHeap []int //nolint:recvcheck
 
 func (h IntHeap) Len() int {
@@ -19,9 +17,7 @@ func (h IntHeap) Swap(i, j int) {
 func (h *IntHeap) Push(x any) {
 	value, ok := x.(int)
 	if !ok {
-		fmt.Println("Invalid type")
-
-		return
+		panic("Invalid type")
 	}
 
 	*h = append(*h, value)
@@ -29,8 +25,6 @@ func (h *IntHeap) Push(x any) {
 
 func (h *IntHeap) Pop() any {
 	if h.Len() == 0 {
-		fmt.Println("Underflow")
-
 		return nil
 	}
 
