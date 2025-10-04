@@ -8,9 +8,7 @@ import (
 	"gordey.shapkov/task-2-2/internal/intheap"
 )
 
-var (
-	errInvalidType = errors.New("Invalid type")
-)
+var errInvalidType = errors.New("invalid type")
 
 func main() {
 	var amount int
