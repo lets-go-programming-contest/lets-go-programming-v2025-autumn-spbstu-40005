@@ -8,6 +8,8 @@ import (
 	"sergey.kiselev/task-2-2/internal/intheap"
 )
 
+var errConvert = errors.New("not integer in heap")
+
 func findLargest(nums []int, number int) (int, error) {
 	dishesHeap := &intheap.IntHeap{}
 	heap.Init(dishesHeap)
@@ -22,7 +24,7 @@ func findLargest(nums []int, number int) (int, error) {
 
 	value, ok := heap.Pop(dishesHeap).(int)
 	if !ok {
-		return 0, errors.New("not integer in heap")
+		return 0, errConvert
 	}
 	return value, nil
 }
@@ -59,7 +61,7 @@ func main() {
 
 	res, err := findLargest(nums, number)
 	if err != nil {
-		fmt.Printf("error in findLarge: %v", err)
+		fmt.Println(errConvert)
 	}
 	fmt.Println(res)
 }
