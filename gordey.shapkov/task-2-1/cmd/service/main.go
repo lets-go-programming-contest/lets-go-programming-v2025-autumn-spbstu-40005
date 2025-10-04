@@ -1,7 +1,14 @@
 package main
 
 import (
+	"errors"
 	"fmt"
+)
+
+var (
+	errInvalidOperation           = errors.New("invalid operation")
+	errInvalidNumberOfEmployees   = errors.New("invalid number of employees")
+	errInvalidNumberOfDepartments = errors.New("invalid number of departments")
 )
 
 type TemperaturePreference struct {
@@ -24,20 +31,28 @@ func (temp *TemperaturePreference) setCurrTemp(currTemp int) {
 	temp.currTemp = currTemp
 }
 
+func (temp *TemperaturePreference) getCurrTemp() int {
+	return temp.currTemp
+}
+
 const (
 	MaxTemp = 30
 	MinTemp = 15
 )
 
 func main() {
-	var number, count int
-	if _, err := fmt.Scan(&number); err != nil {
+	var numberOfDepartments, numberOfEmployees int
+	if _, err := fmt.Scan(&numberOfDepartments); err != nil {
+		fmt.Println(errInvalidNumberOfDepartments)
+
 		return
 	}
 
-	for range number {
-		_, err := fmt.Scan(&count)
+	for range numberOfDepartments {
+		_, err := fmt.Scan(&numberOfEmployees)
 		if err != nil {
+			fmt.Println(errInvalidNumberOfEmployees)
+
 			return
 		}
 
@@ -48,7 +63,7 @@ func main() {
 
 		temp := NewTemperaturePreference(MaxTemp, MinTemp, MinTemp)
 
-		for range count {
+		for range numberOfEmployees {
 			_, err = fmt.Scan(&sign, &preferedTemp)
 			if err != nil {
 				return
@@ -61,12 +76,12 @@ func main() {
 			}
 
 			temp.changeTemperature(sign, preferedTemp)
-			fmt.Println(temp.currTemp)
+			fmt.Println(temp.getCurrTemp())
 		}
 	}
 }
 
-func (temp *TemperaturePreference) changeTemperature(sign string, preferedTemp int) {
+func (temp *TemperaturePreference) changeTemperature(sign string, preferedTemp int) error {
 	if preferedTemp < MinTemp || preferedTemp > MaxTemp {
 		temp.setCurrTemp(-1)
 	}
@@ -77,8 +92,10 @@ func (temp *TemperaturePreference) changeTemperature(sign string, preferedTemp i
 	case "<=":
 		handleLessEqual(preferedTemp, temp)
 	default:
-		temp.setCurrTemp(-1)
+		return errInvalidOperation
 	}
+
+	return nil
 }
 
 func handleGreaterEqual(preferedTemp int, temp *TemperaturePreference) {
