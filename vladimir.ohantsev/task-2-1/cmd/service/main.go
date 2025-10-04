@@ -9,11 +9,11 @@ import (
 func scanWorkerRequest() (*department.ChangeRequest, error) {
 	req := new(department.ChangeRequest)
 	if _, err := fmt.Scan(&req.Operator); err != nil {
-		return nil, fmt.Errorf("failed to scan operator: %w", err)
+		return nil, fmt.Errorf("scan operator: %w", err)
 	}
 
 	if _, err := fmt.Scan(&req.Temperature); err != nil {
-		return nil, fmt.Errorf("failed to scan temperature: %w", err)
+		return nil, fmt.Errorf("scan temperature: %w", err)
 	}
 
 	return req, nil
@@ -22,7 +22,7 @@ func scanWorkerRequest() (*department.ChangeRequest, error) {
 func processDepartment() error {
 	var countWorkers int
 	if _, err := fmt.Scan(&countWorkers); err != nil {
-		return fmt.Errorf("failed to scan count workers: %w", err)
+		return fmt.Errorf("scan count workers: %w", err)
 	}
 
 	dep := department.New()
@@ -30,12 +30,12 @@ func processDepartment() error {
 	for range countWorkers {
 		req, err := scanWorkerRequest()
 		if err != nil {
-			return fmt.Errorf("process worker fail: %w", err)
+			return fmt.Errorf("process worker: %w", err)
 		}
 
 		optimum, err := dep.Recalculate(req)
 		if err != nil {
-			return fmt.Errorf("recalculate temperature fail: %w", err)
+			return fmt.Errorf("recalculate temperature: %w", err)
 		}
 
 		fmt.Println(optimum)
@@ -47,14 +47,14 @@ func processDepartment() error {
 func main() {
 	var countDepartments int
 	if _, err := fmt.Scan(&countDepartments); err != nil {
-		fmt.Printf("failed to scan count departments: %s\n", err)
+		fmt.Printf("scan count departments: %s\n", err)
 
 		return
 	}
 
 	for range countDepartments {
 		if err := processDepartment(); err != nil {
-			fmt.Printf("process department fail: %s\n", err)
+			fmt.Printf("process department: %s\n", err)
 
 			return
 		}
