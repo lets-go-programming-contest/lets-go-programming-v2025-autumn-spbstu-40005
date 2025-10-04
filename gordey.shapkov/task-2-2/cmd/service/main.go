@@ -23,7 +23,7 @@ func main() {
 	for range amount {
 		var pref int
 		if _, err := fmt.Scan(&pref); err != nil {
-			fmt.Println("Failed to read dishes")
+			fmt.Println(errInvalidType)
 
 			return
 		}
@@ -36,7 +36,10 @@ func main() {
 		return
 	}
 
-	result := findDish(dishes, number)
+	result, err := findDish(dishes, number)
+	if err != nil {
+		fmt.Println(err)
+	}
 
 	fmt.Println(result)
 }
