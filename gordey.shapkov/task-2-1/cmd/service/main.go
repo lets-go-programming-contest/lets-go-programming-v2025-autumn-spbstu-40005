@@ -75,7 +75,14 @@ func main() {
 				continue
 			}
 
-			temp.changeTemperature(sign, preferedTemp)
+			err := temp.changeTemperature(sign, preferedTemp)
+
+			if err != nil {
+				fmt.Println(err)
+
+				break
+			}
+
 			fmt.Println(temp.getCurrTemp())
 		}
 	}
