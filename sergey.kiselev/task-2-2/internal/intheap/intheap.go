@@ -1,20 +1,20 @@
-package maxheap
+package intheap
 
-type MaxHeap []int
+type IntHeap []int
 
-func (h *MaxHeap) Len() int {
+func (h *IntHeap) Len() int {
 	return len(*h)
 }
 
-func (h *MaxHeap) Less(i, j int) bool {
-	return (*h)[i] > (*h)[j]
+func (h *IntHeap) Less(i, j int) bool {
+	return (*h)[i] < (*h)[j]
 }
 
-func (h *MaxHeap) Swap(i, j int) {
+func (h *IntHeap) Swap(i, j int) {
 	(*h)[i], (*h)[j] = (*h)[j], (*h)[i]
 }
 
-func (h *MaxHeap) Push(x any) {
+func (h *IntHeap) Push(x any) {
 	val, ok := x.(int)
 	if !ok {
 		panic("value is not an int")
@@ -23,7 +23,7 @@ func (h *MaxHeap) Push(x any) {
 	*h = append(*h, val)
 }
 
-func (h *MaxHeap) Pop() any {
+func (h *IntHeap) Pop() any {
 	if h.Len() == 0 {
 		return nil
 	}
