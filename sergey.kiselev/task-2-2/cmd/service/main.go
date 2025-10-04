@@ -2,15 +2,9 @@ package main
 
 import (
 	"container/heap"
-	"errors"
 	"fmt"
 
 	"sergey.kiselev/task-2-2/internal/maxheap"
-)
-
-var (
-	errInput  = errors.New("invalid input")
-	errNumber = errors.New("this number is not suitable")
 )
 
 func findLargest(nums []int, number int) int {
@@ -31,13 +25,7 @@ func findLargest(nums []int, number int) int {
 func main() {
 	var dishesCount int
 	if _, err := fmt.Scan(&dishesCount); err != nil {
-		fmt.Printf("%s: %v\n", errInput.Error(), err)
-
-		return
-	}
-
-	if dishesCount < 1 || dishesCount > 10000 {
-		fmt.Println(errNumber.Error())
+		fmt.Printf("invalid input for dishesCount: %v\n", err)
 
 		return
 	}
@@ -45,13 +33,7 @@ func main() {
 	nums := make([]int, dishesCount)
 	for index := range dishesCount {
 		if _, err := fmt.Scan(&nums[index]); err != nil {
-			fmt.Printf("%s: %v\n", errInput.Error(), err)
-
-			return
-		}
-
-		if nums[index] < -10000 || nums[index] > 10000 {
-			fmt.Println(errNumber.Error())
+			fmt.Printf("invalid input for nums: %v\n", err)
 
 			return
 		}
@@ -59,13 +41,13 @@ func main() {
 
 	var number int
 	if _, err := fmt.Scan(&number); err != nil {
-		fmt.Printf("%s: %v\n", errInput.Error(), err)
+		fmt.Printf("invalid input for number: %v\n", err)
 
 		return
 	}
 
 	if number < 1 || number > dishesCount {
-		fmt.Println(errNumber)
+		fmt.Println("this number is not suitable")
 
 		return
 	}
