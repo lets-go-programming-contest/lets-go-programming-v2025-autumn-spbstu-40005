@@ -1,0 +1,8 @@
+module github.com.P3rCh1/task-3
+
+go 1.24.6
+
+require (
+	golang.org/x/text v0.29.0
+	gopkg.in/yaml.v3 v3.0.1
+)
