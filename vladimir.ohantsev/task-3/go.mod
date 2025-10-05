@@ -1,6 +1,8 @@
 module github.com.P3rCh1/task-3
 
-go 1.22.7
+go 1.24.0
+
+toolchain go1.24.6
 
 require (
 	golang.org/x/text v0.29.0
