@@ -16,7 +16,84 @@ const (
 	upperLimit = 30
 )
 
-func handleOptimalTemperature(cmp string, curr int, lower, upper *int) error {
+type TemperatureRange struct {
+	lower int
+	upper int
+}
+
+func newTemperatureRange() *TemperatureRange {
+	return &TemperatureRange{
+		lower: lowerLimit,
+		upper: upperLimit,
+	}
+}
+
+func (tr *TemperatureRange) isValid() bool {
+	return tr.lower <= tr.upper
+}
+
+func (tr *TemperatureRange) handleGreaterEqual(curr int) (int, bool) {
+	if curr > tr.upper {
+		tr.lower = tr.upper + 1
+		return 0, false
+	}
+
+	if curr < tr.lower {
+		return tr.lower, true
+	}
+
+	tr.lower = curr
+	return tr.lower, true
+}
+
+func (tr *TemperatureRange) handleLessEqual(curr int) (int, bool) {
+	if curr < tr.lower {
+		tr.upper = tr.lower - 1
+		return 0, false
+	}
+
+	if curr > tr.upper {
+		return tr.lower, true
+	}
+
+	tr.upper = curr
+	return tr.lower, true
+}
+
+func (tr *TemperatureRange) processCmp(cmp string, curr int) (int, bool, error) {
+	switch cmp {
+	case ">=":
+		res, isValid := tr.handleGreaterEqual(curr)
+		return res, isValid, nil
+	case "<=":
+		res, isValid := tr.handleLessEqual(curr)
+		return res, isValid, nil
+	default:
+		return 0, false, errCmpInput
+	}
+}
+
+func (tr *TemperatureRange) handleOptimalTemperature(cmp string, curr int) error {
+	if !tr.isValid() {
+		fmt.Println(-1)
+		return nil
+	}
+
+	res, isValid, err := tr.processCmp(cmp, curr)
+	if err != nil {
+		return err
+	}
+
+	if isValid {
+		fmt.Println(res)
+	} else {
+		fmt.Println(-1)
+	}
+
+	return nil
+}
+
+/*func handleOptimalTemperature(cmp string, curr int, lower, upper *int) error {
 	if *lower > *upper {
 		fmt.Println(-1)
 
@@ -76,12 +153,11 @@ func handleLessEqual(curr int, lower, upper *int) (int, bool) {
 	*upper = curr
 
 	return *lower, true
-}
+}*/
 
 func handleDepartmentTemperatures(workersCnt int) error {
+	tempRange := newTemperatureRange()
 	var (
-		currLower   = lowerLimit
-		currUpper   = upperLimit
 		temperature int
 		cmpSign     string
 	)
@@ -96,7 +172,7 @@ func handleDepartmentTemperatures(workersCnt int) error {
 			return errOutOfRange
 		}
 
-		err = handleOptimalTemperature(cmpSign, temperature, &currLower, &currUpper)
+		err = tempRange.handleOptimalTemperature(cmpSign, temperature)
 		if err != nil {
 			return err
 		}
