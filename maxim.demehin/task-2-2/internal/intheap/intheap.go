@@ -17,7 +17,7 @@ func (h *IntHeap) Push(val any) {
 
 func (h *IntHeap) Pop() any {
 	if h.Len() == 0 {
-		panic("error: heap underflow")
+		return nil
 	}
 
 	orig := *h
@@ -49,5 +49,5 @@ func (h *IntHeap) GetNth(numberOfElement int) int {
 		heap.Pop(&temp)
 	}
 
-	return temp[0]
+	return heap.Pop(&temp).(int)
 }
