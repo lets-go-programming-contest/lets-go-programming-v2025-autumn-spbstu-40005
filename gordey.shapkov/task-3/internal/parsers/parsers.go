@@ -76,9 +76,7 @@ func ParseXMLFile(path string) (*ValCurs, error) {
 	decoder.CharsetReader = createCharsetReader
 
 	valCurs := &ValCurs{Date: "", Name: "", Valutes: nil}
-	err = decoder.Decode(valCurs)
-
-	if err != nil {
+	if err = decoder.Decode(valCurs); err != nil {
 		return nil, fmt.Errorf("cannot decode file: %w", err)
 	}
 
@@ -95,8 +93,8 @@ func createCharsetReader(charset string, input io.Reader) (io.Reader, error) {
 
 func convertFloat(float string) (float64, error) {
 	partsOfFloat := strings.Split(float, ",")
-	result, err := strconv.ParseFloat(partsOfFloat[0]+"."+partsOfFloat[1], 64)
 
+	result, err := strconv.ParseFloat(partsOfFloat[0]+"."+partsOfFloat[1], 64)
 	if err != nil {
 		return 0, fmt.Errorf("cannot convert to float: %w", err)
 	}

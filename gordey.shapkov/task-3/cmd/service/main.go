@@ -22,9 +22,7 @@ func main() {
 		panic(err)
 	}
 
-	valutes := valCurs.Valutes
-	currencies, err := parsers.ConvertToJSON(valutes)
-
+	currencies, err := parsers.ConvertToJSON(valCurs.Valutes)
 	if err != nil {
 		fmt.Println(err)
 	}
