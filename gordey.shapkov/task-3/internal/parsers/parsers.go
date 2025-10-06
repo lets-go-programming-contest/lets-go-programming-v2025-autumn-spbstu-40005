@@ -4,13 +4,14 @@ import (
 	"bytes"
 	"encoding/json"
 	"encoding/xml"
-	"golang.org/x/text/encoding/charmap"
-	"gopkg.in/yaml.v3"
 	"io"
 	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
+
+	"golang.org/x/text/encoding/charmap"
+	"gopkg.in/yaml.v3"
 )
 
 type Config struct {
@@ -41,19 +42,19 @@ type Currency struct {
 
 func ParseConfigFile(path string) (*Config, error) {
 	if _, err := os.Stat(path); os.IsNotExist(err) {
-		return nil, err
+		return nil, fmt.Errorf("file %s does not exist: %w", path, err)
 	}
 
 	data, err := os.ReadFile(path)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("cannot read file: %w", err)
 	}
 
 	cfg := &Config{InputFile: "", OutputFile: ""}
 
 	err = yaml.Unmarshal(data, cfg)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("cannot unmarshal file: %w", err)
 	}
 
 	return cfg, nil
@@ -61,12 +62,12 @@ func ParseConfigFile(path string) (*Config, error) {
 
 func ParseXMLFile(path string) (*ValCurs, error) {
 	if _, err := os.Stat(path); os.IsNotExist(err) {
-		return nil, err
+		return nil, fmt.Errorf("file %s does not exist: %w", path, err)
 	}
 
 	data, err := os.ReadFile(path)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("cannot read file: %w", err)
 	}
 
 	reader := bytes.NewReader(data)
@@ -77,7 +78,7 @@ func ParseXMLFile(path string) (*ValCurs, error) {
 	err = decoder.Decode(valCurs)
 
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("cannot decode file: %w", err)
 	}
 
 	return valCurs, nil
@@ -96,7 +97,7 @@ func convertFloat(float string) (float64, error) {
 	result, err := strconv.ParseFloat(partsOfFloat[0]+"."+partsOfFloat[1], 64)
 
 	if err != nil {
-		return 0, err
+		return 0, fmt.Errorf("cannot convert to float: %w", err)
 	}
 
 	return result, nil
@@ -108,7 +109,7 @@ func ConvertToJSON(valutes []Valute) ([]Currency, error) {
 	for idx, valute := range valutes {
 		value, err := convertFloat(valute.Value)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("convertation failed: %w", err)
 		}
 
 		currencies[idx] = Currency{
@@ -124,16 +125,16 @@ func ConvertToJSON(valutes []Valute) ([]Currency, error) {
 func SaveToJSON(currencies []Currency, outputPath string) error {
 	jsonData, err := json.MarshalIndent(currencies, "", "  ")
 	if err != nil {
-		return err
+		return fmt.Errorf("cannot marshal to JSON file: %w", err)
 	}
 
 	dir := filepath.Dir(outputPath)
 	if err := os.MkdirAll(dir, 0); err != nil {
-		return err
+		return fmt.Errorf("cannot make directory: %w", err)
 	}
 
 	if err = os.WriteFile(outputPath, jsonData, 0); err != nil {
-		return err
+		return fmt.Errorf("cannot write file: %w", err)
 	}
 
 	return nil
