@@ -70,8 +70,8 @@ func (b outputBank) sortByValueDown() {
 }
 
 type outputCurrency struct {
-	NumCode  int     `json:"num-code"`
-	CharCode string  `json:"char-code"`
+	NumCode  int     `json:"num_code"`
+	CharCode string  `json:"char_code"`
 	Value    float64 `json:"value"`
 }
 
@@ -94,7 +94,9 @@ func (b *Bank) EncodeJSON(writer io.Writer) error {
 	}
 
 	out.sortByValueDown()
+
 	encoder := json.NewEncoder(writer)
+
 	encoder.SetIndent("", "  ")
 
 	if err := encoder.Encode(&out); err != nil {
@@ -106,7 +108,9 @@ func (b *Bank) EncodeJSON(writer io.Writer) error {
 
 func (b *Bank) EncodeJSONToFIle(path string) error {
 	dir := filepath.Dir(path)
-	if err := os.MkdirAll(dir, 0755); err != nil {
+
+	err := os.MkdirAll(dir, 0755)
+	if err != nil {
 		return fmt.Errorf("create dir: %w", err)
 	}
 
