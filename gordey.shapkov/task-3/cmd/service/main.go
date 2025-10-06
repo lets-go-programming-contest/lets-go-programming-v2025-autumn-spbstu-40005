@@ -17,16 +17,18 @@ func main() {
 		panic(err)
 	}
 
-	valCurs, err := parsers.ParseXmlFile(cfg.InputFile)
+	valCurs, err := parsers.ParseXMLFile(cfg.InputFile)
 	if err != nil {
 		panic(err)
 	}
 
 	valutes := valCurs.Valutes
-	currencies, err := parsers.ConvertToJson(valutes)
+	currencies, err := parsers.ConvertToJSON(valutes)
+
 	if err != nil {
 		fmt.Println(err)
 	}
+
 	sort.Slice(currencies, func(i, j int) bool {
 		return currencies[i].Value > currencies[j].Value
 	})

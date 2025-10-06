@@ -49,7 +49,7 @@ func ParseConfigFile(path string) (*Config, error) {
 		return nil, err
 	}
 
-	cfg := &Config{}
+	cfg := &Config{InputFile: "", OutputFile: ""}
 
 	err = yaml.Unmarshal(data, cfg)
 	if err != nil {
@@ -59,7 +59,7 @@ func ParseConfigFile(path string) (*Config, error) {
 	return cfg, nil
 }
 
-func ParseXmlFile(path string) (*ValCurs, error) {
+func ParseXMLFile(path string) (*ValCurs, error) {
 	if _, err := os.Stat(path); os.IsNotExist(err) {
 		return nil, err
 	}
@@ -73,8 +73,9 @@ func ParseXmlFile(path string) (*ValCurs, error) {
 	decoder := xml.NewDecoder(reader)
 	decoder.CharsetReader = createCharsetReader
 
-	valCurs := &ValCurs{}
+	valCurs := &ValCurs{Date: "", Name: "", Valutes: nil}
 	err = decoder.Decode(valCurs)
+
 	if err != nil {
 		return nil, err
 	}
@@ -86,12 +87,14 @@ func createCharsetReader(charset string, input io.Reader) (io.Reader, error) {
 	if charset == "windows-1251" {
 		return charmap.Windows1251.NewDecoder().Reader(input), nil
 	}
+
 	return input, nil
 }
 
 func convertFloat(float string) (float64, error) {
 	partsOfFloat := strings.Split(float, ",")
 	result, err := strconv.ParseFloat(partsOfFloat[0]+"."+partsOfFloat[1], 64)
+
 	if err != nil {
 		return 0, err
 	}
@@ -99,7 +102,7 @@ func convertFloat(float string) (float64, error) {
 	return result, nil
 }
 
-func ConvertToJson(valutes []Valute) ([]Currency, error) {
+func ConvertToJSON(valutes []Valute) ([]Currency, error) {
 	currencies := make([]Currency, len(valutes))
 
 	for idx, valute := range valutes {
@@ -107,6 +110,7 @@ func ConvertToJson(valutes []Valute) ([]Currency, error) {
 		if err != nil {
 			return nil, err
 		}
+
 		currencies[idx] = Currency{
 			NumCode:  valute.NumCode,
 			CharCode: valute.CharCode,
@@ -124,11 +128,11 @@ func SaveToJSON(currencies []Currency, outputPath string) error {
 	}
 
 	dir := filepath.Dir(outputPath)
-	if err := os.MkdirAll(dir, 0755); err != nil {
+	if err := os.MkdirAll(dir, 0); err != nil {
 		return err
 	}
 
-	if err = os.WriteFile(outputPath, jsonData, 0644); err != nil {
+	if err = os.WriteFile(outputPath, jsonData, 0); err != nil {
 		return err
 	}
 
