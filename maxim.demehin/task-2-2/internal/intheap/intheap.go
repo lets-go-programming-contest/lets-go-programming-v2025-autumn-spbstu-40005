@@ -49,5 +49,5 @@ func (h *IntHeap) GetNth(numberOfElement int) int {
 		heap.Pop(&temp)
 	}
 
-	return heap.Pop(&temp).(int)
+	return heap.Pop(&temp).(int) //nolint:forcetypeassert
 }
