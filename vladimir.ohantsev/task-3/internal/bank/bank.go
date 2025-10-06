@@ -77,16 +77,16 @@ type outputCurrency struct {
 
 type outputBank []outputCurrency
 
-func (b *Bank) EncodeJSON(w io.Writer) error {
+func (b *Bank) EncodeJSON(writer io.Writer) error {
 	out := make(outputBank, len(b.Currencies))
 
-	for i, currency := range b.Currencies {
+	for index, currency := range b.Currencies {
 		val, err := strconv.ParseFloat(strings.Replace(currency.Value, ",", ".", 1), 64)
 		if err != nil {
 			return fmt.Errorf("invalid type of value: %w", err)
 		}
 
-		out[i] = outputCurrency{
+		out[index] = outputCurrency{
 			NumCode:  currency.NumCode,
 			CharCode: currency.CharCode,
 			Value:    val,
@@ -94,8 +94,10 @@ func (b *Bank) EncodeJSON(w io.Writer) error {
 	}
 
 	out.sortByValueDown()
+	encoder := json.NewEncoder(writer)
+	encoder.SetIndent("", "  ")
 
-	if err := json.NewEncoder(w).Encode(&out); err != nil {
+	if err := encoder.Encode(&out); err != nil {
 		return fmt.Errorf("encoding bank: %w", err)
 	}
 
