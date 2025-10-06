@@ -9,6 +9,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 )
 
@@ -33,9 +34,9 @@ type Valute struct {
 }
 
 type Currency struct {
-	NumCode  string `json:"num_code"`
-	CharCode string `json:"char_code"`
-	Value    string `json:"value"`
+	NumCode  int     `json:"num_code"`
+	CharCode string  `json:"char_code"`
+	Value    float64 `json:"value"`
 }
 
 func ParseConfigFile(path string) (*Config, error) {
@@ -88,24 +89,36 @@ func createCharsetReader(charset string, input io.Reader) (io.Reader, error) {
 	return input, nil
 }
 
-func convertFloat(float string) string {
+func convertFloat(float string) (float64, error) {
 	partsOfFloat := strings.Split(float, ",")
-	return partsOfFloat[0] + "." + partsOfFloat[1]
+	result, err := strconv.ParseFloat(partsOfFloat[0]+"."+partsOfFloat[1], 64)
+	if err != nil {
+		return 0, err
+	}
+
+	return result, nil
 }
 
-func ConvertToJson(valutes []Valute) []Currency {
+func ConvertToJson(valutes []Valute) ([]Currency, error) {
 	currencies := make([]Currency, len(valutes))
 
 	for idx, valute := range valutes {
-		value := convertFloat(valute.Value)
+		numCode, err := strconv.Atoi(valute.NumCode)
+		if err != nil {
+			return nil, err
+		}
+		value, err := convertFloat(valute.Value)
+		if err != nil {
+			return nil, err
+		}
 		currencies[idx] = Currency{
-			NumCode:  valute.NumCode,
+			NumCode:  numCode,
 			CharCode: valute.CharCode,
 			Value:    value,
 		}
 	}
 
-	return currencies
+	return currencies, nil
 }
 
 func SaveToJSON(currencies []Currency, outputPath string) error {

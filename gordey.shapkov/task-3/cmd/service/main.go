@@ -23,7 +23,10 @@ func main() {
 	}
 
 	valutes := valCurs.Valutes
-	currencies := parsers.ConvertToJson(valutes)
+	currencies, err := parsers.ConvertToJson(valutes)
+	if err != nil {
+		fmt.Println(err)
+	}
 	sort.Slice(currencies, func(i, j int) bool {
 		return currencies[i].Value > currencies[j].Value
 	})
