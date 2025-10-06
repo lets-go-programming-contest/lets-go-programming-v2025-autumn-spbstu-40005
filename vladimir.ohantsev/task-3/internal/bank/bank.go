@@ -55,7 +55,7 @@ func ParseFile(path string) (*Bank, error) {
 	if err != nil {
 		return nil, fmt.Errorf("open input file: %w", err)
 	}
-	defer file.Close()
+	defer file.Close() //nolint:errcheck
 
 	return Parse(file)
 }
@@ -119,7 +119,7 @@ func (b *Bank) EncodeJSONToFIle(path string) error {
 		return fmt.Errorf("create file: %w", err)
 	}
 
-	defer file.Close()
+	defer file.Close() //nolint:errcheck
 
 	return b.EncodeJSON(file)
 }
