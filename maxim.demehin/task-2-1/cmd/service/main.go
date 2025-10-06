@@ -51,6 +51,7 @@ func (tr *TemperatureRange) handleGreaterEqual(curr int) (int, bool) {
 func (tr *TemperatureRange) handleLessEqual(curr int) (int, bool) {
 	if curr < tr.lower {
 		tr.upper = tr.lower - 1
+
 		return 0, false
 	}
 
@@ -67,9 +68,11 @@ func (tr *TemperatureRange) processCmp(cmp string, curr int) (int, bool, error) 
 	switch cmp {
 	case ">=":
 		res, isValid := tr.handleGreaterEqual(curr)
+
 		return res, isValid, nil
 	case "<=":
 		res, isValid := tr.handleLessEqual(curr)
+
 		return res, isValid, nil
 	default:
 		return 0, false, errCmpInput
