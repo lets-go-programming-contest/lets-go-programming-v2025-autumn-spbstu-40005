@@ -1,7 +1,6 @@
 package parsers
 
 import (
-	"fmt"
 	"bytes"
 	"encoding/json"
 	"encoding/xml"
@@ -27,7 +26,7 @@ type ValCurs struct {
 
 type Valute struct {
 	ID       string `xml:"ID,attr"`
-	NumCode  int `xml:"NumCode"`
+	NumCode  int    `xml:"NumCode"`
 	CharCode string `xml:"CharCode"`
 	Nominal  string `xml:"Nominal"`
 	Name     string `xml:"Name"`
