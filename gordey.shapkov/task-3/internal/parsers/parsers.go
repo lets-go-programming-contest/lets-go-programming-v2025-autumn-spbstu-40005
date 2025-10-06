@@ -1,6 +1,7 @@
 package parsers
 
 import (
+	"fmt"
 	"bytes"
 	"encoding/json"
 	"encoding/xml"
@@ -26,7 +27,7 @@ type ValCurs struct {
 
 type Valute struct {
 	ID       string `xml:"ID,attr"`
-	NumCode  string `xml:"NumCode"`
+	NumCode  int `xml:"NumCode"`
 	CharCode string `xml:"CharCode"`
 	Nominal  string `xml:"Nominal"`
 	Name     string `xml:"Name"`
@@ -103,16 +104,12 @@ func ConvertToJson(valutes []Valute) ([]Currency, error) {
 	currencies := make([]Currency, len(valutes))
 
 	for idx, valute := range valutes {
-		numCode, err := strconv.Atoi(valute.NumCode)
-		if err != nil {
-			return nil, err
-		}
 		value, err := convertFloat(valute.Value)
 		if err != nil {
 			return nil, err
 		}
 		currencies[idx] = Currency{
-			NumCode:  numCode,
+			NumCode:  valute.NumCode,
 			CharCode: valute.CharCode,
 			Value:    value,
 		}
