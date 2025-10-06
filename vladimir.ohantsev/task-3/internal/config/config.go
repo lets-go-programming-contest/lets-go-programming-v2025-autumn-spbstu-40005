@@ -18,7 +18,11 @@ func ParseFile(path string) (*Config, error) {
 	if err != nil {
 		return nil, fmt.Errorf("open config file: %w", err)
 	}
-	defer file.Close() //nolint:errcheck
+	defer func() {
+		if err := file.Close(); err != nil {
+			panic(fmt.Sprintf("close file: %s", err))
+		}
+	}()
 
 	return Parse(file)
 }
