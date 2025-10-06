@@ -29,7 +29,7 @@ func main() {
 
 	_, err := fmt.Scan(&dishesCnt)
 	if err != nil {
-		fmt.Println(errInput.Error())
+		fmt.Printf("invalid dishes count: %v\n", err)
 
 		return
 	}
