@@ -107,8 +107,10 @@ func (b *Bank) EncodeJSON(writer io.Writer) error {
 }
 
 func (b *Bank) EncodeJSONToFIle(path string) error {
+	const permissions = 0o755
+
 	dir := filepath.Dir(path)
-	if err := os.MkdirAll(dir, 0o755); err != nil {
+	if err := os.MkdirAll(dir, permissions); err != nil {
 		return fmt.Errorf("create dir: %w", err)
 	}
 
