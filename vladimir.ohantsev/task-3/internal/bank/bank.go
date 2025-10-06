@@ -55,7 +55,12 @@ func ParseFile(path string) (*Bank, error) {
 	if err != nil {
 		return nil, fmt.Errorf("open input file: %w", err)
 	}
-	defer file.Close() //nolint:errcheck
+
+	defer func() {
+		if err := file.Close(); err != nil {
+			panic(fmt.Sprintf("close file: %s", err))
+		}
+	}()
 
 	return Parse(file)
 }
@@ -119,7 +124,11 @@ func (b *Bank) EncodeJSONToFIle(path string) error {
 		return fmt.Errorf("create file: %w", err)
 	}
 
-	defer file.Close() //nolint:errcheck
+	defer func() {
+		if err := file.Close(); err != nil {
+			panic(fmt.Sprintf("close file: %s", err))
+		}
+	}()
 
 	return b.EncodeJSON(file)
 }
