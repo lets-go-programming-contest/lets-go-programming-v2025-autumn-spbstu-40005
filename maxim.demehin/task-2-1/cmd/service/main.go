@@ -35,6 +35,7 @@ func (tr *TemperatureRange) isValid() bool {
 func (tr *TemperatureRange) handleGreaterEqual(curr int) (int, bool) {
 	if curr > tr.upper {
 		tr.lower = tr.upper + 1
+
 		return 0, false
 	}
 
@@ -43,6 +44,7 @@ func (tr *TemperatureRange) handleGreaterEqual(curr int) (int, bool) {
 	}
 
 	tr.lower = curr
+
 	return tr.lower, true
 }
 
@@ -57,6 +59,7 @@ func (tr *TemperatureRange) handleLessEqual(curr int) (int, bool) {
 	}
 
 	tr.upper = curr
+
 	return tr.lower, true
 }
 
@@ -93,70 +96,9 @@ func (tr *TemperatureRange) handleOptimalTemperature(cmp string, curr int) error
 	return nil
 }
 
-/*func handleOptimalTemperature(cmp string, curr int, lower, upper *int) error {
-	if *lower > *upper {
-		fmt.Println(-1)
-
-		return nil
-	}
-
-	var (
-		result  int
-		isValid bool
-	)
-
-	switch cmp {
-	case ">=":
-		result, isValid = handleGreaterEqual(curr, lower, upper)
-	case "<=":
-		result, isValid = handleLessEqual(curr, lower, upper)
-	default:
-		return errCmpInput
-	}
-
-	if isValid {
-		fmt.Println(result)
-	} else {
-		fmt.Println(-1)
-	}
-
-	return nil
-}
-
-func handleGreaterEqual(curr int, lower, upper *int) (int, bool) {
-	if curr > *upper {
-		*lower = *upper + 1
-
-		return 0, false
-	}
-
-	if curr < *lower {
-		return *lower, true
-	}
-
-	*lower = curr
-
-	return *lower, true
-}
-
-func handleLessEqual(curr int, lower, upper *int) (int, bool) {
-	if curr < *lower {
-		*upper = *lower - 1
-
-		return 0, false
-	}
-
-	if curr > *upper {
-		return *lower, true
-	}
-
-	*upper = curr
-
-	return *lower, true
-}*/
-
 func handleDepartmentTemperatures(workersCnt int) error {
 	tempRange := newTemperatureRange()
+
 	var (
 		temperature int
 		cmpSign     string
@@ -197,7 +139,7 @@ func main() {
 	for range departsCount {
 		_, err = fmt.Scan(&workersCount)
 		if err != nil {
-			fmt.Println(errInput.Error())
+			fmt.Printf("invalid workers count: %v\n", err)
 
 			return
 		}
