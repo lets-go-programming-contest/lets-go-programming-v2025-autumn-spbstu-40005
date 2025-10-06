@@ -108,9 +108,7 @@ func (b *Bank) EncodeJSON(writer io.Writer) error {
 
 func (b *Bank) EncodeJSONToFIle(path string) error {
 	dir := filepath.Dir(path)
-
-	err := os.MkdirAll(dir, 0755)
-	if err != nil {
+	if err := os.MkdirAll(dir, 0o755); err != nil {
 		return fmt.Errorf("create dir: %w", err)
 	}
 
