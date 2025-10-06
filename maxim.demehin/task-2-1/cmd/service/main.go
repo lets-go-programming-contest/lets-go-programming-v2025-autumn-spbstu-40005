@@ -82,6 +82,7 @@ func (tr *TemperatureRange) processCmp(cmp string, curr int) (int, bool, error) 
 func (tr *TemperatureRange) handleOptimalTemperature(cmp string, curr int) error {
 	if !tr.isValid() {
 		fmt.Println(-1)
+
 		return nil
 	}
 
