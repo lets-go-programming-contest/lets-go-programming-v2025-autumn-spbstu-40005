@@ -31,7 +31,7 @@ func ParseFile(path string) (*Config, error) {
 func Parse(r io.Reader) (*Config, error) {
 	config := new(Config)
 	if err := yaml.NewDecoder(r).Decode(&config); err != nil {
-		return nil, fmt.Errorf("decoding currency bank: %w", err)
+		return nil, fmt.Errorf("decoding config file: %w", err)
 	}
 
 	return config, nil
