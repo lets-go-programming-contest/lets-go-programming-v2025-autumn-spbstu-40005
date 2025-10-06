@@ -1,40 +1,46 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 )
 
-func main() {
-	var n int
-	fmt.Scan(&n)
+const (
+	InitialMinTemp = 15
+	InitialMaxTemp = 30
+)
 
-	for i := 0; i < n; i++ {
-		var k int
-		fmt.Scan(&k)
+var ErrInvalidOperator = errors.New("invalid operator")
 
-		minTemp := 15
-		maxTemp := 30
+type TemperatureManager struct {
+	minTemp int
+	maxTemp int
+}
 
-		for j := 0; j < k; j++ {
-			var operator string
-			var temp int
-			fmt.Scan(&operator, &temp)
-
-			if operator == ">=" {
-				if temp > minTemp {
-					minTemp = temp
-				}
-			} else if operator == "<=" {
-				if temp < maxTemp {
-					maxTemp = temp
-				}
-			}
-
-			if minTemp > maxTemp {
-				fmt.Println(-1)
-			} else {
-				fmt.Println(minTemp)
-			}
-		}
+func NewTemperatureManager() *TemperatureManager{
+	return &TemperatureManager{
+		minTemp: InitialMinTemp,
+		maxTemp: InitialMaxTemp,
 	}
 }
+
+func (tm *TemperatureManager) Update(operator string, temp int) error {
+	switch operator {
+	case ">=":
+		if temp > tm.minTemp {
+			tm.minTemp = temp
+		}
+	case "<=":
+		if temp < tm.maxTemp {
+			tm.maxTemp = temp
+		}
+	default:
+		return ErrInvalidOperator
+	}
+
+	return nil
+}
+
+func main() {
+}
+
