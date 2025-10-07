@@ -66,8 +66,7 @@ func processDepartment () error {
 		}
 
 		if err := manager.Update(operator, temp); err != nil {
-			fmt.Printf("error when updating temperature manager: %v\n", err)
-			continue
+			return fmt.Errorf("error when updating temperature manager: %w", err)
 		}
 
 		result := manager.GetOptimalTemp()
