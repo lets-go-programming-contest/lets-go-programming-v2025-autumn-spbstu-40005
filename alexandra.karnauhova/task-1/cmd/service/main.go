@@ -22,7 +22,7 @@ func main() {
 
 	_, err = fmt.Scan(&operator)
 	if err != nil {
-		fmt.Println("Invalid operator")
+		fmt.Println("Invalid operation")
 		return
 	}
 
@@ -40,6 +40,6 @@ func main() {
 		}
 		fmt.Println(first / second)
 	default:
-		fmt.Println("Invalid operator")
+		fmt.Println("Invalid operation")
 	}
 }
