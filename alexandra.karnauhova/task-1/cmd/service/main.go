@@ -2,27 +2,27 @@ package main
 
 import "fmt"
 
-func main(){
-	var(
+func main() {
+	var (
 		first, second int
-		operator string
+		operator      string
 	)
 
 	_, err := fmt.Scan(&first)
 	if err != nil {
-		fmt.Println("Error: Invalid first operand")
+		fmt.Println("Invalid first operand")
 		return
 	}
 
 	_, err = fmt.Scan(&second)
 	if err != nil {
-		fmt.Println("Error: Invalid second operand")
+		fmt.Println("Invalid second operand")
 		return
 	}
 
 	_, err = fmt.Scan(&operator)
 	if err != nil {
-		fmt.Println("Error: Invalid operator")
+		fmt.Println("Invalid operator")
 		return
 	}
 
@@ -35,13 +35,11 @@ func main(){
 		fmt.Println(first * second)
 	case "/":
 		if second == 0 {
-            fmt.Println("Error: Division by zero")
+			fmt.Println("Division by zero")
 			return
 		}
 		fmt.Println(first / second)
 	default:
-		fmt.Println("Error: Invalid operator")
+		fmt.Println("Invalid operator")
 	}
-	
-	return
 }
