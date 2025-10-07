@@ -1,4 +1,4 @@
-module github.com.P3rCh1/task-3
+module github.com/P3rCh1/task-3
 
 go 1.22.7
 
