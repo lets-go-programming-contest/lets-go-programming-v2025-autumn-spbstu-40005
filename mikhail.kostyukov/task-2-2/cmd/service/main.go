@@ -2,10 +2,13 @@ package main
 
 import (
 	"container/heap"
+	"errors"
 	"fmt"
 
 	"github.com/KostyukovMichael/lets-go-programming-v2025-autumn-spbstu-40005/task-2-2/internal/intheap"
 )
+
+var errConvert = errors.New("cannot convert to int")
 
 func main() {
 	var dishesCnt int
@@ -42,9 +45,13 @@ func main() {
 		return
 	}
 
-	var result int
-	for range wished {
-		result = heap.Pop(dishesHeap).(int)
+	for range wished - 1 {
+		heap.Pop(dishesHeap)
+	}
+
+	result, ok := heap.Pop(dishesHeap).(int)
+	if !ok {
+		fmt.Println(errConvert)
 	}
 
 	fmt.Println(result)
