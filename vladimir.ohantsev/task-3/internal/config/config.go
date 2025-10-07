@@ -5,7 +5,7 @@ import (
 	"io"
 	"os"
 
-	"github.com.P3rCh1/task-3/internal/must"
+	"github.com/P3rCh1/task-3/internal/must"
 	"gopkg.in/yaml.v3"
 )
 
