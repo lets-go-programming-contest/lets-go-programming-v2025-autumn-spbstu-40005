@@ -16,8 +16,8 @@ func main() {
 
 	must.Must("parse config", err)
 
-	bank, err := bank.ParseFile(config.Input)
+	bank, err := bank.ParseFileXML(config.Input)
 
 	must.Must("parse input-file", err)
-	must.Must("encode bank", bank.EncodeJSONToFile(config.Output))
+	must.Must("encode bank", bank.EncodeFileJSON(config.Output))
 }
