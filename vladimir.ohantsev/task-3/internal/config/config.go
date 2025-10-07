@@ -5,6 +5,7 @@ import (
 	"io"
 	"os"
 
+	"github.com.P3rCh1/task-3/internal/must"
 	"gopkg.in/yaml.v3"
 )
 
@@ -19,11 +20,7 @@ func ParseFile(path string) (*Config, error) {
 		return nil, fmt.Errorf("open config file: %w", err)
 	}
 
-	defer func() {
-		if err := file.Close(); err != nil {
-			panic(fmt.Sprintf("close file: %s", err))
-		}
-	}()
+	defer must.Close(path, file)
 
 	return Parse(file)
 }
