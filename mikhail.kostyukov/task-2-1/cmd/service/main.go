@@ -17,7 +17,7 @@ type TemperatureManager struct {
 	maxTemp int
 }
 
-func NewTemperatureManager() *TemperatureManager{
+func NewTemperatureManager() *TemperatureManager {
 	return &TemperatureManager{
 		minTemp: InitialMinTemp,
 		maxTemp: InitialMaxTemp,
@@ -45,10 +45,11 @@ func (tm *TemperatureManager) GetOptimalTemp() int {
 	if tm.minTemp > tm.maxTemp {
 		return -1
 	}
+
 	return tm.minTemp
 }
 
-func processDepartment () error {
+func processDepartment() error {
 	var workers int
 	if _, err := fmt.Scan(&workers); err != nil {
 		return fmt.Errorf("error when reading number of workers: %w", err)
@@ -56,11 +57,12 @@ func processDepartment () error {
 
 	manager := NewTemperatureManager()
 
-	for i := 0; i < workers; i++ {
+	for range workers {
 		var (
 			operator string
-			temp int
+			temp     int
 		)
+
 		if _, err := fmt.Scan(&operator, &temp); err != nil {
 			return fmt.Errorf("error when reading worker input: %w", err)
 		}
@@ -80,12 +82,14 @@ func main() {
 	var departments int
 	if _, err := fmt.Scan(&departments); err != nil {
 		fmt.Printf("error when reading number of departments: %v\n", err)
+
 		return
 	}
 
-	for i := 0; i < departments; i++ {
+	for range departments {
 		if err := processDepartment(); err != nil {
 			fmt.Printf("error when processing department: %v\n", err)
+
 			return
 		}
 	}
