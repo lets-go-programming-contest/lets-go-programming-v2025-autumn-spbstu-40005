@@ -1,40 +1,50 @@
 package main
 
-import "fmt"
+import (
+	"bufio"
+	"fmt"
+	"os"
+	"strconv"
+)
 
 func main() {
-	var (
-		operand1, operand2 int
-		operation          string
-	)
-	_, err := fmt.Scan(&operand1)
+	scanner := bufio.NewScanner(os.Stdin)
+	if !scanner.Scan() || scanner.Text() == "" {
+		fmt.Println("Invalid first operand")
+		return
+	}
+	x, err := strconv.Atoi(scanner.Text())
 	if err != nil {
 		fmt.Println("Invalid first operand")
 		return
 	}
-	_, err = fmt.Scan(&operand2)
+	if !scanner.Scan() || scanner.Text() == "" {
+		fmt.Println("Invalid second operand")
+		return
+	}
+	y, err := strconv.Atoi(scanner.Text())
 	if err != nil {
 		fmt.Println("Invalid second operand")
 		return
 	}
-	_, err = fmt.Scan(&operation)
-	if err != nil {
+	if !scanner.Scan() || scanner.Text() == "" {
 		fmt.Println("Invalid operation")
 		return
 	}
-	switch operation {
+	op := scanner.Text()
+	switch op {
 	case "+":
-		fmt.Println(operand1 + operand2)
+		fmt.Println(x + y)
 	case "-":
-		fmt.Println(operand1 - operand2)
+		fmt.Println(x - y)
 	case "*":
-		fmt.Println(operand1 * operand2)
+		fmt.Println(x * y)
 	case "/":
-		if operand2 == 0 {
+		if y == 0 {
 			fmt.Println("Division by zero")
 			return
 		}
-		fmt.Println(operand1 / operand2)
+		fmt.Println(float64(x) / float64(y))
 	default:
 		fmt.Println("Invalid operation")
 	}
