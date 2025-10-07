@@ -2,10 +2,10 @@ package main
 
 import (
 	"flag"
-	"fmt"
 
 	"github.com.P3rCh1/task-3/internal/bank"
 	"github.com.P3rCh1/task-3/internal/config"
+	"github.com.P3rCh1/task-3/internal/must"
 )
 
 func main() {
@@ -13,16 +13,11 @@ func main() {
 	flag.Parse()
 
 	config, err := config.ParseFile(*configPath)
-	if err != nil {
-		panic(fmt.Sprintf("parse config: %s", err))
-	}
+
+	must.Must("parse config", err)
 
 	bank, err := bank.ParseFile(config.Input)
-	if err != nil {
-		panic(fmt.Sprintf("parse input-file: %s", err))
-	}
 
-	if err := bank.EncodeJSONToFIle(config.Output); err != nil {
-		panic(fmt.Sprintf("encode bank: %s", err))
-	}
+	must.Must("parse input-file", err)
+	must.Must("encode bank", bank.EncodeJSONToFile(config.Output))
 }

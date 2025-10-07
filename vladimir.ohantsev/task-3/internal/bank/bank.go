@@ -11,6 +11,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com.P3rCh1/task-3/internal/must"
 	"golang.org/x/text/encoding/charmap"
 )
 
@@ -30,17 +31,19 @@ type Currency struct {
 	Rate     string `xml:"VunitRate"`
 }
 
+func charsetReader(charset string, input io.Reader) (io.Reader, error) {
+	switch charset {
+	case "windows-1251":
+		return charmap.Windows1251.NewDecoder().Reader(input), nil
+	default:
+		return input, nil
+	}
+}
+
 func Parse(r io.Reader) (*Bank, error) {
 	decoder := xml.NewDecoder(r)
 
-	decoder.CharsetReader = func(charset string, input io.Reader) (io.Reader, error) {
-		switch charset {
-		case "windows-1251":
-			return charmap.Windows1251.NewDecoder().Reader(input), nil
-		default:
-			return input, nil
-		}
-	}
+	decoder.CharsetReader = charsetReader
 
 	bank := new(Bank)
 	if err := decoder.Decode(&bank); err != nil {
@@ -56,11 +59,7 @@ func ParseFile(path string) (*Bank, error) {
 		return nil, fmt.Errorf("open input file: %w", err)
 	}
 
-	defer func() {
-		if err := file.Close(); err != nil {
-			panic(fmt.Sprintf("close file: %s", err))
-		}
-	}()
+	defer must.Close(path, file)
 
 	return Parse(file)
 }
@@ -83,19 +82,9 @@ type outputCurrency struct {
 type outputBank []outputCurrency
 
 func (b *Bank) EncodeJSON(writer io.Writer) error {
-	out := make(outputBank, len(b.Currencies))
-
-	for index, currency := range b.Currencies {
-		val, err := strconv.ParseFloat(strings.Replace(currency.Value, ",", ".", 1), 64)
-		if err != nil {
-			return fmt.Errorf("invalid type of value: %w", err)
-		}
-
-		out[index] = outputCurrency{
-			NumCode:  currency.NumCode,
-			CharCode: currency.CharCode,
-			Value:    val,
-		}
+	out, err := fetchOutput(b)
+	if err != nil {
+		return err
 	}
 
 	out.sortByValueDown()
@@ -111,7 +100,26 @@ func (b *Bank) EncodeJSON(writer io.Writer) error {
 	return nil
 }
 
-func (b *Bank) EncodeJSONToFIle(path string) error {
+func fetchOutput(b *Bank) (outputBank, error) {
+	out := make(outputBank, len(b.Currencies))
+
+	for index, currency := range b.Currencies {
+		val, err := strconv.ParseFloat(strings.Replace(currency.Value, ",", ".", 1), 64)
+		if err != nil {
+			return nil, fmt.Errorf("invalid type of value: %w", err)
+		}
+
+		out[index] = outputCurrency{
+			NumCode:  currency.NumCode,
+			CharCode: currency.CharCode,
+			Value:    val,
+		}
+	}
+
+	return out, nil
+}
+
+func (b *Bank) EncodeJSONToFile(path string) error {
 	const permissions = 0o755
 
 	dir := filepath.Dir(path)
@@ -124,11 +132,7 @@ func (b *Bank) EncodeJSONToFIle(path string) error {
 		return fmt.Errorf("create file: %w", err)
 	}
 
-	defer func() {
-		if err := file.Close(); err != nil {
-			panic(fmt.Sprintf("close file: %s", err))
-		}
-	}()
+	defer must.Close(path, file)
 
 	return b.EncodeJSON(file)
 }
