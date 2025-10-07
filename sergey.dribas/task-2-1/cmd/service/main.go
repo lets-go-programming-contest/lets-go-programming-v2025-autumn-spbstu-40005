@@ -5,15 +5,12 @@ import (
 	"fmt"
 )
 
-var (
-	errIN = errors.New("invalid input")
-)
+var errIN = errors.New("invalid input")
 
 func processDepartment() error {
 	var departmentSize int
 
 	_, err := fmt.Scan(&departmentSize)
-
 	if err != nil {
 		return errIN
 	}
@@ -57,9 +54,7 @@ func processDepartment() error {
 
 func main() {
 	var size int
-	_, err := fmt.Scan(&size)
-
-	if err != nil {
+	if _, err := fmt.Scan(&size); err != nil {
 		return
 	}
 
