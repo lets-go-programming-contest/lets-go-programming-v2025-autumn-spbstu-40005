@@ -5,24 +5,31 @@ import (
 	"fmt"
 )
 
+var (
+	errIN = errors.New("invalid input")
+)
+
 func processDepartment() error {
 	var departmentSize int
+
 	_, err := fmt.Scan(&departmentSize)
+
 	if err != nil {
-		return errors.New("")
+		return errIN
 	}
 
 	minTemp := 15
 	maxTemp := 30
 
 	for range departmentSize {
-
-		var operand string
-		var temp int
+		var (
+			operand string
+			temp    int
+		)
 
 		_, err := fmt.Scan(&operand, &temp)
 		if err != nil {
-			return errors.New("")
+			return errIN
 		}
 
 		switch operand {
@@ -35,7 +42,7 @@ func processDepartment() error {
 				maxTemp = temp
 			}
 		default:
-			return errors.New("")
+			return errIN
 		}
 
 		if minTemp > maxTemp {
@@ -44,12 +51,14 @@ func processDepartment() error {
 			fmt.Println(minTemp)
 		}
 	}
+
 	return nil
 }
 
 func main() {
 	var size int
 	_, err := fmt.Scan(&size)
+
 	if err != nil {
 		return
 	}
