@@ -1,12 +1,15 @@
 package main
 
-import "fmt"
+import (
+	"errors"
+	"fmt"
+)
 
-func processDepartment() bool {
+func processDepartment() error {
 	var departmentSize int
 	_, err := fmt.Scan(&departmentSize)
 	if err != nil {
-		return false
+		return errors.New("")
 	}
 
 	minTemp := 15
@@ -19,7 +22,7 @@ func processDepartment() bool {
 
 		_, err := fmt.Scan(&operand, &temp)
 		if err != nil {
-			return false
+			return errors.New("")
 		}
 
 		switch operand {
@@ -32,7 +35,7 @@ func processDepartment() bool {
 				maxTemp = temp
 			}
 		default:
-			return false
+			return errors.New("")
 		}
 
 		if minTemp > maxTemp {
@@ -41,8 +44,7 @@ func processDepartment() bool {
 			fmt.Println(minTemp)
 		}
 	}
-
-	return true
+	return nil
 }
 
 func main() {
@@ -53,7 +55,7 @@ func main() {
 	}
 
 	for range size {
-		if !processDepartment() {
+		if processDepartment() != nil {
 			return
 		}
 	}
