@@ -7,8 +7,8 @@ import (
 type IntHeap []int
 
 func (h *IntHeap) Push(val any) {
-	intValue, err := val.(int)
-	if !err {
+	intValue, ok := val.(int)
+	if !ok {
 		panic("invalid type pushed to IntHeap")
 	}
 
