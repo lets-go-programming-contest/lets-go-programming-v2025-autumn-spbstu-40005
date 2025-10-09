@@ -50,7 +50,7 @@ func readDepartment(employeeCount int) (Department, error) {
 		Requests:  []Request{},
 	}
 
-	for i := range employeeCount {
+	for range employeeCount {
 		req, err := readEmployeeRequest()
 		if err != nil {
 			return Department{}, ErrInvalidRead
@@ -75,7 +75,7 @@ func readInput() ([]Department, error) {
 
 	departments := make([]Department, 0, departmentCount)
 
-	for i := range departmentCount {
+	for range departmentCount {
 		dept, err := readDepartment(employeeCount)
 		if err != nil {
 			return nil, ErrInvalidRead
