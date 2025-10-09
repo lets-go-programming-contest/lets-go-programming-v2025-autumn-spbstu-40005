@@ -33,8 +33,10 @@ func readInt() (int, error) {
 }
 
 func readEmployeeRequest() (Request, error) {
-	var operator string
-	var temp int
+	var (
+		operator string
+		temp 	 int
+	)
 
 	_, err := fmt.Scan(&operator, &temp)
 	if err != nil {
@@ -45,17 +47,17 @@ func readEmployeeRequest() (Request, error) {
 }
 
 func readDepartment() (Department, error) {
-	K, err := readInt()
+	employeeCount, err := readInt()
 	if err != nil {
 		return Department{}, err
 	}
 
 	dept := Department{
-    		Employees: K,
+    		Employees: employeeCount,
     		Requests:  []Request{},
 	}
 
-	for range K {
+	for range employeeCount {
 		req, err := readEmployeeRequest()
 		if err != nil {
 			return Department{}, ErrInvalidRead
@@ -68,14 +70,14 @@ func readDepartment() (Department, error) {
 }
 
 func readInput() ([]Department, error) {
-	N, err := readInt()
+	departmentCount, err := readInt()
 	if err != nil {
 		return nil, err
 	}
 
-	departments := make([]Department, 0, N)
+	departments := make([]Department, 0, departmentCount)
 
-	for range N {
+	for range departmentCount {
 		dept, err := readDepartment()
 		if err != nil {
 			return nil, ErrInvalidRead
@@ -126,7 +128,8 @@ func collectAllResults(departments []Department) []string {
 	allResults := make([]string, 0)
 
 	for _, dept := range departments {
-		allResults = append(allResults, processDepartmentRequests(dept)...)
+		deptResults := processDepartmentRequests(dept)
+		allResults = append(allResults, deptResults...)
 	}
 
 	return allResults
@@ -142,6 +145,7 @@ func main() {
 	departments, err := readInput()
 	if err != nil {
 		fmt.Printf("Invalid read")
+
 		return
 	}
 
