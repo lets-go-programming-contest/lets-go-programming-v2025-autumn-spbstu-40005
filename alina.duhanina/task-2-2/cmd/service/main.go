@@ -29,7 +29,7 @@ func ValidateInput(N int, dishes []int, k int) error {
 	if k < 1 || k > N {
 		return ErrInvalidK
 	}
-	for i, rating := range dishes {
+	for _, rating := range dishes {
 		if rating < -10000 || rating > 10000 {
 			return ErrInvalidRating
 		}
@@ -43,7 +43,7 @@ func FindKthPreference(dishes []int, k int) (int, error) {
 		return 0, err
 	}
 
-	h := &heap.IntHeap{}
+	h := &intheap.IntHeap{}
 	heap.Init(h)
 	for _, dish := range dishes {
 		heap.Push(h, dish)
@@ -56,35 +56,33 @@ func FindKthPreference(dishes []int, k int) (int, error) {
 	return result, nil
 }
 
-func run() error {
+func main() {
 	var N, k int
 
 	_, err := fmt.Scan(&N)
 	if err != nil {
-		return fmt.Errorf(err)
+		fmt.Printf("Invalid read: %v\n", err)
+		return
 	}
+
 	dishes := make([]int, N)
 	for i := 0; i < N; i++ {
 		_, err := fmt.Scan(&dishes[i])
 		if err != nil {
-			return fmt.Errorf(err)
+			fmt.Printf("Invalid read: %v\n", err)
+			return
 		}
 	}
 	_, err = fmt.Scan(&k)
 	if err != nil {
-		return fmt.Errorf(err)
+		fmt.Printf("Invalid read: %v\n", err)
+		return
 	}
-	result, err := service.FindKthPreference(dishes, k)
+
+	result, err := FindKthPreference(dishes, k)
 	if err != nil {
-		return fmt.Errorf(err)
+		fmt.Printf("Processing Error: %v\n", err)
+		return
 	}
 	fmt.Println(result)
-
-	return nil
-}
-
-func main() {
-	if err := run(); err != nil {
-		fmt.Errorf(err)
-	}
 }
