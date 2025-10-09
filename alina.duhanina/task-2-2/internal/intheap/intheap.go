@@ -1,7 +1,5 @@
 package intheap
 
-import "container/heap"
-
 type IntHeap []int
 
 func (h IntHeap) Len() int {
