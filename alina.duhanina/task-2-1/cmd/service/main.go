@@ -42,7 +42,7 @@ func readEmployeeRequest() (Request, error)
 
 func readDepartment() (Department, error)
 {
-	K, err := readInt("количество сотрудников")
+	K, err := readInt("количество сотрудникв")
 	if err != nil
 	{
 		return Department{}, err
