@@ -1,27 +1,27 @@
 package intheap
 
 import (
-	"fmt"
+	"errors"
 	"sort"
 )
 
 var (
-	ErrHeap = fmt.Errorf("heap size less than number")
-	ErrType = fmt.Errorf("unexpected type from heap pop")
+	ErrHeap = errors.New("heap size less than number")
+	ErrType = errors.New("unexpected type from heap pop")
 )
 
 type IntHeap []int
 
-func (h IntHeap) Len() int {
-	return len(h)
+func (h *IntHeap) Len() int {
+	return len(*h)
 }
 
-func (h IntHeap) Less(i, j int) bool {
-	return h[i] < h[j]
+func (h *IntHeap) Less(i, j int) bool {
+	return (*h)[i] < (*h)[j]
 }
 
-func (h IntHeap) Swap(i, j int) {
-	h[i], h[j] = h[j], h[i]
+func (h *IntHeap) Swap(i, j int) {
+	(*h)[i], (*h)[j] = (*h)[j], (*h)[i]
 }
 
 func (h *IntHeap) Push(x interface{}) {
@@ -40,10 +40,13 @@ func (h *IntHeap) Pop() interface{} {
 	return x
 }
 
-func FindKthSmallest(intHeap IntHeap, number int) (int, error) {
+func FindKthSmallest(intHeap *IntHeap, number int) (int, error) {
 	if intHeap.Len() < number {
 		return 0, ErrHeap
 	}
+
+	copyHeap := make(IntHeap, number)
+	copy(copyHeap, *intHeap)
 
 	sort.Sort(intHeap)
 
