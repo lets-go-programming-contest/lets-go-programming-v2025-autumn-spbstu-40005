@@ -54,7 +54,8 @@ func FindKthPreference(dishes []int, preferenceOrder int) (int, error) {
 	for _, dish := range dishes {
 		heap.Push(heapInstance, dish)
 	}
-	for range preferenceOrder - 1 {
+
+	for i := 0; i < preferenceOrder-1; i++ {
 		heap.Pop(heapInstance)
 	}
 
@@ -77,7 +78,7 @@ func main() {
 	}
 
 	dishes := make([]int, dishCount)
-	for i := range dishCount {
+	for i := 0; i < dishCount; i++ {
 		_, err := fmt.Scan(&dishes[i])
 		if err != nil {
 			fmt.Printf("Invalid read: %v\n", err)
