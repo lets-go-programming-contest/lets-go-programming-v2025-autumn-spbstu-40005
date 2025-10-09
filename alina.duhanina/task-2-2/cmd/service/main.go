@@ -14,6 +14,7 @@ var (
 	ErrInvalidK         = errors.New("invalid k")
 	ErrInvalidLenDishes = errors.New("invalid len dishes")
 	ErrInvalidRating    = errors.New("invalid rating")
+	ErrAssertionFailed  = errors.New("type assertion failed")
 )
 
 func ValidateInput(dishCount int, dishes []int, preferenceOrder int) error {
@@ -47,19 +48,19 @@ func FindKthPreference(dishes []int, preferenceOrder int) (int, error) {
 		return 0, err
 	}
 
-	h := &intheap.IntHeap{}
-	heap.Init(h)
+	heapInstance := &intheap.IntHeap{}
+	heap.Init(heapInstance)
 
 	for _, dish := range dishes {
-		heap.Push(h, dish)
+		heap.Push(heapInstance, dish)
 	}
 	for range preferenceOrder - 1 {
-		heap.Pop(h)
+		heap.Pop(heapInstance)
 	}
 
-	result, ok := heap.Pop(h).(int)
+	result, ok := heap.Pop(heapInstance).(int)
 	if !ok {
-		return 0, errors.New("type assertion failed")
+		return 0, ErrAssertionFailed
 	}
 
 	return result, nil
@@ -71,6 +72,7 @@ func main() {
 	_, err := fmt.Scan(&dishCount)
 	if err != nil {
 		fmt.Printf("Invalid read: %v\n", err)
+
 		return
 	}
 
@@ -87,12 +89,14 @@ func main() {
 	_, err = fmt.Scan(&preferenceOrder)
 	if err != nil {
 		fmt.Printf("Invalid read: %v\n", err)
+
 		return
 	}
 
 	result, err := FindKthPreference(dishes, preferenceOrder)
 	if err != nil {
 		fmt.Printf("Processing Error: %v\n", err)
+
 		return
 	}
 
