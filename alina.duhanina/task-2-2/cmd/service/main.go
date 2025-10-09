@@ -9,26 +9,30 @@ import (
 )
 
 var (
-	ErrEmptyDishes      = errors.New("Empty Dishes")
-	ErrInvalidDishCount = errors.New("Invalid Dish Count")
-	ErrInvalidK         = errors.New("Invalid K")
-	ErrInvalidLenDishes = errors.New("Invalid LenDishes")
-	ErrInvalidRating    = errors.New("Invalid Rating")
+	ErrEmptyDishes      = errors.New("empty dishes")
+	ErrInvalidDishCount = errors.New("invalid dish count")
+	ErrInvalidK         = errors.New("invalid k")
+	ErrInvalidLenDishes = errors.New("invalid len dishes")
+	ErrInvalidRating    = errors.New("invalid rating")
 )
 
-func ValidateInput(N int, dishes []int, k int) error {
+func ValidateInput(dishCount int, dishes []int, preferenceOrder int) error {
 	if len(dishes) == 0 {
 		return ErrEmptyDishes
 	}
-	if N < 1 || N > 10000 {
+
+	if dishCount < 1 || dishCount > 10000 {
 		return ErrInvalidDishCount
 	}
-	if len(dishes) != N {
+
+	if len(dishes) != dishCount {
 		return ErrInvalidLenDishes
 	}
-	if k < 1 || k > N {
+
+	if preferenceOrder < 1 || preferenceOrder > dishCount {
 		return ErrInvalidK
 	}
+
 	for _, rating := range dishes {
 		if rating < -10000 || rating > 10000 {
 			return ErrInvalidRating
@@ -38,51 +42,59 @@ func ValidateInput(N int, dishes []int, k int) error {
 	return nil
 }
 
-func FindKthPreference(dishes []int, k int) (int, error) {
-	if err := ValidateInput(len(dishes), dishes, k); err != nil {
+func FindKthPreference(dishes []int, preferenceOrder int) (int, error) {
+	if err := ValidateInput(len(dishes), dishes, preferenceOrder); err != nil {
 		return 0, err
 	}
 
 	h := &intheap.IntHeap{}
 	heap.Init(h)
+
 	for _, dish := range dishes {
 		heap.Push(h, dish)
 	}
-	for i := 0; i < k-1; i++ {
+	for range preferenceOrder - 1 {
 		heap.Pop(h)
 	}
-	result := heap.Pop(h).(int)
+
+	result, ok := heap.Pop(h).(int)
+	if !ok {
+		return 0, errors.New("type assertion failed")
+	}
 
 	return result, nil
 }
 
 func main() {
-	var N, k int
+	var dishCount, preferenceOrder int
 
-	_, err := fmt.Scan(&N)
+	_, err := fmt.Scan(&dishCount)
 	if err != nil {
 		fmt.Printf("Invalid read: %v\n", err)
 		return
 	}
 
-	dishes := make([]int, N)
-	for i := 0; i < N; i++ {
+	dishes := make([]int, dishCount)
+	for i := range dishCount {
 		_, err := fmt.Scan(&dishes[i])
 		if err != nil {
 			fmt.Printf("Invalid read: %v\n", err)
+
 			return
 		}
 	}
-	_, err = fmt.Scan(&k)
+
+	_, err = fmt.Scan(&preferenceOrder)
 	if err != nil {
 		fmt.Printf("Invalid read: %v\n", err)
 		return
 	}
 
-	result, err := FindKthPreference(dishes, k)
+	result, err := FindKthPreference(dishes, preferenceOrder)
 	if err != nil {
 		fmt.Printf("Processing Error: %v\n", err)
 		return
 	}
+
 	fmt.Println(result)
 }
