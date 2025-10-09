@@ -11,6 +11,6 @@ func Must(op string, err error) {
 	}
 }
 
-func Close(path string, closer io.Closer) {
+func Close[T io.Closer](path string, closer T) {
 	Must(fmt.Sprintf("close %q", path), closer.Close())
 }
