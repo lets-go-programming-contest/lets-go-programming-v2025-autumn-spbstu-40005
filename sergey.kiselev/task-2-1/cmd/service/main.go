@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"sergey.kiselev/task-2-1/internal/employee"
-	"sergey.kiselev/task-2-1/internal/temperature"
 )
 
 func readEmployee() (*employee.Employee, error) {
@@ -27,15 +26,13 @@ func processDepartment() error {
 		return fmt.Errorf("failed to read countEmployees: %w", err)
 	}
 
-	manager := temperature.New()
-
 	for range countEmployees {
 		empl, err := readEmployee()
 		if err != nil {
 			return fmt.Errorf("error readEmployee : %w", err)
 		}
 
-		comfortTemp, err := empl.Process(manager)
+		comfortTemp, err := empl.Process()
 		if err != nil {
 			return fmt.Errorf("error process : %w", err)
 		}
