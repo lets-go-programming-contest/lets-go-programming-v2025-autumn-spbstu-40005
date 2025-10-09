@@ -5,15 +5,15 @@ import (
 	"log"
 	"os"
 
-	"dish-preference/heap"
-	"dish-preference/service"
+	"alina.duhanina/task-2-2/internal/intheap"
 )
 
 var (
-	ErrEmptyDishes      = errors.New("список блюд не может быть пустым")
-	ErrInvalidDishCount = errors.New("количество блюд должно быть от 1 до 10000")
-	ErrInvalidK         = errors.New("k должно быть в диапазоне от 1 до N")
-	ErrInvalidRating    = errors.New("рейтинг блюда должен быть в диапазоне от -10000 до 10000")
+	ErrEmptyDishes      = errors.New("Empty Dishes")
+	ErrInvalidDishCount = errors.New("Invalid Dish Count")
+	ErrInvalidK         = errors.New("Invalid K")
+	ErrInvalidLenDishes = errors.New("Invalid LenDishes")
+	ErrInvalidRating    = errors.New("Invalid Rating")
 )
 
 func ValidateInput(N int, dishes []int, k int) error {
@@ -24,16 +24,17 @@ func ValidateInput(N int, dishes []int, k int) error {
 		return ErrInvalidDishCount
 	}
 	if len(dishes) != N {
-		return fmt.Errorf("ожидалось %d блюд, получено %d", N, len(dishes))
+		return ErrInvalidLenDishes
 	}
 	if k < 1 || k > N {
 		return ErrInvalidK
 	}
 	for i, rating := range dishes {
 		if rating < -10000 || rating > 10000 {
-			return fmt.Errorf("недопустимый рейтинг блюда %d: %d (должен быть от -10000 до 10000)", i+1, rating)
+			return ErrInvalidRating
 		}
 	}
+
 	return nil
 }
 
@@ -51,37 +52,39 @@ func FindKthPreference(dishes []int, k int) (int, error) {
 		heap.Pop(h)
 	}
 	result := heap.Pop(h).(int)
-	return result, nil
-}
 
-func main() {
-	if err := run(); err != nil {
-		log.Printf("Ошибка: %v", err)
-		os.Exit(1)
-	}
+	return result, nil
 }
 
 func run() error {
 	var N, k int
+
 	_, err := fmt.Scan(&N)
 	if err != nil {
-		return fmt.Errorf("ошибка чтения количества блюд: %w", err)
+		return fmt.Errorf(err)
 	}
 	dishes := make([]int, N)
 	for i := 0; i < N; i++ {
 		_, err := fmt.Scan(&dishes[i])
 		if err != nil {
-			return fmt.Errorf("ошибка чтения рейтинга блюда %d: %w", i+1, err)
+			return fmt.Errorf(err)
 		}
 	}
 	_, err = fmt.Scan(&k)
 	if err != nil {
-		return fmt.Errorf("ошибка чтения значения k: %w", err)
+		return fmt.Errorf(err)
 	}
 	result, err := service.FindKthPreference(dishes, k)
 	if err != nil {
-		return fmt.Errorf("ошибка обработки данных: %w", err)
+		return fmt.Errorf(err)
 	}
 	fmt.Println(result)
+
 	return nil
+}
+
+func main() {
+	if err := run(); err != nil {
+		log.Printf(err)
+	}
 }
