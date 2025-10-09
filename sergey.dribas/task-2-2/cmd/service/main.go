@@ -28,7 +28,7 @@ func main() {
 		return
 	}
 
-	if result, err := intheap.FindKthSmallest(dish, predict); err != nil {
+	if result, err := intheap.FindKthSmallest(dish, predict); err == nil {
 		fmt.Println(result)
 	}
 }
