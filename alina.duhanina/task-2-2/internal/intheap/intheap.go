@@ -28,7 +28,6 @@ func (heapInstance *IntHeap) Pop() interface{} {
 		return nil
 	}
 	old := *heapInstance
-
 	n := len(old)
 	x := old[n-1]
 	*heapInstance = old[0 : n-1]
