@@ -1,9 +1,9 @@
 package main
 
 import (
+	"container/heap"
+	"errors"
 	"fmt"
-	"log"
-	"os"
 
 	"alina.duhanina/task-2-2/internal/intheap"
 )
@@ -85,6 +85,6 @@ func run() error {
 
 func main() {
 	if err := run(); err != nil {
-		log.Printf(err)
+		fmt.Errorf(err)
 	}
 }
