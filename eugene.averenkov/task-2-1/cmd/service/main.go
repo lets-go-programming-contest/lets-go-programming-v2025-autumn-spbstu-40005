@@ -15,9 +15,7 @@ const (
 	decimalBase    = 10
 )
 
-var (
-	ErrUnexpectedEndOfInput = errors.New("unexpected end of input")
-)
+var ErrUnexpectedEndOfInput = errors.New("unexpected end of input")
 
 type TemperatureManager struct {
 	minTemp int
@@ -82,6 +80,7 @@ func processDepartment(scanner *bufio.Scanner, workers int) {
 	for range workers {
 		if !scanner.Scan() {
 			fmt.Println(-1)
+
 			return
 		}
 
@@ -90,6 +89,7 @@ func processDepartment(scanner *bufio.Scanner, workers int) {
 
 		if len(parts) < minPartsLength {
 			fmt.Println(-1)
+
 			continue
 		}
 
@@ -103,16 +103,21 @@ func processDepartment(scanner *bufio.Scanner, workers int) {
 
 func main() {
 	scanner := bufio.NewScanner(os.Stdin)
+
 	departments, err := parseInput(scanner)
 	if err != nil {
 		fmt.Println(-1)
+
 		return
 	}
+
 	workers, err := parseInput(scanner)
 	if err != nil {
 		fmt.Println(-1)
+
 		return
 	}
+
 	for range departments {
 		processDepartment(scanner, workers)
 	}
