@@ -26,7 +26,6 @@ func readInt() (int, error) {
 
 	_, err := fmt.Scan(&value)
 	if err != nil {
-
 		return 0, ErrInvalidInput
 	}
 
@@ -39,7 +38,6 @@ func readEmployeeRequest() (Request, error) {
 
 	_, err := fmt.Scan(&operator, &temp)
 	if err != nil {
-
 		return Request{}, ErrInvalidInput
 	}
 
@@ -49,11 +47,10 @@ func readEmployeeRequest() (Request, error) {
 func readDepartment() (Department, error) {
 	K, err := readInt()
 	if err != nil {
-
 		return Department{}, err
 	}
 
-	dept := Department {
+	dept := Department{
     		Employees: K,
     		Requests:  []Request{},
 	}
@@ -61,7 +58,6 @@ func readDepartment() (Department, error) {
 	for range K {
 		req, err := readEmployeeRequest()
 		if err != nil {
-
 			return Department{}, ErrInvalidRead
 		}
 
@@ -74,7 +70,6 @@ func readDepartment() (Department, error) {
 func readInput() ([]Department, error) {
 	N, err := readInt()
 	if err != nil {
-
 		return nil, err
 	}
 
@@ -83,7 +78,6 @@ func readInput() ([]Department, error) {
 	for range N {
 		dept, err := readDepartment()
 		if err != nil {
-
 			return nil, ErrInvalidRead
 		}
 
@@ -110,7 +104,6 @@ func updateTemperatureRange(minTemp, maxTemp int, req Request) (int, int) {
 
 func getTemperatureResult(minTemp, maxTemp int) string {
 	if minTemp <= maxTemp {
-
 		return strconv.Itoa(minTemp)
 	}
 
@@ -148,8 +141,7 @@ func printResults(results []string) {
 func main() {
 	departments, err := readInput()
 	if err != nil {
-		ErrInvalidRead
-
+		fmt.Printf("Invalid read")
 		return
 	}
 
