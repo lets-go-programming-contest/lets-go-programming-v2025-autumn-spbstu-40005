@@ -9,7 +9,7 @@ import (
 func main() {
 	var (
 		size, number, predict int
-		dish                  = intheap.IntHeap{}
+		dish                  = &intheap.IntHeap{}
 	)
 
 	if _, err := fmt.Scan(&size); err != nil {
