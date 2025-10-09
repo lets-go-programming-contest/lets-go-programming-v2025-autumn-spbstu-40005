@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 
-	"sergey.dribas/task-2-2/internal/intheap"
+	`sergey.dribas/task-2-2/internal/intheap`
 )
 
 func main() {
@@ -27,5 +27,6 @@ func main() {
 	if _, err := fmt.Scan(&predict); err != nil {
 		return
 	}
+
 	fmt.Println(intheap.FindKthSmallest(dish, predict))
 }
