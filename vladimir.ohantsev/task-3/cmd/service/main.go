@@ -5,7 +5,7 @@ import (
 
 	"github.com/P3rCh1/task-3/internal/bank"
 	"github.com/P3rCh1/task-3/internal/config"
-	"github.com/P3rCh1/task-3/internal/must"
+	"github.com/P3rCh1/task-3/pkg/must"
 )
 
 func main() {

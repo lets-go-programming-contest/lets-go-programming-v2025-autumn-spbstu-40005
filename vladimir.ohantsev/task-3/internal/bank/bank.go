@@ -6,7 +6,7 @@ import (
 	"io"
 	"os"
 
-	"github.com/P3rCh1/task-3/internal/must"
+	"github.com/P3rCh1/task-3/pkg/must"
 	"golang.org/x/text/encoding/charmap"
 )
 
