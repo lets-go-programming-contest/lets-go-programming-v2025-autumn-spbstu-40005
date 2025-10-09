@@ -19,7 +19,7 @@ func main() {
 		fmt.Println("Invalid second operand")
 		return
 	}
-	_, err := fmt.Scan(&operation)
+	_, err = fmt.Scan(&operation)
 	if err != nil {
 		fmt.Println("Invalid operation")
 		return
