@@ -53,8 +53,8 @@ func readDepartment() (Department, error) {
 	}
 
 	dept := Department{
-    		Employees: employeeCount,
-    		Requests:  []Request{},
+		Employees: employeeCount,
+		Requests:  []Request{},
 	}
 
 	for range employeeCount {
