@@ -23,34 +23,39 @@ type Request struct {
 
 func readInt() (int, error) {
 	var value int
+
 	_, err := fmt.Scan(&value)
 	if err != nil {
 		return 0, ErrInvalidInput
 	}
+
 	return value, nil
 }
 
 func readEmployeeRequest() (Request, error) {
 	var operator string
 	var temp int
+
 	_, err := fmt.Scan(&operator, &temp)
 	if err != nil {
 		return Request{}, ErrInvalidInput
 	}
+
 	return Request{Operator: operator, Temp: temp}, nil
 }
 
 func readDepartment(employeeCount int) (Department, error) {
 	dept := Department{
 		Employees: employeeCount,
-		Requests:  make([]Request, 0, employeeCount),
+		Requests:  []Request{},
 	}
 
-	for i := 0; i < employeeCount; i++ {
+	for i := range employeeCount {
 		req, err := readEmployeeRequest()
 		if err != nil {
 			return Department{}, ErrInvalidRead
 		}
+
 		dept.Requests = append(dept.Requests, req)
 	}
 
@@ -70,11 +75,12 @@ func readInput() ([]Department, error) {
 
 	departments := make([]Department, 0, departmentCount)
 
-	for i := 0; i < departmentCount; i++ {
+	for i := range departmentCount {
 		dept, err := readDepartment(employeeCount)
 		if err != nil {
 			return nil, ErrInvalidRead
 		}
+
 		departments = append(departments, dept)
 	}
 
@@ -98,6 +104,7 @@ func updateTemperatureRange(minTemp, maxTemp int, req Request) (int, int, bool) 
 	if newMin <= newMax {
 		return newMin, newMax, true
 	}
+
 	return newMin, newMax, false
 }
 
@@ -107,17 +114,19 @@ func processDepartmentRequests(dept Department) []string {
 	valid := true
 
 	for _, req := range dept.Requests {
-		if valid {
-			var ok bool
-			minTemp, maxTemp, ok = updateTemperatureRange(minTemp, maxTemp, req)
-			if ok {
-				results = append(results, strconv.Itoa(minTemp))
-			} else {
-				results = append(results, "-1")
-				valid = false
-			}
+		if !valid {
+			results = append(results, "-1")
+			continue
+		}
+
+		var ok bool
+		minTemp, maxTemp, ok = updateTemperatureRange(minTemp, maxTemp, req)
+
+		if ok {
+			results = append(results, strconv.Itoa(minTemp))
 		} else {
 			results = append(results, "-1")
+			valid = false
 		}
 	}
 
@@ -126,10 +135,12 @@ func processDepartmentRequests(dept Department) []string {
 
 func collectAllResults(departments []Department) []string {
 	allResults := make([]string, 0)
+
 	for _, dept := range departments {
 		deptResults := processDepartmentRequests(dept)
 		allResults = append(allResults, deptResults...)
 	}
+
 	return allResults
 }
 
