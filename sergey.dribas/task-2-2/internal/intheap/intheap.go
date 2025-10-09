@@ -6,8 +6,8 @@ import (
 )
 
 var (
-	ErrorHeap error = fmt.Errorf("heap size less than number")
-	ErrorType error = fmt.Errorf("unexpected type from heap pop")
+	ErrHeap = fmt.Errorf("heap size less than number")
+	ErrType = fmt.Errorf("unexpected type from heap pop")
 )
 
 type IntHeap []int
@@ -42,7 +42,7 @@ func (h *IntHeap) Pop() interface{} {
 
 func FindKthSmallest(intHeap IntHeap, number int) (int, error) {
 	if intHeap.Len() < number {
-		return 0, ErrorHeap
+		return 0, ErrHeap
 	}
 
 	sort.Sort(intHeap)
@@ -56,5 +56,5 @@ func FindKthSmallest(intHeap IntHeap, number int) (int, error) {
 		return val, nil
 	}
 
-	return 0, ErrorType
+	return 0, ErrType
 }
