@@ -7,7 +7,7 @@ func (heapInstance *IntHeap) Len() int {
 }
 
 func (heapInstance *IntHeap) Less(i, j int) bool {
-	return (*heapInstance)[i] < (*heapInstance)[j]
+	return (*heapInstance)[i] > (*heapInstance)[j]
 }
 
 func (heapInstance *IntHeap) Swap(i, j int) {
