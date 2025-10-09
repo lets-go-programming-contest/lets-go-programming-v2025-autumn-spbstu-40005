@@ -23,41 +23,34 @@ type Request struct {
 
 func readInt() (int, error) {
 	var value int
-
 	_, err := fmt.Scan(&value)
 	if err != nil {
 		return 0, ErrInvalidInput
 	}
-
 	return value, nil
 }
 
 func readEmployeeRequest() (Request, error) {
-	var (
-		operator string
-		temp     int
-	)
-
+	var operator string
+	var temp int
 	_, err := fmt.Scan(&operator, &temp)
 	if err != nil {
 		return Request{}, ErrInvalidInput
 	}
-
 	return Request{Operator: operator, Temp: temp}, nil
 }
 
 func readDepartment(employeeCount int) (Department, error) {
 	dept := Department{
 		Employees: employeeCount,
-		Requests:  []Request{},
+		Requests:  make([]Request, 0, employeeCount),
 	}
 
-	for range employeeCount {
+	for i := 0; i < employeeCount; i++ {
 		req, err := readEmployeeRequest()
 		if err != nil {
 			return Department{}, ErrInvalidRead
 		}
-
 		dept.Requests = append(dept.Requests, req)
 	}
 
@@ -77,48 +70,55 @@ func readInput() ([]Department, error) {
 
 	departments := make([]Department, 0, departmentCount)
 
-	for range departmentCount {
+	for i := 0; i < departmentCount; i++ {
 		dept, err := readDepartment(employeeCount)
 		if err != nil {
 			return nil, ErrInvalidRead
 		}
-
 		departments = append(departments, dept)
 	}
 
 	return departments, nil
 }
 
-func updateTemperatureRange(minTemp, maxTemp int, req Request) (int, int) {
+func updateTemperatureRange(minTemp, maxTemp int, req Request) (int, int, bool) {
+	newMin, newMax := minTemp, maxTemp
+
 	switch req.Operator {
 	case ">=":
-		if req.Temp > minTemp {
-			minTemp = req.Temp
+		if req.Temp > newMin {
+			newMin = req.Temp
 		}
 	case "<=":
-		if req.Temp < maxTemp {
-			maxTemp = req.Temp
+		if req.Temp < newMax {
+			newMax = req.Temp
 		}
 	}
 
-	return minTemp, maxTemp
-}
-
-func getTemperatureResult(minTemp, maxTemp int) string {
-	if minTemp <= maxTemp {
-		return strconv.Itoa(minTemp)
+	if newMin <= newMax {
+		return newMin, newMax, true
 	}
-
-	return "-1"
+	return newMin, newMax, false
 }
 
 func processDepartmentRequests(dept Department) []string {
 	results := make([]string, 0, len(dept.Requests))
 	minTemp, maxTemp := 15, 30
+	valid := true
 
 	for _, req := range dept.Requests {
-		minTemp, maxTemp = updateTemperatureRange(minTemp, maxTemp, req)
-		results = append(results, getTemperatureResult(minTemp, maxTemp))
+		if valid {
+			var ok bool
+			minTemp, maxTemp, ok = updateTemperatureRange(minTemp, maxTemp, req)
+			if ok {
+				results = append(results, strconv.Itoa(minTemp))
+			} else {
+				results = append(results, "-1")
+				valid = false
+			}
+		} else {
+			results = append(results, "-1")
+		}
 	}
 
 	return results
@@ -126,12 +126,10 @@ func processDepartmentRequests(dept Department) []string {
 
 func collectAllResults(departments []Department) []string {
 	allResults := make([]string, 0)
-
 	for _, dept := range departments {
 		deptResults := processDepartmentRequests(dept)
 		allResults = append(allResults, deptResults...)
 	}
-
 	return allResults
 }
 
@@ -144,8 +142,7 @@ func printResults(results []string) {
 func main() {
 	departments, err := readInput()
 	if err != nil {
-		fmt.Printf("Invalid read")
-
+		fmt.Println("Invalid read")
 		return
 	}
 
