@@ -17,13 +17,13 @@ type Request struct
 	Temp     int
 }
 
-func readInt(description string) (int, error)
+func readInt() (int, error)
 {
 	var value int
 	_, err := fmt.Scan(&value)
 	if err != nil
 	{
-		return 0, fmt.Errorf("%s: %v", description, err)
+		return 0, fmt.Errorf("Invalid input")
 	}
 	return value, nil
 }
@@ -35,14 +35,14 @@ func readEmployeeRequest() (Request, error)
 	_, err := fmt.Scan(&operator, &temp)
 	if err != nil
 	{
-		return Request{}, fmt.Errorf("требование сотрудника: %v", err)
+		return Request{}, fmt.Errorf("Invalid input")
 	}
 	return Request{Operator: operator, Temp: temp}, nil
 }
 
 func readDepartment() (Department, error)
 {
-	K, err := readInt("количество сотрудникв")
+	K, err := readInt()
 	if err != nil
 	{
 		return Department{}, err
@@ -53,7 +53,7 @@ func readDepartment() (Department, error)
 		req, err := readEmployeeRequest()
 		if err != nil
 		{
-			return Department{}, fmt.Errorf("сотрудник %d: %v", j+1, err)
+			return Department{}, fmt.Errorf("Invalid read")
 		}
 		dept.Requests = append(dept.Requests, req)
 	}
@@ -62,7 +62,7 @@ func readDepartment() (Department, error)
 
 func readInput() ([]Department, error)
 {
-	N, err := readInt("количество отделов")
+	N, err := readInt()
 	if err != nil
 	{
 		return nil, err
@@ -72,7 +72,7 @@ func readInput() ([]Department, error)
 		dept, err := readDepartment()
 		if err != nil
 		{
-			return nil, fmt.Errorf("отдел %d: %v", i+1, err)
+			return nil, fmt.Errorf("Invalid read")
 		}
 		departments = append(departments, dept)
 	}
@@ -141,7 +141,7 @@ func main()
 	departments, err := readInput()
 	if err != nil
 	{
-		fmt.Printf("Ошибка: %v\n", err)
+		fmt.Printf("Invalid read")
 		return
 	}
 	results := collectAllResults(departments)
