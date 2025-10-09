@@ -33,8 +33,10 @@ func readInt() (int, error) {
 }
 
 func readEmployeeRequest() (Request, error) {
-	var operator string
-	var temp int
+	var (
+		operator string
+		temp     int
+	)
 
 	_, err := fmt.Scan(&operator, &temp)
 	if err != nil {
@@ -116,6 +118,7 @@ func processDepartmentRequests(dept Department) []string {
 	for _, req := range dept.Requests {
 		if !valid {
 			results = append(results, "-1")
+
 			continue
 		}
 
@@ -154,6 +157,7 @@ func main() {
 	departments, err := readInput()
 	if err != nil {
 		fmt.Println("Invalid read")
+
 		return
 	}
 
