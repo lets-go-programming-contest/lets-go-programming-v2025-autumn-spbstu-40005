@@ -35,7 +35,7 @@ func readInt() (int, error) {
 func readEmployeeRequest() (Request, error) {
 	var (
 		operator string
-		temp 	 int
+		temp     int
 	)
 
 	_, err := fmt.Scan(&operator, &temp)
