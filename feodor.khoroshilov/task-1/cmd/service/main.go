@@ -1,13 +1,13 @@
 package main
 
 import (
-	"fmt"
+		"fmt"
 )
 
 func main() {
 	var (
 		operand1, operand2 int
-		operation          string
+		operation string	
 	)
 	_, err := fmt.Scan(&operand1)
 	if err != nil {
@@ -26,19 +26,18 @@ func main() {
 	}
 	switch operation {
 	case "+":
-		fmt.Println(operand1 + operand2)
+			fmt.Println(operand1 + operand2)
 	case "-":
-		fmt.Println(operand1 - operand2)
+			fmt.Println(operand1 - operand2)
 	case "*":
-		fmt.Println(operand1 * operand2)
+			fmt.Println(operand1 * operand2)
 	case "/":
-		if operand2 == 0 {
-			fmt.Println("Division by zero")
-			return
-		}
-		fmt.Println(operand1 / operand2)
+			if operand2 == 0 {
+				fmt.Println("Division by zero")
+				return
+			}
+			fmt.Println(operand1 / operand2)
 	default:
-		fmt.Println("Invalid operation")
-
+			fmt.Println("Invalid operation")
 	}
 }
