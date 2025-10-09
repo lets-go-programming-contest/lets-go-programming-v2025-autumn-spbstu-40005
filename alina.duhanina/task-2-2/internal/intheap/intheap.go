@@ -2,16 +2,16 @@ package intheap
 
 type IntHeap []int
 
-func (heapInstance IntHeap) Len() int {
-	return len(heapInstance)
+func (heapInstance *IntHeap) Len() int {
+	return len(*heapInstance)
 }
 
-func (heapInstance IntHeap) Less(i, j int) bool {
-	return heapInstance[i] < heapInstance[j]
+func (heapInstance *IntHeap) Less(i, j int) bool {
+	return (*heapInstance)[i] < (*heapInstance)[j]
 }
 
-func (heapInstance IntHeap) Swap(i, j int) {
-	heapInstance[i], heapInstance[j] = heapInstance[j], heapInstance[i]
+func (heapInstance *IntHeap) Swap(i, j int) {
+	(*heapInstance)[i], (*heapInstance)[j] = (*heapInstance)[j], (*heapInstance)[i]
 }
 
 func (heapInstance *IntHeap) Push(x interface{}) {
@@ -19,6 +19,7 @@ func (heapInstance *IntHeap) Push(x interface{}) {
 	if !ok {
 		return
 	}
+
 	*heapInstance = append(*heapInstance, num)
 }
 
