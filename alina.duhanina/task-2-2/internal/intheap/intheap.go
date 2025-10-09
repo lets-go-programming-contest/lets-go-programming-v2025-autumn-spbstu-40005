@@ -24,9 +24,10 @@ func (heapInstance *IntHeap) Push(x interface{}) {
 }
 
 func (heapInstance *IntHeap) Pop() interface{} {
-	if heapInstance.Len() == 0 {
+	if len(*heapInstance) == 0 {
 		return nil
 	}
+
 	old := *heapInstance
 	n := len(old)
 	x := old[n-1]
