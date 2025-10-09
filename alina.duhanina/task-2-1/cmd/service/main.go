@@ -1,8 +1,14 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"strconv"
+)
+
+var (
+	ErrInvalidInput = errors.New("invalid input")
+	ErrInvalidRead  = errors.New("invalid read")
 )
 
 type Department struct {
@@ -17,52 +23,73 @@ type Request struct {
 
 func readInt() (int, error) {
 	var value int
+
 	_, err := fmt.Scan(&value)
 	if err != nil {
-		return 0, fmt.Errorf("Invalid input")
+
+		return 0, ErrInvalidInput
 	}
+
 	return value, nil
 }
 
 func readEmployeeRequest() (Request, error) {
 	var operator string
 	var temp int
+
 	_, err := fmt.Scan(&operator, &temp)
 	if err != nil {
-		return Request{}, fmt.Errorf("Invalid input")
+
+		return Request{}, ErrInvalidInput
 	}
+
 	return Request{Operator: operator, Temp: temp}, nil
 }
 
 func readDepartment() (Department, error) {
 	K, err := readInt()
 	if err != nil {
+
 		return Department{}, err
 	}
-	dept := Department{Employees: K}
-	for j := 0; j < K; j++ {
+
+	dept := Department {
+    		Employees: K,
+    		Requests:  []Request{},
+	}
+
+	for range K {
 		req, err := readEmployeeRequest()
 		if err != nil {
-			return Department{}, fmt.Errorf("Invalid read")
+
+			return Department{}, ErrInvalidRead
 		}
+
 		dept.Requests = append(dept.Requests, req)
 	}
+
 	return dept, nil
 }
 
 func readInput() ([]Department, error) {
 	N, err := readInt()
 	if err != nil {
+
 		return nil, err
 	}
-	var departments []Department
-	for i := 0; i < N; i++ {
+
+	departments := make([]Department, 0, N)
+
+	for range N {
 		dept, err := readDepartment()
 		if err != nil {
-			return nil, fmt.Errorf("Invalid read")
+
+			return nil, ErrInvalidRead
 		}
+
 		departments = append(departments, dept)
 	}
+
 	return departments, nil
 }
 
@@ -77,31 +104,38 @@ func updateTemperatureRange(minTemp, maxTemp int, req Request) (int, int) {
 			maxTemp = req.Temp
 		}
 	}
+
 	return minTemp, maxTemp
 }
 
 func getTemperatureResult(minTemp, maxTemp int) string {
 	if minTemp <= maxTemp {
+
 		return strconv.Itoa(minTemp)
 	}
+
 	return "-1"
 }
 
 func processDepartmentRequests(dept Department) []string {
-	var results []string
+	results := make([]string, 0, len(dept.Requests))
 	minTemp, maxTemp := 15, 30
+
 	for _, req := range dept.Requests {
 		minTemp, maxTemp = updateTemperatureRange(minTemp, maxTemp, req)
 		results = append(results, getTemperatureResult(minTemp, maxTemp))
 	}
+
 	return results
 }
 
 func collectAllResults(departments []Department) []string {
-	var allResults []string
+	allResults := make([]string, 0)
+
 	for _, dept := range departments {
 		allResults = append(allResults, processDepartmentRequests(dept)...)
 	}
+
 	return allResults
 }
 
@@ -114,9 +148,11 @@ func printResults(results []string) {
 func main() {
 	departments, err := readInput()
 	if err != nil {
-		fmt.Printf("Invalid read")
+		ErrInvalidRead
+
 		return
 	}
+
 	results := collectAllResults(departments)
 	printResults(results)
 }
