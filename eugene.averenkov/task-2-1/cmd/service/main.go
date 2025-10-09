@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 	"os"
 	"strings"
@@ -10,6 +11,12 @@ import (
 const (
 	InitialMinTemp = 15
 	InitialMaxTemp = 30
+	minPartsLength = 2
+	decimalBase    = 10
+)
+
+var (
+	ErrUnexpectedEndOfInput = errors.New("unexpected end of input")
 )
 
 type TemperatureManager struct {
@@ -41,6 +48,7 @@ func (tm *TemperatureManager) GetOptimalTemp() int {
 	if !tm.IsPossible() {
 		return -1
 	}
+
 	return tm.minTemp
 }
 
@@ -50,25 +58,28 @@ func (tm *TemperatureManager) IsPossible() bool {
 
 func parseInput(scanner *bufio.Scanner) (int, error) {
 	if !scanner.Scan() {
-		return 0, fmt.Errorf("unexpected end of input")
+		return 0, fmt.Errorf("%w", ErrUnexpectedEndOfInput)
 	}
+
 	return parseInt(scanner.Text()), nil
 }
 
 func parseInt(s string) int {
 	num := 0
+
 	for _, ch := range s {
 		if ch >= '0' && ch <= '9' {
-			num = num*10 + int(ch-'0')
+			num = num*decimalBase + int(ch-'0')
 		}
 	}
+
 	return num
 }
 
 func processDepartment(scanner *bufio.Scanner, workers int) {
 	manager := NewTemperatureManager()
 
-	for i := 0; i < workers; i++ {
+	for range workers {
 		if !scanner.Scan() {
 			fmt.Println(-1)
 			return
@@ -76,7 +87,8 @@ func processDepartment(scanner *bufio.Scanner, workers int) {
 
 		line := scanner.Text()
 		parts := strings.Fields(line)
-		if len(parts) < 2 {
+
+		if len(parts) < minPartsLength {
 			fmt.Println(-1)
 			continue
 		}
@@ -101,7 +113,7 @@ func main() {
 		fmt.Println(-1)
 		return
 	}
-	for i := 0; i < departments; i++ {
+	for range departments {
 		processDepartment(scanner, workers)
 	}
 }
