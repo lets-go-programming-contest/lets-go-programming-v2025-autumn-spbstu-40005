@@ -33,8 +33,11 @@ func ProcessDepartment() ([]int, error) {
 func ProcessSingleDepartment() ([]int, error) {
 	var countEmployees int
 	_, err := fmt.Scan(&countEmployees)
-	if err != nil || countEmployees < 1 || countEmployees > 1000 {
-		return nil, ErrInput
+	if err != nil{
+		return nil, err
 	}
+    if  countEmployees < 1 || countEmployees > 1000{
+        return nil, ErrInput
+    }
 	return employee.ProcessEmployee(countEmployees)
 }
