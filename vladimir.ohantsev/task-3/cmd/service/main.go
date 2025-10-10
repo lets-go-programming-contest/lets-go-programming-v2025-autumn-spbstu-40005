@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"sort"
 
 	"github.com/P3rCh1/task-3/internal/bank"
 	"github.com/P3rCh1/task-3/internal/config"
@@ -19,5 +20,13 @@ func main() {
 	bank, err := bank.ParseFileXML(config.Input)
 
 	must.Must("parse input-file", err)
+
+	sort.Slice(
+		bank.Currencies,
+		func(i, j int) bool {
+			return bank.Currencies[i].Value > bank.Currencies[j].Value
+		},
+	)
+
 	must.Must("encode bank", bank.EncodeFileJSON(config.Output))
 }
