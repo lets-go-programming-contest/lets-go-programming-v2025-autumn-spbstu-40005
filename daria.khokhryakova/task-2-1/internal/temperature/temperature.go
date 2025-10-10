@@ -7,25 +7,40 @@ import (
 )
 
 var (
-	ErrorInput = errors.New("Invalid input")
-	ErrorIcon  = errors.New("Invalid icon")
+	ErrorInput = errors.New("invalid input")
+	ErrorIcon  = errors.New("invalid icon")
 )
 
 func ReadTemperature() (string, int, error) {
 	var input string
-	fmt.Scan(&input)
+	_, err := fmt.Scan(&input)
+    if err != nil {
+        return "", 0, err
+    }
+
 	runes := []rune(input)
-	if len(runes) < 3 {
+    const minInputLength = 3
+	if len(runes) < minInputLength{
 		return "", 0, ErrorIcon
 	}
+
 	icon := string(runes[:2])
-	num, _ := strconv.Atoi(string(runes[2:]))
+
 	if icon != ">=" && icon != "<=" {
 		return "", 0, ErrorIcon
 	}
-	if num < 15 || num > 30 {
-		return "", 0, ErrorInput
-	}
+
+    num, _ := strconv.Atoi(string(runes[2:]))
+    if err != nil {
+        return "", 0, ErrInput
+    }
+
+    const minTemp = 15
+    const maxTemp = 30
+    if num < minTemp || num > maxTemp {
+        return "", 0, ErrInput
+    }
+
 	return icon, num, nil
 }
 
