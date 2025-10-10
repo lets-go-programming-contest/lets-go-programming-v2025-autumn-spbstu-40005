@@ -10,6 +10,8 @@ import (
 const (
 	InitialMinTemp = 15
 	InitialMaxTemp = 30
+	decimalBase    = 10
+	minPartsLength = 2
 )
 
 type TemperatureManager struct {
@@ -49,7 +51,7 @@ func stringToInt(s string) int {
 	num := 0
 	for _, ch := range s {
 		if ch >= '0' && ch <= '9' {
-			num = num*10 + int(ch-'0')
+			num = num*decimalBase + int(ch-'0')
 		}
 	}
 
@@ -73,8 +75,9 @@ func main() {
 			line := scanner.Text()
 			parts := strings.Fields(line)
 
-			if len(parts) < 2 {
+			if len(parts) < minPartsLength {
 				fmt.Println(-1)
+
 				continue
 			}
 
