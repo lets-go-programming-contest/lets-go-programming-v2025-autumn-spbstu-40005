@@ -49,10 +49,8 @@ func (tm *TemperatureManager) GetOptimalTemp() int {
 
 func stringToInt(s string) int {
 	num := 0
-	chars := []rune(s)
 
-	for range len(chars) {
-		ch := chars[i]
+	for _, ch := range s {
 		if ch >= '0' && ch <= '9' {
 			num = num*decimalBase + int(ch-'0')
 		}
