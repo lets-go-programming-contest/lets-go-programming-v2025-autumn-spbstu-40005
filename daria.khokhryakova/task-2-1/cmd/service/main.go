@@ -10,8 +10,10 @@ func main() {
 	itog, err := department.ProcessDepartment()
 	if err != nil {
 		fmt.Println(err.Error())
+
 		return
 	}
+
 	for _, temp := range itog {
 		fmt.Println(temp)
 	}

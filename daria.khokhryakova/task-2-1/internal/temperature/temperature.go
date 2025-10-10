@@ -12,9 +12,9 @@ var (
 
 func ReadTemperature() (string, int, error) {
 	var operator string
-    var temp int
+	var temp int
 
-	_, err := fmt.Scan(&operator,&temp)
+	_, err := fmt.Scan(&operator, &temp)
 	if err != nil {
 		return "", 0, fmt.Errorf("read temperature: %w", err)
 	}
@@ -25,6 +25,7 @@ func ReadTemperature() (string, int, error) {
 
 	const minTemp = 15
 	const maxTemp = 30
+
 	if temp < minTemp || temp > maxTemp {
 		return "", 0, ErrInput
 	}
@@ -38,6 +39,7 @@ func PreferenceTemperature(icon string, temperature int, minTemp, maxTemp *int) 
 		if temperature > *minTemp {
 			*minTemp = temperature
 		}
+
 		if *minTemp <= *maxTemp {
 			return *minTemp, true
 		}
@@ -47,12 +49,12 @@ func PreferenceTemperature(icon string, temperature int, minTemp, maxTemp *int) 
 		if temperature < *maxTemp {
 			*maxTemp = temperature
 		}
+
 		if *minTemp <= *maxTemp {
 			return *minTemp, true
 		}
 
 		return -1, false
-
 	default:
 		return -1, false
 	}
