@@ -38,7 +38,7 @@ func getKDish(dishes []int, k int) int {
 func main() {
 	var dishesCount int
 	if _, err := fmt.Scan(&dishesCount); err != nil {
-		fmt.Printf("failed to dishes count: %s\n", err)
+		fmt.Printf("failed to scan dishes count: %s\n", err)
 
 		return
 	}
@@ -63,8 +63,14 @@ func main() {
 	}
 
 	var need int
-	if _, err := fmt.Scan(&need); err != nil || need <= 0 {
+	if _, err := fmt.Scan(&need); err != nil {
 		fmt.Printf("failed to scan needed element: %s\n", err)
+
+		return
+	}
+
+	if need < 0 {
+		fmt.Printf("negative needed count")
 
 		return
 	}
