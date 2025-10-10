@@ -2,7 +2,6 @@ package main
 
 import "container/heap"
 
-// MinHeap тип для минимальной кучи.
 type MinHeap []int
 
 func (h *MinHeap) Len() int           { return len(*h) }
@@ -14,6 +13,7 @@ func (h *MinHeap) Push(x interface{}) {
 	if !ok {
 		return
 	}
+
 	*h = append(*h, value)
 }
 
@@ -40,6 +40,7 @@ func (h *MinHeap) PushValue(x int) {
 func (h *MinHeap) PopValue() int {
 	value := heap.Pop(h)
 	intValue, ok := value.(int)
+
 	if !ok {
 		return 0
 	}
