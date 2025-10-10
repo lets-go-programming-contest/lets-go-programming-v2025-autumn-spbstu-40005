@@ -1,7 +1,7 @@
 package bank
 
 type Bank struct {
-	Currencies []Currency ` json:"valute" xml:"Valute"`
+	Currencies []Currency `json:"valute" xml:"Valute"`
 }
 
 type Currency struct {
