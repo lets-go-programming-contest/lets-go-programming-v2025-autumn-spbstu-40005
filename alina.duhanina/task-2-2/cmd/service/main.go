@@ -88,7 +88,7 @@ func main() {
 		fmt.Printf("Validation error: %v\n", err)
 
 		return
-        }
+	}
 
 
 	result, err := FindKthPreference(dishes, preferenceOrder)
