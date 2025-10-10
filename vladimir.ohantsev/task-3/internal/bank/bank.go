@@ -5,7 +5,7 @@ type Bank struct {
 }
 
 type Currency struct {
-	NumCode  int       `xml:"NumCode"`
-	CharCode string    `xml:"CharCode"`
-	Value    valueType `xml:"Value"`
+	NumCode  int       `xml:"NumCode" json:"num_code"`
+	CharCode string    `xml:"CharCode" json:"char_code`
+	Value    valueType `xml:"Value" json:"value`
 }
