@@ -34,20 +34,10 @@ func ValidateInput(dishCount int, dishes []int, preferenceOrder int) error {
 		return ErrInvalidK
 	}
 
-	for _, rating := range dishes {
-		if rating < -10000 || rating > 10000 {
-			return ErrInvalidRating
-		}
-	}
-
 	return nil
 }
 
 func FindKthPreference(dishes []int, preferenceOrder int) (int, error) {
-	if err := ValidateInput(len(dishes), dishes, preferenceOrder); err != nil {
-		return 0, err
-	}
-
 	heapInstance := &intheap.IntHeap{}
 	heap.Init(heapInstance)
 
@@ -93,6 +83,13 @@ func main() {
 
 		return
 	}
+
+	if err := ValidateInput(len(dishes), dishes, preferenceOrder); err != nil {
+                fmt.Printf("Validation error: %v\n", err)
+
+		return
+        }
+
 
 	result, err := FindKthPreference(dishes, preferenceOrder)
 	if err != nil {

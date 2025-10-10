@@ -17,7 +17,7 @@ func (heapInstance *IntHeap) Swap(i, j int) {
 func (heapInstance *IntHeap) Push(x interface{}) {
 	num, ok := x.(int)
 	if !ok {
-		return
+	panic("invalid type for heap")
 	}
 
 	*heapInstance = append(*heapInstance, num)
