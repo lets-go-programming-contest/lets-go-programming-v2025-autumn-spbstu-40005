@@ -8,7 +8,7 @@ import (
 )
 
 var (
-    ErrInput = errors.New("invalid input")
+	ErrInput = errors.New("invalid input")
 )
 
 func ProcessDepartment() ([]int, error) {
