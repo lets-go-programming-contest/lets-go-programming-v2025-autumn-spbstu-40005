@@ -12,6 +12,7 @@ var (
 
 func ReadTemperature() (string, int, error) {
 	var operator string
+
 	var temp int
 
 	_, err := fmt.Scan(&operator, &temp)
@@ -24,6 +25,7 @@ func ReadTemperature() (string, int, error) {
 	}
 
 	const minTemp = 15
+
 	const maxTemp = 30
 
 	if temp < minTemp || temp > maxTemp {
