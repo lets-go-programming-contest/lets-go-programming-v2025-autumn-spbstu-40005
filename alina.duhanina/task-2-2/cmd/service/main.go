@@ -90,7 +90,6 @@ func main() {
 		return
 	}
 
-
 	result, err := FindKthPreference(dishes, preferenceOrder)
 	if err != nil {
 		fmt.Printf("Processing Error: %v\n", err)
