@@ -17,7 +17,7 @@ func (h *IntHeap) Swap(i, j int) {
 func (h *IntHeap) Push(x any) {
 	val, ok := x.(int)
 	if !ok {
-		panic("value is not an int")
+		panic("value is not an integer")
 	}
 
 	*h = append(*h, val)
