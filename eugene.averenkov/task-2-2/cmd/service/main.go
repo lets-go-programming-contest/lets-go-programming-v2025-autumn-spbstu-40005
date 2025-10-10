@@ -7,16 +7,17 @@ import (
 )
 
 var (
-	ErrInvalidN       = errors.New("N должно быть в диапазоне от 1 до 10000")
+	ErrInvalidN = errors.New("N должно быть в диапазоне от 1 до 10000")
 	ErrInvalidElement = errors.New("элемент выходит за диапазон [-10000, 10000]")
-	ErrInvalidK       = errors.New("k должно быть в диапазоне от 1 до N")
-	ErrEmptyArray     = errors.New("пустой массив")
-	ErrKTooLarge      = errors.New("k больше длины массива")
-	ErrKthNotFound    = errors.New("не удалось найти k-й наибольший элемент")
+	ErrInvalidK = errors.New("k должно быть в диапазоне от 1 до N")
+	ErrEmptyArray = errors.New("пустой массив")
+	ErrKTooLarge = errors.New("k больше длины массива")
+	ErrKthNotFound = errors.New("не удалось найти k-й наибольший элемент")
 )
 
 func readInput() ([]int, int, error) {
 	var count int
+
 	_, err := fmt.Scan(&count)
 	if err != nil {
 		return nil, 0, fmt.Errorf("ошибка чтения N: %w", err)
@@ -27,18 +28,20 @@ func readInput() ([]int, int, error) {
 	}
 
 	arr := make([]int, count)
-	for i := range count {
-		_, err := fmt.Scan(&arr[i])
+
+	for index := range count {
+		_, err := fmt.Scan(&arr[index])
 		if err != nil {
-			return nil, 0, fmt.Errorf("ошибка чтения элемента %d: %w", i+1, err)
+			return nil, 0, fmt.Errorf("ошибка чтения элемента %d: %w", index+1, err)
 		}
 
-		if arr[i] < -10000 || arr[i] > 10000 {
-			return nil, 0, fmt.Errorf("%w: элемент %d имеет значение %d", ErrInvalidElement, i+1, arr[i])
+		if arr[index] < -10000 || arr[index] > 10000 {
+			return nil, 0, fmt.Errorf("%w: элемент %d имеет значение %d", ErrInvalidElement, index+1, arr[index])
 		}
 	}
 
 	var kValue int
+
 	_, err = fmt.Scan(&kValue)
 	if err != nil {
 		return nil, 0, fmt.Errorf("ошибка чтения k: %w", err)
