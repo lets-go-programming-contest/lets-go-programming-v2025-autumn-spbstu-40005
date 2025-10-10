@@ -83,28 +83,28 @@ func processDepartmentRequests(employeeCount int) ([]string, error) {
 }
 
 func readAndProcessInput() ([]string, error) {
-        departmentCount, err := readInt()
-        if err != nil {
-                return nil, err
-        }
+	departmentCount, err := readInt()
+	if err != nil {
+		return nil, err
+	}
 
 	allResults := make([]string, 0)
 
-        for range departmentCount {
-                employeeCount, err := readInt()
-                if err != nil {
-                        return nil, err
-                }
+	for range departmentCount {
+		employeeCount, err := readInt()
+		if err != nil {
+			return nil, err
+		}
 
-                deptResults, err := processDepartmentRequests(employeeCount)
-                if err != nil {
-                        return nil, fmt.Errorf("%w: %v", ErrInvalidRead, err)
-                }
+		deptResults, err := processDepartmentRequests(employeeCount)
+		if err != nil {
+			return nil, fmt.Errorf("%w: %v", ErrInvalidRead, err)
+		}
 
-                allResults = append(allResults, deptResults...)
-        }
+		allResults = append(allResults, deptResults...)
+	}
 
-        return allResults, nil
+	return allResults, nil
 }
 
 func printResults(results []string) {
