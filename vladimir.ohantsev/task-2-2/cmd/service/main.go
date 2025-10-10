@@ -44,7 +44,7 @@ func main() {
 	}
 
 	if dishesCount <= 0 {
-		fmt.Printf("negative dishes count")
+		fmt.Printf("non-positive dishes count")
 
 		return
 	}
@@ -69,8 +69,8 @@ func main() {
 		return
 	}
 
-	if need < 0 {
-		fmt.Printf("negative needed count")
+	if need <= 0 {
+		fmt.Printf("non-positive needed item")
 
 		return
 	}
