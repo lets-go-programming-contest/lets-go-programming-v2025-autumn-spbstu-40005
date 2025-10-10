@@ -7,7 +7,7 @@ import (
 	"github.com/DariaKhokhryakova/task-2-1/internal/employee"
 )
 
-var ErrorInput = errors.New("Invalid input")
+var ErrorInput = errors.New("invalid input")
 
 func ProcessDepartment() ([]int, error) {
 	var countDepartment int
@@ -17,7 +17,7 @@ func ProcessDepartment() ([]int, error) {
 	}
 
 	results := []int{}
-	for i := 0; i < countDepartment; i++ {
+	for range countDepartment {
 		departResult, err := ProcessSingleDepartment()
 		if err != nil {
 			return nil, err
@@ -26,6 +26,7 @@ func ProcessDepartment() ([]int, error) {
 			results = append(results, value)
 		}
 	}
+
 	return results, nil
 }
 

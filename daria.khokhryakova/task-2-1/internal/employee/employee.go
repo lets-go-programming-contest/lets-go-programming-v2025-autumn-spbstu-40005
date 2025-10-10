@@ -9,7 +9,7 @@ func ProcessEmployee(countEmployees int) ([]int, error) {
 	maxTemp := 30
 	results := []int{}
 	processValid := true
-	for j := 0; j < countEmployees; j++ {
+	for range countEmployees {
 		icon, tempValue, err := temperature.ReadTemperature()
 		if err != nil {
 			return nil, err
@@ -24,5 +24,6 @@ func ProcessEmployee(countEmployees int) ([]int, error) {
 			processValid = false
 		}
 	}
+
 	return results, nil
 }
