@@ -24,15 +24,15 @@ func NewTemperatureManager() *TemperatureManager {
 	}
 }
 
-func (temp *TemperatureManager) Update(operator string, temperature int) error {
+func (manager *TemperatureManager) Update(operator string, temperature int) error {
 	switch operator {
 	case "<=":
-		if temperature < temp.maxTemp {
-			temp.maxTemp = temperature
+		if temperature < manager.maxTemp {
+			manager.maxTemp = temperature
 		}
 	case ">=":
-		if temperature > temp.minTemp {
-			temp.minTemp = temperature
+		if temperature > manager.minTemp {
+			manager.minTemp = temperature
 		}
 	default:
 		return errOperator
@@ -41,9 +41,9 @@ func (temp *TemperatureManager) Update(operator string, temperature int) error {
 	return nil
 }
 
-func (temp *TemperatureManager) GetComfortTemp() int {
-	if temp.minTemp <= temp.maxTemp {
-		return temp.minTemp
+func (manager *TemperatureManager) GetComfortTemp() int {
+	if manager.minTemp <= manager.maxTemp {
+		return manager.minTemp
 	}
 
 	return -1
