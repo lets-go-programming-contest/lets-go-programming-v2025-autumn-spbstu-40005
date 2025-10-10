@@ -1,79 +1,91 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"os"
 )
 
+var (
+	ErrInvalidN       = errors.New("N должно быть в диапазоне от 1 до 10000")
+	ErrInvalidElement = errors.New("элемент выходит за диапазон [-10000, 10000]")
+	ErrInvalidK       = errors.New("k должно быть в диапазоне от 1 до N")
+	ErrEmptyArray     = errors.New("пустой массив")
+	ErrKTooLarge      = errors.New("k больше длины массива")
+	ErrKthNotFound    = errors.New("не удалось найти k-й наибольший элемент")
+)
+
 func readInput() ([]int, int, error) {
-	var N int
-	_, err := fmt.Scan(&N)
+	var count int
+	_, err := fmt.Scan(&count)
 	if err != nil {
-		return nil, 0, fmt.Errorf("ошибка чтения N: %v", err)
+		return nil, 0, fmt.Errorf("ошибка чтения N: %w", err)
 	}
 
-	if N < 1 || N > 10000 {
-		return nil, 0, fmt.Errorf("N должно быть в диапазоне от 1 до 10000, получено: %d", N)
+	if count < 1 || count > 10000 {
+		return nil, 0, fmt.Errorf("%w, получено: %d", ErrInvalidN, count)
 	}
 
-	arr := make([]int, N)
-	for i := 0; i < N; i++ {
+	arr := make([]int, count)
+	for i := range count {
 		_, err := fmt.Scan(&arr[i])
 		if err != nil {
-			return nil, 0, fmt.Errorf("ошибка чтения элемента %d: %v", i+1, err)
+			return nil, 0, fmt.Errorf("ошибка чтения элемента %d: %w", i+1, err)
 		}
+
 		if arr[i] < -10000 || arr[i] > 10000 {
-			return nil, 0, fmt.Errorf("элемент %d выходит за диапазон [-10000, 10000]: %d", i+1, arr[i])
+			return nil, 0, fmt.Errorf("%w: элемент %d имеет значение %d", ErrInvalidElement, i+1, arr[i])
 		}
 	}
 
-	var k int
-	_, err = fmt.Scan(&k)
+	var kValue int
+	_, err = fmt.Scan(&kValue)
 	if err != nil {
-		return nil, 0, fmt.Errorf("ошибка чтения k: %v", err)
+		return nil, 0, fmt.Errorf("ошибка чтения k: %w", err)
 	}
 
-	if k < 1 || k > N {
-		return nil, 0, fmt.Errorf("k должно быть в диапазоне от 1 до %d, получено: %d", N, k)
+	if kValue < 1 || kValue > count {
+		return nil, 0, fmt.Errorf("%w: k=%d, N=%d", ErrInvalidK, kValue, count)
 	}
 
-	return arr, k, nil
+	return arr, kValue, nil
 }
 
-func findKthLargest(arr []int, k int) (int, error) {
+func findKthLargest(arr []int, kValue int) (int, error) {
 	if len(arr) == 0 {
-		return 0, fmt.Errorf("пустой массив")
-	}
-	if k > len(arr) {
-		return 0, fmt.Errorf("k (%d) больше длины массива (%d)", k, len(arr))
+		return 0, ErrEmptyArray
 	}
 
-	h := InitMinHeap()
+	if kValue > len(arr) {
+		return 0, fmt.Errorf("%w: k=%d, длина=%d", ErrKTooLarge, kValue, len(arr))
+	}
+
+	minHeap := InitMinHeap()
 
 	for _, num := range arr {
-		if h.Len() < k {
-			h.PushValue(num)
-		} else if num > h.Peek() {
-			h.PopValue()
-			h.PushValue(num)
+		if minHeap.Len() < kValue {
+			minHeap.PushValue(num)
+		} else if num > minHeap.Peek() {
+			minHeap.PopValue()
+			minHeap.PushValue(num)
 		}
 	}
 
-	if h.Len() < k {
-		return 0, fmt.Errorf("не удалось найти %d-й наибольший элемент", k)
+	if minHeap.Len() < kValue {
+		return 0, fmt.Errorf("%w: k=%d", ErrKthNotFound, kValue)
 	}
 
-	return h.Peek(), nil
+	return minHeap.Peek(), nil
 }
 
 func main() {
-	arr, k, err := readInput()
+	arr, kValue, err := readInput()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Ошибка ввода: %v\n", err)
 		os.Exit(1)
 	}
 
-	result, err := findKthLargest(arr, k)
+	result, err := findKthLargest(arr, kValue)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Ошибка обработки: %v\n", err)
 		os.Exit(1)
