@@ -7,7 +7,6 @@ import (
 
 var (
 	errCmpInput   = errors.New("unknown comparator")
-	errInput      = errors.New("input error")
 	errOutOfRange = errors.New("temperature is out of range")
 )
 
@@ -111,16 +110,16 @@ func handleDepartmentTemperatures(workersCnt int) error {
 	for range workersCnt {
 		_, err := fmt.Scan(&cmpSign, &temperature)
 		if err != nil {
-			return errInput
+			return fmt.Errorf("failed reading of cmp and temperature: %w", err)
 		}
 
 		if temperature > upperLimit || temperature < lowerLimit {
-			return errOutOfRange
+			return fmt.Errorf("temperature is out of range: %w", errOutOfRange)
 		}
 
 		err = tempRange.handleOptimalTemperature(cmpSign, temperature)
 		if err != nil {
-			return err
+			return fmt.Errorf("failed to process temperature: %w", err)
 		}
 	}
 
@@ -135,7 +134,7 @@ func main() {
 
 	_, err := fmt.Scan(&departsCount)
 	if err != nil {
-		fmt.Println(errInput.Error())
+		fmt.Printf("failed to read departments count: %v\n", err)
 
 		return
 	}
@@ -150,7 +149,7 @@ func main() {
 
 		err = handleDepartmentTemperatures(workersCount)
 		if err != nil {
-			fmt.Println(err.Error())
+			fmt.Printf("failed processing department: %v\n", err)
 
 			return
 		}
