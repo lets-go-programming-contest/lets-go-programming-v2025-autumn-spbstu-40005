@@ -5,7 +5,6 @@ import (
 )
 
 func main() {
-
 	var operand1 int
 	_, err := fmt.Scan(&operand1)
 	if err != nil {
