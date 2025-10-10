@@ -20,8 +20,6 @@ func (v *valueType) UnmarshalXML(decoder *xml.Decoder, start xml.StartElement) e
 		return fmt.Errorf("decode value string: %w", err)
 	}
 
-	fmt.Println("%q", stringField)
-
 	got, err := strconv.ParseFloat(strings.Replace(stringField, ",", ".", 1), 64)
 	if err != nil {
 		return fmt.Errorf("invalid value type: %w", err)
