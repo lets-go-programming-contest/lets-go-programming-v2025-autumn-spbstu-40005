@@ -3,7 +3,6 @@ package temperature
 import (
 	"errors"
 	"fmt"
-	"strconv"
 )
 
 var (
@@ -12,36 +11,25 @@ var (
 )
 
 func ReadTemperature() (string, int, error) {
-	var input string
-	_, err := fmt.Scan(&input)
+	var operator string
+    var temp int
+
+	_, err := fmt.Scan(&operator,&temp)
 	if err != nil {
-		return "", 0, err
+		return "", 0, fmt.Errorf("read temperature: %w", err)
 	}
 
-	runes := []rune(input)
-	const minInputLength = 3
-	if len(runes) < minInputLength {
-		return "", 0, ErrInput
-	}
-
-	icon := string(runes[:2])
-
-	if icon != ">=" && icon != "<=" {
+	if operator != ">=" && operator != "<=" {
 		return "", 0, ErrIcon
-	}
-
-	num, err := strconv.Atoi(string(runes[2:]))
-	if err != nil {
-		return "", 0, ErrInput
 	}
 
 	const minTemp = 15
 	const maxTemp = 30
-	if num < minTemp || num > maxTemp {
+	if temp < minTemp || temp > maxTemp {
 		return "", 0, ErrInput
 	}
 
-	return icon, num, nil
+	return operator, temp, nil
 }
 
 func PreferenceTemperature(icon string, temperature int, minTemp, maxTemp *int) (int, bool) {
