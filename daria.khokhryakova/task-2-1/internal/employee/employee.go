@@ -20,6 +20,7 @@ func ProcessEmployee(countEmployees int) ([]int, error) {
 
 		if !processValid {
 			results = append(results, -1)
+
 			continue
 		}
 
