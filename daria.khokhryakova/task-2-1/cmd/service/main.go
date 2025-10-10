@@ -12,7 +12,6 @@ func main() {
 		fmt.Println(err.Error())
 		return
 	}
-
 	for _, temp := range itog {
 		fmt.Println(temp)
 	}
