@@ -25,12 +25,13 @@ func priorityDish(resHeap *intheap.IntHeap, num int) (int, error) {
 		return 0, errInput
 	}
 
-	for i := 0; i < num-1; i++ {
+	for range num - 1 {
 		heap.Pop(resHeap)
 	}
 
 	resPop := heap.Pop(resHeap)
 	resPriority, ok := resPop.(int)
+
 	if !ok {
 		return 0, errFormat
 	}
@@ -44,20 +45,21 @@ func main() {
 	_, err := fmt.Scan(&numberDishes)
 	if err != nil || numberDishes < minDishes || numberDishes > maxDishes {
 		fmt.Println(errInput.Error())
+
 		return
 	}
 
 	resHeap := &intheap.IntHeap{}
 	heap.Init(resHeap)
 
-	for i := 0; i < numberDishes; i++ {
+	for range numberDishes {
 		var rating int
 
 		_, err := fmt.Scan(&rating)
 		if err != nil || rating > maxRating || rating < minRating {
 			fmt.Println(errInput.Error())
-			return
 
+			return
 		}
 
 		heap.Push(resHeap, rating)
@@ -68,12 +70,14 @@ func main() {
 	_, err = fmt.Scan(&num)
 	if err != nil || num > numberDishes || num < minDishes {
 		fmt.Println(errInput.Error())
+
 		return
 	}
 
 	result, err := priorityDish(resHeap, num)
 	if err != nil {
 		fmt.Println(err)
+
 		return
 	}
 
