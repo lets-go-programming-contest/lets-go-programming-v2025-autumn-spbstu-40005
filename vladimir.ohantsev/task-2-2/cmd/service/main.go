@@ -14,21 +14,37 @@ func getKDish(dishes []int, k int) int {
 
 	dishes = dishes[k:]
 	for _, cost := range dishes {
-		top, _ := window.Top()
+		top, err := window.Top()
+		if err != nil {
+			panic(fmt.Sprintf("top heap: %s", err))
+		}
+
 		if cost > top {
-			window.ReplaceTop(cost)
+			err := window.ReplaceTop(cost)
+			if err != nil {
+				panic(fmt.Sprintf("replace heap: %s", err))
+			}
 		}
 	}
 
-	top, _ := window.Top()
+	top, err := window.Top()
+	if err != nil {
+		panic(fmt.Sprintf("top heap: %s", err))
+	}
 
 	return top
 }
 
 func main() {
 	var dishesCount int
-	if _, err := fmt.Scan(&dishesCount); err != nil || dishesCount <= 0 {
+	if _, err := fmt.Scan(&dishesCount); err != nil {
 		fmt.Printf("failed to dishes count: %s\n", err)
+
+		return
+	}
+
+	if dishesCount <= 0 {
+		fmt.Printf("negative dishes count")
 
 		return
 	}

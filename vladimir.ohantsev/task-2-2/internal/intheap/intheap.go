@@ -41,13 +41,15 @@ func (h IntHeap) Swap(i, j int) {
 	h[i], h[j] = h[j], h[i]
 }
 
-func (h IntHeap) ReplaceTop(value int) {
+func (h IntHeap) ReplaceTop(value int) error {
 	if h.Len() == 0 {
-		return
+		return errEmptyHeap
 	}
 
 	h[0] = value
 	heap.Fix(&h, 0)
+
+	return nil
 }
 
 func (h IntHeap) Top() (int, error) {
