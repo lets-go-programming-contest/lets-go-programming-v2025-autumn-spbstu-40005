@@ -22,7 +22,7 @@ func getKDish(dishes []int, k int) int {
 		if cost > top {
 			err := window.ReplaceTop(cost)
 			if err != nil {
-				panic(fmt.Sprintf("replace heap: %s", err))
+				panic(fmt.Sprintf("replace top heap: %s", err))
 			}
 		}
 	}

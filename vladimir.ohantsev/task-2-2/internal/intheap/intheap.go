@@ -23,8 +23,9 @@ func (h *IntHeap) Pop() any {
 		return nil
 	}
 
-	val := (*h)[0]
-	*h = (*h)[1:]
+	n := len(*h)
+	val := (*h)[n-1]
+	*h = (*h)[:n-1]
 
 	return val
 }
