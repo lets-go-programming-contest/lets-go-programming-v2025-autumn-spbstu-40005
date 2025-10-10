@@ -34,6 +34,7 @@ func main() {
 
 			if len(parts) < minPartsLength {
 				fmt.Println(-1)
+
 				continue
 			}
 
@@ -62,10 +63,13 @@ func main() {
 
 func parseInt(s string) int {
 	num := 0
-	for _, ch := range []byte(s) {
+	bytes := []byte(s)
+
+	for _, ch := range bytes {
 		if ch >= '0' && ch <= '9' {
 			num = num*decimalBase + int(ch-'0')
 		}
 	}
+
 	return num
 }
