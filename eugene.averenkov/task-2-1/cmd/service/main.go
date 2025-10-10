@@ -52,6 +52,7 @@ func stringToInt(s string) int {
 			num = num*10 + int(ch-'0')
 		}
 	}
+
 	return num
 }
 
@@ -64,10 +65,10 @@ func main() {
 	scanner.Scan()
 	workers := stringToInt(scanner.Text())
 
-	for i := 0; i < departments; i++ {
+	for range departments {
 		manager := NewTemperatureManager()
 
-		for j := 0; j < workers; j++ {
+		for range workers {
 			scanner.Scan()
 			line := scanner.Text()
 			parts := strings.Fields(line)
@@ -85,4 +86,3 @@ func main() {
 		}
 	}
 }
-
