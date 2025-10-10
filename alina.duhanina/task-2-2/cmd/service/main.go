@@ -85,7 +85,7 @@ func main() {
 	}
 
 	if err := ValidateInput(len(dishes), dishes, preferenceOrder); err != nil {
-                fmt.Printf("Validation error: %v\n", err)
+		fmt.Printf("Validation error: %v\n", err)
 
 		return
         }
