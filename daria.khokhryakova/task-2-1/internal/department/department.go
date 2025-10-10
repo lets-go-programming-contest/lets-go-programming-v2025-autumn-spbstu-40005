@@ -7,9 +7,7 @@ import (
 	"github.com/DariaKhokhryakova/task-2-1/internal/employee"
 )
 
-var (
-	ErrInput = errors.New("invalid input")
-)
+var ErrInput = errors.New("invalid input")
 
 func ProcessDepartment() ([]int, error) {
 	var countDepartment int
