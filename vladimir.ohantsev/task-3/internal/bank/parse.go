@@ -14,8 +14,15 @@ import (
 
 type valueType float64
 
-func (v *valueType) UnmarshalJSON(bytes []byte) error {
-	got, err := strconv.ParseFloat(strings.Replace(string(bytes), ",", ".", 1), 64)
+func (v *valueType) UnmarshalXML(decoder *xml.Decoder, start xml.StartElement) error {
+	var stringField string
+	if err := decoder.DecodeElement(&stringField, &start); err != nil {
+		return fmt.Errorf("decode value string: %w", err)
+	}
+
+	fmt.Println("%q", stringField)
+
+	got, err := strconv.ParseFloat(strings.Replace(stringField, ",", ".", 1), 64)
 	if err != nil {
 		return fmt.Errorf("invalid value type: %w", err)
 	}
