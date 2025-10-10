@@ -16,4 +16,18 @@ func main() {
 	fmt.Println(secondOperand)
 	fmt.Println(operation)
 
+	var result int
+	switch operation {
+	case "+":
+		result = firstOperand + secondOperand
+	case "-":
+		result = firstOperand - secondOperand
+	case "*":
+		result = firstOperand * secondOperand
+	case "/":
+		result = firstOperand / secondOperand
+	default:
+		return
+	}
+	fmt.Println(result)
 }
