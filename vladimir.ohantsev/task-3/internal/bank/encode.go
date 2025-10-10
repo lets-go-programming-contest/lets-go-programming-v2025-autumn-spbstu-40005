@@ -15,7 +15,7 @@ func (b *Bank) EncodeJSON(writer io.Writer) error {
 
 	encoder.SetIndent("", "  ")
 
-	if err := encoder.Encode(b); err != nil {
+	if err := encoder.Encode(b.Currencies); err != nil {
 		return fmt.Errorf("encoding bank: %w", err)
 	}
 
