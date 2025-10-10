@@ -21,7 +21,7 @@ func readInt() (int, error) {
 
 	_, err := fmt.Scan(&value)
 	if err != nil {
-		return 0, fmt.Errorf("%s: %w", ErrInvalidInput, err)
+		return 0, fmt.Errorf("%w", err)
 	}
 
 	return value, nil
@@ -35,7 +35,7 @@ func readEmployeeRequest() (Request, error) {
 
 	_, err := fmt.Scan(&operator, &temp)
 	if err != nil {
-		return Request{}, fmt.Errorf("%s: %w", ErrInvalidInput, err)
+		return Request{}, fmt.Errorf("%w", err)
 	}
 
 	return Request{Operator: operator, Temp: temp}, nil
@@ -71,7 +71,7 @@ func processDepartmentRequests(employeeCount int) ([]string, error) {
 	for range employeeCount {
 		req, err := readEmployeeRequest()
 		if err != nil {
-			return nil, fmt.Errorf("%s: %w", ErrInvalidRead, err)
+			return nil, fmt.Errorf("%w", err)
 		}
 
 		minTemp, maxTemp = updateTemperatureRange(minTemp, maxTemp, req)
@@ -98,7 +98,7 @@ func readAndProcessInput() ([]string, error) {
 
 		deptResults, err := processDepartmentRequests(employeeCount)
 		if err != nil {
-			return nil, fmt.Errorf("%s: %w", ErrInvalidRead, err)
+			return nil, fmt.Errorf("%w", err)
 		}
 
 		allResults = append(allResults, deptResults...)
