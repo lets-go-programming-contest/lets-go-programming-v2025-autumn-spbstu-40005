@@ -3,20 +3,20 @@ package main
 import (
 	"fmt"
 
-	"sergey.kiselev/task-2-1/internal/employee"
+	"sergey.kiselev/task-2-1/internal/temperature"
 )
 
-func readEmployee() (*employee.Employee, error) {
+func readEmployeeData() (string, int, error) {
 	var (
 		operator    string
 		temperature int
 	)
 
 	if _, err := fmt.Scan(&operator, &temperature); err != nil {
-		return nil, fmt.Errorf("failed to read temperature and operator: %w", err)
+		return "", 0, fmt.Errorf("failed to read temperature and operator: %w", err)
 	}
 
-	return employee.New(operator, temperature), nil
+	return operator, temperature, nil
 }
 
 func processDepartment() error {
@@ -26,13 +26,15 @@ func processDepartment() error {
 		return fmt.Errorf("failed to read countEmployees: %w", err)
 	}
 
+	manager := temperature.NewTemperatureManager()
+
 	for range countEmployees {
-		empl, err := readEmployee()
+		operator, temperature, err := readEmployeeData()
 		if err != nil {
 			return fmt.Errorf("error readEmployee : %w", err)
 		}
 
-		comfortTemp, err := empl.Process()
+		comfortTemp, err := manager.ProcessEmployee(operator, temperature)
 		if err != nil {
 			return fmt.Errorf("error process : %w", err)
 		}
