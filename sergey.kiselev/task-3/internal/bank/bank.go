@@ -1,9 +1,12 @@
 package bank
 
+import "encoding/xml"
+
 type ValCurs struct {
-	Date   string   `xml:"Date,attr"`
-	Name   string   `xml:"name,attr"`
-	Valute []Valute `xml:"Valute"`
+	XMLName xml.Name `xml:"ValCurs"`
+	Date    string   `xml:"Date,attr"`
+	Name    string   `xml:"name,attr"`
+	Valute  []Valute `xml:"Valute"`
 }
 
 type Valute struct {
