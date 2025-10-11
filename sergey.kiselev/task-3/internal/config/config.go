@@ -13,16 +13,16 @@ type Config struct {
 	OutputFile string `yaml:"output-file"`
 }
 
-func ParseFile(configPath string) (*Config, error) {
+func parseFile(configPath string) (*Config, error) {
 	file, err := os.Open(configPath)
 	if err != nil {
 		return nil, fmt.Errorf("error opening config file: %w", err)
 	}
 	defer file.Close()
-	return ParseYaml(file)
+	return parseYaml(file)
 }
 
-func ParseYaml(reader io.Reader) (*Config, error) {
+func parseYaml(reader io.Reader) (*Config, error) {
 	config := new(Config)
 	decoder := yaml.NewDecoder(reader)
 	if err := decoder.Decode(config); err != nil {

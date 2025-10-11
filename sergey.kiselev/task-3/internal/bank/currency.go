@@ -1,7 +1,42 @@
 package bank
 
+import (
+	"encoding/json"
+	"fmt"
+	"io"
+	"os"
+	"path/filepath"
+)
+
 type Currency struct {
 	NumCode  int     `json:"num_code"`
 	CharCode string  `json:"char_code"`
 	Value    float64 `json:"value"`
+}
+
+func encodeJson(currencies []Currency, writer io.Writer) error {
+	encoder := json.NewEncoder(writer)
+	encoder.SetIndent("", "  ")
+
+	if err := encoder.Encode(currencies); err != nil {
+		return fmt.Errorf("error encoding JSON: %w", err)
+	}
+
+	return nil
+}
+
+func encodeFile(currencies []Currency, outputFile string) error {
+	dir := filepath.Dir(outputFile)
+	if err := os.MkdirAll(dir, 0755); err != nil {
+		return fmt.Errorf("error creating directory: %w", err)
+	}
+
+	file, err := os.Create(outputFile)
+	if err != nil {
+		return fmt.Errorf("error creating file: %w", err)
+	}
+
+	defer file.Close()
+
+	return encodeJson(currencies, file)
 }
