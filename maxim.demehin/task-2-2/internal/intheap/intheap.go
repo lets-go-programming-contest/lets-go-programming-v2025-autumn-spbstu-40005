@@ -45,7 +45,7 @@ func (h *IntHeap) Swap(i, j int) {
 }
 
 func (h *IntHeap) GetNth(numberOfElement int) (int, error) {
-	if numberOfElement >= h.Len() {
+	if numberOfElement > h.Len() {
 		return 0, fmt.Errorf("impossible to get nth element: %w", errOutOfRange)
 	}
 
