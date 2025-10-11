@@ -40,7 +40,6 @@ func charsetReader(charset string, input io.Reader) (io.Reader, error) {
 	if charset == "windows-1251" {
 		return charmap.Windows1251.NewDecoder().Reader(input), nil
 	}
-
 	return input, nil
 }
 
@@ -71,7 +70,6 @@ func convertValue(valueStr string) (float64, error) {
 	if err != nil {
 		return 0, fmt.Errorf("parse float: %w", err)
 	}
-
 	return value, nil
 }
 
@@ -79,29 +77,24 @@ func convertNumCode(numCodeStr string) (int, error) {
 	if strings.TrimSpace(numCodeStr) == "" {
 		return 0, nil
 	}
-
 	numCode, err := strconv.Atoi(numCodeStr)
 	if err != nil {
 		return 0, fmt.Errorf("parse int: %w", err)
 	}
-
 	return numCode, nil
 }
 
 func ProcessCurrencies(valCurs *ValCurs) ([]CurrencyResult, error) {
 	results := make([]CurrencyResult, 0, len(valCurs.Valutes))
-
 	for _, valute := range valCurs.Valutes {
 		value, err := convertValue(valute.Value)
 		if err != nil {
 			return nil, err
 		}
-
 		numCode, err := convertNumCode(valute.NumCode)
 		if err != nil {
 			return nil, err
 		}
-
 		result := CurrencyResult{
 			NumCode:  numCode,
 			CharCode: valute.CharCode,
@@ -109,11 +102,9 @@ func ProcessCurrencies(valCurs *ValCurs) ([]CurrencyResult, error) {
 		}
 		results = append(results, result)
 	}
-
 	sort.Slice(results, func(i, j int) bool {
 		return results[i].Value > results[j].Value
 	})
-
 	return results, nil
 }
 
@@ -123,7 +114,6 @@ func SaveResults(results []CurrencyResult, outputPath string) error {
 	if err != nil {
 		return fmt.Errorf("create dir: %w", err)
 	}
-
 	file, err := os.Create(outputPath)
 	if err != nil {
 		return fmt.Errorf("create file: %w", err)
@@ -131,14 +121,11 @@ func SaveResults(results []CurrencyResult, outputPath string) error {
 	defer func() {
 		_ = file.Close()
 	}()
-
 	encoder := json.NewEncoder(file)
 	encoder.SetIndent("", "  ")
-
 	err = encoder.Encode(results)
 	if err != nil {
 		return fmt.Errorf("encode json: %w", err)
 	}
-
 	return nil
 }
