@@ -1,8 +1,10 @@
 package currency
 
 import (
+	"bytes"
 	"encoding/json"
 	"encoding/xml"
+	"io"
 	"os"
 	"path/filepath"
 	"sort"
@@ -34,7 +36,7 @@ type CurrencyResult struct {
 }
 
 func charsetReader(charset string, input io.Reader) (io.Reader, error) {
-	if charset == "windews-1251" {
+	if charset == "windows-1251" {
 		return charmap.Windows1251.NewDecoder().Reader(input), nil
 	}
 	return input, nil
@@ -46,7 +48,7 @@ func ParseXMLData(filePath string) (*ValCurs, error) {
 		return nil, err
 	}
 
-	reader := string.NewReader(string(data))
+	reader := bytes.NewReader(string(data))
 
 	decoder := xml.NewDecoder(reader)
 	decoder.CharsetReader = charsetReader
