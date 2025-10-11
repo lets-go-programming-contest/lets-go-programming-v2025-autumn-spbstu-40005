@@ -2,14 +2,18 @@ package intheap
 
 import (
 	"container/heap"
+	"errors"
+	"fmt"
 )
+
+var errOutOfRange = errors.New("no such index in heap")
 
 type IntHeap []int
 
 func (h *IntHeap) Push(val any) {
 	intValue, ok := val.(int)
 	if !ok {
-		panic("invalid type pushed to IntHeap")
+		panic("invalid type pushed to heap")
 	}
 
 	*h = append(*h, intValue)
@@ -40,7 +44,11 @@ func (h *IntHeap) Swap(i, j int) {
 	(*h)[i], (*h)[j] = (*h)[j], (*h)[i]
 }
 
-func (h *IntHeap) GetNth(numberOfElement int) int {
+func (h *IntHeap) GetNth(numberOfElement int) (int, error) {
+	if numberOfElement >= h.Len() {
+		return 0, fmt.Errorf("impossible to get nth element: %w", errOutOfRange)
+	}
+
 	temp := make(IntHeap, h.Len())
 	copy(temp, *h)
 	heap.Init(&temp)
@@ -49,5 +57,10 @@ func (h *IntHeap) GetNth(numberOfElement int) int {
 		heap.Pop(&temp)
 	}
 
-	return heap.Pop(&temp).(int) //nolint:forcetypeassert
+	intValue, ok := (heap.Pop(&temp)).(int)
+	if !ok {
+		panic("invalid type to get from heap")
+	}
+
+	return intValue, nil
 }
