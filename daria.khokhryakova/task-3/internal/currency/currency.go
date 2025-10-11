@@ -48,7 +48,7 @@ func ParseXMLData(filePath string) (*ValCurs, error) {
 		return nil, err
 	}
 
-	reader := bytes.NewReader(string(data))
+	reader := bytes.NewReader(data)
 
 	decoder := xml.NewDecoder(reader)
 	decoder.CharsetReader = charsetReader
