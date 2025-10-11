@@ -32,5 +32,6 @@ func ConvertAndSort(valutes []Valute) ([]Currency, error) {
 
 func parseValue(valueStr string) (float64, error) {
 	cleaned := strings.ReplaceAll(valueStr, ",", ".")
+
 	return strconv.ParseFloat(cleaned, 64)
 }

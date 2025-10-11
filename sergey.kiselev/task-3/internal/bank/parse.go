@@ -14,7 +14,12 @@ func ParseXMLFile(filePath string) (*ValCurs, error) {
 	if err != nil {
 		return nil, fmt.Errorf("error when opening a file: %w", err)
 	}
-	defer file.Close()
+
+	defer func() {
+		if err := file.Close(); err != nil {
+			panic("error closing XML file")
+		}
+	}()
 
 	return parseXML(file)
 }
@@ -24,8 +29,7 @@ func parseXML(reader io.Reader) (*ValCurs, error) {
 
 	decoder.CharsetReader = charset.NewReaderLabel
 	valCurs := new(ValCurs)
-	err := decoder.Decode(valCurs)
-	if err != nil {
+	if err := decoder.Decode(valCurs); err != nil {
 		return nil, fmt.Errorf("XML decoding error: %w", err)
 	}
 

@@ -14,7 +14,7 @@ type Currency struct {
 	Value    float64 `json:"value"`
 }
 
-func encodeJson(currencies []Currency, writer io.Writer) error {
+func encodeJSON(currencies []Currency, writer io.Writer) error {
 	encoder := json.NewEncoder(writer)
 	encoder.SetIndent("", "  ")
 
@@ -36,7 +36,11 @@ func EncodeFile(currencies []Currency, outputFile string) error {
 		return fmt.Errorf("error creating file: %w", err)
 	}
 
-	defer file.Close()
+	defer func() {
+		if err := file.Close(); err != nil {
+			panic("error closing output file")
+		}
+	}()
 
-	return encodeJson(currencies, file)
+	return encodeJSON(currencies, file)
 }

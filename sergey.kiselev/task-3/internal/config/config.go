@@ -18,7 +18,12 @@ func ParseFile(configPath string) (*Config, error) {
 	if err != nil {
 		return nil, fmt.Errorf("error opening config file: %w", err)
 	}
-	defer file.Close()
+	defer func() {
+		if err := file.Close(); err != nil {
+			panic("error closing config file")
+		}
+	}()
+
 	return parseYaml(file)
 }
 
