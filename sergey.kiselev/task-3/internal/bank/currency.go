@@ -27,8 +27,10 @@ func encodeJSON(currencies []Currency, writer io.Writer) error {
 }
 
 func EncodeFile(currencies []Currency, outputFile string) error {
+	const permissions = 0o755
+
 	dir := filepath.Dir(outputFile)
-	if err := os.MkdirAll(dir, 0o755); err != nil {
+	if err := os.MkdirAll(dir, permissions); err != nil {
 		return fmt.Errorf("error creating directory: %w", err)
 	}
 
