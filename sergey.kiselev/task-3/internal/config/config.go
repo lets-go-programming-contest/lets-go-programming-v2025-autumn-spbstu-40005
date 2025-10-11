@@ -13,7 +13,7 @@ type Config struct {
 	OutputFile string `yaml:"output-file"`
 }
 
-func parseFile(configPath string) (*Config, error) {
+func ParseFile(configPath string) (*Config, error) {
 	file, err := os.Open(configPath)
 	if err != nil {
 		return nil, fmt.Errorf("error opening config file: %w", err)

@@ -9,7 +9,7 @@ import (
 	"golang.org/x/net/html/charset"
 )
 
-func parseXMLFile(filePath string) (*ValCurs, error) {
+func ParseXMLFile(filePath string) (*ValCurs, error) {
 	file, err := os.Open(filePath)
 	if err != nil {
 		return nil, fmt.Errorf("error when opening a file: %w", err)
