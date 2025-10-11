@@ -85,7 +85,7 @@ func ProcessCurrencies(valCurs *ValCurs) ([]CurrencyResult, error) {
 	var results []CurrencyResult
 	for _, valute := range valCurs.Valutes {
 		if strings.TrimSpace(valute.NumCode) == "" {
-			continue
+			return 0, nil
 		}
 
 		value, err := convertValue(valute.Value)
