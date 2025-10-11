@@ -56,6 +56,7 @@ func ParseXMLData(filePath string) (*ValCurs, error) {
 	decoder.CharsetReader = charsetReader
 
 	var valCurs ValCurs
+
 	err = decoder.Decode(&valCurs)
 	if err != nil {
 		return nil, fmt.Errorf("decode xml: %w", err)
@@ -65,8 +66,9 @@ func ParseXMLData(filePath string) (*ValCurs, error) {
 }
 
 func convertValue(valueStr string) (float64, error) {
-	normalizStr := strings.Replace(valueStr, ",", ".", -1)
+	normalizStr := strings.Replace(valueStr, ",", ".")
 	value, err := strconv.ParseFloat(normalizStr, 64)
+
 	if err != nil {
 		return 0, fmt.Errorf("parse float: %w", err)
 	}
@@ -118,16 +120,19 @@ func ProcessCurrencies(valCurs *ValCurs) ([]CurrencyResult, error) {
 
 func SaveResults(results []CurrencyResult, outputPath string) error {
 	dir := filepath.Dir(outputPath)
-	err := os.MkdirAll(dir, 0o755)
+	err := os.MkdirAll(dir, 0o755) //nolint:mnd
 	if err != nil {
 		return fmt.Errorf("create dir: %w", err)
 	}
 
 	file, err := os.Create(outputPath)
+
 	if err != nil {
 		return fmt.Errorf("create file: %w", err)
 	}
-	defer file.Close()
+	defer func() {
+		_ = file.Close()
+	}()
 
 	encoder := json.NewEncoder(file)
 	encoder.SetIndent("", "  ")

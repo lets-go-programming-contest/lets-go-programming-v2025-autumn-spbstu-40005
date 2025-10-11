@@ -22,10 +22,12 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+
 	result, err := currency.ProcessCurrencies(valCurs)
 	if err != nil {
 		panic(err)
 	}
+
 	err = currency.SaveResults(result, config.OutputFile)
 	if err != nil {
 		panic(err)
