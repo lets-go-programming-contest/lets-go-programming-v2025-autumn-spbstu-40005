@@ -33,9 +33,11 @@ type CurrencyResult struct {
 	Value    float64 `json:"value"`
 }
 
-func decodeWindows1251(data []byte) ([]byte, error) {
-	decoder := charmap.Windows1251.NewDecoder()
-	return decoder.Bytes(data)
+func charsetReader(charset string, input io.Reader) (io.Reader, error) {
+	if charset == "windews-1251" {
+		return charmap.Windows1251.NewDecoder().Reader(input), nil
+	}
+	return input, nil
 }
 
 func ParseXMLData(filePath string) (*ValCurs, error) {
@@ -44,13 +46,13 @@ func ParseXMLData(filePath string) (*ValCurs, error) {
 		return nil, err
 	}
 
-	decodedData, err := decodeWindows1251(data)
-	if err != nil {
-		decodedData = data
-	}
+	reader := string.NewReader(string(data))
+
+	decoder := xml.NewDecoder(reader)
+	decoder.CharsetReader = charsetReader
 
 	var valCurs ValCurs
-	err = xml.Unmarshal(decodedData, &valCurs)
+	err = decoder.Decode(&valCurs)
 	if err != nil {
 		return nil, err
 	}
