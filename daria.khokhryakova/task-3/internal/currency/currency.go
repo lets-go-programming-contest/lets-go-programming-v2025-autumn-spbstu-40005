@@ -66,7 +66,7 @@ func ParseXMLData(filePath string) (*ValCurs, error) {
 }
 
 func convertValue(valueStr string) (float64, error) {
-	normalizStr := strings.Replace(valueStr, ",", ".")
+	normalizStr := strings.ReplaceAll(valueStr, ",", ".")
 	value, err := strconv.ParseFloat(normalizStr, 64)
 
 	if err != nil {
