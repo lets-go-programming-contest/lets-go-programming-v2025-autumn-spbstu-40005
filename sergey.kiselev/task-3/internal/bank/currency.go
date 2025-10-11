@@ -16,6 +16,7 @@ type Currency struct {
 
 func encodeJSON(currencies []Currency, writer io.Writer) error {
 	encoder := json.NewEncoder(writer)
+
 	encoder.SetIndent("", "  ")
 
 	if err := encoder.Encode(currencies); err != nil {
@@ -27,7 +28,7 @@ func encodeJSON(currencies []Currency, writer io.Writer) error {
 
 func EncodeFile(currencies []Currency, outputFile string) error {
 	dir := filepath.Dir(outputFile)
-	if err := os.MkdirAll(dir, 0755); err != nil {
+	if err := os.MkdirAll(dir, 0o755); err != nil {
 		return fmt.Errorf("error creating directory: %w", err)
 	}
 

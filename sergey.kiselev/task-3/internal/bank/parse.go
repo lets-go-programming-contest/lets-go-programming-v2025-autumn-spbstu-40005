@@ -28,6 +28,7 @@ func parseXML(reader io.Reader) (*ValCurs, error) {
 	decoder := xml.NewDecoder(reader)
 
 	decoder.CharsetReader = charset.NewReaderLabel
+
 	valCurs := new(ValCurs)
 	if err := decoder.Decode(valCurs); err != nil {
 		return nil, fmt.Errorf("XML decoding error: %w", err)
