@@ -3,7 +3,6 @@ package currency
 import (
 	"encoding/json"
 	"encoding/xml"
-	"fmt"
 	"os"
 	"path/filepath"
 	"sort"
