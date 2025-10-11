@@ -73,6 +73,9 @@ func convertValue(valueStr string) (float64, error) {
 }
 
 func convertNumCode(numCodeStr string) (int, error) {
+	if strings.TrimSpace(numCodeStr) == "" {
+		return 0, nil
+	}
 	numCode, err := strconv.Atoi(numCodeStr)
 	if err != nil {
 		return 0, err
@@ -84,10 +87,6 @@ func convertNumCode(numCodeStr string) (int, error) {
 func ProcessCurrencies(valCurs *ValCurs) ([]CurrencyResult, error) {
 	var results []CurrencyResult
 	for _, valute := range valCurs.Valutes {
-		if strings.TrimSpace(valute.NumCode) == "" {
-			return 0, nil
-		}
-
 		value, err := convertValue(valute.Value)
 		if err != nil {
 			return nil, err
