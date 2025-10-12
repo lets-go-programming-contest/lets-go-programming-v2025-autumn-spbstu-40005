@@ -118,7 +118,7 @@ func ProcessCurrencies(valCurs *ValCurs) ([]CurrencyResult, error) {
 
 func SaveResults(results []CurrencyResult, outputPath string) error {
 	dir := filepath.Dir(outputPath)
-    const dirPerm = 0o755
+	const dirPerm = 0o755
 	err := os.MkdirAll(dir, dirPerm)
 	if err != nil {
 		return fmt.Errorf("create dir: %w", err)
