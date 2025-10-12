@@ -53,8 +53,8 @@ func ParseXMLData(filePath string) (*ValCurs, error) {
 	reader := bytes.NewReader(data)
 	decoder := xml.NewDecoder(reader)
 	decoder.CharsetReader = charsetReader
-	var valCurs ValCurs
 
+	var valCurs ValCurs
 	err = decoder.Decode(&valCurs)
 	if err != nil {
 		return nil, fmt.Errorf("decode xml: %w", err)
@@ -135,7 +135,6 @@ func SaveResults(results []CurrencyResult, outputPath string) error {
 
 	encoder := json.NewEncoder(file)
 	encoder.SetIndent("", "  ")
-
 	err = encoder.Encode(results)
 	if err != nil {
 		return fmt.Errorf("encode json: %w", err)
