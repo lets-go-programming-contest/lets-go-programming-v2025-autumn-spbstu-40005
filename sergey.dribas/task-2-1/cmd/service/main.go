@@ -58,7 +58,7 @@ func readConstraint() (string, int, error) {
 func processDepartment() error {
 	var size int
 	if _, err := fmt.Scan(&size); err != nil {
-		return ErrInput
+		return errors.Join(ErrInput, err)
 	}
 
 	depart := NewDepartment()
