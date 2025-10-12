@@ -5,48 +5,75 @@ import (
 	"fmt"
 )
 
-var errIN = errors.New("invalid input")
+var ErrInput = errors.New("invalid input")
 
-func processDepartment() error {
-	var departmentSize int
+const (
+	constMaxtemp = 30
+	constMintemp = 15
+)
 
-	_, err := fmt.Scan(&departmentSize)
-	if err != nil {
-		return errIN
+type Department struct {
+	MinTemp int
+	MaxTemp int
+}
+
+func NewDepartment() *Department {
+	return &Department{constMintemp, constMaxtemp}
+}
+
+func (depart *Department) ProcessConstraint(operand string, temp int) error {
+	switch operand {
+	case ">=":
+		depart.MinTemp = max(depart.MinTemp, temp)
+	case "<=":
+		depart.MaxTemp = min(depart.MaxTemp, temp)
+	default:
+		return ErrInput
 	}
 
-	minTemp := 15
-	maxTemp := 30
+	return nil
+}
 
-	for range departmentSize {
-		var (
-			operand string
-			temp    int
-		)
+func (depart *Department) GetCurrentTemp() int {
+	if depart.MinTemp > depart.MaxTemp {
+		return -1
+	}
 
-		_, err := fmt.Scan(&operand, &temp)
+	return depart.MinTemp
+}
+
+func readConstraint() (string, int, error) {
+	var (
+		temp    int
+		operand string
+	)
+
+	if _, err := fmt.Scan(&operand, &temp); err != nil {
+		return "", 0, ErrInput
+	}
+
+	return operand, temp, nil
+}
+
+func processDepartment() error {
+	var size int
+	if _, err := fmt.Scan(&size); err != nil {
+		return err
+	}
+
+	depart := NewDepartment()
+
+	for i := 0; i < size; i++ {
+		operand, temp, err := readConstraint()
 		if err != nil {
-			return errIN
+			return err
 		}
 
-		switch operand {
-		case ">=":
-			if temp > minTemp {
-				minTemp = temp
-			}
-		case "<=":
-			if temp < maxTemp {
-				maxTemp = temp
-			}
-		default:
-			return errIN
+		if err := depart.ProcessConstraint(operand, temp); err != nil {
+			return err
 		}
 
-		if minTemp > maxTemp {
-			fmt.Println("-1")
-		} else {
-			fmt.Println(minTemp)
-		}
+		fmt.Println(depart.GetCurrentTemp())
 	}
 
 	return nil
@@ -55,11 +82,15 @@ func processDepartment() error {
 func main() {
 	var size int
 	if _, err := fmt.Scan(&size); err != nil {
+		fmt.Println("Error:", err)
+
 		return
 	}
 
-	for range size {
-		if processDepartment() != nil {
+	for i := 0; i < size; i++ {
+		if err := processDepartment(); err != nil {
+			fmt.Println("Error:", err)
+
 			return
 		}
 	}
