@@ -1,0 +1,35 @@
+package main
+
+import "fmt"
+
+func main() {
+	var a, b int
+	var op string
+
+	if _, err := fmt.Scan(&a); err != nil {
+		fmt.Println("Invalid first operand")
+		return
+	} else if _, err := fmt.Scan(&b); err != nil {
+		fmt.Println("Invalid second operand")
+		return
+	} else if _, err := fmt.Scan(&op); err != nil {
+		fmt.Println("Invalid operation")
+		return
+	} else if op == "/" && b == 0 {
+		fmt.Println("Division by zero")
+		return
+	}
+
+	switch op {
+	case "+":
+		fmt.Println(a + b)
+	case "-":
+		fmt.Println(a - b)
+	case "*":
+		fmt.Println(a * b)
+	case "/":
+		fmt.Println(a / b)
+	default:
+		fmt.Println("Invalid operation")
+	}
+}
