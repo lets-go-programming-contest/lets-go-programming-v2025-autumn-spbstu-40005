@@ -67,6 +67,7 @@ func ParseXMLData(filePath string) (*ValCurs, error) {
 func convertValue(valueStr string) (float64, error) {
 	normalizStr := strings.ReplaceAll(valueStr, ",", ".")
 	value, err := strconv.ParseFloat(normalizStr, 64)
+
 	if err != nil {
 		return 0, fmt.Errorf("parse float: %w", err)
 	}
@@ -137,6 +138,7 @@ func SaveResults(results []CurrencyResult, outputPath string) error {
 	encoder := json.NewEncoder(file)
 	encoder.SetIndent("", "  ")
 	err = encoder.Encode(results)
+
 	if err != nil {
 		return fmt.Errorf("encode json: %w", err)
 	}
