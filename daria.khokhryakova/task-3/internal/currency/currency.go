@@ -71,7 +71,6 @@ func convertValue(valueStr string) (float64, error) {
 	if err != nil {
 		return 0, fmt.Errorf("parse float: %w", err)
 	}
-
 	return value, nil
 }
 
@@ -123,23 +122,18 @@ func SaveResults(results []CurrencyResult, outputPath string) error {
 	if err != nil {
 		return fmt.Errorf("create dir: %w", err)
 	}
-
 	file, err := os.Create(outputPath)
 	if err != nil {
 		return fmt.Errorf("create file: %w", err)
 	}
-
 	defer func() {
 		_ = file.Close()
 	}()
-
 	encoder := json.NewEncoder(file)
 	encoder.SetIndent("", "  ")
-
 	err = encoder.Encode(results)
 	if err != nil {
 		return fmt.Errorf("encode json: %w", err)
 	}
-
 	return nil
 }
