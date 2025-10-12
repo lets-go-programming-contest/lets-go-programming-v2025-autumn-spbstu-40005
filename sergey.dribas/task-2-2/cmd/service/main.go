@@ -21,6 +21,8 @@ func FindKthSmallest(intHeap *intheap.IntHeap, number int) (int, error) {
 	copyHeap := make(intheap.IntHeap, intHeap.Len())
 	copy(copyHeap, *intHeap)
 
+	heap.Init(&copyHeap)
+
 	for range copyHeap.Len() - number {
 		heap.Pop(&copyHeap)
 	}
