@@ -138,7 +138,6 @@ func SaveResults(results []CurrencyResult, outputPath string) error {
 	encoder := json.NewEncoder(file)
 	encoder.SetIndent("", "  ")
 	err = encoder.Encode(results)
-
 	if err != nil {
 		return fmt.Errorf("encode json: %w", err)
 	}
