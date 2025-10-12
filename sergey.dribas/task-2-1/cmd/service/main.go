@@ -58,12 +58,12 @@ func readConstraint() (string, int, error) {
 func processDepartment() error {
 	var size int
 	if _, err := fmt.Scan(&size); err != nil {
-		return err
+		return ErrInput
 	}
 
 	depart := NewDepartment()
 
-	for i := 0; i < size; i++ {
+	for range size {
 		operand, temp, err := readConstraint()
 		if err != nil {
 			return err
@@ -87,7 +87,7 @@ func main() {
 		return
 	}
 
-	for i := 0; i < size; i++ {
+	for range size {
 		if err := processDepartment(); err != nil {
 			fmt.Println("Error:", err)
 
