@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"sort"
 	"strconv"
+	"strings"
 )
 
 type ValCurs struct {
@@ -52,7 +53,9 @@ func (v *Valute) convertFromRaw(valuteRaw ValuteRaw) error {
 	v.Name = valuteRaw.Name
 	v.VunitRate = valuteRaw.VunitRate
 
-	floatVal, err := strconv.ParseFloat(valuteRaw.Value, 64)
+	valueStr := strings.Replace(valuteRaw.Value, ",", ".", -1)
+
+	floatVal, err := strconv.ParseFloat(valueStr, 64)
 	if err != nil {
 		return fmt.Errorf("failed conversion from ValuteRaw to Valute: %w", err)
 	}
