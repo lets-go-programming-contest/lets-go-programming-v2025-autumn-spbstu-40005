@@ -56,6 +56,8 @@ func (temp *TemperaturePreference) changeTemperature(sign string, preferedTemp i
 func (temp *TemperaturePreference) handleGreaterEqual(preferedTemp int, currTemp *int) {
 	if preferedTemp > temp.maxTemp {
 		*currTemp = -1
+
+		return
 	}
 
 	if preferedTemp > temp.getMinTemp() {
@@ -70,6 +72,8 @@ func (temp *TemperaturePreference) handleGreaterEqual(preferedTemp int, currTemp
 func (temp *TemperaturePreference) handleLessEqual(preferedTemp int, currTemp *int) {
 	if preferedTemp < temp.minTemp {
 		*currTemp = -1
+
+		return
 	}
 
 	if preferedTemp < temp.getMaxTemp() {
