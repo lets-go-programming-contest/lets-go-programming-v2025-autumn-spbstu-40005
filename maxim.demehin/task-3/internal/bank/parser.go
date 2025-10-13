@@ -14,7 +14,7 @@ import (
 
 func ParseXML(path string) (*ValCurs, error) {
 	if _, err := os.Stat(path); os.IsNotExist(err) {
-		return nil, fmt.Errorf("tryied to read unexisting file: %w", err)
+		return nil, fmt.Errorf("file %s does not exist: %w", path, err)
 	}
 
 	data, err := os.ReadFile(path)
