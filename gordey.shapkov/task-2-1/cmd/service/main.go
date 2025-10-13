@@ -45,7 +45,7 @@ func (temp *TemperaturePreference) changeTemperature(sign string, preferedTemp, 
 	case "<=":
 		temp.handleLessEqual(preferedTemp, &currTemp)
 	default:
-		return 0, errInvalidOperation
+		return -1, errInvalidOperation
 	}
 
 	return currTemp, nil
