@@ -34,12 +34,10 @@ func (temp *TemperaturePreference) getMinTemp() int {
 	return temp.minTemp
 }
 
-func (temp *TemperaturePreference) changeTemperature(sign string, preferedTemp int) (int, error) {
+func (temp *TemperaturePreference) changeTemperature(sign string, preferedTemp, currTemp int) (int, error) {
 	if preferedTemp < MinTemp || preferedTemp > MaxTemp {
 		return -1, nil
 	}
-
-	var currTemp int
 
 	switch sign {
 	case ">=":
@@ -126,7 +124,7 @@ func main() {
 				continue
 			}
 
-			currTemp, err = temp.changeTemperature(sign, preferedTemp)
+			currTemp, err = temp.changeTemperature(sign, preferedTemp, currTemp)
 			if err != nil {
 				fmt.Println(err)
 
