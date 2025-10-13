@@ -49,6 +49,9 @@ type ValuteToOut struct {
 }
 
 func (v *Valute) convertFromRaw(valuteRaw ValuteRaw) error {
+	v.ID = valuteRaw.ID
+	v.NumCode = valuteRaw.NumCode
+	v.CharCode = valuteRaw.CharCode
 	v.Nominal = valuteRaw.Nominal
 	v.Name = valuteRaw.Name
 	v.VunitRate = valuteRaw.VunitRate
