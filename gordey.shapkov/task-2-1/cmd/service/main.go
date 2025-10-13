@@ -7,32 +7,78 @@ import (
 
 var (
 	errInvalidOperation           = errors.New("invalid operation")
-	errInvalidNumberOfEmployees   = errors.New("invalid number of employees")
 	errInvalidNumberOfDepartments = errors.New("invalid number of departments")
 )
 
 type TemperaturePreference struct {
-	maxTemp, minTemp, currTemp int
+	maxTemp, minTemp int
 }
 
-func NewTemperaturePreference(maxTemp, minTemp, currTemp int) *TemperaturePreference {
-	return &TemperaturePreference{maxTemp, minTemp, currTemp}
+func NewTemperaturePreference(maxTemp, minTemp int) *TemperaturePreference {
+	return &TemperaturePreference{maxTemp, minTemp}
 }
 
 func (temp *TemperaturePreference) setMaxTemp(maxTemp int) {
 	temp.maxTemp = maxTemp
 }
 
+func (temp *TemperaturePreference) getMaxTemp() int {
+	return temp.maxTemp
+}
+
 func (temp *TemperaturePreference) setMinTemp(minTemp int) {
 	temp.minTemp = minTemp
 }
 
-func (temp *TemperaturePreference) setCurrTemp(currTemp int) {
-	temp.currTemp = currTemp
+func (temp *TemperaturePreference) getMinTemp() int {
+	return temp.minTemp
 }
 
-func (temp *TemperaturePreference) getCurrTemp() int {
-	return temp.currTemp
+func (temp *TemperaturePreference) changeTemperature(sign string, preferedTemp int) (int, error) {
+	if preferedTemp < MinTemp || preferedTemp > MaxTemp {
+		return -1, nil
+	}
+
+	var currTemp int
+
+	switch sign {
+	case ">=":
+		temp.handleGreaterEqual(preferedTemp, &currTemp)
+	case "<=":
+		temp.handleLessEqual(preferedTemp, &currTemp)
+	default:
+		return 0, errInvalidOperation
+	}
+
+	return currTemp, nil
+}
+
+func (temp *TemperaturePreference) handleGreaterEqual(preferedTemp int, currTemp *int) {
+	if preferedTemp > temp.maxTemp {
+		*currTemp = -1
+	}
+
+	if preferedTemp > temp.getMinTemp() {
+		temp.setMinTemp(preferedTemp)
+	}
+
+	if preferedTemp > *currTemp {
+		*currTemp = preferedTemp
+	}
+}
+
+func (temp *TemperaturePreference) handleLessEqual(preferedTemp int, currTemp *int) {
+	if preferedTemp < temp.minTemp {
+		*currTemp = -1
+	}
+
+	if preferedTemp < temp.getMaxTemp() {
+		temp.setMaxTemp(preferedTemp)
+	}
+
+	if preferedTemp < *currTemp {
+		*currTemp = preferedTemp
+	}
 }
 
 const (
@@ -51,7 +97,7 @@ func main() {
 	for range numberOfDepartments {
 		_, err := fmt.Scan(&numberOfEmployees)
 		if err != nil {
-			fmt.Println(errInvalidNumberOfEmployees)
+			fmt.Println("invalid number of employees: ", err)
 
 			return
 		}
@@ -61,7 +107,8 @@ func main() {
 			preferedTemp int
 		)
 
-		temp := NewTemperaturePreference(MaxTemp, MinTemp, MinTemp)
+		currTemp := MinTemp
+		temp := NewTemperaturePreference(MaxTemp, MinTemp)
 
 		for range numberOfEmployees {
 			_, err = fmt.Scan(&sign, &preferedTemp)
@@ -69,68 +116,20 @@ func main() {
 				return
 			}
 
-			if temp.currTemp == -1 {
-				fmt.Println(temp.currTemp)
+			if currTemp == -1 {
+				fmt.Println(currTemp)
 
 				continue
 			}
 
-			if err := temp.changeTemperature(sign, preferedTemp); err != nil {
+			currTemp, err = temp.changeTemperature(sign, preferedTemp)
+			if err != nil {
 				fmt.Println(err)
 
 				break
 			}
 
-			fmt.Println(temp.getCurrTemp())
+			fmt.Println(currTemp)
 		}
-	}
-}
-
-func (temp *TemperaturePreference) changeTemperature(sign string, preferedTemp int) error {
-	if preferedTemp < MinTemp || preferedTemp > MaxTemp {
-		temp.setCurrTemp(-1)
-	}
-
-	switch sign {
-	case ">=":
-		handleGreaterEqual(preferedTemp, temp)
-	case "<=":
-		handleLessEqual(preferedTemp, temp)
-	default:
-		return errInvalidOperation
-	}
-
-	return nil
-}
-
-func handleGreaterEqual(preferedTemp int, temp *TemperaturePreference) {
-	if preferedTemp > temp.maxTemp {
-		temp.setCurrTemp(-1)
-
-		return
-	}
-
-	if preferedTemp > temp.currTemp {
-		temp.setCurrTemp(preferedTemp)
-	}
-
-	if preferedTemp > temp.minTemp {
-		temp.setMinTemp(preferedTemp)
-	}
-}
-
-func handleLessEqual(preferedTemp int, temp *TemperaturePreference) {
-	if preferedTemp < temp.minTemp {
-		temp.setCurrTemp(-1)
-
-		return
-	}
-
-	if preferedTemp < temp.currTemp {
-		temp.setCurrTemp(preferedTemp)
-	}
-
-	if preferedTemp < temp.maxTemp {
-		temp.setMaxTemp(preferedTemp)
 	}
 }
