@@ -2,15 +2,21 @@ package main
 
 import (
 	"container/heap"
+	"errors"
 	"fmt"
 
 	"gordey.shapkov/task-2-2/internal/intheap"
 )
 
+var (
+	errNumberExceedsDishes = errors.New("number exceeds available dishes")
+	errInvalidType         = errors.New("invalid type")
+)
+
 func main() {
 	defer func() {
 		if err := recover(); err != nil {
-			fmt.Println("panic occured", err)
+			fmt.Println("panic occurred", err)
 
 			return
 		}
@@ -52,8 +58,8 @@ func main() {
 }
 
 func findDish(dishes *intheap.IntHeap, number int) (int, error) {
-	if number >  dishes.Len() {
-		return 0, fmt.Errorf("number %d more than amount of dishes %d", number, dishes.Len())
+	if number > dishes.Len() {
+		return 0, fmt.Errorf("number %d more than amount of dishes %d", number, dishes.Len(), errNumberExceedsDishes)
 	}
 
 	for range dishes.Len() - number {
@@ -64,7 +70,7 @@ func findDish(dishes *intheap.IntHeap, number int) (int, error) {
 
 	value, ok := x.(int)
 	if !ok {
-		return 0, fmt.Errorf("invalid type")
+		return 0, errInvalidType
 	}
 
 	return value, nil
