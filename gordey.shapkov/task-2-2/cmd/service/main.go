@@ -59,7 +59,7 @@ func main() {
 
 func findDish(dishes *intheap.IntHeap, number int) (int, error) {
 	if number > dishes.Len() {
-		return 0, fmt.Errorf("number %d more than amount of dishes %d", number, dishes.Len(), errNumberExceedsDishes)
+		return 0, fmt.Errorf("number %d more than amount of dishes %d: %w", number, dishes.Len(), errNumberExceedsDishes)
 	}
 
 	for range dishes.Len() - number {
