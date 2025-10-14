@@ -8,9 +8,18 @@ import (
 	"github.com/KostyukovMichael/lets-go-programming-v2025-autumn-spbstu-40005/task-2-2/internal/intheap"
 )
 
-var errConvert = errors.New("cannot convert to int")
+var (
+	errConvertToInt = errors.New("cannot convert to int")
+	errHeapIsEmpty  = errors.New("cannot pop from an empty heap")
+)
 
 func main() {
+	defer func() {
+		if err := recover(); err != nil {
+			fmt.Printf("panic: %v\n", err)
+		}
+	}()
+
 	var dishesCnt int
 	if _, err := fmt.Scan(&dishesCnt); err != nil {
 		fmt.Printf("invalid input of number of dishes: %v\n", err)
@@ -49,9 +58,16 @@ func main() {
 		heap.Pop(dishesHeap)
 	}
 
-	result, ok := heap.Pop(dishesHeap).(int)
+	popped := heap.Pop(dishesHeap)
+	if popped == nil {
+		fmt.Printf("while popping last element from the heap: %v\n", errHeapIsEmpty)
+
+		return
+	}
+
+	result, ok := popped.(int)
 	if !ok {
-		fmt.Println(errConvert)
+		fmt.Printf("while converting last element to int: %v\n", errConvertToInt)
 	}
 
 	fmt.Println(result)
