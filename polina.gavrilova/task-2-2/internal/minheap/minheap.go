@@ -21,15 +21,14 @@ func (heap *MinHeap) Push(x interface{}) {
 	if !ok {
 		return
 	}
-
 	*heap = append(*heap, value)
 }
 
-func (h *MinHeap) Pop() interface{} {
-	old := *h
+func (heap *MinHeap) Pop() interface{} {
+	old := *heap
 	n := len(old)
 	x := old[n-1]
-	*h = old[0 : n-1]
+	*heap = old[0 : n-1]
 
 	return x
 }
