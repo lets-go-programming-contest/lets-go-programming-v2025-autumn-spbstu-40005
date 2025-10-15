@@ -59,11 +59,11 @@ func execEmployee(tempCondition *temperature.TempCondition) error {
 		return fmt.Errorf("invalid employee command: %w", err)
 	}
 
-	err = tempCondition.Change(mode, parameter)
-	if err != nil {
+	tempCondition.Change(mode, parameter)
+	if tempCondition.CurMax < tempCondition.CurMin {
 		fmt.Println(-1)
 
-		return err
+		return nil
 	}
 
 	fmt.Println(tempCondition.CurTemp)
