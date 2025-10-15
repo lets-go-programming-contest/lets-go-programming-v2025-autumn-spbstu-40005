@@ -9,6 +9,7 @@ import (
 
 func returnNumberDish() int {
 	var countDish int
+
 	menu := make(queue.Queue, 0)
 
 	heap.Init(&menu)
@@ -19,6 +20,7 @@ func returnNumberDish() int {
 
 		return 0
 	}
+
 	for range countDish {
 		var estimation int
 
@@ -28,7 +30,11 @@ func returnNumberDish() int {
 
 			return 0
 		}
-		heap.Push(&menu, &queue.Element{Value: estimation, Priority: estimation, Index: 0})
+		heap.Push(&menu, &queue.Element{
+			Value:    estimation,
+			Priority: estimation,
+			Index:    0,
+		})
 	}
 
 	var kValue int
@@ -74,6 +80,7 @@ func main() {
 
 	if res == 0 {
 		fmt.Println("its bad")
+
 		return
 	} else {
 		fmt.Println(res)

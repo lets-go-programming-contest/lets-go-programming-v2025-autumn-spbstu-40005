@@ -27,6 +27,7 @@ func (q *Queue) Push(newElement interface{}) {
 	if !oke {
 		return
 	}
+
 	n := len(*q)
 	element.Index = n
 	*q = append(*q, element)
@@ -36,6 +37,7 @@ func (q *Queue) Pop() interface{} {
 	old := *q
 	n := len(old)
 	item := old[n-1]
+
 	old[n-1] = nil
 	item.Index = -1
 	*q = old[0 : n-1]
