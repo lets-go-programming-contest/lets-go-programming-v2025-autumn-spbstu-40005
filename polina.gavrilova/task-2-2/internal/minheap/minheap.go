@@ -21,6 +21,7 @@ func (heap *MinHeap) Push(x interface{}) {
 	if !ok {
 		return
 	}
+
 	*heap = append(*heap, value)
 }
 
