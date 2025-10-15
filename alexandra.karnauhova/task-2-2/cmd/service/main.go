@@ -10,45 +10,58 @@ import (
 func returnNumberDish() int {
 	var countDish int
 	menu := make(queue.Queue, 0)
+
 	heap.Init(&menu)
+
 	_, err := fmt.Scan(&countDish)
 	if err != nil {
 		fmt.Println("Invalid count dish")
+
 		return 0
 	}
-	for i := 0; i < countDish; i++ {
+	for range countDish {
 		var estimation int
+
 		_, err = fmt.Scan(&estimation)
 		if err != nil {
 			fmt.Println("Invalid estimation")
+
 			return 0
 		}
-		heap.Push(&menu, &queue.Element{Value: estimation, Priority: estimation})
+		heap.Push(&menu, &queue.Element{Value: estimation, Priority: estimation, Index: 0})
 	}
+
 	var kValue int
+
 	_, err = fmt.Scan(&kValue)
 	if err != nil {
 		fmt.Println("Invalid k")
+
 		return 0
 	}
 
 	if kValue <= 0 || kValue > countDish {
 		fmt.Println("Invalid k value")
+
 		return 0
 	}
 
 	dishItem := heap.Pop(&menu)
-	dish, ok := dishItem.(*queue.Element)
-	if !ok {
+
+	dish, oke := dishItem.(*queue.Element)
+	if !oke {
 		fmt.Println("Invalid dish type")
+
 		return 0
 	}
 
-	for i := 0; i < kValue-1; i++ {
+	for range kValue - 1 {
 		dishItem = heap.Pop(&menu)
-		dish, ok = dishItem.(*queue.Element)
-		if !ok {
+
+		dish, oke = dishItem.(*queue.Element)
+		if !oke {
 			fmt.Println("Invalid dish type")
+
 			return 0
 		}
 	}
@@ -58,6 +71,7 @@ func returnNumberDish() int {
 
 func main() {
 	res := returnNumberDish()
+
 	if res == 0 {
 		fmt.Println("its bad")
 		return
