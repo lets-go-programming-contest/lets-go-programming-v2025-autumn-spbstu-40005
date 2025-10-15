@@ -25,23 +25,41 @@ func returnNumberDish() int {
 		}
 		heap.Push(&menu, &queue.Element{Value: estimation, Priority: estimation})
 	}
-	var k int
-	_, err = fmt.Scan(&k)
+	var kValue int
+	_, err = fmt.Scan(&kValue)
 	if err != nil {
 		fmt.Println("Invalid k")
 		return 0
 	}
-	dish := heap.Pop(&menu).(*queue.Element)
-	for i := 0; i < k-1; i++ {
-		dish = heap.Pop(&menu).(*queue.Element)
+
+	if kValue <= 0 || kValue > countDish {
+		fmt.Println("Invalid k value")
+		return 0
 	}
+
+	dishItem := heap.Pop(&menu)
+	dish, ok := dishItem.(*queue.Element)
+	if !ok {
+		fmt.Println("Invalid dish type")
+		return 0
+	}
+
+	for i := 0; i < kValue-1; i++ {
+		dishItem = heap.Pop(&menu)
+		dish, ok = dishItem.(*queue.Element)
+		if !ok {
+			fmt.Println("Invalid dish type")
+			return 0
+		}
+	}
+
 	return dish.Value
 }
 
 func main() {
 	res := returnNumberDish()
 	if res == 0 {
-		fmt.Errorf("its bad")
+		fmt.Println("its bad")
 		return
 	} else {
 		fmt.Println(res)
