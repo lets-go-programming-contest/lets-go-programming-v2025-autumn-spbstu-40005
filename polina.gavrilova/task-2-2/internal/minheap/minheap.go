@@ -4,24 +4,25 @@ import "container/heap"
 
 type MinHeap []int
 
-func (h MinHeap) Len() int {
-	return len(h)
+func (heap *MinHeap) Len() int {
+	return len(*heap)
 }
 
-func (h MinHeap) Less(i, j int) bool {
-	return h[i] < h[j]
+func (heap *MinHeap) Less(i, j int) bool {
+	return (*heap)[i] < (*heap)[j]
 }
 
-func (h MinHeap) Swap(i, j int) {
-	h[i], h[j] = h[j], h[i]
+func (heap *MinHeap) Swap(i, j int) {
+	(*heap)[i], (*heap)[j] = (*heap)[j], (*heap)[i]
 }
 
-func (h *MinHeap) Push(x interface{}) {
+func (heap *MinHeap) Push(x interface{}) {
 	value, ok := x.(int)
 	if !ok {
 		return
 	}
-	*h = append(*h, value)
+
+	*heap = append(*heap, value)
 }
 
 func (h *MinHeap) Pop() interface{} {
