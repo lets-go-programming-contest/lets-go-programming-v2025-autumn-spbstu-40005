@@ -17,7 +17,11 @@ func (h MinHeap) Swap(i, j int) {
 }
 
 func (h *MinHeap) Push(x interface{}) {
-	*h = append(*h, x.(int))
+	value, ok := x.(int)
+	if !ok {
+		return
+	}
+	*h = append(*h, value)
 }
 
 func (h *MinHeap) Pop() interface{} {
@@ -30,17 +34,17 @@ func (h *MinHeap) Pop() interface{} {
 }
 
 func FindKthLargest(ratings []int, preferenceOrder int) int {
-	h := &MinHeap{}
-	heap.Init(h)
+	heapInstance := &MinHeap{}
+	heap.Init(heapInstance)
 
 	for _, rating := range ratings {
-		if h.Len() < preferenceOrder {
-			heap.Push(h, rating)
-		} else if rating > (*h)[0] {
-			heap.Pop(h)
-			heap.Push(h, rating)
+		if heapInstance.Len() < preferenceOrder {
+			heap.Push(heapInstance, rating)
+		} else if rating > (*heapInstance)[0] {
+			heap.Pop(heapInstance)
+			heap.Push(heapInstance, rating)
 		}
 	}
 
-	return (*h)[0]
+	return (*heapInstance)[0]
 }

@@ -30,6 +30,7 @@ func main() {
 	_, err = fmt.Scan(&preferenceOrder)
 	if err != nil || preferenceOrder <= 0 || preferenceOrder > nDishes {
 		fmt.Printf("Invalid preference order: %v\n", err)
+		
 		return
 	}
 
