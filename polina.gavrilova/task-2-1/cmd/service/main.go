@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+
+	"polina.gavrilova/task-2-1/internal/temperature"
 )
 
 func main() {
@@ -27,8 +29,14 @@ func execDepartment() error {
 		return fmt.Errorf("invalid number of employees: %w", err)
 	}
 
+	tempCondition := &temperature.TempCondition{
+		CurMin:  temperature.MinTemp,
+		CurMax:  temperature.MaxTemp,
+		CurTemp: temperature.MinTemp,
+	}
+
 	for i := 0; i < nEmployees; i++ {
-		err = execEmployee()
+		err = execEmployee(tempCondition)
 		if err != nil {
 			fmt.Printf("Employee error: %v\n", err)
 		}
@@ -36,7 +44,7 @@ func execDepartment() error {
 	return nil
 }
 
-func execEmployee() error {
+func execEmployee(tempCondition *temperature.TempCondition) error {
 	var (
 		mode      string
 		parameter int
@@ -46,5 +54,11 @@ func execEmployee() error {
 		return fmt.Errorf("invalid employee command: %w", err)
 	}
 
+	err = tempCondition.Change(mode, parameter)
+	if err != nil {
+		fmt.Println(-1)
+		return nil
+	}
+	fmt.Println(tempCondition.CurTemp)
 	return nil
 }
