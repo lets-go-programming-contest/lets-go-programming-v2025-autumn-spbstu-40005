@@ -1,7 +1,5 @@
 package temperature
 
-import "errors"
-
 const (
 	MaxTemp = 30
 	MinTemp = 15
