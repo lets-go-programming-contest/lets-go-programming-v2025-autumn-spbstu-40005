@@ -1,8 +1,8 @@
 package queue
 
 type Element struct {
-	value    int
-	priority int
+	Value    int
+	Priority int
 	index    int
 	count    int
 }
@@ -14,7 +14,7 @@ func (x Queue) Len() int {
 }
 
 func (x Queue) Less(i, j int) bool {
-	return x[i].priority > x[j].priority
+	return x[i].Priority > x[j].Priority
 }
 
 func (x Queue) Swap(i, j int) {
