@@ -1,6 +1,10 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+
+	"polina.gavrilova/task-2-2/internal/minheap"
+)
 
 func main() {
 	var nDishes int
@@ -17,6 +21,7 @@ func main() {
 		_, err := fmt.Scan(&ratings[i])
 		if err != nil {
 			fmt.Printf("Invalid rating: %v\n", err)
+
 			return
 		}
 	}
@@ -28,6 +33,6 @@ func main() {
 		return
 	}
 
-	result := 0
+	result := minheap.FindKthLargest(ratings, preferenceOrder)
 	fmt.Println(result)
 }
