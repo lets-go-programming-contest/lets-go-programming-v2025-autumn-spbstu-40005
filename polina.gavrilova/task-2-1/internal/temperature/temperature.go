@@ -7,6 +7,10 @@ const (
 	MinTemp = 15
 )
 
+var (
+	ErrInvalidTemperatureChange = errors.New("invalid changing temperature")
+)
+
 type TempCondition struct {
 	CurMin, CurMax, CurTemp int
 }
@@ -20,8 +24,10 @@ func (cond *TempCondition) Change(mode string, parametr int) error {
 		cond.CurMax = min(cond.CurMax, parametr)
 		cond.CurTemp = min(cond.CurTemp, parametr)
 	}
+
 	if cond.CurMin > cond.CurMax {
-		return errors.New("Invalid changing temperature")
+		return ErrInvalidTemperatureChange
 	}
+
 	return nil
 }

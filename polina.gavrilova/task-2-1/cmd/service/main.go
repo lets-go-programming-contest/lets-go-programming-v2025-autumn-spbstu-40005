@@ -8,13 +8,15 @@ import (
 
 func main() {
 	var nDepartments int
+
 	_, err := fmt.Scan(&nDepartments)
 	if err != nil || nDepartments <= 0 {
 		fmt.Printf("Invalid number of departments: %v\n", err)
+
 		return
 	}
 
-	for i := 0; i < nDepartments; i++ {
+	for i := range nDepartments {
 		err = execDepartment()
 		if err != nil {
 			fmt.Printf("Department %d error: %v\n", i+1, err)
@@ -24,6 +26,7 @@ func main() {
 
 func execDepartment() error {
 	var nEmployees int
+
 	_, err := fmt.Scan(&nEmployees)
 	if err != nil || nEmployees < 0 {
 		return fmt.Errorf("invalid number of employees: %w", err)
@@ -35,12 +38,13 @@ func execDepartment() error {
 		CurTemp: temperature.MinTemp,
 	}
 
-	for i := 0; i < nEmployees; i++ {
+	for range nEmployees {
 		err = execEmployee(tempCondition)
 		if err != nil {
 			fmt.Printf("Employee error: %v\n", err)
 		}
 	}
+
 	return nil
 }
 
@@ -49,6 +53,7 @@ func execEmployee(tempCondition *temperature.TempCondition) error {
 		mode      string
 		parameter int
 	)
+
 	_, err := fmt.Scan(&mode, &parameter)
 	if err != nil {
 		return fmt.Errorf("invalid employee command: %w", err)
@@ -57,8 +62,11 @@ func execEmployee(tempCondition *temperature.TempCondition) error {
 	err = tempCondition.Change(mode, parameter)
 	if err != nil {
 		fmt.Println(-1)
-		return nil
+
+		return err
 	}
+
 	fmt.Println(tempCondition.CurTemp)
+
 	return nil
 }
