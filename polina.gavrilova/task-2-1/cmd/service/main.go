@@ -60,6 +60,7 @@ func execEmployee(tempCondition *temperature.TempCondition) error {
 	}
 
 	tempCondition.Change(mode, parameter)
+
 	if tempCondition.CurMax < tempCondition.CurMin {
 		fmt.Println(-1)
 
