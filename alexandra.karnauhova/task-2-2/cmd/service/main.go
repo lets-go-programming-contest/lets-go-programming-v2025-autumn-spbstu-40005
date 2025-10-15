@@ -7,29 +7,21 @@ import (
 	"alexandra.karnauhova/task-2-2/internal/queue"
 )
 
-func returnNumberDish() int {
-	var countDish int
-
+func chooseDish(countDish int) int {
 	menu := make(queue.Queue, 0)
 
 	heap.Init(&menu)
 
-	_, err := fmt.Scan(&countDish)
-	if err != nil {
-		fmt.Println("Invalid count dish")
-
-		return 0
-	}
-
 	for range countDish {
 		var estimation int
 
-		_, err = fmt.Scan(&estimation)
+		_, err := fmt.Scan(&estimation)
 		if err != nil {
 			fmt.Println("Invalid estimation")
 
 			return 0
 		}
+
 		heap.Push(&menu, &queue.Element{
 			Value:    estimation,
 			Priority: estimation,
@@ -39,7 +31,7 @@ func returnNumberDish() int {
 
 	var kValue int
 
-	_, err = fmt.Scan(&kValue)
+	_, err := fmt.Scan(&kValue)
 	if err != nil {
 		fmt.Println("Invalid k")
 
@@ -76,7 +68,16 @@ func returnNumberDish() int {
 }
 
 func main() {
-	res := returnNumberDish()
+	var countDish int
+
+	_, err := fmt.Scan(&countDish)
+	if err != nil {
+		fmt.Println("Invalid count dish")
+
+		return
+	}
+
+	res := chooseDish(countDish)
 
 	if res == 0 {
 		fmt.Println("its bad")
