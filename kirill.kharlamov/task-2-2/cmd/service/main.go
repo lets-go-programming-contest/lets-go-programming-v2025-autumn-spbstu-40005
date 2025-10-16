@@ -28,6 +28,7 @@ func main() {
 
 	var selectionIndex int
 	_, err = fmt.Scan(&selectionIndex)
+
 	if err != nil || selectionIndex <= 0 || selectionIndex > totalItems {
 		fmt.Printf("Invalid preference order: %v\n", err)
 
