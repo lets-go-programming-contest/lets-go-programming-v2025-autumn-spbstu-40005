@@ -21,7 +21,6 @@ func ParseXML(path string) (*ValCurs, error) {
 	}
 
 	data, err := os.ReadFile(path)
-
 	if err != nil {
 		return nil, fmt.Errorf("failed to read XML file: %w", err)
 	}
