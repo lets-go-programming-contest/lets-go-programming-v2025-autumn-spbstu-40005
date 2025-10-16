@@ -109,7 +109,7 @@ func processDepartment(employeeCount int) error {
 func main() {
 	departmentCount, err := readInput()
 	if err != nil {
-		fmt.Println(-1)
+		fmt.Printf("Error reading department count: %v\n", err)
 
 		return
 	}
@@ -117,13 +117,15 @@ func main() {
 	for range departmentCount {
 		employeeCount, err := readInput()
 		if err != nil {
-			fmt.Println(-1)
+			fmt.Printf("Error reading number of employee: %v\n", err)
 
 			return
 		}
 
 		if err = processDepartment(employeeCount); err != nil {
-			fmt.Println(-1)
+			fmt.Printf("Error processing department: %v\n", err)
+
+			return
 		}
 	}
 }
