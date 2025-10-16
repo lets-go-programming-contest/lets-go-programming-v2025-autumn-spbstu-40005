@@ -40,6 +40,7 @@ func (cc *ClimateController) UpdateBounds(operator string, temp int) error {
 
 	return nil
 }
+
 func (cc *ClimateController) GetOptimalTemp() int {
 	if cc.minTemp <= cc.maxTemp {
 		return cc.minTemp
