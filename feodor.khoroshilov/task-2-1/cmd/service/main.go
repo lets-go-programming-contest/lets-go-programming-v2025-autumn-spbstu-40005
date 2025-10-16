@@ -60,7 +60,7 @@ func processDepartment() error {
 	for range workers {
 		var (
 			operator string
-			temp	int
+			temp     int
 		)
 
 		if _, err := fmt.Scan(&operator, &temp); err != nil {
