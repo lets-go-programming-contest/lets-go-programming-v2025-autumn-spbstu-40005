@@ -56,7 +56,7 @@ func (v *Valute) convertFromRaw(valuteRaw ValuteRaw) error {
 	v.Name = valuteRaw.Name
 	v.VunitRate = valuteRaw.VunitRate
 
-	valueStr := strings.Replace(valuteRaw.Value, ",", ".", -1)
+	valueStr := strings.ReplaceAll(valuteRaw.Value, ",", ".")
 
 	floatVal, err := strconv.ParseFloat(valueStr, 64)
 	if err != nil {
@@ -73,9 +73,8 @@ func (v *ValCurs) convertFromRaw(valCursRaw ValCursRaw) error {
 		XMLName: valCursRaw.XMLName,
 		Date:    valCursRaw.Date,
 		Name:    valCursRaw.Name,
+		Valutes: make([]Valute, len(valCursRaw.Valutes)),
 	}
-
-	temp.Valutes = make([]Valute, len(valCursRaw.Valutes))
 
 	for index := range valCursRaw.Valutes {
 		err := temp.Valutes[index].convertFromRaw(valCursRaw.Valutes[index])
@@ -85,6 +84,7 @@ func (v *ValCurs) convertFromRaw(valCursRaw ValCursRaw) error {
 	}
 
 	*v = temp
+
 	return nil
 }
 

@@ -4,12 +4,17 @@ import (
 	"bytes"
 	"encoding/json"
 	"encoding/xml"
+	"errors"
 	"fmt"
 	"io"
 	"os"
 	"path/filepath"
 
 	"golang.org/x/net/html/charset"
+)
+
+var (
+	ErrUnsupportedCharset = errors.New("unsupported charset")
 )
 
 func ParseXML(path string) (*ValCurs, error) {
@@ -49,7 +54,7 @@ func ParseXML(path string) (*ValCurs, error) {
 func getCharset(charsetLabel string, input io.Reader) (io.Reader, error) {
 	encoding, _ := charset.Lookup(charsetLabel)
 	if encoding == nil {
-		return nil, fmt.Errorf("unsupported charset")
+		return nil, ErrUnsupportedCharset
 	}
 
 	return encoding.NewDecoder().Reader(input), nil

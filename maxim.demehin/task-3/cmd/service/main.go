@@ -31,7 +31,6 @@ func loadConfig(path string) (*Config, error) {
 	}
 
 	return &config, nil
-
 }
 
 func main() {
@@ -57,5 +56,4 @@ func main() {
 	if err != nil {
 		fmt.Println(err)
 	}
-
 }
