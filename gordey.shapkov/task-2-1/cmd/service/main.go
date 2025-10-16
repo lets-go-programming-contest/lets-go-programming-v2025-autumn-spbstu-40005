@@ -9,6 +9,9 @@ import (
 var (
 	errInvalidOperation           = errors.New("invalid operation")
 	errInvalidNumberOfDepartments = errors.New("invalid number of departments")
+	errOutOfRangeTemperature      = errors.New("preferred temperature out of allowed range")
+	errPreferredAboveMax          = errors.New("preferred temperature above current max")
+	errPreferredBelowMin          = errors.New("preferred temperature below current min")
 )
 
 type TemperaturePreference struct {
@@ -29,7 +32,7 @@ func (temp *TemperaturePreference) getMinTemp() int {
 
 func (temp *TemperaturePreference) changeTemperature(sign string, preferredTemp, currTemp int) (int, error) {
 	if preferredTemp < MinTemp || preferredTemp > MaxTemp {
-		return -1, fmt.Errorf("preferred temperature %d out of allowed range", preferredTemp)
+		return -1, fmt.Errorf("%w: %d", errOutOfRangeTemperature, preferredTemp)
 	}
 
 	switch sign {
@@ -44,7 +47,7 @@ func (temp *TemperaturePreference) changeTemperature(sign string, preferredTemp,
 
 func (temp *TemperaturePreference) handleGreaterEqual(preferredTemp, currTemp int) (int, error) {
 	if preferredTemp > temp.getMaxTemp() {
-		return -1, fmt.Errorf("preferred %d > current max %d", preferredTemp, temp.maxTemp)
+		return -1, fmt.Errorf("%w: preferred %d > current max %d", errPreferredAboveMax, preferredTemp, temp.maxTemp)
 	}
 
 	if preferredTemp > temp.getMinTemp() {
@@ -60,7 +63,7 @@ func (temp *TemperaturePreference) handleGreaterEqual(preferredTemp, currTemp in
 
 func (temp *TemperaturePreference) handleLessEqual(preferredTemp int, currTemp int) (int, error) {
 	if preferredTemp < temp.getMinTemp() {
-		return -1, fmt.Errorf("preferred %d < current min %d", preferredTemp, temp.minTemp)
+		return -1, fmt.Errorf("%w: preferred %d < current min %d", errPreferredBelowMin, preferredTemp, temp.minTemp)
 	}
 
 	if preferredTemp < temp.getMaxTemp() {
