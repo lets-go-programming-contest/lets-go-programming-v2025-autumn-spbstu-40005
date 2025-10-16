@@ -14,6 +14,22 @@ func NewTemperatureRange() TemperatureRange {
 	return TemperatureRange{Min: 15, Max: 30}
 }
 
+func (tr *TemperatureRange) Update(operator string, temp int) error {
+	switch operator {
+	case ">=":
+		if temp > tr.Min {
+			tr.Min = temp
+		}
+	case "<=":
+		if temp < tr.Max {
+			tr.Max = temp
+		}
+	default:
+		return errors.New("invalid operator")
+	}
+	return nil
+}
+
 func (tr *TemperatureRange) IsValid() bool {
 	return tr.Min <= tr.Max
 }
@@ -48,13 +64,21 @@ func readEmployeeRequest() (string, int, error) {
 
 func processDepartment(employeeCount int) error {
 	tr := NewTemperatureRange()
-	fmt.Println(tr.GetOptimalTemperature())
+
 	for range employeeCount {
 		operator, temp, err := readEmployeeRequest()
 		if err != nil {
 			return errors.New("invalid employee request")
 		}
-		fmt.Println(operator)
+
+		err = tr.Update(operator, temp)
+		if err != nil {
+			return err
+		}
+		temp, err = tr.GetOptimalTemperature()
+		if err != nil {
+			return err
+		}
 		fmt.Println(temp)
 	}
 	return nil
