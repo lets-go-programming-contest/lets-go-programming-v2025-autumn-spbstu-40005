@@ -5,6 +5,26 @@ import (
 	"fmt"
 )
 
+type TemperatureRange struct {
+	Min int
+	Max int
+}
+
+func NewTemperatureRange() TemperatureRange {
+	return TemperatureRange{Min: 15, Max: 30}
+}
+
+func (tr *TemperatureRange) IsValid() bool {
+	return tr.Min <= tr.Max
+}
+
+func (tr *TemperatureRange) GetOptimalTemperature() (int, error) {
+	if !tr.IsValid() {
+		return -1, errors.New("no valid temperature")
+	}
+	return tr.Min, nil
+}
+
 func readInput() (int, error) {
 	var value int
 	_, err := fmt.Scan(&value)
@@ -27,6 +47,8 @@ func readEmployeeRequest() (string, int, error) {
 }
 
 func processDepartment(employeeCount int) error {
+	tr := NewTemperatureRange()
+	fmt.Println(tr.GetOptimalTemperature())
 	for range employeeCount {
 		operator, temp, err := readEmployeeRequest()
 		if err != nil {
