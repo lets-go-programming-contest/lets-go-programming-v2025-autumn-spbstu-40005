@@ -49,12 +49,12 @@ func (tr *TemperatureRange) IsValid() bool {
 	return tr.Min <= tr.Max
 }
 
-func (tr *TemperatureRange) GetOptimalTemperature() (int, error) {
+func (tr *TemperatureRange) GetOptimalTemperature() int {
 	if !tr.IsValid() {
-		return -1, errInvalidTemperature
+		return -1
 	}
 
-	return tr.Min, nil
+	return tr.Min
 }
 
 func readInput() (int, error) {
@@ -99,11 +99,7 @@ func processDepartment() error {
 			return err
 		}
 
-		temp, err = temperatureRange.GetOptimalTemperature()
-		if err != nil {
-			return err
-		}
-
+		temp = temperatureRange.GetOptimalTemperature()
 		fmt.Println(temp)
 	}
 
