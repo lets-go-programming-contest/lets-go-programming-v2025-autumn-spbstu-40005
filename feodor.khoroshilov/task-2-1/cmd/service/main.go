@@ -15,7 +15,7 @@ type RangeOfTemperature struct {
 	maxTemp int
 }
 
-var ErrorInvalidOperator = errors.New("InvalidOperator")
+var ErrInvalidOperator = errors.New("InvalidOperator")
 
 func NewRangeOfTemperature() *RangeOfTemperature {
 	return &RangeOfTemperature{
@@ -28,6 +28,7 @@ func (tmp *RangeOfTemperature) GetOptionalTemperature() int {
 	if tmp.minTemp > tmp.maxTemp {
 		return -1
 	}
+
 	return tmp.minTemp
 }
 
@@ -44,6 +45,7 @@ func (tmp *RangeOfTemperature) SetTemperature(operator string, temp int) error {
 	default:
 		return ErrorInvalidOperator
 	}
+
 	return nil
 }
 
@@ -56,7 +58,7 @@ func processDepartment() error {
 	tempRange := NewRangeOfTemperature()
 	for range workers {
 		var operator string
-		var temp int
+		var temp 		 int
 
 		if _, err := fmt.Scan(&operator, &temp); err != nil {
 			return fmt.Errorf("error when reading worker input: %w", err)
@@ -77,12 +79,14 @@ func main() {
 	var numberofdepartments int
 	if _, err := fmt.Scan(&numberofdepartments); err != nil {
 		fmt.Printf("error when reading number of departments: %v\n", err)
+
 		return
 	}
 
-	for i := 0; i < numberofdepartments; i++ {
+	for numberofdepartments {
 		if err := processDepartment(); err != nil {
 			fmt.Printf("error when processing department: %v\n", err)
+
 			return
 		}
 	}
