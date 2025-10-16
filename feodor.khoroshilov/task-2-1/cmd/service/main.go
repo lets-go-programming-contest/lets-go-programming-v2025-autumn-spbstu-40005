@@ -55,8 +55,8 @@ func processDepartment() error {
 		return fmt.Errorf("error when reading number of workers: %w", err)
 	}
 
-	tempRange := NewRangeOfTemperature()
-	
+	temprange := NewRangeOfTemperature()
+
 	for range workers {
 		var (
 			operator string
@@ -67,11 +67,11 @@ func processDepartment() error {
 			return fmt.Errorf("error when reading worker input: %w", err)
 		}
 
-		if err := tempRange.SetTemperature(operator, temp); err != nil {
+		if err := temprange.SetTemperature(operator, temp); err != nil {
 			return fmt.Errorf("error when setting temperature: %w", err)
 		}
 
-		result := tempRange.GetOptionalTemperature()
+		result := temprange.GetOptionalTemperature()
 		fmt.Println(result)
 	}
 
