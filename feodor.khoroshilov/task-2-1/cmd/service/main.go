@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"errors"
 )
-
 const (
 	InitialMinLimit = 15
 	InitialMaxLimit = 30
@@ -54,7 +53,6 @@ func processDepartment() error {
 	}
 
 	tempRange := NewRangeOfTemperature()
-
 	for range workers {
 		var operator string
 		var temp int
