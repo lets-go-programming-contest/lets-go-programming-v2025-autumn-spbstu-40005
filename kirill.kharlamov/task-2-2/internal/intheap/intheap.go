@@ -21,6 +21,7 @@ func (h *CustomHeap) Push(x interface{}) {
 	if !correctType {
 		return
 	}
+
 	*h = append(*h, value)
 }
 
@@ -29,6 +30,7 @@ func (h *CustomHeap) Pop() interface{} {
 	n := len(oldSlice)
 	lastElement := oldSlice[n-1]
 	*h = oldSlice[0 : n-1]
+
 	return lastElement
 }
 
