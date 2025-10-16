@@ -84,6 +84,7 @@ func main() {
 
 				return
 			}
+
 			result := controller.GetOptimalTemp()
 			fmt.Println(result)
 		}
