@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"errors"
 )
+
 const (
 	InitialMinLimit = 15
 	InitialMaxLimit = 30
