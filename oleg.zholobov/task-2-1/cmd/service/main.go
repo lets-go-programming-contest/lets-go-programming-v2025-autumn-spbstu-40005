@@ -6,9 +6,8 @@ import (
 )
 
 var (
-	errInvalidOperation   = errors.New("invalid operator")
-	errInvalidTemperature = errors.New("no valid temperature")
-	errEmployeeRequest    = errors.New("invalid employee request")
+	errInvalidOperation = errors.New("invalid operator")
+	errEmployeeRequest  = errors.New("invalid employee request")
 )
 
 const (
