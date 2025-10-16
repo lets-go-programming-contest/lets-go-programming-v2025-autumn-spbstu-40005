@@ -82,12 +82,14 @@ func main() {
 	var departmentCount int
 	if _, err := fmt.Scan(&departmentCount); err != nil {
 		fmt.Printf("error reading department count: %v\n", err)
+
 		return
 	}
 
 	for range departmentCount {
 		if err := handleDepartment(); err != nil {
 			fmt.Printf("error processing department: %v\n", err)
+
 			return
 		}
 	}
