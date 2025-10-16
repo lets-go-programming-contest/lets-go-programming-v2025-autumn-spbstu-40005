@@ -3,7 +3,6 @@ package main
 import (
 	"errors"
 	"fmt"
-	"os"
 )
 
 var (
@@ -122,7 +121,7 @@ func main() {
 
 			currTemp, err = temp.changeTemperature(sign, preferedTemp, currTemp)
 			if err != nil {
-				fmt.Fprintln(os.Stderr, err)
+
 			}
 
 			fmt.Println(currTemp)
