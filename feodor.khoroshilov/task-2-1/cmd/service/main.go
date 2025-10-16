@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"errors"
 )
+
 const (
 	InitialMinLimit = 15
 	InitialMaxLimit = 30
@@ -66,7 +67,7 @@ func processDepartment() error {
 		}
 
 		result := tempRange.GetOptionalTemperature()
-		fmt.Println(result)
+		  fmt.Println(result)
 	}
 
 	return nil
@@ -78,6 +79,7 @@ func main() {
 		fmt.Printf("error when reading number of departments: %v\n", err)
 		return
 	}
+
 	for i := 0; i < numberofdepartments; i++ {
 		if err := processDepartment(); err != nil {
 			fmt.Printf("error when processing department: %v\n", err)
@@ -85,3 +87,4 @@ func main() {
 		}
 	}
 }
+
