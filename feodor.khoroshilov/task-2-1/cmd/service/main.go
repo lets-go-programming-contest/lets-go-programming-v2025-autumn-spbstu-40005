@@ -12,7 +12,7 @@ const (
 
 type RangeOfTemperature struct {
 	minTemp int
-	maxTemp int 
+	maxTemp int
 }
 
 var ErrorInvalidOperator = errors.New("InvalidOperator")
@@ -58,7 +58,7 @@ func processDepartment() error {
 	for range workers {
 		var operator string
 		var temp int
-		
+
 		if _, err := fmt.Scan(&operator, &temp); err != nil {
 			return fmt.Errorf("error when reading worker input: %w", err)
 		}
