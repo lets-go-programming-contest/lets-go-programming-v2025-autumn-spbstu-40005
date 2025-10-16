@@ -35,15 +35,19 @@ func (cc *ClimateController) UpdateBounds(operator string, temp int) error {
 			cc.maxTemp = temp
 		}
 	default:
+
 		return ErrInvalidInput
 	}
+
 	return nil
 }
 
 func (cc *ClimateController) GetOptimalTemp() int {
 	if cc.minTemp <= cc.maxTemp {
+
 		return cc.minTemp
 	}
+
 	return -1
 }
 
@@ -52,6 +56,7 @@ func main() {
 
 	if _, err := fmt.Scan(&departmentCount); err != nil {
 		fmt.Printf("error reading department count: %v\n", err)
+
 		return
 	}
 
@@ -60,22 +65,28 @@ func main() {
 
 		if _, err := fmt.Scan(&employeeCount); err != nil {
 			fmt.Printf("error reading employee count: %v\n", err)
+
 			return
 		}
 
 		controller := NewClimateController()
 
 		for range employeeCount {
-			var operator string
-			var temp int
+
+			var (
+				operator string
+				temp     int
+			)
 
 			if _, err := fmt.Scan(&operator, &temp); err != nil {
 				fmt.Printf("error reading employee input: %v\n", err)
+
 				return
 			}
 
 			if err := controller.UpdateBounds(operator, temp); err != nil {
 				fmt.Printf("error updating bounds: %v\n", err)
+
 				return
 			}
 
