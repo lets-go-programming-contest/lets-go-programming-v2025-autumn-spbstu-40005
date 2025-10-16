@@ -5,9 +5,16 @@ import (
 	"fmt"
 )
 
-var errInvalidOperation = errors.New("invalid operator")
-var errInvalidTemperature = errors.New("no valid temperature")
-var errEmployeeRequest = errors.New("invalid employee request")
+var (
+	errInvalidOperation   = errors.New("invalid operator")
+	errInvalidTemperature = errors.New("no valid temperature")
+	errEmployeeRequest    = errors.New("invalid employee request")
+)
+
+const (
+	defaultMinTemperature = 15
+	defaultMaxTemperature = 30
+)
 
 type TemperatureRange struct {
 	Min int
@@ -15,7 +22,10 @@ type TemperatureRange struct {
 }
 
 func NewTemperatureRange() TemperatureRange {
-	return TemperatureRange{Min: 15, Max: 30}
+	return TemperatureRange{
+		Min: defaultMinTemperature,
+		Max: defaultMaxTemperature,
+	}
 }
 
 func (tr *TemperatureRange) Update(operator string, temp int) error {
@@ -100,6 +110,7 @@ func main() {
 	departmentCount, err := readInput()
 	if err != nil {
 		fmt.Println(-1)
+
 		return
 	}
 
@@ -107,6 +118,7 @@ func main() {
 		employeeCount, err := readInput()
 		if err != nil {
 			fmt.Println(-1)
+
 			return
 		}
 
