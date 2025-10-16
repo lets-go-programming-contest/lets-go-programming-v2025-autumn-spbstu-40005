@@ -10,7 +10,7 @@ const (
 	MaxAllowed = 30
 )
 
-var ErrorInvalidOperator = errors.New("invalid operator")
+var ErrInvalidOperator = errors.New("invalid operator")
 
 type OfficeClimate struct {
 	lowBound  int
@@ -35,8 +35,9 @@ func (oc *OfficeClimate) AdjustSetting(condition string, value int) error {
 			oc.highBound = value
 		}
 	default:
-		return ErrorInvalidOperator
+		return ErrInvalidOperator
 	}
+
 	return nil
 }
 
@@ -44,6 +45,7 @@ func (oc *OfficeClimate) FindComfortTemp() int {
 	if oc.lowBound > oc.highBound {
 		return -1
 	}
+
 	return oc.lowBound
 }
 
@@ -55,7 +57,7 @@ func handleDepartment() error {
 
 	climateControl := CreateClimateController()
 
-	for i := 0; i < employeeCount; i++ {
+	for range employeeCount {
 		var (
 			condition string
 			tempValue int
@@ -83,7 +85,7 @@ func main() {
 		return
 	}
 
-	for d := 0; d < departmentCount; d++ {
+	for range departmentCount {
 		if err := handleDepartment(); err != nil {
 			fmt.Printf("error processing department: %v\n", err)
 			return
