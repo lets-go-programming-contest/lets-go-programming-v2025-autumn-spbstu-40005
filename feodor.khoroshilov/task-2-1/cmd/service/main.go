@@ -57,8 +57,10 @@ func processDepartment() error {
 
 	tempRange := NewRangeOfTemperature()
 	for range workers {
-		var operator string
-		var temp 		 int
+		var (
+			operator string
+			temp		 int
+		)
 
 		if _, err := fmt.Scan(&operator, &temp); err != nil {
 			return fmt.Errorf("error when reading worker input: %w", err)
@@ -83,7 +85,7 @@ func main() {
 		return
 	}
 
-	for numberofdepartments {
+	for range numberofdepartments {
 		if err := processDepartment(); err != nil {
 			fmt.Printf("error when processing department: %v\n", err)
 
