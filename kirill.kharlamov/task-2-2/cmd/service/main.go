@@ -16,7 +16,7 @@ func main() {
 	}
 
 	scores := make([]int, totalItems)
-	for i := 0; i < totalItems; i++ {
+	for i := range totalItems {
 		_, err := fmt.Scan(&scores[i])
 		if err != nil {
 			fmt.Printf("Invalid rating: %v\n", err)
