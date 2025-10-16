@@ -1,8 +1,8 @@
 package main
 
 import (
-	"fmt"
 	"errors"
+	"fmt"
 )
 
 const (
@@ -26,7 +26,7 @@ func NewRangeOfTemperature() *RangeOfTemperature {
 
 func (tmp *RangeOfTemperature) GetOptionalTemperature() int {
 	if tmp.minTemp > tmp.maxTemp {
-	  return -1
+		return -1
 	}
 	return tmp.minTemp
 }
@@ -67,7 +67,7 @@ func processDepartment() error {
 		}
 
 		result := tempRange.GetOptionalTemperature()
-		  fmt.Println(result)
+		fmt.Println(result)
 	}
 
 	return nil
