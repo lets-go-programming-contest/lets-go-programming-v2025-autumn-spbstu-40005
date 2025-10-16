@@ -69,19 +69,24 @@ func readInput() (int, error) {
 }
 
 func readEmployeeRequest() (string, int, error) {
-	var operator string
+	var (
+		operator string
+		temp     int
+	)
 
-	var temp int
-
-	_, err := fmt.Scan(&operator, &temp)
-	if err != nil {
+	if _, err := fmt.Scan(&operator, &temp); err != nil {
 		return "", 0, fmt.Errorf("failed to read employee request: %w", err)
 	}
 
 	return operator, temp, nil
 }
 
-func processDepartment(employeeCount int) error {
+func processDepartment() error {
+	employeeCount, err := readInput()
+	if err != nil {
+		return fmt.Errorf("error reading number of employee: %w", err)
+	}
+
 	temperatureRange := NewTemperatureRange()
 
 	for range employeeCount {
@@ -90,8 +95,7 @@ func processDepartment(employeeCount int) error {
 			return errEmployeeRequest
 		}
 
-		err = temperatureRange.Update(operator, temp)
-		if err != nil {
+		if err = temperatureRange.Update(operator, temp); err != nil {
 			return err
 		}
 
@@ -109,21 +113,14 @@ func processDepartment(employeeCount int) error {
 func main() {
 	departmentCount, err := readInput()
 	if err != nil {
-		fmt.Printf("Error reading department count: %v\n", err)
+		fmt.Printf("error reading department count: %v\n", err)
 
 		return
 	}
 
 	for range departmentCount {
-		employeeCount, err := readInput()
-		if err != nil {
-			fmt.Printf("Error reading number of employee: %v\n", err)
-
-			return
-		}
-
-		if err = processDepartment(employeeCount); err != nil {
-			fmt.Printf("Error processing department: %v\n", err)
+		if err = processDepartment(); err != nil {
+			fmt.Printf("error processing department: %v\n", err)
 
 			return
 		}
