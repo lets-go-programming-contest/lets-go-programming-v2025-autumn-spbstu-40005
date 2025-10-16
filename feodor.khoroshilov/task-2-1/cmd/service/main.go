@@ -43,7 +43,7 @@ func (tmp *RangeOfTemperature) SetTemperature(operator string, temp int) error {
 			tmp.maxTemp = temp
 		}
 	default:
-		return ErrorInvalidOperator
+		return ErrInvalidOperator
 	}
 
 	return nil
