@@ -56,10 +56,11 @@ func processDepartment() error {
 	}
 
 	tempRange := NewRangeOfTemperature()
+	
 	for range workers {
 		var (
 			operator string
-			temp		 int
+			temp int
 		)
 
 		if _, err := fmt.Scan(&operator, &temp); err != nil {
