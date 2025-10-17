@@ -9,6 +9,7 @@ import (
 func main() {
 	var countDepartment int
 	_, err := fmt.Scan(&countDepartment)
+
 	if err != nil || countDepartment < 1 {
 		fmt.Println("failed to read countDepartment:", err)
 
