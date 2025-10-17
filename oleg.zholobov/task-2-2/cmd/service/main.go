@@ -20,7 +20,9 @@ func (heap MinHeap) Swap(i, j int) {
 }
 
 func (heap *MinHeap) Push(x any) {
-	*heap = append(*heap, x.(int))
+	if v, ok := x.(int); ok {
+		*heap = append(*heap, v)
+	}
 }
 
 func (heap *MinHeap) Pop() any {
@@ -28,6 +30,7 @@ func (heap *MinHeap) Pop() any {
 	n := len(old)
 	x := old[n-1]
 	*heap = old[0 : n-1]
+
 	return x
 }
 
@@ -44,7 +47,7 @@ func main() {
 	}
 
 	dishes := make([]int, amountOfDishes)
-	for i := 0; i < amountOfDishes; i++ {
+	for i := range dishes {
 		if _, err := fmt.Scan(&dishes[i]); err != nil {
 			fmt.Println("Error: invalid format for dish rating")
 			return
@@ -53,6 +56,7 @@ func main() {
 
 	var dishNumber int
 	if _, err := fmt.Scan(&dishNumber); err != nil {
+		fmt.Println("Error: invalid format for dish number")
 		return
 	}
 
@@ -71,6 +75,7 @@ func main() {
 
 	for _, val := range dishes {
 		heap.Push(dishesHeap, val)
+
 		if dishesHeap.Len() > dishNumber {
 			heap.Pop(dishesHeap)
 		}
