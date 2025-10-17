@@ -29,14 +29,12 @@ func inputDataDepartment() {
 	}
 
 	for range numberEmployee {
-
 		var (
 			signs  string
 			number int
 		)
 
 		_, err := fmt.Scan(&signs, &number)
-
 		if err != nil {
 			fmt.Println("Invalid temperature")
 
