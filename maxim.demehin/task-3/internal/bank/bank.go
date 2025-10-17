@@ -14,9 +14,9 @@ type ValCurs struct {
 }
 
 type Valute struct {
-	NumCode  int     `xml:"NumCode"`
-	CharCode string  `xml:"CharCode"`
-	Value    float64 `xml:"Value"`
+	NumCode  int     `xml:"NumCode" json:"num_code"`
+	CharCode string  `xml:"CharCode" json:"char_code"`
+	Value    float64 `xml:"Value" json:"value"`
 }
 
 func (v *Valute) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
@@ -27,7 +27,9 @@ func (v *Valute) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
 	}
 
 	var temp valuteTemp
-	if err := d.DecodeElement(&temp, &start); err != nil {
+
+	err := d.DecodeElement(&temp, &start)
+	if err != nil {
 		return err
 	}
 
@@ -35,7 +37,7 @@ func (v *Valute) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
 
 	numCode, err := strconv.Atoi(temp.NumCode)
 	if err != nil {
-		return fmt.Errorf("failed to parse NumCode '%s': %w", temp.NumCode, err)
+		return fmt.Errorf("failed to parse NumCode: %w", err)
 	}
 
 	v.NumCode = numCode
@@ -44,7 +46,7 @@ func (v *Valute) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
 
 	value, err := strconv.ParseFloat(valueStr, 64)
 	if err != nil {
-		return fmt.Errorf("failed to parse Value '%s': %w", temp.Value, err)
+		return fmt.Errorf("failed to parse Value: %w", err)
 	}
 
 	v.Value = value
