@@ -9,9 +9,8 @@ const (
 	GlobalMinTemp = 15
 	GlobalMaxTemp = 30
 )
-var (
-	ErrInvalidOperator = errors.New("update failed: invalid operator")
-)
+
+var ErrInvalidOperator = errors.New("update failed: invalid operator")
 
 type TemperatureManager struct {
 	currentMinTemp int
