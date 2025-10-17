@@ -80,16 +80,16 @@ func processDepartment() error {
 }
 
 func main() {
-	var size int
-	if _, err := fmt.Scan(&size); err != nil {
-		fmt.Println("Error:", err)
+	var departmentCount int
+	if _, err := fmt.Scan(&departmentCount); err != nil {
+		fmt.Println("Error while department cpunt input:", err)
 
 		return
 	}
 
-	for range size {
+	for range departmentCount {
 		if err := processDepartment(); err != nil {
-			fmt.Println("Error:", err)
+			fmt.Println("Error while process department:", err)
 
 			return
 		}
