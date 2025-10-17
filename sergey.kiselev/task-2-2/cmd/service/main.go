@@ -70,7 +70,7 @@ func main() {
 		return
 	}
 
-	if number < 1 || number > dishesCount {
+	if number > dishesCount {
 		fmt.Println("this number is not suitable")
 
 		return
