@@ -35,10 +35,18 @@ func (h IntHeap) Len() int {
 }
 
 func (h IntHeap) Less(i, j int) bool {
+	if i >= h.Len() || j >= h.Len() {
+		panic("out of range")
+	}
+
 	return h[i] < h[j]
 }
 
 func (h IntHeap) Swap(i, j int) {
+	if i >= h.Len() || j >= h.Len() {
+		panic("out of range")
+	}
+
 	h[i], h[j] = h[j], h[i]
 }
 
