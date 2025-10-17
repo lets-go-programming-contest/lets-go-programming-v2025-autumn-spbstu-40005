@@ -1,6 +1,8 @@
 package temperature
 
-import "errors"
+import (
+	"errors"
+)
 
 var (
 	ErrInputLogic = errors.New("error in the input logic")
@@ -38,6 +40,8 @@ func (temps *TempManager) AddTemp(signs string, temp int) error {
 		if temps.IdealTemperature > temp {
 			temps.IdealTemperature = temp
 		}
+	default:
+		return ErrInputLogic
 	}
 
 	if temps.Max < temps.Min {
