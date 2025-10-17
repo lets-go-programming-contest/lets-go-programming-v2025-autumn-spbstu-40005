@@ -53,8 +53,8 @@ func (tm *TemperatureManager) GetOptimalTemp() int {
 
 func main() {
 	var departments int
-	_, err := fmt.Scan(&departments)
 
+	_, err := fmt.Scan(&departments)
 	if err != nil {
 		fmt.Println("error: failed to read number of departments")
 
@@ -65,8 +65,8 @@ func main() {
 
 	for range departments {
 		var workers int
-		_, err := fmt.Scan(&workers)
 
+		_, err := fmt.Scan(&workers)
 		if err != nil {
 			fmt.Println("error: failed to read number of workers for department")
 
