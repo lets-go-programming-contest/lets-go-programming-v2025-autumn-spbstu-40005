@@ -17,7 +17,7 @@ type ClimateController struct {
 	maxTemp int
 }
 
-func NewClimateController() *ClimateController {
+func NewClimateController(minTemp, maxTemp int) *ClimateController {
 	return &ClimateController{
 		minTemp: MinTemp,
 		maxTemp: MaxTemp,
@@ -66,7 +66,7 @@ func main() {
 			return
 		}
 
-		controller := NewClimateController()
+		controller := NewClimateController(MinTemp, MaxTemp)
 
 		for range employeeCount {
 			var (
