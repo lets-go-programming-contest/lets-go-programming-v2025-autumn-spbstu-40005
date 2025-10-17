@@ -9,7 +9,7 @@ import (
 	"strings"
 
 	"github.com/P3rCh1/task-3/pkg/must"
-	"golang.org/x/text/encoding/charmap"
+	"golang.org/x/net/html/charset"
 )
 
 type valueType float64
@@ -30,13 +30,8 @@ func (v *valueType) UnmarshalXML(decoder *xml.Decoder, start xml.StartElement) e
 	return nil
 }
 
-func charsetReader(charset string, input io.Reader) (io.Reader, error) {
-	switch charset {
-	case "windows-1251":
-		return charmap.Windows1251.NewDecoder().Reader(input), nil
-	default:
-		return input, nil
-	}
+func charsetReader(charsetStr string, input io.Reader) (io.Reader, error) {
+	return charset.NewReaderLabel(charsetStr, input)
 }
 
 func ParseXML(r io.Reader) (*Bank, error) {
