@@ -6,8 +6,13 @@ import (
 	"github.com/DariaKhokhryakova/task-2-1/internal/temperature"
 )
 
+const (
+	minTemperature = 15
+	maxTemperature = 30
+)
+
 func ProcessEmployee(countEmployees int) error {
-	tempRange := &temperature.TemperatureRange{Min: 15, Max: 30}
+	tempRange := &temperature.TemperatureRange{Min: minTemperature, Max: maxTemperature}
 
 	for range countEmployees {
 		icon, tempValue, err := temperature.ReadTemperature()

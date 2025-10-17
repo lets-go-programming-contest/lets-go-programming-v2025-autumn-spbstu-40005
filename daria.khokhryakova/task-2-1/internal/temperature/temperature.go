@@ -10,6 +10,11 @@ var (
 	ErrIcon  = errors.New("invalid icon")
 )
 
+const (
+	minTemperature = 15
+	maxTemperature = 30
+)
+
 type TemperatureRange struct {
 	Min int
 	Max int
@@ -35,11 +40,7 @@ func ReadTemperature() (string, int, error) {
 		return "", 0, ErrIcon
 	}
 
-	const minTemp = 15
-
-	const maxTemp = 30
-
-	if temp < minTemp || temp > maxTemp {
+	if temp < minTemperature || temp > maxTemperature {
 		return "", 0, ErrInput
 	}
 
