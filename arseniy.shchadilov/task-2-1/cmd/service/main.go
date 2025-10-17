@@ -61,7 +61,7 @@ func main() {
 
 	var results []int
 
-	for i := range departments {
+	for range departments {
 		var workers int
 		_, err := fmt.Scan(&workers)
 		if err != nil {
