@@ -12,6 +12,7 @@ func (heap *MinHeap) Less(i, j int) bool {
 	if i >= len(*heap) || j >= len(*heap) {
 		panic("array index out of bounds")
 	}
+
 	return (*heap)[i] < (*heap)[j]
 }
 
@@ -36,6 +37,7 @@ func (heap *MinHeap) Pop() interface{} {
 	if len(*heap) == 0 {
 		return nil
 	}
+
 	old := *heap
 	n := len(old)
 	x := old[n-1]
