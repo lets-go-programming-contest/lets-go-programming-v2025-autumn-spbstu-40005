@@ -21,9 +21,9 @@ func NewTemperaturePreference(maxTemp, minTemp int) *TemperaturePreference {
 	return &TemperaturePreference{maxTemp, minTemp}
 }
 
-func (temp *TemperaturePreference) changeTemperature(sign string, preferredTemp int) (int, error) {
+func (temp *TemperaturePreference) changeTemperature(sign string, preferredTemp int) error {
 	if preferredTemp < MinTemp || preferredTemp > MaxTemp {
-		return -1, fmt.Errorf("%w: %d", errOutOfRangeTemperature, preferredTemp)
+		return fmt.Errorf("%w: %d", errOutOfRangeTemperature, preferredTemp)
 	}
 
 	switch sign {
@@ -32,32 +32,32 @@ func (temp *TemperaturePreference) changeTemperature(sign string, preferredTemp 
 	case "<=":
 		return temp.handleLessEqual(preferredTemp)
 	default:
-		return -1, errInvalidOperation
+		return errInvalidOperation
 	}
 }
 
-func (temp *TemperaturePreference) handleGreaterEqual(preferredTemp int) (int, error) {
+func (temp *TemperaturePreference) handleGreaterEqual(preferredTemp int) error {
 	if preferredTemp > temp.maxTemp {
-		return -1, fmt.Errorf("%w: preferred %d > current max %d", errPreferredAboveMax, preferredTemp, temp.maxTemp)
+		return fmt.Errorf("%w: preferred %d > current max %d", errPreferredAboveMax, preferredTemp, temp.maxTemp)
 	}
 
 	if preferredTemp > temp.minTemp {
 		temp.minTemp = preferredTemp
 	}
 
-	return temp.minTemp, nil
+	return nil
 }
 
-func (temp *TemperaturePreference) handleLessEqual(preferredTemp int) (int, error) {
+func (temp *TemperaturePreference) handleLessEqual(preferredTemp int) error {
 	if preferredTemp < temp.minTemp {
-		return -1, fmt.Errorf("%w: preferred %d < current min %d", errPreferredBelowMin, preferredTemp, temp.minTemp)
+		return fmt.Errorf("%w: preferred %d < current min %d", errPreferredBelowMin, preferredTemp, temp.minTemp)
 	}
 
 	if preferredTemp < temp.maxTemp {
 		temp.maxTemp = preferredTemp
 	}
 
-	return temp.minTemp, nil
+	return nil
 }
 
 const (
@@ -88,9 +88,7 @@ func main() {
 			preferedTemp int
 		)
 
-		currTemp := MinTemp
 		temp := NewTemperaturePreference(MaxTemp, MinTemp)
-		broken := false
 
 		for range numberOfEmployees {
 			_, err = fmt.Scan(&sign, &preferedTemp)
@@ -98,18 +96,29 @@ func main() {
 				return
 			}
 
-			if broken {
-				fmt.Println(currTemp)
+			err = temp.changeTemperature(sign, preferedTemp)
+			if err != nil {
+				switch {
+				case errors.Is(err, errOutOfRangeTemperature),
+					errors.Is(err, errPreferredAboveMax),
+					errors.Is(err, errPreferredBelowMin):
+					fmt.Println(-1)
+				case errors.Is(err, errInvalidOperation):
+					fmt.Println("invalid operation:", err)
+				default:
+					fmt.Println("unexpected error:", err)
+				}
 
 				continue
 			}
 
-			currTemp, err = temp.changeTemperature(sign, preferedTemp)
-			if err != nil {
-				broken = true
+			if temp.minTemp > temp.maxTemp {
+				fmt.Println(-1)
+
+				continue
 			}
 
-			fmt.Println(currTemp)
+			fmt.Println(temp.minTemp)
 		}
 	}
 }
