@@ -17,7 +17,7 @@ func main() {
 	var totalDishesCount int
 	if _, err := fmt.Scan(&totalDishesCount); err != nil {
 		fmt.Printf("Error reading total dishes count: %v\n", err)
-
+		
 		return
 	}
 
@@ -56,7 +56,7 @@ func main() {
 
 	if preferredDishPosition < 1 || preferredDishPosition > totalDishesCount {
 		fmt.Printf("Error: preferred dish position must be between 1 and %d\n", totalDishesCount)
-		
+
 		return
 	}
 
