@@ -49,7 +49,7 @@ func main() {
 	var departments int
 	_, err := fmt.Scan(&departments)
 	if err != nil {
-		fmt.Println("error: failed to read number of departments:")
+		fmt.Println("error: failed to read number of departments")
 		return
 	}
 
