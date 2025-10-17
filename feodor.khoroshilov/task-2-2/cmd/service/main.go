@@ -4,7 +4,7 @@ import (
 	"container/heap"
 	"fmt"
 
-	"task-2-2/internal/intheap"
+	"feodor.khoroshilov/task-2-2/internal/intheap"
 )
 
 func main() {
