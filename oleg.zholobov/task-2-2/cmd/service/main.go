@@ -1,6 +1,9 @@
 package main
 
-import "fmt"
+import (
+	"container/heap"
+	"fmt"
+)
 
 type MinHeap []int
 
@@ -46,9 +49,15 @@ func main() {
 		return
 	}
 
-	fmt.Println(amountOfDishes)
+	dishesHeap := &MinHeap{}
+	heap.Init(dishesHeap)
+
 	for _, val := range dishes {
-		fmt.Println(val)
+		heap.Push(dishesHeap, val)
+		if dishesHeap.Len() > dishNumber {
+			heap.Pop(dishesHeap)
+		}
 	}
-	fmt.Println(dishNumber)
+
+	fmt.Println((*dishesHeap)[0])
 }
