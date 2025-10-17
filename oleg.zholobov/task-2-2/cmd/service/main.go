@@ -60,16 +60,19 @@ func main() {
 	var dishNumber int
 	if _, err := fmt.Scan(&dishNumber); err != nil {
 		fmt.Println("Error: invalid format for dish number")
+
 		return
 	}
 
 	if dishNumber <= 0 {
 		fmt.Println("Error: dish number must be a positive number")
+
 		return
 	}
 
 	if dishNumber > amountOfDishes {
 		fmt.Printf("Error: dish number (%d) cannot exceed number of dishes (%d)\n", dishNumber, amountOfDishes)
+
 		return
 	}
 
