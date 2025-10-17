@@ -56,14 +56,14 @@ func main() {
 
 	if preferredDishPosition < 1 || preferredDishPosition > totalDishesCount {
 		fmt.Printf("Error: preferred dish position must be between 1 and %d\n", totalDishesCount)
-
+		
 		return
 	}
-	var preferredDishRating int
-	for range preferredDishRating -1{
+	var preferredDishPosition int	
+	for range preferredDishPosition -1{
 		heap.Pop(dishRatingsHeap)
 	}
 
-	preferredDishRating = heap.Pop(dishRatingsHeap)
+	preferredDishRating := heap.Pop(dishRatingsHeap)
 	fmt.Println(preferredDishRating)
 }

@@ -18,7 +18,7 @@ func (h *IntHeap) Less(i, j int) bool {
 	if i >= h.Len() || j >= h.Len() || i < 0 || j < 0 {
 		panic("index out of range in Less")
 	}
-
+	
 	return (*h)[i] > (*h)[j]
 }
 
