@@ -9,7 +9,7 @@ import (
 	"gordey.shapkov/task-3/internal/config"
 )
 
-const permissions = 0755
+const permissions = 0o755
 
 func ConvertToJSON(valutes []config.Valute) ([]config.Currency, error) {
 	currencies := make([]config.Currency, len(valutes))
