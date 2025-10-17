@@ -7,8 +7,8 @@ import (
 )
 
 const (
-	defaultMax   = -1000
-	defaultMin   = 1000
+	defaultMax   = 1000
+	defaultMin   = -1000
 	defaultIdeal = 0
 )
 
