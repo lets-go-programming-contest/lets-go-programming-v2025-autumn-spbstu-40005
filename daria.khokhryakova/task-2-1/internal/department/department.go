@@ -9,44 +9,33 @@ import (
 
 var ErrInput = errors.New("invalid input")
 
-func ProcessDepartment() ([]int, error) {
-	var countDepartment int
-
-	_, err := fmt.Scan(&countDepartment)
-	if err != nil || countDepartment < 1 {
-		return nil, ErrInput
-	}
-
-	results := []int{}
-
+func ProcessDepartment(countDepartment int) error {
 	for range countDepartment {
-		departResult, err := ProcessSingleDepartment()
+		err := ProcessSingleDepartment()
 		if err != nil {
-			return nil, fmt.Errorf("process single department: %w", err)
+			return fmt.Errorf("process single department: %w", err)
 		}
-
-		results = append(results, departResult...)
 	}
 
-	return results, nil
+	return nil
 }
 
-func ProcessSingleDepartment() ([]int, error) {
+func ProcessSingleDepartment() error {
 	var countEmployees int
 
 	_, err := fmt.Scan(&countEmployees)
 	if err != nil {
-		return nil, fmt.Errorf("read employee count: %w", err)
+		return fmt.Errorf("read employee count: %w", err)
 	}
 
 	if countEmployees < 1 || countEmployees > 1000 {
-		return nil, ErrInput
+		return ErrInput
 	}
 
-	result, err := employee.ProcessEmployee(countEmployees)
+	err := employee.ProcessEmployee(countEmployees)
 	if err != nil {
-		return nil, fmt.Errorf("process employee: %w", err)
+		return fmt.Errorf("process employee: %w", err)
 	}
 
-	return result, nil
+	return nil
 }

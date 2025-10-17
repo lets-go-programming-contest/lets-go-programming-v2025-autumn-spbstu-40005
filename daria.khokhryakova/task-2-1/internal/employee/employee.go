@@ -6,31 +6,29 @@ import (
 	"github.com/DariaKhokhryakova/task-2-1/internal/temperature"
 )
 
-func ProcessEmployee(countEmployees int) ([]int, error) {
-	minTemp := 15
-	maxTemp := 30
-	results := []int{}
-	processValid := true
+func ProcessEmployee(countEmployees int) error {
+	tempRange := &temperature.TemperatureRange{Min: 15, Max: 30}
 
 	for range countEmployees {
 		icon, tempValue, err := temperature.ReadTemperature()
 		if err != nil {
-			return nil, fmt.Errorf("read temperature: %w", err)
+			return fmt.Errorf("read temperature: %w", err)
 		}
 
-		if !processValid {
-			results = append(results, -1)
+		if !tempRange.IsValid() {
+			fmt.Println(-1)
 
 			continue
 		}
 
-		result, valid := temperature.PreferenceTemperature(icon, tempValue, &minTemp, &maxTemp)
-		results = append(results, result)
+		temperature.UpdateTemperature(icon, tempValue, tempRange)
 
-		if !valid {
-			processValid = false
+		if tempRange.IsValid() {
+			fmt.Println(tempRange.Min)
+		} else {
+			fmt.Println(-1)
 		}
 	}
 
-	return results, nil
+	return nil
 }
