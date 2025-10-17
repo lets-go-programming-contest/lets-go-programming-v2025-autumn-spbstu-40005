@@ -6,8 +6,7 @@ import (
 )
 
 var (
-	errCmpInput   = errors.New("unknown comparator")
-	errOutOfRange = errors.New("temperature is out of range")
+	errCmpInput = errors.New("unknown comparator")
 )
 
 const (
@@ -31,38 +30,46 @@ func (tr *TemperatureRange) isValid() bool {
 	return tr.lower <= tr.upper
 }
 
-func (tr *TemperatureRange) handleGreaterEqual(curr int) (int, bool) {
+func (tr *TemperatureRange) handleGreaterEqual(curr int) int {
 	if curr < tr.lower {
-		return tr.lower, true
+		return tr.lower
+	}
+
+	if curr > tr.upper {
+		tr.lower = curr
+
+		return -1
 	}
 
 	tr.lower = curr
 
-	return tr.lower, true
+	return tr.upper
 }
 
-func (tr *TemperatureRange) handleLessEqual(curr int) (int, bool) {
+func (tr *TemperatureRange) handleLessEqual(curr int) int {
 	if curr > tr.upper {
-		return tr.lower, true
+		return tr.upper
+	}
+
+	if curr < tr.lower {
+		tr.upper = curr
+
+		return -1
 	}
 
 	tr.upper = curr
 
-	return tr.lower, true
+	return tr.lower
 }
 
-func (tr *TemperatureRange) processCmp(cmp string, curr int) (int, bool, error) {
+func (tr *TemperatureRange) processCmp(cmp string, curr int) (int, error) {
 	switch cmp {
 	case ">=":
-		res, isValid := tr.handleGreaterEqual(curr)
-
-		return res, isValid, nil
+		return tr.handleGreaterEqual(curr), nil
 	case "<=":
-		res, isValid := tr.handleLessEqual(curr)
-
-		return res, isValid, nil
+		return tr.handleLessEqual(curr), nil
 	default:
-		return 0, false, errCmpInput
+		return 0, errCmpInput
 	}
 }
 
@@ -71,16 +78,12 @@ func (tr *TemperatureRange) handleOptimalTemperature(cmp string, curr int) (int,
 		return -1, nil
 	}
 
-	res, isValid, err := tr.processCmp(cmp, curr)
+	res, err := tr.processCmp(cmp, curr)
 	if err != nil {
 		return -1, err
 	}
 
-	if isValid {
-		return res, nil
-	} else {
-		return -1, nil
-	}
+	return res, nil
 }
 
 func handleDepartmentTemperatures(workersCnt int) error {
