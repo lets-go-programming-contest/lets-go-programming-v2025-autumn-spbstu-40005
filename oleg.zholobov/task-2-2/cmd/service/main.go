@@ -7,16 +7,16 @@ import (
 
 type MinHeap []int
 
-func (heap MinHeap) Len() int {
-	return len(heap)
+func (heap *MinHeap) Len() int {
+	return len(*heap)
 }
 
-func (heap MinHeap) Less(i, j int) bool {
-	return heap[i] < heap[j]
+func (heap *MinHeap) Less(i, j int) bool {
+	return (*heap)[i] < (*heap)[j]
 }
 
-func (heap MinHeap) Swap(i, j int) {
-	heap[i], heap[j] = heap[j], heap[i]
+func (heap *MinHeap) Swap(i, j int) {
+	(*heap)[i], (*heap)[j] = (*heap)[j], (*heap)[i]
 }
 
 func (heap *MinHeap) Push(x any) {
@@ -38,11 +38,13 @@ func main() {
 	var amountOfDishes int
 	if _, err := fmt.Scan(&amountOfDishes); err != nil {
 		fmt.Println("Error: invalid format for number of dishes")
+
 		return
 	}
 
 	if amountOfDishes <= 0 {
 		fmt.Println("Error: number of dishes must be a positive number")
+
 		return
 	}
 
@@ -50,6 +52,7 @@ func main() {
 	for i := range dishes {
 		if _, err := fmt.Scan(&dishes[i]); err != nil {
 			fmt.Println("Error: invalid format for dish rating")
+
 			return
 		}
 	}
