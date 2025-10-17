@@ -32,12 +32,6 @@ func (tr *TemperatureRange) isValid() bool {
 }
 
 func (tr *TemperatureRange) handleGreaterEqual(curr int) (int, bool) {
-	if curr > tr.upper {
-		tr.lower = tr.upper + 1
-
-		return 0, false
-	}
-
 	if curr < tr.lower {
 		return tr.lower, true
 	}
@@ -48,12 +42,6 @@ func (tr *TemperatureRange) handleGreaterEqual(curr int) (int, bool) {
 }
 
 func (tr *TemperatureRange) handleLessEqual(curr int) (int, bool) {
-	if curr < tr.lower {
-		tr.upper = tr.lower - 1
-
-		return 0, false
-	}
-
 	if curr > tr.upper {
 		return tr.lower, true
 	}
@@ -78,25 +66,21 @@ func (tr *TemperatureRange) processCmp(cmp string, curr int) (int, bool, error) 
 	}
 }
 
-func (tr *TemperatureRange) handleOptimalTemperature(cmp string, curr int) error {
+func (tr *TemperatureRange) handleOptimalTemperature(cmp string, curr int) (int, error) {
 	if !tr.isValid() {
-		fmt.Println(-1)
-
-		return nil
+		return -1, nil
 	}
 
 	res, isValid, err := tr.processCmp(cmp, curr)
 	if err != nil {
-		return err
+		return -1, err
 	}
 
 	if isValid {
-		fmt.Println(res)
+		return res, nil
 	} else {
-		fmt.Println(-1)
+		return -1, nil
 	}
-
-	return nil
 }
 
 func handleDepartmentTemperatures(workersCnt int) error {
@@ -113,14 +97,12 @@ func handleDepartmentTemperatures(workersCnt int) error {
 			return fmt.Errorf("failed reading of cmp and temperature: %w", err)
 		}
 
-		if temperature > upperLimit || temperature < lowerLimit {
-			return fmt.Errorf("temperature is out of range: %w", errOutOfRange)
-		}
-
-		err = tempRange.handleOptimalTemperature(cmpSign, temperature)
+		res, err := tempRange.handleOptimalTemperature(cmpSign, temperature)
 		if err != nil {
 			return fmt.Errorf("failed to process temperature: %w", err)
 		}
+
+		fmt.Println(res)
 	}
 
 	return nil
