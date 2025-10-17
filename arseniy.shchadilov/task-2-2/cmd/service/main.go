@@ -24,13 +24,13 @@ func main() {
 		}
 	}
 
-	var k int
-	_, err = fmt.Scan(&k)
-	if err != nil || k < 1 || k > dishCount {
+	var preferenceOrder int
+	_, err = fmt.Scan(&preferenceOrder)
+	if err != nil || preferenceOrder < 1 || preferenceOrder > dishCount {
 		fmt.Println("Error: invalid preference order")
 		return
 	}
 
-	result := minintheap.KthLargest(preferences, k)
+	result := minintheap.KthLargest(preferences, preferenceOrder)
 	fmt.Println(result)
 }
