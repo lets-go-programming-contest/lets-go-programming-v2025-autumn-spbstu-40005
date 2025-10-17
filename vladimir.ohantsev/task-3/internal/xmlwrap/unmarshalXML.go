@@ -19,14 +19,10 @@ func mustClose(path string, closer io.Closer) {
 	must(fmt.Sprintf("close %q", path), closer.Close())
 }
 
-func charsetReader(charsetStr string, input io.Reader) (io.Reader, error) {
-	return charset.NewReaderLabel(charsetStr, input) //nolint:wrapcheck
-}
-
 func Parse[T any](r io.Reader) (*T, error) {
 	decoder := xml.NewDecoder(r)
 
-	decoder.CharsetReader = charsetReader
+	decoder.CharsetReader = charset.NewReaderLabel
 
 	result := new(T)
 	if err := decoder.Decode(&result); err != nil {
