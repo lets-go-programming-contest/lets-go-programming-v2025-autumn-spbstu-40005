@@ -83,7 +83,7 @@ func main() {
 
 	dish, err := getKDish(dishes, need)
 	if err != nil {
-		fmt.Printf("alghorith finishes with error: %s", err)
+		fmt.Printf("algorithm finished with error: %s", err)
 
 		return
 	}
