@@ -35,21 +35,26 @@ func (v *Valute) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
 
 	v.CharCode = temp.CharCode
 
-	numCode, err := strconv.Atoi(temp.NumCode)
-	if err != nil {
-		return fmt.Errorf("failed to parse NumCode: %w", err)
+	if temp.NumCode == "" {
+		v.NumCode = 0
+	} else {
+		numCode, err := strconv.Atoi(temp.NumCode)
+		if err != nil {
+			return fmt.Errorf("failed to parse NumCode: %w", err)
+		}
+		v.NumCode = numCode
 	}
 
-	v.NumCode = numCode
-
-	valueStr := strings.ReplaceAll(temp.Value, ",", ".")
-
-	value, err := strconv.ParseFloat(valueStr, 64)
-	if err != nil {
-		return fmt.Errorf("failed to parse Value: %w", err)
+	if temp.Value == "" {
+		v.Value = 0.0
+	} else {
+		valueStr := strings.ReplaceAll(temp.Value, ",", ".")
+		value, err := strconv.ParseFloat(valueStr, 64)
+		if err != nil {
+			return fmt.Errorf("failed to parse Value: %w", err)
+		}
+		v.Value = value
 	}
-
-	v.Value = value
 
 	return nil
 }
