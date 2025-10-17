@@ -4,16 +4,16 @@ import "container/heap"
 
 type CustomHeap []int
 
-func (h CustomHeap) Len() int {
-	return len(h)
+func (h *CustomHeap) Len() int {
+	return len(*h)
 }
 
-func (h CustomHeap) Less(index1, index2 int) bool {
-	return h[index1] < h[index2]
+func (h *CustomHeap) Less(index1, index2 int) bool {
+	return (*h)[index1] < (*h)[index2]
 }
 
-func (h CustomHeap) Swap(index1, index2 int) {
-	h[index1], h[index2] = h[index2], h[index1]
+func (h *CustomHeap) Swap(index1, index2 int) {
+	(*h)[index1], (*h)[index2] = (*h)[index2], (*h)[index1]
 }
 
 func (h *CustomHeap) Push(x interface{}) {
