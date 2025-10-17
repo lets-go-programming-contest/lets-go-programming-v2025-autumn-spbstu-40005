@@ -21,59 +21,43 @@ func NewTemperaturePreference(maxTemp, minTemp int) *TemperaturePreference {
 	return &TemperaturePreference{maxTemp, minTemp}
 }
 
-func (temp *TemperaturePreference) getMaxTemp() int {
-	return temp.maxTemp
-}
-
-func (temp *TemperaturePreference) getMinTemp() int {
-	return temp.minTemp
-}
-
-func (temp *TemperaturePreference) changeTemperature(sign string, preferredTemp, currTemp int) (int, error) {
+func (temp *TemperaturePreference) changeTemperature(sign string, preferredTemp int) (int, error) {
 	if preferredTemp < MinTemp || preferredTemp > MaxTemp {
 		return -1, fmt.Errorf("%w: %d", errOutOfRangeTemperature, preferredTemp)
 	}
 
 	switch sign {
 	case ">=":
-		return temp.handleGreaterEqual(preferredTemp, currTemp)
+		return temp.handleGreaterEqual(preferredTemp)
 	case "<=":
-		return temp.handleLessEqual(preferredTemp, currTemp)
+		return temp.handleLessEqual(preferredTemp)
 	default:
 		return -1, errInvalidOperation
 	}
 }
 
-func (temp *TemperaturePreference) handleGreaterEqual(preferredTemp, currTemp int) (int, error) {
-	if preferredTemp > temp.getMaxTemp() {
+func (temp *TemperaturePreference) handleGreaterEqual(preferredTemp int) (int, error) {
+	if preferredTemp > temp.maxTemp {
 		return -1, fmt.Errorf("%w: preferred %d > current max %d", errPreferredAboveMax, preferredTemp, temp.maxTemp)
 	}
 
-	if preferredTemp > temp.getMinTemp() {
+	if preferredTemp > temp.minTemp {
 		temp.minTemp = preferredTemp
 	}
 
-	if preferredTemp > currTemp {
-		currTemp = preferredTemp
-	}
-
-	return currTemp, nil
+	return temp.minTemp, nil
 }
 
-func (temp *TemperaturePreference) handleLessEqual(preferredTemp int, currTemp int) (int, error) {
-	if preferredTemp < temp.getMinTemp() {
+func (temp *TemperaturePreference) handleLessEqual(preferredTemp int) (int, error) {
+	if preferredTemp < temp.minTemp {
 		return -1, fmt.Errorf("%w: preferred %d < current min %d", errPreferredBelowMin, preferredTemp, temp.minTemp)
 	}
 
-	if preferredTemp < temp.getMaxTemp() {
+	if preferredTemp < temp.maxTemp {
 		temp.maxTemp = preferredTemp
 	}
 
-	if preferredTemp < currTemp {
-		currTemp = preferredTemp
-	}
-
-	return currTemp, nil
+	return temp.minTemp, nil
 }
 
 const (
@@ -120,7 +104,7 @@ func main() {
 				continue
 			}
 
-			currTemp, err = temp.changeTemperature(sign, preferedTemp, currTemp)
+			currTemp, err = temp.changeTemperature(sign, preferedTemp)
 			if err != nil {
 				broken = true
 			}
