@@ -55,7 +55,7 @@ func processDepartment() error {
 		return fmt.Errorf("error when reading number of workers: %w", err)
 	}
 
-	temprange := NewRangeOfTemperature(InitialMinLimit,InitialMaxLimit)
+	temprange := NewRangeOfTemperature(InitialMinLimit, InitialMaxLimit)
 
 	for range workers {
 		var (
