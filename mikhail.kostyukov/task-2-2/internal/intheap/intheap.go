@@ -7,10 +7,22 @@ func (heap *IntHeap) Len() int {
 }
 
 func (heap *IntHeap) Less(i, j int) bool {
+	if (i < 0) || (i >= heap.Len()) {
+		panic("first index out of range")
+	} else if (j < 0) || (j >= heap.Len()) {
+		panic("second index out of range")
+	}
+
 	return (*heap)[i] > (*heap)[j]
 }
 
 func (heap *IntHeap) Swap(i, j int) {
+	if (i < 0) || (i >= heap.Len()) {
+		panic("first index out of range")
+	} else if (j < 0) || (j >= heap.Len()) {
+		panic("second index out of range")
+	}
+
 	(*heap)[i], (*heap)[j] = (*heap)[j], (*heap)[i]
 }
 
