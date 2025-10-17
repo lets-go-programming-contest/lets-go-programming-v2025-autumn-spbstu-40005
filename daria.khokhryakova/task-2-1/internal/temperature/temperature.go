@@ -10,6 +10,15 @@ var (
 	ErrIcon  = errors.New("invalid icon")
 )
 
+type TemperatureRange struct {
+	Min int
+	Max int
+}
+
+func (temp *TemperatureRange) IsValid() bool {
+	return temp.Min <= temp.Max
+}
+
 func ReadTemperature() (string, int, error) {
 	var operator string
 
@@ -20,7 +29,9 @@ func ReadTemperature() (string, int, error) {
 		return "", 0, fmt.Errorf("read temperature: %w", err)
 	}
 
-	if operator != ">=" && operator != "<=" {
+	switch operator {
+	case ">=", "<=":
+	default:
 		return "", 0, ErrIcon
 	}
 
@@ -35,29 +46,15 @@ func ReadTemperature() (string, int, error) {
 	return operator, temp, nil
 }
 
-func PreferenceTemperature(icon string, temperature int, minTemp, maxTemp *int) (int, bool) {
+func UpdateTemperature(icon string, temperature int, tempRange *TemperatureRange) {
 	switch icon {
 	case ">=":
-		if temperature > *minTemp {
-			*minTemp = temperature
+		if temperature > tempRange.Min {
+			tempRange.Min = temperature
 		}
-
-		if *minTemp <= *maxTemp {
-			return *minTemp, true
-		}
-
-		return -1, false
 	case "<=":
-		if temperature < *maxTemp {
-			*maxTemp = temperature
+		if temperature < tempRange.Max {
+			tempRange.Max = temperature
 		}
-
-		if *minTemp <= *maxTemp {
-			return *minTemp, true
-		}
-
-		return -1, false
-	default:
-		return -1, false
 	}
 }

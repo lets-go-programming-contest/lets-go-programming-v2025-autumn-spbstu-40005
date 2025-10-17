@@ -7,14 +7,18 @@ import (
 )
 
 func main() {
-	itog, err := department.ProcessDepartment()
-	if err != nil {
-		fmt.Println(err.Error())
+	var countDepartment int
+	_, err := fmt.Scan(&countDepartment)
+	if err != nil || countDepartment < 1 {
+		fmt.Println("failed to read countDepartment:", err)
 
 		return
 	}
 
-	for _, temp := range itog {
-		fmt.Println(temp)
+	err = department.ProcessDepartment(countDepartment)
+	if err != nil {
+		fmt.Println(err.Error())
+
+		return
 	}
 }
