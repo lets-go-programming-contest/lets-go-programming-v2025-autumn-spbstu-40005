@@ -7,14 +7,15 @@ import (
 )
 
 const (
-	defaultMax = 100
-	defaultMin = 0
+	defaultMax   = -1000
+	defaultMin   = 1000
+	defaultIdeal = 0
 )
 
 func inputDataDepartment() {
 	department := temperature.TempManager{
 		Temps:            []temperature.RangeTemp{},
-		IdealTemperature: defaultMin,
+		IdealTemperature: defaultIdeal,
 		Max:              defaultMax,
 		Min:              defaultMin,
 	}
