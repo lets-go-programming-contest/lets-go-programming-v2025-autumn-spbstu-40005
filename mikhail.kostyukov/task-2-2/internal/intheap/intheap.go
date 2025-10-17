@@ -6,24 +6,24 @@ func (heap *IntHeap) Len() int {
 	return len(*heap)
 }
 
-func (heap *IntHeap) Less(i, j int) bool {
-	if (i < 0) || (i >= heap.Len()) {
+func (heap *IntHeap) Less(first, second int) bool {
+	if (first < 0) || (first >= heap.Len()) {
 		panic("first index out of range")
-	} else if (j < 0) || (j >= heap.Len()) {
+	} else if (second < 0) || (second >= heap.Len()) {
 		panic("second index out of range")
 	}
 
-	return (*heap)[i] > (*heap)[j]
+	return (*heap)[first] > (*heap)[second]
 }
 
-func (heap *IntHeap) Swap(i, j int) {
-	if (i < 0) || (i >= heap.Len()) {
+func (heap *IntHeap) Swap(first, second int) {
+	if (first < 0) || (first >= heap.Len()) {
 		panic("first index out of range")
-	} else if (j < 0) || (j >= heap.Len()) {
+	} else if (second < 0) || (second >= heap.Len()) {
 		panic("second index out of range")
 	}
 
-	(*heap)[i], (*heap)[j] = (*heap)[j], (*heap)[i]
+	(*heap)[first], (*heap)[second] = (*heap)[second], (*heap)[first]
 }
 
 func (heap *IntHeap) Push(elem any) {
