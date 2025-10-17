@@ -2,24 +2,34 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"sort"
 
-	"github.com/P3rCh1/task-3/internal/bank"
-	"github.com/P3rCh1/task-3/internal/config"
-	"github.com/P3rCh1/task-3/pkg/must"
+	"github.com/P3rCh1/task-3/internal/jsonwrap"
+	"github.com/P3rCh1/task-3/internal/models"
+	"github.com/P3rCh1/task-3/internal/xmlwrap"
+	"github.com/P3rCh1/task-3/internal/yamlwrap"
 )
+
+const permissions = 0o755
+
+func must(op string, err error) {
+	if err != nil {
+		panic(fmt.Sprintf("op: %s", err))
+	}
+}
 
 func main() {
 	configPath := flag.String("config", "config.yaml", "path to config file")
 	flag.Parse()
 
-	config, err := config.ParseFile(*configPath)
+	config, err := yamlwrap.ParseFile[models.Config](*configPath)
 
-	must.Must("parse config", err)
+	must("parse config", err)
 
-	bank, err := bank.ParseFileXML(config.Input)
+	bank, err := xmlwrap.ParseFile[models.Bank](config.Input)
 
-	must.Must("parse input-file", err)
+	must("parse input-file", err)
 
 	sort.Slice(
 		bank.Currencies,
@@ -28,5 +38,5 @@ func main() {
 		},
 	)
 
-	must.Must("encode bank", bank.EncodeFileJSON(config.Output))
+	must("encode bank", jsonwrap.EncodeFile(bank.Currencies, config.Output, permissions))
 }
