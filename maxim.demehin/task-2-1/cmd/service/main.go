@@ -33,6 +33,7 @@ func (tr *TemperatureRange) isValid() bool {
 func (tr *TemperatureRange) handleGreaterEqual(curr int) int {
 	if curr > tr.upper {
 		tr.lower = curr
+
 		return -1
 	}
 
@@ -46,6 +47,7 @@ func (tr *TemperatureRange) handleGreaterEqual(curr int) int {
 func (tr *TemperatureRange) handleLessEqual(curr int) int {
 	if curr < tr.lower {
 		tr.upper = curr
+
 		return -1
 	}
 
