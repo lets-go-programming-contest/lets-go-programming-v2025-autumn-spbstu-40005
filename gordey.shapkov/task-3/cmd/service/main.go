@@ -11,14 +11,6 @@ import (
 )
 
 func main() {
-	defer func() {
-		if err := recover(); err != nil {
-			fmt.Println(err)
-
-			return
-		}
-	}()
-
 	configPath := flag.String("config", "config.yaml", "path to config")
 	flag.Parse()
 
