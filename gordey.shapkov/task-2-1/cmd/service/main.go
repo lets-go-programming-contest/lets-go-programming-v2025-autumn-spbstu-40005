@@ -39,6 +39,7 @@ func (temp *TemperaturePreference) changeTemperature(sign string, preferredTemp 
 func (temp *TemperaturePreference) handleGreaterEqual(preferredTemp int) error {
 	if preferredTemp > temp.maxTemp {
 		temp.minTemp = preferredTemp
+
 		return fmt.Errorf("%w: preferred %d > current max %d", errPreferredAboveMax, preferredTemp, temp.maxTemp)
 	}
 
@@ -52,6 +53,7 @@ func (temp *TemperaturePreference) handleGreaterEqual(preferredTemp int) error {
 func (temp *TemperaturePreference) handleLessEqual(preferredTemp int) error {
 	if preferredTemp < temp.minTemp {
 		temp.maxTemp = preferredTemp
+
 		return fmt.Errorf("%w: preferred %d < current min %d", errPreferredBelowMin, preferredTemp, temp.minTemp)
 	}
 
