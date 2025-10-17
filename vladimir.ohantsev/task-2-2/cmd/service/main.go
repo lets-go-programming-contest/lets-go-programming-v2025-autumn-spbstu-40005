@@ -7,7 +7,7 @@ import (
 	"github.com/P3rCh1/task-2-2/internal/intheap"
 )
 
-func getKDish(dishes []int, k int) int {
+func getKDish(dishes []int, k int) (int, error) {
 	window := new(intheap.IntHeap)
 	*window = intheap.IntHeap(dishes[:k])
 	heap.Init(window)
@@ -16,23 +16,23 @@ func getKDish(dishes []int, k int) int {
 	for _, cost := range dishes {
 		top, err := window.Top()
 		if err != nil {
-			panic(fmt.Sprintf("top heap: %s", err))
+			return 0, fmt.Errorf("top heap: %w", err)
 		}
 
 		if cost > top {
 			err := window.ReplaceTop(cost)
 			if err != nil {
-				panic(fmt.Sprintf("replace top heap: %s", err))
+				return 0, fmt.Errorf("replace top heap: %w", err)
 			}
 		}
 	}
 
 	top, err := window.Top()
 	if err != nil {
-		panic(fmt.Sprintf("top heap: %s", err))
+		return 0, fmt.Errorf("replace top heap: %w", err)
 	}
 
-	return top
+	return top, nil
 }
 
 func main() {
@@ -81,5 +81,12 @@ func main() {
 		return
 	}
 
-	fmt.Println(getKDish(dishes, need))
+	dish, err := getKDish(dishes, need)
+	if err != nil {
+		fmt.Printf("alghorith finishes with error: %s", err)
+
+		return
+	}
+
+	fmt.Println(dish)
 }
