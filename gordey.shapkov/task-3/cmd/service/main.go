@@ -5,33 +5,43 @@ import (
 	"fmt"
 	"sort"
 
-	"gordey.shapkov/task-3/internal/parsers"
+	"gordey.shapkov/task-3/internal/jsonparsing"
+	"gordey.shapkov/task-3/internal/xmlparsing"
+	"gordey.shapkov/task-3/internal/yamlparsing"
 )
 
 func main() {
-	configPath := flag.String("config", "", "YAML file required")
+	defer func() {
+		if err := recover(); err != nil {
+			fmt.Println("panic occurred", err)
+
+			return
+		}
+	}()
+
+	configPath := flag.String("config", "config.yaml", "path to config")
 	flag.Parse()
 
-	cfg, err := parsers.ParseConfigFile(*configPath)
+	cfg, err := yamlparsing.ParseYAMLFile(*configPath)
 	if err != nil {
 		panic(err)
 	}
 
-	valCurs, err := parsers.ParseXMLFile(cfg.InputFile)
+	valCurs, err := xmlparsing.ParseXMLFile(cfg.InputFile)
 	if err != nil {
 		panic(err)
 	}
 
-	currencies, err := parsers.ConvertToJSON(valCurs.Valutes)
+	currencies, err := jsonparsing.ConvertToJSON(valCurs.Valutes)
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
 
 	sort.Slice(currencies, func(i, j int) bool {
 		return currencies[i].Value > currencies[j].Value
 	})
 
-	if err = parsers.SaveToJSON(currencies, cfg.OutputFile); err != nil {
-		fmt.Println(err)
+	if err = jsonparsing.SaveToJSON(currencies, cfg.OutputFile); err != nil {
+		panic(err)
 	}
 }
