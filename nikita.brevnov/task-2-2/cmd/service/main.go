@@ -3,6 +3,7 @@ package main
 import (
 	"container/heap"
 	"errors"
+	"fmt"
 
 	"nikita.brevnov/task-2-2/internal/intheap"
 )
@@ -38,4 +39,47 @@ func findLargest(nums []int, number int) (int, error) {
 }
 
 func main() {
+	defer func() {
+		if r := recover(); r != nil {
+			fmt.Printf("recover, %v\n", r)
+
+			return
+		}
+	}()
+
+	var countOfDishes int
+	if _, err := fmt.Scan(&countOfDishes); err != nil {
+		fmt.Printf("invalid input for countOfDishes: %v\n", err)
+
+		return
+	}
+
+	nums := make([]int, countOfDishes)
+	for index := range countOfDishes {
+		if _, err := fmt.Scan(&nums[index]); err != nil {
+			fmt.Printf("invalid input for nums: %v\n", err)
+
+			return
+		}
+	}
+
+	var number int
+	if _, err := fmt.Scan(&number); err != nil {
+		fmt.Printf("invalid input for number: %v\n", err)
+
+		return
+	}
+
+	if number < 1 || number > countOfDishes {
+		fmt.Println("this number is not suitable")
+
+		return
+	}
+
+	res, err := findLargest(nums, number)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	fmt.Println(res)
 }
