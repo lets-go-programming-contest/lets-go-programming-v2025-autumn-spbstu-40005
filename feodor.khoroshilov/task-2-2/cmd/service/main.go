@@ -64,6 +64,6 @@ func main() {
 		heap.Pop(dishRatingsHeap)
 	}
 
-	preferredDishRating := heap.Pop(dishRatingsHeap)
+	preferredDishRating = heap.Pop(dishRatingsHeap)
 	fmt.Println(preferredDishRating)
 }
