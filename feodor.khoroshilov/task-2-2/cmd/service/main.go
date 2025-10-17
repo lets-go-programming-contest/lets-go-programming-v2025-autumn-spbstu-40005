@@ -21,12 +21,6 @@ func main() {
 		return
 	}
 
-	if totalDishesCount < 1 || totalDishesCount > 10000 {
-		fmt.Println("Error: number of dishes must be between 1 and 10000")
-
-		return
-	}
-
 	dishRatingsHeap := &intheap.IntHeap{}
 	heap.Init(dishRatingsHeap)
 
