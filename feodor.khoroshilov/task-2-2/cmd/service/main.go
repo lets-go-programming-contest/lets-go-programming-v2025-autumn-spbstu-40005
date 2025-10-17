@@ -59,7 +59,7 @@ func main() {
 
 		return
 	}
-
+	var preferredDishRating int
 	for range preferredDishRating -1{
 		heap.Pop(dishRatingsHeap)
 	}
