@@ -10,6 +10,8 @@ import (
 	"github.com/P3rCh1/task-3/pkg/must"
 )
 
+const permissions = 0o755
+
 func (b *Bank) EncodeJSON(writer io.Writer) error {
 	encoder := json.NewEncoder(writer)
 
@@ -23,8 +25,6 @@ func (b *Bank) EncodeJSON(writer io.Writer) error {
 }
 
 func (b *Bank) EncodeFileJSON(path string) error {
-	const permissions = 0o755
-
 	dir := filepath.Dir(path)
 	if err := os.MkdirAll(dir, permissions); err != nil {
 		return fmt.Errorf("create dir: %w", err)
@@ -37,5 +37,9 @@ func (b *Bank) EncodeFileJSON(path string) error {
 
 	defer must.Close(path, file)
 
-	return b.EncodeJSON(file)
+	if err := b.EncodeJSON(file); err != nil {
+		return fmt.Errorf("encoding: %w", err)
+	}
+
+	return nil
 }
