@@ -37,10 +37,18 @@ func (h *IntHeap) Len() int {
 }
 
 func (h *IntHeap) Less(i, j int) bool {
+	if i >= len(*h) || j >= len(*h) || i < 0 || j < 0 {
+		panic("comparing indexes out of range")
+	}
+
 	return (*h)[i] > (*h)[j]
 }
 
 func (h *IntHeap) Swap(i, j int) {
+	if i >= len(*h) || j >= len(*h) || i < 0 || j < 0 {
+		panic("swapping indexes out of range")
+	}
+
 	(*h)[i], (*h)[j] = (*h)[j], (*h)[i]
 }
 
