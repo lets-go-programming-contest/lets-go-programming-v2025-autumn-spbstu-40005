@@ -106,6 +106,7 @@ func main() {
 
 		currTemp := MinTemp
 		temp := NewTemperaturePreference(MaxTemp, MinTemp)
+		broken := false
 
 		for range numberOfEmployees {
 			_, err = fmt.Scan(&sign, &preferedTemp)
@@ -113,7 +114,7 @@ func main() {
 				return
 			}
 
-			if currTemp == -1 {
+			if broken {
 				fmt.Println(currTemp)
 
 				continue
@@ -121,7 +122,7 @@ func main() {
 
 			currTemp, err = temp.changeTemperature(sign, preferedTemp, currTemp)
 			if err != nil {
-
+				broken = true
 			}
 
 			fmt.Println(currTemp)
