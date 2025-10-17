@@ -32,7 +32,7 @@ func ProcessSingleDepartment() error {
 		return ErrInput
 	}
 
-	err := employee.ProcessEmployee(countEmployees)
+	err = employee.ProcessEmployee(countEmployees)
 	if err != nil {
 		return fmt.Errorf("process employee: %w", err)
 	}
