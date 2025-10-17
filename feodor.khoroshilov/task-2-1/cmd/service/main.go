@@ -15,12 +15,12 @@ type RangeOfTemperature struct {
 	maxTemp int
 }
 
-var ErrInvalidOperator = errors.New("InvalidOperator")
+var ErrInvalidOperator = errors.New("Unsupported operator type")
 
-func NewRangeOfTemperature() *RangeOfTemperature {
+func NewRangeOfTemperature(minTemp, maxTemp int) *RangeOfTemperature {
 	return &RangeOfTemperature{
-		minTemp: InitialMinLimit,
-		maxTemp: InitialMaxLimit,
+		minTemp: minTemp,
+		maxTemp: maxTemp,
 	}
 }
 
@@ -55,7 +55,7 @@ func processDepartment() error {
 		return fmt.Errorf("error when reading number of workers: %w", err)
 	}
 
-	temprange := NewRangeOfTemperature()
+	temprange := NewRangeOfTemperature(InitialMinLimit,InitialMaxLimit)
 
 	for range workers {
 		var (
