@@ -9,7 +9,6 @@ const (
 	GlobalMinTemp = 15
 	GlobalMaxTemp = 30
 )
-
 var (
 	ErrInvalidOperator = errors.New("update failed: invalid operator")
 )
