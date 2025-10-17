@@ -59,8 +59,8 @@ func main() {
 		
 		return
 	}
-	
-	for range preferredDishPosition -1{
+
+	for range preferredDishPosition -1 {
 		heap.Pop(dishRatingsHeap)
 	}
 
