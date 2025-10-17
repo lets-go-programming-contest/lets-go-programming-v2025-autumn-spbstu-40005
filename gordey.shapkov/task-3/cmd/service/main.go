@@ -13,7 +13,7 @@ import (
 func main() {
 	defer func() {
 		if err := recover(); err != nil {
-			fmt.Println("panic occurred", err)
+			fmt.Println(err)
 
 			return
 		}
