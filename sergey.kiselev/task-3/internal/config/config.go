@@ -2,7 +2,6 @@ package config
 
 import (
 	"fmt"
-	"io"
 	"os"
 
 	"gopkg.in/yaml.v3"
@@ -25,13 +24,9 @@ func ParseFile(configPath string) (*Config, error) {
 		}
 	}()
 
-	return parseYaml(file)
-}
-
-func parseYaml(reader io.Reader) (*Config, error) {
 	config := new(Config)
 
-	decoder := yaml.NewDecoder(reader)
+	decoder := yaml.NewDecoder(file)
 	if err := decoder.Decode(config); err != nil {
 		return nil, fmt.Errorf("error decoding YAML: %w", err)
 	}

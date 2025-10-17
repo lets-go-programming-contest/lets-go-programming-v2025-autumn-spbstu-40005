@@ -3,7 +3,6 @@ package bank
 import (
 	"encoding/xml"
 	"fmt"
-	"io"
 	"os"
 
 	"golang.org/x/net/html/charset"
@@ -21,11 +20,7 @@ func ParseXMLFile(filePath string) (*ValCurs, error) {
 		}
 	}()
 
-	return parseXML(file)
-}
-
-func parseXML(reader io.Reader) (*ValCurs, error) {
-	decoder := xml.NewDecoder(reader)
+	decoder := xml.NewDecoder(file)
 
 	decoder.CharsetReader = charset.NewReaderLabel
 

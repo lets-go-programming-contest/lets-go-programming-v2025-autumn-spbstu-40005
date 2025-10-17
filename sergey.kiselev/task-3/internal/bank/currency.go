@@ -8,6 +8,8 @@ import (
 	"path/filepath"
 )
 
+const permissions = 0o755
+
 type Currency struct {
 	NumCode  int     `json:"num_code"`
 	CharCode string  `json:"char_code"`
@@ -27,8 +29,6 @@ func encodeJSON(currencies []Currency, writer io.Writer) error {
 }
 
 func EncodeFile(currencies []Currency, outputFile string) error {
-	const permissions = 0o755
-
 	dir := filepath.Dir(outputFile)
 	if err := os.MkdirAll(dir, permissions); err != nil {
 		return fmt.Errorf("error creating directory: %w", err)
