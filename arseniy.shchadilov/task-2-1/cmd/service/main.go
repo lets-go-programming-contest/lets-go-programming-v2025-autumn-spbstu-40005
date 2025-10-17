@@ -97,13 +97,7 @@ func main() {
 		}
 	}
 
-	for i, res := range results {
-		if i > 0 {
-			fmt.Print(" ")
-		}
-
-		fmt.Print(res)
+	for _, res := range results {
+		fmt.Println(res)
 	}
-
-	fmt.Println()
 }
