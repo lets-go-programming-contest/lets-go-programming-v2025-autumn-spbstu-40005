@@ -10,6 +10,7 @@ func (h *IntHeap) Less(i, j int) bool {
 	if i < 0 || j < 0 || i > h.Len() || j > h.Len() {
 		panic("index out of range")
 	}
+
 	return (*h)[i] > (*h)[j]
 }
 
@@ -17,6 +18,7 @@ func (h *IntHeap) Swap(i, j int) {
 	if i < 0 || j < 0 || i > h.Len() || j > h.Len() {
 		panic("index out of range")
 	}
+
 	(*h)[i], (*h)[j] = (*h)[j], (*h)[i]
 }
 
