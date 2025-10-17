@@ -7,9 +7,17 @@ import (
 
 type MinHeap []int
 
-func (heap MinHeap) Len() int           { return len(heap) }
-func (heap MinHeap) Less(i, j int) bool { return heap[i] < heap[j] }
-func (heap MinHeap) Swap(i, j int)      { heap[i], heap[j] = heap[j], heap[i] }
+func (heap MinHeap) Len() int {
+	return len(heap)
+}
+
+func (heap MinHeap) Less(i, j int) bool {
+	return heap[i] < heap[j]
+}
+
+func (heap MinHeap) Swap(i, j int) {
+	heap[i], heap[j] = heap[j], heap[i]
+}
 
 func (heap *MinHeap) Push(x any) {
 	*heap = append(*heap, x.(int))
@@ -26,16 +34,19 @@ func (heap *MinHeap) Pop() any {
 func main() {
 	var amountOfDishes int
 	if _, err := fmt.Scan(&amountOfDishes); err != nil {
+		fmt.Println("Error: invalid format for number of dishes")
 		return
 	}
 
 	if amountOfDishes <= 0 {
+		fmt.Println("Error: number of dishes must be a positive number")
 		return
 	}
 
 	dishes := make([]int, amountOfDishes)
 	for i := 0; i < amountOfDishes; i++ {
 		if _, err := fmt.Scan(&dishes[i]); err != nil {
+			fmt.Println("Error: invalid format for dish rating")
 			return
 		}
 	}
@@ -45,7 +56,13 @@ func main() {
 		return
 	}
 
-	if dishNumber <= 0 || dishNumber > amountOfDishes {
+	if dishNumber <= 0 {
+		fmt.Println("Error: dish number must be a positive number")
+		return
+	}
+
+	if dishNumber > amountOfDishes {
+		fmt.Printf("Error: dish number (%d) cannot exceed number of dishes (%d)\n", dishNumber, amountOfDishes)
 		return
 	}
 
