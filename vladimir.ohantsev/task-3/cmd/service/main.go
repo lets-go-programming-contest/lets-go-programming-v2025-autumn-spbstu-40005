@@ -15,7 +15,7 @@ const permissions = 0o755
 
 func must(op string, err error) {
 	if err != nil {
-		panic(fmt.Sprintf("op: %s", err))
+		panic(fmt.Sprintf("%s: %s", op, err))
 	}
 }
 
