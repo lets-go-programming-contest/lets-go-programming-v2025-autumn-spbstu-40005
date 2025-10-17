@@ -5,9 +5,7 @@ import (
 	"fmt"
 )
 
-var (
-	errCmpInput = errors.New("unknown comparator")
-)
+var errCmpInput = errors.New("unknown comparator")
 
 const (
 	lowerLimit = 15
