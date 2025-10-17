@@ -30,7 +30,7 @@ func main() {
 	dishRatingsHeap := &intheap.IntHeap{}
 	heap.Init(dishRatingsHeap)
 
-	for i := 0; i < totalDishesCount; i++ {
+	for range totalDishesCount {
 		var dishRating int
 		if _, err := fmt.Scan(&dishRating); err != nil {
 			fmt.Printf("Error reading dish rating: %v\n", err)
