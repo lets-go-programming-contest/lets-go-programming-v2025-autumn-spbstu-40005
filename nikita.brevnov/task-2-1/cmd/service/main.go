@@ -51,36 +51,47 @@ func (oc *climate) FindComfortTemp() int {
 
 func handleDep() error {
 	var employeeCount int
+
 	if _, err := fmt.Scan(&employeeCount); err != nil {
 		return fmt.Errorf("error reading employee count: %w", err)
 	}
+
 	climateControl := climateController()
+
 	for range employeeCount {
 		var (
 			condition string
 			tempValue int
 		)
+
 		if _, err := fmt.Scan(&condition, &tempValue); err != nil {
 			return fmt.Errorf("error reading employee input: %w", err)
 		}
+
 		if err := climateControl.AdjustSetting(condition, tempValue); err != nil {
 			return fmt.Errorf("error adjusting climate settings: %w", err)
 		}
+
 		comfortTemp := climateControl.FindComfortTemp()
 		fmt.Println(comfortTemp)
 	}
+
 	return nil
 }
 
 func main() {
 	var depCount int
+
 	if _, err := fmt.Scan(&depCount); err != nil {
 		fmt.Printf("error reading department count: %v\n", err)
+
 		return
 	}
+
 	for range depCount {
 		if err := handleDep(); err != nil {
 			fmt.Printf("error processing department: %v\n", err)
+
 			return
 		}
 	}
