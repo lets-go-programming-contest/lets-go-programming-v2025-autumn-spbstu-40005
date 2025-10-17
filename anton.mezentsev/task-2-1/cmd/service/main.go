@@ -19,8 +19,8 @@ type ClimateController struct {
 
 func NewClimateController(minTemp, maxTemp int) *ClimateController {
 	return &ClimateController{
-		minTemp: MinTemp,
-		maxTemp: MaxTemp,
+		minTemp: minTemp,
+		maxTemp: maxTemp,
 	}
 }
 
