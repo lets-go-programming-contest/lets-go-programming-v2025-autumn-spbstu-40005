@@ -25,16 +25,16 @@ func (h *MinIntHeap) Pop() interface{} {
 }
 
 func KthLargest(values []int, k int) int {
-    heap := &MinIntHeap{}
-    heap.Init(heap)
+    h := &MinIntHeap{}
+    heap.Init(h)
     
     for _, value := range values {
-        if heap.Len() < k {
-            heap.Push(heap, value)
-        } else if value > (*heap)[0] {
-            heap.Pop(heap)
-            heap.Push(heap, value)
+        if h.Len() < k {
+            heap.Push(h, value)
+        } else if value > (*h)[0] {
+            heap.Pop(h)
+            heap.Push(h, value)
         }
     }
-    return (*heap)[0]
+    return (*h)[0]
 }
