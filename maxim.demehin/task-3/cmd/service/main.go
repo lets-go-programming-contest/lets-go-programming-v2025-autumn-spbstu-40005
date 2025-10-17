@@ -43,18 +43,13 @@ func main() {
 		panic(err)
 	}
 
-	valCurs, err := bank.ParseXML(config.InputFile)
+	valutes, err := bank.ParseXML(config.InputFile)
 	if err != nil {
 		panic(err)
 	}
 
-	valutes, err := bank.ParseToJSON(valCurs.Valutes)
-	if err != nil {
-		fmt.Println(err)
-	}
-
 	err = bank.SaveValutesToFile(valutes, config.OutputFile)
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
 }
