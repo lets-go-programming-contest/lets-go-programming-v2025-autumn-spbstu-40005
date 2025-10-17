@@ -1,8 +1,7 @@
 package config
 
-import "fmt"
-
 import (
+	"fmt"
 	"strconv"
 	"strings"
 )
