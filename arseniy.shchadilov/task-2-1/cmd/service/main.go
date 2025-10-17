@@ -10,6 +10,10 @@ const (
 	GlobalMaxTemp = 30
 )
 
+var (
+	ErrInvalidOperator = errors.New("update failed: invalid operator")
+)
+
 type TemperatureManager struct {
 	currentMinTemp int
 	currentMaxTemp int
@@ -33,8 +37,9 @@ func (tm *TemperatureManager) Update(operator string, temp int) error {
 			tm.currentMaxTemp = temp
 		}
 	default:
-		return errors.New("update failed: invalid operator")
+		return ErrInvalidOperator
 	}
+
 	return nil
 }
 
@@ -42,6 +47,7 @@ func (tm *TemperatureManager) GetOptimalTemp() int {
 	if tm.currentMinTemp > tm.currentMaxTemp {
 		return -1
 	}
+
 	return tm.currentMinTemp
 }
 
@@ -55,7 +61,7 @@ func main() {
 
 	var results []int
 
-	for i := 0; i < departments; i++ {
+	for i := range departments {
 		var workers int
 		_, err := fmt.Scan(&workers)
 		if err != nil {
@@ -65,11 +71,12 @@ func main() {
 
 		manager := NewTemperatureManager()
 
-		for j := 0; j < workers; j++ {
+		for range workers {
 			var (
 				operator string
 				temp     int
 			)
+
 			_, err := fmt.Scan(&operator, &temp)
 			if err != nil {
 				fmt.Println("error: failed to read worker")
@@ -90,7 +97,9 @@ func main() {
 		if i > 0 {
 			fmt.Print(" ")
 		}
+
 		fmt.Print(res)
 	}
+
 	fmt.Println()
 }
