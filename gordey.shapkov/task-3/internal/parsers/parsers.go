@@ -92,9 +92,9 @@ func createCharsetReader(charset string, input io.Reader) (io.Reader, error) {
 }
 
 func convertFloat(float string) (float64, error) {
-	partsOfFloat := strings.Split(float, ",")
+	dotFloat := strings.Replace(float, ",", ".")
 
-	result, err := strconv.ParseFloat(partsOfFloat[0]+"."+partsOfFloat[1], 64)
+	result, err := strcstringsonv.ParseFloat(dotFloat, 64)
 	if err != nil {
 		return 0, fmt.Errorf("cannot convert to float: %w", err)
 	}
