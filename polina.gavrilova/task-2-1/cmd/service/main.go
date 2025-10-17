@@ -55,16 +55,12 @@ func execEmployee(tempCondition *temperature.TempCondition) error {
 
 	_, err := fmt.Scan(&mode, &parameter)
 	if err != nil {
-
 		return fmt.Errorf("invalid employee command: %w", err)
-
 	}
 
 	hasPerfectTemp, err := tempCondition.Change(mode, parameter)
 	if err != nil {
-
 		return fmt.Errorf("invalid employee execution: %w", err)
-
 	} else if !hasPerfectTemp {
 		fmt.Println(-1)
 
