@@ -15,7 +15,7 @@ type RangeOfTemperature struct {
 	maxTemp int
 }
 
-var ErrInvalidOperator = errors.New("Unsupported operator type")
+var ErrInvalidOperator = errors.New("unsupported operator type")
 
 func NewRangeOfTemperature(minTemp, maxTemp int) *RangeOfTemperature {
 	return &RangeOfTemperature{
