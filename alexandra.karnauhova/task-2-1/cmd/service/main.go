@@ -6,12 +6,17 @@ import (
 	"alexandra.karnauhova/task-2-1/internal/temperature"
 )
 
+const (
+	defaultMax = 100
+	defaultMin = 0
+)
+
 func inputDataDepartment() {
 	department := temperature.TempManager{
 		Temps:            []temperature.RangeTemp{},
-		IdealTemperature: 0,
-		Max:              100,
-		Min:              0,
+		IdealTemperature: defaultMin,
+		Max:              defaultMax,
+		Min:              defaultMin,
 	}
 
 	var numberEmployee int
@@ -19,15 +24,22 @@ func inputDataDepartment() {
 	_, err := fmt.Scan(&numberEmployee)
 	if err != nil {
 		fmt.Println("Invalid number of employee")
+
 		return
 	}
 
-	for i := 0; i < numberEmployee; i++ {
-		var signs string
-		var number int
+	for range numberEmployee {
+
+		var (
+			signs  string
+			number int
+		)
+
 		_, err := fmt.Scan(&signs, &number)
+
 		if err != nil {
 			fmt.Println("Invalid temperature")
+
 			return
 		}
 
@@ -46,10 +58,11 @@ func main() {
 	_, err := fmt.Scan(&numberDepartment)
 	if err != nil {
 		fmt.Println("Invalid number of departments")
+
 		return
 	}
 
-	for i := 0; i < numberDepartment; i++ {
+	for range numberDepartment {
 		inputDataDepartment()
 	}
 }

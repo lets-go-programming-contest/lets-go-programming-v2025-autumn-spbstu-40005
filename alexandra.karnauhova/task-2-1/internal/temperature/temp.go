@@ -2,6 +2,10 @@ package temperature
 
 import "errors"
 
+var (
+	ErrInputLogic = errors.New("error in the input logic")
+)
+
 type RangeTemp struct {
 	Range       string
 	Temperature int
@@ -19,14 +23,15 @@ func (temps *TempManager) AddTemp(signs string, temp int) error {
 		Temperature: temp,
 	}
 
-	if signs == ">=" {
+	switch signs {
+	case ">=":
 		if temp > temps.Min {
 			temps.Min = temp
 		}
 		if temps.IdealTemperature < temp {
 			temps.IdealTemperature = temp
 		}
-	} else if signs == "<=" {
+	case "<=":
 		if temp < temps.Max {
 			temps.Max = temp
 		}
@@ -36,7 +41,7 @@ func (temps *TempManager) AddTemp(signs string, temp int) error {
 	}
 
 	if temps.Max < temps.Min {
-		return errors.New("error in the input logic")
+		return ErrInputLogic
 	}
 
 	temps.Temps = append(temps.Temps, newTemp)
