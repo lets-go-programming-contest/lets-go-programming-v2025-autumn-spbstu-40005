@@ -2,7 +2,6 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"sort"
 
 	"gordey.shapkov/task-3/internal/jsonparsing"
