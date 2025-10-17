@@ -15,11 +15,7 @@ import (
 
 var ErrUnsupportedCharset = errors.New("unsupported charset")
 
-func ParseXML(path string) (*ValCurs, error) {
-	if _, err := os.Stat(path); os.IsNotExist(err) {
-		return nil, fmt.Errorf("file %s does not exist: %w", path, err)
-	}
-
+func ParseXML(path string) ([]Valute, error) {
 	data, err := os.ReadFile(path)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read XML file: %w", err)
@@ -29,24 +25,16 @@ func ParseXML(path string) (*ValCurs, error) {
 	decoder := xml.NewDecoder(reader)
 	decoder.CharsetReader = getCharset
 
-	var (
-		valCursRaw ValCursRaw
-		valCurs    ValCurs
-	)
+	var valCurs ValCurs
 
-	err = decoder.Decode(&valCursRaw)
+	err = decoder.Decode(&valCurs)
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse XML: %w", err)
 	}
 
-	err = valCurs.convertFromRaw(valCursRaw)
-	if err != nil {
-		return nil, err
-	}
-
 	valCurs.sortValutes()
 
-	return &valCurs, nil
+	return valCurs.Valutes, nil
 }
 
 func getCharset(charsetLabel string, input io.Reader) (io.Reader, error) {
@@ -58,21 +46,7 @@ func getCharset(charsetLabel string, input io.Reader) (io.Reader, error) {
 	return encoding.NewDecoder().Reader(input), nil
 }
 
-func ParseToJSON(valutes []Valute) ([]ValuteToOut, error) {
-	valutesToOut := make([]ValuteToOut, len(valutes))
-
-	for index, valute := range valutes {
-		valutesToOut[index] = ValuteToOut{
-			NumCode:  valute.NumCode,
-			CharCode: valute.CharCode,
-			Value:    valute.Value,
-		}
-	}
-
-	return valutesToOut, nil
-}
-
-func SaveValutesToFile(valutes []ValuteToOut, output string) error {
+func SaveValutesToFile(valutes []Valute, output string) error {
 	dir := filepath.Dir(output)
 
 	err := os.MkdirAll(dir, 0)

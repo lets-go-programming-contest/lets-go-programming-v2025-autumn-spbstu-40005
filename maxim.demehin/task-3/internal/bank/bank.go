@@ -10,80 +10,44 @@ import (
 
 type ValCurs struct {
 	XMLName xml.Name `xml:"ValCurs"`
-	Date    string   `xml:"Date,attr"`
-	Name    string   `xml:"name,attr"`
 	Valutes []Valute `xml:"Valute"`
 }
 
-type ValCursRaw struct {
-	XMLName xml.Name    `xml:"ValCurs"`
-	Date    string      `xml:"Date,attr"`
-	Name    string      `xml:"name,attr"`
-	Valutes []ValuteRaw `xml:"Valute"`
-}
-
-type ValuteRaw struct {
-	ID        string `xml:"ID,attr"`
-	NumCode   int    `xml:"NumCode"`
-	CharCode  string `xml:"CharCode"`
-	Nominal   int    `xml:"Nominal"`
-	Name      string `xml:"Name"`
-	Value     string `xml:"Value"`
-	VunitRate string `xml:"VunitRate"`
-}
-
 type Valute struct {
-	ID        string  `xml:"ID,attr"`
-	NumCode   int     `xml:"NumCode"`
-	CharCode  string  `xml:"CharCode"`
-	Nominal   int     `xml:"Nominal"`
-	Name      string  `xml:"Name"`
-	Value     float64 `xml:"Value"`
-	VunitRate string  `xml:"VunitRate"`
+	NumCode  int     `xml:"NumCode"`
+	CharCode string  `xml:"CharCode"`
+	Value    float64 `xml:"Value"`
 }
 
-type ValuteToOut struct {
-	NumCode  int     `json:"num_code"`
-	CharCode string  `json:"char_code"`
-	Value    float64 `json:"value"`
-}
+func (v *Valute) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
+	type valuteTemp struct {
+		NumCode  string `xml:"NumCode"`
+		CharCode string `xml:"CharCode"`
+		Value    string `xml:"Value"`
+	}
 
-func (v *Valute) convertFromRaw(valuteRaw ValuteRaw) error {
-	v.ID = valuteRaw.ID
-	v.NumCode = valuteRaw.NumCode
-	v.CharCode = valuteRaw.CharCode
-	v.Nominal = valuteRaw.Nominal
-	v.Name = valuteRaw.Name
-	v.VunitRate = valuteRaw.VunitRate
+	var temp valuteTemp
+	if err := d.DecodeElement(&temp, &start); err != nil {
+		return err
+	}
 
-	valueStr := strings.ReplaceAll(valuteRaw.Value, ",", ".")
+	v.CharCode = temp.CharCode
 
-	floatVal, err := strconv.ParseFloat(valueStr, 64)
+	numCode, err := strconv.Atoi(temp.NumCode)
 	if err != nil {
-		return fmt.Errorf("failed conversion from ValuteRaw to Valute: %w", err)
+		return fmt.Errorf("failed to parse NumCode '%s': %w", temp.NumCode, err)
 	}
 
-	v.Value = floatVal
+	v.NumCode = numCode
 
-	return nil
-}
+	valueStr := strings.ReplaceAll(temp.Value, ",", ".")
 
-func (v *ValCurs) convertFromRaw(valCursRaw ValCursRaw) error {
-	temp := ValCurs{
-		XMLName: valCursRaw.XMLName,
-		Date:    valCursRaw.Date,
-		Name:    valCursRaw.Name,
-		Valutes: make([]Valute, len(valCursRaw.Valutes)),
+	value, err := strconv.ParseFloat(valueStr, 64)
+	if err != nil {
+		return fmt.Errorf("failed to parse Value '%s': %w", temp.Value, err)
 	}
 
-	for index := range valCursRaw.Valutes {
-		err := temp.Valutes[index].convertFromRaw(valCursRaw.Valutes[index])
-		if err != nil {
-			return fmt.Errorf("failed conversion from ValCursRaw to ValCurs: %w", err)
-		}
-	}
-
-	*v = temp
+	v.Value = value
 
 	return nil
 }
