@@ -31,7 +31,7 @@ func (v *valueType) UnmarshalXML(decoder *xml.Decoder, start xml.StartElement) e
 }
 
 func charsetReader(charsetStr string, input io.Reader) (io.Reader, error) {
-	return charset.NewReaderLabel(charsetStr, input)
+	return charset.NewReaderLabel(charsetStr, input) //nolint:wrapcheck
 }
 
 func ParseXML(r io.Reader) (*Bank, error) {
