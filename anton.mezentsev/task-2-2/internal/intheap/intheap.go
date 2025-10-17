@@ -21,17 +21,21 @@ func (h *CustomHeap) Push(x interface{}) {
 	if !correctType {
 		return
 	}
+
 	*h = append(*h, value)
 }
 
 func (h *CustomHeap) Pop() interface{} {
 	oldSlice := *h
 	length := len(oldSlice)
+
 	if length == 0 {
 		return nil
 	}
+
 	lastElement := oldSlice[length-1]
 	*h = oldSlice[0 : length-1]
+
 	return lastElement
 }
 
@@ -39,8 +43,10 @@ func FindKthPreference(ratings []int, preferenceOrder int) int {
 	if len(ratings) == 0 || preferenceOrder <= 0 || preferenceOrder > len(ratings) {
 		return -1
 	}
+
 	heapContainer := &CustomHeap{}
 	heap.Init(heapContainer)
+
 	for _, currentRating := range ratings {
 		if heapContainer.Len() < preferenceOrder {
 			heap.Push(heapContainer, currentRating)
@@ -49,8 +55,10 @@ func FindKthPreference(ratings []int, preferenceOrder int) int {
 			heap.Push(heapContainer, currentRating)
 		}
 	}
+
 	if heapContainer.Len() == 0 {
 		return -1
 	}
+
 	return (*heapContainer)[0]
 }
