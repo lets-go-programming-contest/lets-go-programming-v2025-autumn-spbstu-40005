@@ -61,6 +61,6 @@ func (a ByValue) Less(i, j int) bool {
 	return a[i].Value > a[j].Value
 }
 
-func (v *ValCurs) sortValutes() {
+func (v *ValCurs) SortValutes() {
 	sort.Sort(ByValue(v.Valutes))
 }

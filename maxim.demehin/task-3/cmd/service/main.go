@@ -5,7 +5,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/TvoyBatyA12343/task-3/internal/bank"
+	"github.com/TvoyBatyA12343/task-3/internal/jsonutils"
+	"github.com/TvoyBatyA12343/task-3/internal/parser"
 	"gopkg.in/yaml.v3"
 )
 
@@ -43,12 +44,12 @@ func main() {
 		panic(err)
 	}
 
-	valutes, err := bank.ParseXML(config.InputFile)
+	valutes, err := parser.ParseXML(config.InputFile)
 	if err != nil {
 		panic(err)
 	}
 
-	err = bank.SaveValutesToFile(valutes, config.OutputFile)
+	err = jsonutils.SaveValutesToFile(valutes, config.OutputFile)
 	if err != nil {
 		panic(err)
 	}
