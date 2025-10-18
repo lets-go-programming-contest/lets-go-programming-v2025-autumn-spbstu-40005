@@ -14,9 +14,9 @@ type ValCurs struct {
 }
 
 type Valute struct {
-	NumCode  int         `xml:"NumCode" json:"num_code"`
-	CharCode string      `xml:"CharCode" json:"char_code"`
-	Value    CustomFloat `xml:"Value" json:"value"`
+	NumCode  int         `json:"num_code" xml:"NumCode"`
+	CharCode string      `json:"char_code" xml:"CharCode"`
+	Value    CustomFloat `json:"value" xml:"Value"`
 }
 
 type CustomFloat float64
@@ -26,7 +26,7 @@ func (f *CustomFloat) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error
 
 	err := d.DecodeElement(&temp, &start)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to decode: %w", err)
 	}
 
 	if temp == "" {
