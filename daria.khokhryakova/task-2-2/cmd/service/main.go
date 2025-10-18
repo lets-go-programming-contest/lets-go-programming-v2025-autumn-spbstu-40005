@@ -22,7 +22,7 @@ var (
 
 func priorityDish(resHeap *intheap.IntHeap, num int) (int, error) {
 	if num < minDishes || num > resHeap.Len() {
-		return 0, errInput
+		return 0, fmt.Errorf("priority dish: number %d out of range [%d, %d]", num, minDishes, resHeap.Len())
 	}
 
 	for range num - 1 {
@@ -44,7 +44,7 @@ func main() {
 
 	_, err := fmt.Scan(&numberDishes)
 	if err != nil || numberDishes < minDishes || numberDishes > maxDishes {
-		fmt.Println(errInput.Error())
+		fmt.Println(errInput.Error()+":", err)
 
 		return
 	}
