@@ -9,7 +9,6 @@ import (
 	"os"
 
 	"github.com/TvoyBatyA12343/task-3/internal/bank"
-
 	"golang.org/x/net/html/charset"
 )
 
