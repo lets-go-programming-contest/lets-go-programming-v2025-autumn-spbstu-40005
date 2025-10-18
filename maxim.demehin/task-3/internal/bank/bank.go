@@ -19,42 +19,30 @@ type Valute struct {
 	Value    float64 `xml:"Value" json:"value"`
 }
 
-func (v *Valute) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
-	type valuteTemp struct {
-		NumCode  string `xml:"NumCode"`
-		CharCode string `xml:"CharCode"`
-		Value    string `xml:"Value"`
-	}
+type CustomFloat float64
 
-	var temp valuteTemp
+func (f *CustomFloat) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
+	var temp string
 
 	err := d.DecodeElement(&temp, &start)
 	if err != nil {
 		return err
 	}
 
-	v.CharCode = temp.CharCode
+	if temp == "" {
+		*f = 0.0
 
-	if temp.NumCode == "" {
-		v.NumCode = 0
-	} else {
-		numCode, err := strconv.Atoi(temp.NumCode)
-		if err != nil {
-			return fmt.Errorf("failed to parse NumCode: %w", err)
-		}
-		v.NumCode = numCode
+		return nil
 	}
 
-	if temp.Value == "" {
-		v.Value = 0.0
-	} else {
-		valueStr := strings.ReplaceAll(temp.Value, ",", ".")
-		value, err := strconv.ParseFloat(valueStr, 64)
-		if err != nil {
-			return fmt.Errorf("failed to parse Value: %w", err)
-		}
-		v.Value = value
+	valueStr := strings.ReplaceAll(temp, ",", ".")
+
+	value, err := strconv.ParseFloat(valueStr, 64)
+	if err != nil {
+		return fmt.Errorf("failed to parse Value: %w", err)
 	}
+
+	*f = CustomFloat(value)
 
 	return nil
 }
