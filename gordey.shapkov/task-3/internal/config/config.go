@@ -13,17 +13,17 @@ type Config struct {
 }
 
 type ValCurs struct {
-	Date    string   `xml:"Date,attr"`
-	Name    string   `xml:"name,attr"`
+	Date    string     `xml:"Date,attr"`
+	Name    string     `xml:"name,attr"`
 	Valutes []Currency `xml:"Valute"`
 }
 
 type value float64
 
 type Currency struct {
-	NumCode  int     `json:"num_code" xml:"NumCode"`
-	CharCode string  `json:"char_code" xml:"CharCode"`
-	Value    value `json:"value" xml:"Value"`
+	NumCode  int    `json:"num_code" xml:"NumCode"`
+	CharCode string `json:"char_code" xml:"CharCode"`
+	Value    value  `json:"value" xml:"Value"`
 }
 
 func (val *value) UnmarshalXML(decoder *xml.Decoder, start xml.StartElement) error {
@@ -32,7 +32,7 @@ func (val *value) UnmarshalXML(decoder *xml.Decoder, start xml.StartElement) err
 		return fmt.Errorf("cannot decode value: %w", err)
 	}
 
-	floatVal, err := ConvertFloat(v);
+	floatVal, err := ConvertFloat(v)
 	if err != nil {
 		return fmt.Errorf("convert to float: %w", err)
 	}
