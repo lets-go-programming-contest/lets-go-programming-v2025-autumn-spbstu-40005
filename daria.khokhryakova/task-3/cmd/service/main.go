@@ -3,14 +3,14 @@ package main
 import (
 	"flag"
 
+	"github.com/DariaKhokhryakova/task-3/internal/bank"
 	"github.com/DariaKhokhryakova/task-3/internal/config"
-	"github.com/DariaKhokhryakova/task-3/internal/currency"
 )
 
 func main() {
 	var configPath string
 
-	flag.StringVar(&configPath, "config", "", "path to the configuration file")
+	flag.StringVar(&configPath, "config", "config.yaml", "path to the configuration file")
 	flag.Parse()
 
 	config, err := config.LoadConfig(configPath)
@@ -18,17 +18,17 @@ func main() {
 		panic(err)
 	}
 
-	valCurs, err := currency.ParseXMLData(config.InputFile)
+	valCurs, err := bank.ParseXMLData(config.InputFile)
 	if err != nil {
 		panic(err)
 	}
 
-	result, err := currency.ProcessCurrencies(valCurs)
+	result, err := bank.ProcessCurrencies(valCurs)
 	if err != nil {
 		panic(err)
 	}
 
-	err = currency.SaveResults(result, config.OutputFile)
+	err = bank.SaveResults(result, config.OutputFile)
 	if err != nil {
 		panic(err)
 	}
