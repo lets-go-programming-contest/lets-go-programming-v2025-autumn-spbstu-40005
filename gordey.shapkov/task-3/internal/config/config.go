@@ -23,7 +23,7 @@ type value float64
 type Currency struct {
 	NumCode  int       `json:"num_code"  xml:"NumCode"`
 	CharCode string    `json:"char_code" xml:"CharCode"`
-	Value    valueType `json:"value"     xml:"Value"`
+	Value    value     `json:"value"     xml:"Value"`
 }
 
 func (val *value) UnmarshalXML(decoder *xml.Decoder, start xml.StartElement) error {
