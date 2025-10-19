@@ -23,16 +23,11 @@ func main() {
 		panic(err)
 	}
 
-	currencies, err := jsonparsing.ConvertToJSON(valCurs.Valutes)
-	if err != nil {
-		panic(err)
-	}
-
-	sort.Slice(currencies, func(i, j int) bool {
-		return currencies[i].Value > currencies[j].Value
+	sort.Slice(valCurs.Valutes, func(i, j int) bool {
+		return valCurs.Valutes[i].Value > valCurs.Valutes[j].Value
 	})
 
-	if err = jsonparsing.SaveToJSON(currencies, cfg.OutputFile); err != nil {
+	if err = jsonparsing.SaveToJSON(valCurs.Valutes, cfg.OutputFile); err != nil {
 		panic(err)
 	}
 }

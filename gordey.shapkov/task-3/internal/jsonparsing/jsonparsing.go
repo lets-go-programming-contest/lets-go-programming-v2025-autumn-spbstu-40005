@@ -11,25 +11,6 @@ import (
 
 const permissions = 0o755
 
-func ConvertToJSON(valutes []config.Valute) ([]config.Currency, error) {
-	currencies := make([]config.Currency, len(valutes))
-
-	for idx, valute := range valutes {
-		value, err := config.ConvertFloat(valute.Value)
-		if err != nil {
-			return nil, fmt.Errorf("convertation failed: %w", err)
-		}
-
-		currencies[idx] = config.Currency{
-			NumCode:  valute.NumCode,
-			CharCode: valute.CharCode,
-			Value:    value,
-		}
-	}
-
-	return currencies, nil
-}
-
 func SaveToJSON(currencies []config.Currency, outputPath string) error {
 	jsonData, err := json.MarshalIndent(currencies, "", "  ")
 	if err != nil {
