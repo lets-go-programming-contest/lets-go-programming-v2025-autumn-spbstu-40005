@@ -5,6 +5,10 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"sort"
+	"strconv"
+	"strings"
+
 	"golang.org/x/net/html/charset"
 	"gopkg.in/yaml.v3"
 )
@@ -20,14 +24,41 @@ type ValCurs struct {
 }
 
 type Valute struct {
-	NumCode  int    `xml:"NumCode"`
-	CharCode string `xml:"CharCode"`
-	Nominal  int    `xml:"Nominal"`
-	Name	 string `xml:"Name"`
-	Value    string `xml:"Value"`
+	//TODO delete Nominal & Name
+	NumCode  int    `xml:"NumCode" json:"num_code"`
+	CharCode string `xml:"CharCode" json:"char_code"`
+	Nominal  int    `xml:"Nominal" json:"-"`
+	Name	 string `xml:"Name" json:"-"`
+	Value    string `xml:"Value" json:"value"`
 }
 
-const inputFilePath = "1.xml"
+type ByValueDesc []Valute
+
+func (v ByValueDesc) Len() int {
+	return len(v)
+}
+
+func (v ByValueDesc) Swap(i, j int) {
+	//TODO add checks
+	v[i], v[j] = v[j], v[i]
+}
+
+func (v ByValueDesc) Less(i, j int) bool {
+	//TODO add checks
+	val1 := parseFloatValue(v[i].Value)
+	val2 := parseFloatValue(v[j].Value)
+	return val1 > val2
+}
+
+func parseFloatValue(s string) float64 {
+	s = strings.ReplaceAll(s, ",", ".")
+	val, err := strconv.ParseFloat(s, 64)
+	if err != nil {
+		panic(fmt.Errorf("Error parsing value %s: %w\n", s, err))
+	}
+
+	return val
+}
 
 func loadConfig(path string) *AppConfig {
 	data, err := os.ReadFile(path)
@@ -54,9 +85,7 @@ func main() {
 		panic(fmt.Errorf("Error reading file %s: %w\n", config.InputFile, err))
 	}
 
-	//TODO Check error Close
-
-	defer file.Close()
+	defer file.Close() 	//TODO Check error defer Close
 
 	decoder := xml.NewDecoder(file)
 	decoder.CharsetReader = charset.NewReaderLabel
@@ -66,6 +95,11 @@ func main() {
 		panic(fmt.Errorf("Error unmarshaling XML: %w\n", err))
 	}
 
+	sort.Sort(ByValueDesc(rates.Valutes))
+
 	fmt.Printf("Successfully read %d valutes from %s\n", len(rates.Valutes), config.InputFile)
-	fmt.Printf("Wrote to %s\n", config.OutputFile)
+
+	for _, v := range rates.Valutes {
+		fmt.Printf("%d %s %s\n", v.NumCode, v.CharCode, v.Value)
+	}
 }
