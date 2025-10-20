@@ -4,7 +4,7 @@ import "encoding/xml"
 
 func (c *CurrencyResult) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
 	type xmlValute struct {
-		NumCode  string `xlm:"NumCode"`
+		NumCode  string `xml:"NumCode"`
 		CharCode string `xml:"CharCode"`
 		Value    string `xml:"Value"`
 	}
