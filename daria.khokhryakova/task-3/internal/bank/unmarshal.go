@@ -1,8 +1,11 @@
 package bank
 
-import "encoding/xml"
+import (
+	"encoding/xml"
+	"fmt"
+)
 
-func (c *CurrencyResult) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
+func (c *CurrencyResult) UnmarshalXML(decoder *xml.Decoder, start xml.StartElement) error {
 	type xmlValute struct {
 		NumCode  string `xml:"NumCode"`
 		CharCode string `xml:"CharCode"`
@@ -11,8 +14,8 @@ func (c *CurrencyResult) UnmarshalXML(d *xml.Decoder, start xml.StartElement) er
 
 	var valute xmlValute
 
-	if err := d.DecodeElement(&valute, &start); err != nil {
-		return err
+	if err := decoder.DecodeElement(&valute, &start); err != nil {
+		return fmt.Errorf("decode element: %w", err)
 	}
 
 	numCode, err := convertNumCode(valute.NumCode)
