@@ -2,10 +2,17 @@ package main;
 
 import (
 	"encoding/xml"
+	"flag"
 	"fmt"
 	"os"
 	"golang.org/x/net/html/charset"
+	"gopkg.in/yaml.v3"
 )
+
+type AppConfig struct {
+	InputFile string `yaml:"input-file"`
+	OutputFile string `yaml:"output-file"`
+}
 
 type ValCurs struct {
 	XMLName xml.Name `xml:"ValCurs"`
@@ -22,11 +29,33 @@ type Valute struct {
 
 const inputFilePath = "1.xml"
 
-func main() {
-	file, err := os.Open(inputFilePath)
+func loadConfig(path string) *AppConfig {
+	data, err := os.ReadFile(path)
 	if err != nil {
-		panic(fmt.Errorf("Error reading file %s: %w\n", inputFilePath, err))
+		panic(fmt.Errorf("Error reading file %s: %w\n", path, err))
 	}
+
+	var config AppConfig
+	if err := yaml.Unmarshal(data, &config); err != nil {
+		panic(fmt.Errorf("Error unmarshaling YAML: %w\n", err))
+	}
+
+	return &config
+}
+
+func main() {
+	configPath := flag.String("config", "config.yaml", "path to config file")
+	flag.Parse()
+
+	config := loadConfig(*configPath)
+
+	file, err := os.Open(config.InputFile)
+	if err != nil {
+		panic(fmt.Errorf("Error reading file %s: %w\n", config.InputFile, err))
+	}
+
+	//TODO Check error Close
+
 	defer file.Close()
 
 	decoder := xml.NewDecoder(file)
@@ -37,8 +66,6 @@ func main() {
 		panic(fmt.Errorf("Error unmarshaling XML: %w\n", err))
 	}
 
-	fmt.Printf("Successfully unmarshaled %d Valutes.\n", len(rates.Valutes))
-	for _, currency := range rates.Valutes {
-		fmt.Printf("Code: %s, Nominal: %d, Name: %s, Value: %s\n", currency.CharCode, currency.Nominal, currency.Name, currency.Value)
-	}
+	fmt.Printf("Successfully read %d valutes from %s\n", len(rates.Valutes), config.InputFile)
+	fmt.Printf("Wrote to %s\n", config.OutputFile)
 }
