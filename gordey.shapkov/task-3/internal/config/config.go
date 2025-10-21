@@ -18,7 +18,7 @@ func ParseConfigFile(path string) (*Config, error) {
 		return nil, fmt.Errorf("cannot read file: %w", err)
 	}
 
-	cfg := &Config{}
+	cfg := &Config{InputFile: "", OutputFile: ""}
 
 	err = yaml.Unmarshal(data, cfg)
 	if err != nil {
