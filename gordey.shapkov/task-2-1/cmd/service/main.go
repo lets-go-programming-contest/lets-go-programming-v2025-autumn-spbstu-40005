@@ -8,7 +8,6 @@ import (
 var (
 	errInvalidOperation           = errors.New("invalid operation")
 	errInvalidNumberOfDepartments = errors.New("invalid number of departments")
-	errOutOfRangeTemperature      = errors.New("preferred temperature out of allowed range")
 	errPreferredAboveMax          = errors.New("preferred temperature above current max")
 	errPreferredBelowMin          = errors.New("preferred temperature below current min")
 )
