@@ -8,8 +8,6 @@ import (
 var (
 	errInvalidOperation           = errors.New("invalid operation")
 	errInvalidNumberOfDepartments = errors.New("invalid number of departments")
-	errPreferredAboveMax          = errors.New("preferred temperature above current max")
-	errPreferredBelowMin          = errors.New("preferred temperature below current min")
 )
 
 const (
