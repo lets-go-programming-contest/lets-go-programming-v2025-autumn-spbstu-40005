@@ -9,8 +9,12 @@ var (
 	errInvalidOperation           = errors.New("invalid operation")
 	errInvalidNumberOfDepartments = errors.New("invalid number of departments")
 	errOutOfRangeTemperature      = errors.New("preferred temperature out of allowed range")
-	errPreferredAboveMax          = errors.New("preferred temperature above current max")
-	errPreferredBelowMin          = errors.New("preferred temperature below current min")
+	errMaxBelowMin                = errors.New("max temperature below current min")
+)
+
+const (
+	MaxTemp = 30
+	MinTemp = 15
 )
 
 type TemperaturePreference struct {
@@ -21,8 +25,16 @@ func NewTemperaturePreference(maxTemp, minTemp int) *TemperaturePreference {
 	return &TemperaturePreference{maxTemp, minTemp}
 }
 
+func (temp *TemperaturePreference) getOptimalTemp() (int, error) {
+	if temp.minTemp > temp.maxTemp {
+		return -1, fmt.Errorf("%w: current max %d < current min %d", errMaxBelowMin, temp.maxTemp, temp.minTemp)
+	}
+
+	return temp.minTemp, nil
+}
+
 func (temp *TemperaturePreference) changeTemperature(sign string, preferredTemp int) error {
-	if preferredTemp < MinTemp || preferredTemp > MaxTemp {
+	if preferredTemp < temp.minTemp || preferredTemp > temp.maxTemp {
 		return fmt.Errorf("%w: %d", errOutOfRangeTemperature, preferredTemp)
 	}
 
@@ -37,12 +49,6 @@ func (temp *TemperaturePreference) changeTemperature(sign string, preferredTemp 
 }
 
 func (temp *TemperaturePreference) handleGreaterEqual(preferredTemp int) error {
-	if preferredTemp > temp.maxTemp {
-		temp.minTemp = preferredTemp
-
-		return fmt.Errorf("%w: preferred %d > current max %d", errPreferredAboveMax, preferredTemp, temp.maxTemp)
-	}
-
 	if preferredTemp > temp.minTemp {
 		temp.minTemp = preferredTemp
 	}
@@ -51,23 +57,12 @@ func (temp *TemperaturePreference) handleGreaterEqual(preferredTemp int) error {
 }
 
 func (temp *TemperaturePreference) handleLessEqual(preferredTemp int) error {
-	if preferredTemp < temp.minTemp {
-		temp.maxTemp = preferredTemp
-
-		return fmt.Errorf("%w: preferred %d < current min %d", errPreferredBelowMin, preferredTemp, temp.minTemp)
-	}
-
 	if preferredTemp < temp.maxTemp {
 		temp.maxTemp = preferredTemp
 	}
 
 	return nil
 }
-
-const (
-	MaxTemp = 30
-	MinTemp = 15
-)
 
 func main() {
 	var numberOfDepartments int
@@ -97,27 +92,26 @@ func main() {
 		for range numberOfEmployees {
 			_, err = fmt.Scan(&sign, &preferedTemp)
 			if err != nil {
+				fmt.Println("invalid prefered temperature: ", err)
+
 				return
 			}
 
 			err = temp.changeTemperature(sign, preferedTemp)
 			if err != nil {
-				switch {
-				case errors.Is(err, errOutOfRangeTemperature),
-					errors.Is(err, errPreferredAboveMax),
-					errors.Is(err, errPreferredBelowMin):
-					fmt.Println(-1)
-				case errors.Is(err, errInvalidOperation):
+				if errors.Is(err, errInvalidOperation) {
 					fmt.Println("invalid operation:", err)
-				default:
-					fmt.Println("unexpected error:", err)
+
+					return
 				}
+				fmt.Println(-1)
 
 				continue
 			}
 
-			if temp.minTemp > temp.maxTemp {
-				fmt.Println(-1)
+			optTemp, err := temp.getOptimalTemp()
+			if err != nil {
+				fmt.Println(optTemp)
 
 				continue
 			}
