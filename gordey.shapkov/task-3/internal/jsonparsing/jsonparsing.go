@@ -6,12 +6,12 @@ import (
 	"os"
 	"path/filepath"
 
-	"gordey.shapkov/task-3/internal/config"
+	"gordey.shapkov/task-3/internal/models"
 )
 
 const permissions = 0o755
 
-func SaveToJSON(currencies []config.Currency, outputPath string) error {
+func SaveToJSON(currencies []models.Currency, outputPath string) error {
 	jsonData, err := json.MarshalIndent(currencies, "", "  ")
 	if err != nil {
 		return fmt.Errorf("cannot marshal to JSON file: %w", err)

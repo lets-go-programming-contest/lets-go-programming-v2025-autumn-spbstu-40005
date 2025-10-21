@@ -7,10 +7,10 @@ import (
 	"os"
 
 	"golang.org/x/net/html/charset"
-	"gordey.shapkov/task-3/internal/config"
+	"gordey.shapkov/task-3/internal/models"
 )
 
-func ParseXMLFile(path string) (*config.ValCurs, error) {
+func ParseXMLFile(path string) (*models.ValCurs, error) {
 	data, err := os.ReadFile(path)
 	if err != nil {
 		return nil, fmt.Errorf("cannot read file: %w", err)
@@ -20,7 +20,7 @@ func ParseXMLFile(path string) (*config.ValCurs, error) {
 	decoder := xml.NewDecoder(reader)
 	decoder.CharsetReader = charset.NewReaderLabel
 
-	valCurs := &config.ValCurs{Date: "", Name: "", Valutes: nil}
+	valCurs := &models.ValCurs{Date: "", Name: "", Valutes: nil}
 	if err = decoder.Decode(valCurs); err != nil {
 		return nil, fmt.Errorf("cannot decode file: %w", err)
 	}

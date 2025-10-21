@@ -4,16 +4,16 @@ import (
 	"flag"
 	"sort"
 
+	"gordey.shapkov/task-3/internal/config"
 	"gordey.shapkov/task-3/internal/jsonparsing"
 	"gordey.shapkov/task-3/internal/xmlparsing"
-	"gordey.shapkov/task-3/internal/yamlparsing"
 )
 
 func main() {
 	configPath := flag.String("config", "config.yaml", "path to config")
 	flag.Parse()
 
-	cfg, err := yamlparsing.ParseYAMLFile(*configPath)
+	cfg, err := config.ParseConfigFile(*configPath)
 	if err != nil {
 		panic(err)
 	}
