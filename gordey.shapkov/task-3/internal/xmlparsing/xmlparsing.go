@@ -20,10 +20,10 @@ func ParseXMLFile(path string) (*models.ValCurs, error) {
 	decoder := xml.NewDecoder(reader)
 	decoder.CharsetReader = charset.NewReaderLabel
 
-	valCurs := &models.ValCurs{Date: "", Name: "", Valutes: nil}
-	if err = decoder.Decode(valCurs); err != nil {
+	var valCurs models.ValCurs
+	if err = decoder.Decode(&valCurs); err != nil {
 		return nil, fmt.Errorf("cannot decode file: %w", err)
 	}
 
-	return valCurs, nil
+	return &valCurs, nil
 }

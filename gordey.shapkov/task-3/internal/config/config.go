@@ -18,12 +18,12 @@ func ParseConfigFile(path string) (*Config, error) {
 		return nil, fmt.Errorf("cannot read file: %w", err)
 	}
 
-	cfg := &Config{InputFile: "", OutputFile: ""}
+	var cfg Config
 
-	err = yaml.Unmarshal(data, cfg)
+	err = yaml.Unmarshal(data, &cfg)
 	if err != nil {
 		return nil, fmt.Errorf("cannot unmarshal file: %w", err)
 	}
 
-	return cfg, nil
+	return &cfg, nil
 }
