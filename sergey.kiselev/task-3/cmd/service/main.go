@@ -2,7 +2,7 @@ package main
 
 import (
 	"flag"
-	"fmt"
+	"sort"
 
 	"github.com/deonik3/task-3/internal/bank"
 	"github.com/deonik3/task-3/internal/config"
@@ -22,12 +22,11 @@ func main() {
 		panic(err)
 	}
 
-	currencies, err := bank.ConvertAndSort(valCurs.Valute)
-	if err != nil {
-		fmt.Println(err)
-	}
+	sort.Slice(valCurs.Valute, func(i, j int) bool {
+		return valCurs.Valute[i].Value > valCurs.Valute[j].Value
+	})
 
-	if err = bank.EncodeFile(currencies, config.OutputFile); err != nil {
+	if err = bank.EncodeFile(valCurs.Valute, config.OutputFile); err != nil {
 		panic(err)
 	}
 }

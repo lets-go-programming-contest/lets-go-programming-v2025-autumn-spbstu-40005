@@ -10,13 +10,7 @@ import (
 
 const permissions = 0o755
 
-type Currency struct {
-	NumCode  int     `json:"num_code"`
-	CharCode string  `json:"char_code"`
-	Value    float64 `json:"value"`
-}
-
-func encodeJSON(currencies []Currency, writer io.Writer) error {
+func encodeJSON(currencies []Valute, writer io.Writer) error {
 	encoder := json.NewEncoder(writer)
 
 	encoder.SetIndent("", "  ")
@@ -28,7 +22,7 @@ func encodeJSON(currencies []Currency, writer io.Writer) error {
 	return nil
 }
 
-func EncodeFile(currencies []Currency, outputFile string) error {
+func EncodeFile(currencies []Valute, outputFile string) error {
 	dir := filepath.Dir(outputFile)
 	if err := os.MkdirAll(dir, permissions); err != nil {
 		return fmt.Errorf("error creating directory: %w", err)

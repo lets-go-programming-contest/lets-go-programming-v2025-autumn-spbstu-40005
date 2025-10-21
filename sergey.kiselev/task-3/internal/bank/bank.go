@@ -7,10 +7,7 @@ type ValCurs struct {
 }
 
 type Valute struct {
-	ID       string `xml:"ID,attr"`
-	NumCode  int    `xml:"NumCode"`
-	CharCode string `xml:"CharCode"`
-	Nominal  int    `xml:"Nominal"`
-	Name     string `xml:"Name"`
-	Value    string `xml:"Value"`
+	NumCode  int    `json:"num_code"  xml:"NumCode"`
+	CharCode string `json:"char_code" xml:"CharCode"`
+	Value    value  `json:"value"     xml:"Value"`
 }

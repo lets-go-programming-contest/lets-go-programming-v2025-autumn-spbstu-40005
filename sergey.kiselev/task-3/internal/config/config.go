@@ -24,12 +24,12 @@ func ParseFile(configPath string) (*Config, error) {
 		}
 	}()
 
-	config := new(Config)
+	var config Config
 
 	decoder := yaml.NewDecoder(file)
-	if err := decoder.Decode(config); err != nil {
+	if err := decoder.Decode(&config); err != nil {
 		return nil, fmt.Errorf("error decoding YAML: %w", err)
 	}
 
-	return config, nil
+	return &config, nil
 }

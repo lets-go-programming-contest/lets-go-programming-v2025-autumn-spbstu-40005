@@ -4,9 +4,13 @@ import (
 	"encoding/xml"
 	"fmt"
 	"os"
+	"strconv"
+	"strings"
 
 	"golang.org/x/net/html/charset"
 )
+
+type value float64
 
 func ParseXMLFile(filePath string) (*ValCurs, error) {
 	file, err := os.Open(filePath)
@@ -24,10 +28,26 @@ func ParseXMLFile(filePath string) (*ValCurs, error) {
 
 	decoder.CharsetReader = charset.NewReaderLabel
 
-	valCurs := new(ValCurs)
-	if err := decoder.Decode(valCurs); err != nil {
+	var valCurs ValCurs
+	if err := decoder.Decode(&valCurs); err != nil {
 		return nil, fmt.Errorf("XML decoding error: %w", err)
 	}
 
-	return valCurs, nil
+	return &valCurs, nil
+}
+
+func (val *value) UnmarshalXML(decoder *xml.Decoder, start xml.StartElement) error {
+	var field string
+	if err := decoder.DecodeElement(&field, &start); err != nil {
+		return fmt.Errorf("cannot decode value: %w", err)
+	}
+
+	result, err := strconv.ParseFloat(strings.ReplaceAll(field, ",", "."), 64)
+	if err != nil {
+		return fmt.Errorf("convert to float: %w", err)
+	}
+
+	*val = value(result)
+
+	return nil
 }
