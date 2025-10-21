@@ -36,40 +36,24 @@ func (temp *TemperaturePreference) getOptimalTemp() int {
 func (temp *TemperaturePreference) changeTemperature(sign string, preferredTemp int) error {
 	switch sign {
 	case ">=":
-		return temp.handleGreaterEqual(preferredTemp)
+		temp.handleGreaterEqual(preferredTemp)
+
+		return nil
 	case "<=":
-		return temp.handleLessEqual(preferredTemp)
+		temp.handleLessEqual(preferredTemp)
+
+		return nil
 	default:
 		return errInvalidOperation
 	}
 }
 
-func (temp *TemperaturePreference) handleGreaterEqual(preferredTemp int) error {
-	if preferredTemp > temp.maxTemp {
-		temp.minTemp = preferredTemp
-
-		return fmt.Errorf("%w: preferred %d > current max %d", errPreferredAboveMax, preferredTemp, temp.maxTemp)
-	}
-
-	if preferredTemp > temp.minTemp {
-		temp.minTemp = preferredTemp
-	}
-
-	return nil
+func (temp *TemperaturePreference) handleGreaterEqual(preferredTemp int) {
+	temp.minTemp = max(temp.minTemp, preferredTemp)
 }
 
-func (temp *TemperaturePreference) handleLessEqual(preferredTemp int) error {
-	if preferredTemp < temp.minTemp {
-		temp.maxTemp = preferredTemp
-
-		return fmt.Errorf("%w: preferred %d < current min %d", errPreferredBelowMin, preferredTemp, temp.minTemp)
-	}
-
-	if preferredTemp < temp.maxTemp {
-		temp.maxTemp = preferredTemp
-	}
-
-	return nil
+func (temp *TemperaturePreference) handleLessEqual(preferredTemp int) {
+	temp.maxTemp = min(temp.maxTemp, preferredTemp)
 }
 
 func main() {
