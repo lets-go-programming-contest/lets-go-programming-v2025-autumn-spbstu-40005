@@ -26,10 +26,11 @@ func NewTemperaturePreference(maxTemp, minTemp int) *TemperaturePreference {
 	return &TemperaturePreference{maxTemp, minTemp}
 }
 
-func (temp *TemperaturePreference) getOptimalTemp(sign string, preferredTemp int) int {
+func (temp *TemperaturePreference) getOptimalTemp() int {
 	if temp.minTemp > temp.maxTemp {
 		return -1
 	}
+
 	return temp.minTemp
 }
 
@@ -125,7 +126,7 @@ func main() {
 				continue
 			}
 
-			fmt.Prinln(temp.getOptimalTemp())
+			fmt.Println(temp.getOptimalTemp())
 		}
 	}
 }
