@@ -107,6 +107,7 @@ func main() {
 				fmt.Println("invalid prefered temperature or sign: ", err)
 
 				return
+			}
 
 			err = temp.changeTemperature(sign, preferedTemp)
 			if err != nil {
