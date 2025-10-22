@@ -90,8 +90,8 @@ func ProcessSingleDepartment() error {
 
 func main() {
 	var countDepartment int
-	_, err := fmt.Scan(&countDepartment)
 
+	_, err := fmt.Scan(&countDepartment)
 	if err != nil {
 		fmt.Println("failed to read countDepartment:", err)
 
