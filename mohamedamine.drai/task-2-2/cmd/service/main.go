@@ -13,34 +13,37 @@ var (
 
 type IntHeap []int
 
-func (h IntHeap) Len() int {
-	return len(h)
+func (h *IntHeap) Len() int {
+	return len(*h)
 }
 
-func (h IntHeap) Less(i, j int) bool {
-	return h[i] < h[j]
+func (h *IntHeap) Less(i, j int) bool {
+	return (*h)[i] < (*h)[j]
 }
 
-func (h IntHeap) Swap(i, j int) {
-	h[i], h[j] = h[j], h[i]
+func (h *IntHeap) Swap(i, j int) {
+	(*h)[i], (*h)[j] = (*h)[j], (*h)[i]
 }
 
 func (h *IntHeap) Push(x interface{}) {
-	// Since we control all usage and only push integers,
-	// we can safely assume the type is correct
-	*h = append(*h, x.(int))
+	value, ok := x.(int)
+	if !ok {
+		return
+	}
+
+	*h = append(*h, value)
 }
 
 func (h *IntHeap) Pop() interface{} {
 	old := *h
-	n := len(old)
+	length := len(old)
 
-	if n == 0 {
+	if length == 0 {
 		return nil
 	}
 
-	val := old[n-1]
-	*h = old[:n-1]
+	val := old[length-1]
+	*h = old[:length-1]
 
 	return val
 }
@@ -53,6 +56,7 @@ func main() {
 
 	if _, err := fmt.Scan(&dishCount); err != nil {
 		fmt.Println("Failed to read dish count:", err)
+
 		return
 	}
 
@@ -60,17 +64,20 @@ func main() {
 	for index := range dishRatings {
 		if _, err := fmt.Scan(&dishRatings[index]); err != nil {
 			fmt.Println("Failed to read dish rating:", err)
+
 			return
 		}
 	}
 
 	if _, err := fmt.Scan(&dishPreference); err != nil {
 		fmt.Println("Failed to read dish preference:", err)
+
 		return
 	}
 
 	if dishPreference < 1 || dishPreference > dishCount {
 		fmt.Println("Preference out of range")
+
 		return
 	}
 
@@ -90,5 +97,15 @@ func getPreference(dishRatings []int, preference int) int {
 		}
 	}
 
-	return heap.Pop(ratingHeap).(int)
+	result := heap.Pop(ratingHeap)
+	if result == nil {
+		return 0
+	}
+
+	value, ok := result.(int)
+	if !ok {
+		return 0
+	}
+
+	return value
 }
