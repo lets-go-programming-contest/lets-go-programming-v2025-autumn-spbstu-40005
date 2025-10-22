@@ -7,7 +7,7 @@ func (h *IntHeap) Len() int {
 }
 
 func (h *IntHeap) Less(i, j int) bool {
-	if h.Len() < i + 1 || h.Len() < j + 1 {
+	if h.Len() < i+1 || h.Len() < j+1 {
 		panic("out of range")
 	}
 
@@ -15,7 +15,7 @@ func (h *IntHeap) Less(i, j int) bool {
 }
 
 func (h *IntHeap) Swap(i, j int) {
-	if h.Len() < i + 1 || h.Len() < j + 1 {
+	if h.Len() < i+1 || h.Len() < j+1 {
 		panic("out of range")
 	}
 
