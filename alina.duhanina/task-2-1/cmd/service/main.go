@@ -28,7 +28,7 @@ func readInt() (int, error) {
 
 	_, err := fmt.Scan(&value)
 	if err != nil {
-		return 0, fmt.Errorf("%w", err)
+		return 0, fmt.Errorf("invalid integer input: %w", err)
 	}
 
 	return value, nil
@@ -42,7 +42,7 @@ func readEmployeeRequest() (Request, error) {
 
 	_, err := fmt.Scan(&operator, &temp)
 	if err != nil {
-		return Request{}, fmt.Errorf("%w: failed to read operator and temperature: %v", ErrInvalidInput, err)
+		return Request{}, fmt.Errorf("failed to read operator and temperature: %w", err)
 	}
 
 	return Request{Operator: Operator(operator), Temp: temp}, nil
@@ -80,7 +80,7 @@ func processDepartmentRequests(employeeCount int) error {
 	for range employeeCount {
 		req, err := readEmployeeRequest()
 		if err != nil {
-			return fmt.Errorf("%w: employee: %v", ErrInvalidInput, err)
+			return fmt.Errorf("invalid input: employee: %w", err)
 		}
 
 		minTemp, maxTemp, err = updateTemperatureRange(minTemp, maxTemp, req)
@@ -108,7 +108,7 @@ func readAndProcessInput() error {
 
 		err = processDepartmentRequests(employeeCount)
 		if err != nil {
-			return fmt.Errorf("%w: department: %v", ErrInvalidInput, err)
+			return fmt.Errorf("invalid input: department: %w", err)
 		}
 	}
 
@@ -118,7 +118,7 @@ func readAndProcessInput() error {
 func main() {
 	err := readAndProcessInput()
 	if err != nil {
-		fmt.Printf("Input processing error: %v\n", err)
+		fmt.Printf("input processing error: %w\n", err)
 
 		return
 	}
