@@ -10,6 +10,7 @@ func (heapInstance *IntHeap) Less(i, j int) bool {
 	if i < 0 || i >= heapInstance.Len() || j < 0 || j >= heapInstance.Len() {
 		panic("index out of range")
 	}
+
 	return (*heapInstance)[i] > (*heapInstance)[j]
 }
 
@@ -17,6 +18,7 @@ func (heapInstance *IntHeap) Swap(i, j int) {
 	if i < 0 || i >= heapInstance.Len() || j < 0 || j >= heapInstance.Len() {
 		panic("index out of range")
 	}
+
 	(*heapInstance)[i], (*heapInstance)[j] = (*heapInstance)[j], (*heapInstance)[i]
 }
 
