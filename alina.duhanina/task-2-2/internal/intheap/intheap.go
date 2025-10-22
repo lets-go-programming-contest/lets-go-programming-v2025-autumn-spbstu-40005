@@ -7,10 +7,16 @@ func (heapInstance *IntHeap) Len() int {
 }
 
 func (heapInstance *IntHeap) Less(i, j int) bool {
+	if i < 0 || i >= len(h) || j < 0 || j >= len(h) {
+		panic("index out of range")
+	}
 	return (*heapInstance)[i] > (*heapInstance)[j]
 }
 
 func (heapInstance *IntHeap) Swap(i, j int) {
+	if i < 0 || i >= len(h) || j < 0 || j >= len(h) {
+		panic("index out of range")
+	}
 	(*heapInstance)[i], (*heapInstance)[j] = (*heapInstance)[j], (*heapInstance)[i]
 }
 

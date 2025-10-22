@@ -10,7 +10,6 @@ import (
 
 var (
 	ErrEmptyDishes      = errors.New("empty dishes")
-	ErrInvalidDishCount = errors.New("invalid dish count")
 	ErrInvalidK         = errors.New("invalid k")
 	ErrInvalidLenDishes = errors.New("invalid len dishes")
 	ErrInvalidRating    = errors.New("invalid rating")
@@ -20,10 +19,6 @@ var (
 func ValidateInput(dishCount int, dishes []int, preferenceOrder int) error {
 	if len(dishes) == 0 {
 		return ErrEmptyDishes
-	}
-
-	if dishCount < 1 || dishCount > 10000 {
-		return ErrInvalidDishCount
 	}
 
 	if len(dishes) != dishCount {
