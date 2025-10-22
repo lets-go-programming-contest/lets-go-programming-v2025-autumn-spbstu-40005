@@ -17,20 +17,6 @@ var (
 	ErrNoValidTemperature = errors.New("no valid temperature")
 )
 
-func max(a, b int) int {
-	if a > b {
-		return a
-	}
-	return b
-}
-
-func min(a, b int) int {
-	if a < b {
-		return a
-	}
-	return b
-}
-
 type TemperatureRange struct {
 	min int
 	max int
@@ -56,6 +42,7 @@ func (tr *TemperatureRange) Update(operation string, temperature int) error {
 	if tr.min > tr.max {
 		return ErrNoValidTemperature
 	}
+
 	return nil
 }
 
@@ -63,6 +50,7 @@ func (tr *TemperatureRange) GetOptimalTemperature() int {
 	if tr.min > tr.max {
 		return -1
 	}
+
 	return tr.min
 }
 
@@ -84,28 +72,31 @@ func ParseConstraint(oper string, tempStr string) (string, int, error) {
 }
 
 func processDepartment(employeeCount int) []int {
-	tr := NewTemperatureRange()
+	temperatureRange := NewTemperatureRange()
 	results := make([]int, 0, employeeCount)
 
-	for i := 0; i < employeeCount; i++ {
+	for range employeeCount {
 		var oper, tempStr string
 		if _, err := fmt.Scan(&oper, &tempStr); err != nil {
 			results = append(results, -1)
+
 			continue
 		}
 
 		operation, temperature, err := ParseConstraint(oper, tempStr)
 		if err != nil {
 			results = append(results, -1)
+
 			continue
 		}
 
-		if err := tr.Update(operation, temperature); err != nil {
+		if err := temperatureRange.Update(operation, temperature); err != nil {
 			results = append(results, -1)
+
 			continue
 		}
 
-		results = append(results, tr.GetOptimalTemperature())
+		results = append(results, temperatureRange.GetOptimalTemperature())
 	}
 
 	return results
@@ -117,15 +108,17 @@ func main() {
 	_, err := fmt.Scan(&departments)
 	if err != nil {
 		fmt.Println(-1)
+
 		return
 	}
 
-	for i := 0; i < departments; i++ {
+	for range departments {
 		var employees int
 
 		_, err := fmt.Scan(&employees)
 		if err != nil {
 			fmt.Println(-1)
+
 			return
 		}
 
