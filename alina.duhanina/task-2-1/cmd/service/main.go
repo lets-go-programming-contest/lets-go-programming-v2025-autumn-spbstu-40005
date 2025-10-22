@@ -59,7 +59,6 @@ func updateTemperatureRange(minTemp, maxTemp int, req Request) (int, int, error)
 			maxTemp = req.Temp
 		}
 	default:
-
 		return minTemp, maxTemp, ErrInvalidInput
 	}
 
@@ -87,6 +86,7 @@ func processDepartmentRequests(employeeCount int) error {
 		if err != nil {
 			return fmt.Errorf("process employee request: %w", err)
 		}
+
 		result := getTemperatureResult(minTemp, maxTemp)
 		fmt.Println(result)
 	}
