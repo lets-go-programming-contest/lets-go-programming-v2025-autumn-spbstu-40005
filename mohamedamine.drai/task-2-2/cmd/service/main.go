@@ -32,7 +32,12 @@ func (h *IntHeap) Swap(i, j int) {
 }
 
 func (h *IntHeap) Push(x interface{}) {
-	*h = append(*h, x.(int))
+	value, ok := x.(int)
+	if !ok {
+		return
+	}
+
+	*h = append(*h, value)
 }
 
 func (h *IntHeap) Pop() interface{} {
