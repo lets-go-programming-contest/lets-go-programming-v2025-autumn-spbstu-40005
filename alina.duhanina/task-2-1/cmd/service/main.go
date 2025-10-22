@@ -118,7 +118,7 @@ func readAndProcessInput() error {
 func main() {
 	err := readAndProcessInput()
 	if err != nil {
-		fmt.Printf("input processing error: %w\n", err)
+		fmt.Printf("input processing error: %v\n", err)
 
 		return
 	}
