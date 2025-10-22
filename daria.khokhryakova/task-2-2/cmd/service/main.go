@@ -16,7 +16,6 @@ const (
 )
 
 var (
-	errInput      = errors.New("invalid input")
 	errFormat     = errors.New("invalid format")
 	errOutOfRange = errors.New("invalid number")
 )
@@ -44,8 +43,15 @@ func main() {
 	var numberDishes int
 
 	_, err := fmt.Scan(&numberDishes)
-	if err != nil || numberDishes < minDishes || numberDishes > maxDishes {
-		fmt.Println(errInput.Error()+":", err)
+	if err != nil {
+		fmt.Println("failed to read numberDishes:", err)
+
+		return
+	}
+
+	if numberDishes < minDishes || numberDishes > maxDishes {
+
+		fmt.Println("invalid input numberDishes")
 
 		return
 	}
@@ -58,7 +64,13 @@ func main() {
 
 		_, err := fmt.Scan(&rating)
 		if err != nil || rating > maxRating || rating < minRating {
-			fmt.Println(errInput.Error())
+			fmt.Println("failed to read rating:", err)
+
+			return
+		}
+
+		if rating > maxRating || rating < minRating {
+			fmt.Println("invalid input rating")
 
 			return
 		}
@@ -69,15 +81,21 @@ func main() {
 	var num int
 
 	_, err = fmt.Scan(&num)
-	if err != nil || num > numberDishes || num < minDishes {
-		fmt.Println(errInput.Error())
+	if err != nil {
+		fmt.Println("failed to read num:", err)
+
+		return
+	}
+
+	if num > numberDishes || num < minDishes {
+		fmt.Println("invalid input num")
 
 		return
 	}
 
 	result, err := priorityDish(resHeap, num)
 	if err != nil {
-		fmt.Println(err)
+		fmt.Println("failed in the function priorityDish:", err)
 
 		return
 	}
