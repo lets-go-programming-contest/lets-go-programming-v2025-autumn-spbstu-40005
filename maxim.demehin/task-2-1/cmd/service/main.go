@@ -17,71 +17,53 @@ type TemperatureRange struct {
 	upper int
 }
 
-func newTemperatureRange() *TemperatureRange {
+func newTemperatureRange(lower, upper int) *TemperatureRange {
 	return &TemperatureRange{
-		lower: lowerLimit,
-		upper: upperLimit,
+		lower: lower,
+		upper: upper,
 	}
+}
+
+func (tr *TemperatureRange) changeRange(cmp string, curr int) error {
+	switch cmp {
+	case ">=":
+		if curr > tr.lower {
+			tr.lower = curr
+		}
+	case "<=":
+		if curr < tr.upper {
+			tr.upper = curr
+		}
+	default:
+		return errCmpInput
+	}
+
+	return nil
 }
 
 func (tr *TemperatureRange) isValid() bool {
 	return tr.lower <= tr.upper
 }
 
-func (tr *TemperatureRange) handleGreaterEqual(curr int) int {
-	if curr > tr.upper {
-		tr.lower = curr
-
+func (tr *TemperatureRange) getResult() int {
+	if !tr.isValid() {
 		return -1
 	}
 
-	if curr > tr.lower {
-		tr.lower = curr
-	}
-
 	return tr.lower
-}
-
-func (tr *TemperatureRange) handleLessEqual(curr int) int {
-	if curr < tr.lower {
-		tr.upper = curr
-
-		return -1
-	}
-
-	if curr < tr.upper {
-		tr.upper = curr
-	}
-
-	return tr.lower
-}
-
-func (tr *TemperatureRange) processCmp(cmp string, curr int) (int, error) {
-	switch cmp {
-	case ">=":
-		return tr.handleGreaterEqual(curr), nil
-	case "<=":
-		return tr.handleLessEqual(curr), nil
-	default:
-		return 0, errCmpInput
-	}
 }
 
 func (tr *TemperatureRange) handleOptimalTemperature(cmp string, curr int) (int, error) {
-	if !tr.isValid() {
-		return -1, nil
-	}
-
-	res, err := tr.processCmp(cmp, curr)
+	err := tr.changeRange(cmp, curr)
 	if err != nil {
 		return -1, err
 	}
 
-	return res, nil
+	return tr.getResult(), nil
 }
 
 func handleDepartmentTemperatures(workersCnt int) error {
-	tempRange := newTemperatureRange()
+	tempRange := newTemperatureRange(lowerLimit, upperLimit)
 
 	var (
 		temperature int
