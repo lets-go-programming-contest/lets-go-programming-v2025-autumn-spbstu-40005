@@ -19,11 +19,13 @@ func UpdateTemperature(icon string, temperature int, tempRange *TemperatureRange
 		if temperature > tempRange.Min {
 			tempRange.Min = temperature
 		}
+
 		return nil
 	case "<=":
 		if temperature < tempRange.Max {
 			tempRange.Max = temperature
 		}
+
 		return nil
 	default:
 		return ErrIcon
