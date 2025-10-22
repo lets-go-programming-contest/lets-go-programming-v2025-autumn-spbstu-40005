@@ -1,9 +1,8 @@
-package bank
+package datamodels
 
 import (
 	"encoding/xml"
 	"fmt"
-	"sort"
 	"strconv"
 	"strings"
 )
@@ -58,8 +57,4 @@ func (a ByValue) Swap(i, j int) {
 
 func (a ByValue) Less(i, j int) bool {
 	return a[i].Value > a[j].Value
-}
-
-func (v *ValCurs) SortValutes() {
-	sort.Sort(ByValue(v.Valutes))
 }
