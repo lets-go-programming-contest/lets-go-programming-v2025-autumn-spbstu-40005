@@ -6,12 +6,12 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/TvoyBatyA12343/task-3/internal/bank"
+	"github.com/TvoyBatyA12343/task-3/internal/datamodels"
 )
 
 const permission = 0o755
 
-func SaveValutesToFile(valutes []bank.Valute, output string) error {
+func SaveValutesToFile(valutes []datamodels.Valute, output string) error {
 	dir := filepath.Dir(output)
 
 	err := os.MkdirAll(dir, permission)

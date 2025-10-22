@@ -1,4 +1,4 @@
-package parser
+package parserxml
 
 import (
 	"bytes"
@@ -8,13 +8,13 @@ import (
 	"io"
 	"os"
 
-	"github.com/TvoyBatyA12343/task-3/internal/bank"
+	"github.com/TvoyBatyA12343/task-3/internal/datamodels"
 	"golang.org/x/net/html/charset"
 )
 
 var ErrUnsupportedCharset = errors.New("unsupported charset")
 
-func ParseXML(path string) ([]bank.Valute, error) {
+func ParseXML(path string) ([]datamodels.Valute, error) {
 	data, err := os.ReadFile(path)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read XML file: %w", err)
@@ -24,14 +24,12 @@ func ParseXML(path string) ([]bank.Valute, error) {
 	decoder := xml.NewDecoder(reader)
 	decoder.CharsetReader = getCharset
 
-	var valCurs bank.ValCurs
+	var valCurs datamodels.ValCurs
 
 	err = decoder.Decode(&valCurs)
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse XML: %w", err)
 	}
-
-	valCurs.SortValutes()
 
 	return valCurs.Valutes, nil
 }
