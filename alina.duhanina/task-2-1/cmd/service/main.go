@@ -11,8 +11,15 @@ var (
 	ErrInvalidRead  = errors.New("invalid read")
 )
 
+type Operator string
+
+const (
+	OperatorGreaterOrEqual Operator = ">="
+	OperatorLessOrEqual    Operator = "<="
+)
+
 type Request struct {
-	Operator string
+	Operator Operator
 	Temp     int
 }
 
@@ -35,25 +42,28 @@ func readEmployeeRequest() (Request, error) {
 
 	_, err := fmt.Scan(&operator, &temp)
 	if err != nil {
-		return Request{}, fmt.Errorf("%w", err)
+		return Request{}, fmt.Errorf("%w: failed to read operator and temperature: %v", ErrInvalidInput, err)
 	}
 
-	return Request{Operator: operator, Temp: temp}, nil
+	return Request{Operator: Operator(operator), Temp: temp}, nil
 }
 
-func updateTemperatureRange(minTemp, maxTemp int, req Request) (int, int) {
+func updateTemperatureRange(minTemp, maxTemp int, req Request) (int, int, error) {
 	switch req.Operator {
-	case ">=":
+	case OperatorGreaterOrEqual:
 		if req.Temp > minTemp {
 			minTemp = req.Temp
 		}
-	case "<=":
+	case OperatorLessOrEqual:
 		if req.Temp < maxTemp {
 			maxTemp = req.Temp
 		}
+	default:
+
+		return minTemp, maxTemp, ErrInvalidInput
 	}
 
-	return minTemp, maxTemp
+	return minTemp, maxTemp, nil
 }
 
 func getTemperatureResult(minTemp, maxTemp int) string {
@@ -64,62 +74,53 @@ func getTemperatureResult(minTemp, maxTemp int) string {
 	return "-1"
 }
 
-func processDepartmentRequests(employeeCount int) ([]string, error) {
-	results := make([]string, 0, employeeCount)
+func processDepartmentRequests(employeeCount int) error {
 	minTemp, maxTemp := 15, 30
 
 	for range employeeCount {
 		req, err := readEmployeeRequest()
 		if err != nil {
-			return nil, fmt.Errorf("%w", err)
+			return fmt.Errorf("%w: employee: %v", ErrInvalidInput, err)
 		}
 
-		minTemp, maxTemp = updateTemperatureRange(minTemp, maxTemp, req)
-
-		results = append(results, getTemperatureResult(minTemp, maxTemp))
+		minTemp, maxTemp, err = updateTemperatureRange(minTemp, maxTemp, req)
+		if err != nil {
+			return fmt.Errorf("process employee request: %w", err)
+		}
+		result := getTemperatureResult(minTemp, maxTemp)
+		fmt.Println(result)
 	}
 
-	return results, nil
+	return nil
 }
 
-func readAndProcessInput() ([]string, error) {
+func readAndProcessInput() error {
 	departmentCount, err := readInt()
 	if err != nil {
-		return nil, err
+		return err
 	}
-
-	allResults := make([]string, 0)
 
 	for range departmentCount {
 		employeeCount, err := readInt()
 		if err != nil {
-			return nil, err
+			return err
 		}
 
-		deptResults, err := processDepartmentRequests(employeeCount)
+		err = processDepartmentRequests(employeeCount)
 		if err != nil {
-			return nil, fmt.Errorf("%w", err)
+			return fmt.Errorf("%w: department: %v", ErrInvalidInput, err)
 		}
-
-		allResults = append(allResults, deptResults...)
 	}
 
-	return allResults, nil
-}
-
-func printResults(results []string) {
-	for _, result := range results {
-		fmt.Println(result)
-	}
+	return nil
 }
 
 func main() {
-	allResults, err := readAndProcessInput()
+	err := readAndProcessInput()
 	if err != nil {
-		fmt.Printf("Invalid read: %v", err)
+		fmt.Printf("Input processing error: %v\n", err)
 
 		return
 	}
 
-	printResults(allResults)
 }
