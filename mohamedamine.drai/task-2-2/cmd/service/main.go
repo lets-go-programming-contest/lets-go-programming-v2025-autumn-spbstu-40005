@@ -18,20 +18,21 @@ func (h *IntHeap) Len() int {
 }
 
 func (h *IntHeap) Less(i, j int) bool {
+	if i < 0 || i >= len(*h) || j < 0 || j >= len(*h) {
+		return false
+	}
 	return (*h)[i] < (*h)[j]
 }
 
 func (h *IntHeap) Swap(i, j int) {
+	if i < 0 || i >= len(*h) || j < 0 || j >= len(*h) {
+		return
+	}
 	(*h)[i], (*h)[j] = (*h)[j], (*h)[i]
 }
 
 func (h *IntHeap) Push(x interface{}) {
-	value, ok := x.(int)
-	if !ok {
-		return
-	}
-
-	*h = append(*h, value)
+	*h = append(*h, x.(int))
 }
 
 func (h *IntHeap) Pop() interface{} {
