@@ -2,12 +2,13 @@ package main
 
 import (
 	"container/heap"
+	"errors"
 	"fmt"
 )
 
 var (
-	ErrReadInput       = fmt.Errorf("failed to read input")
-	ErrPreferenceRange = fmt.Errorf("preference out of range")
+	ErrReadInput       = errors.New("failed to read input")
+	ErrPreferenceRange = errors.New("preference out of range")
 )
 
 type IntHeap []int
@@ -25,17 +26,22 @@ func (h IntHeap) Swap(i, j int) {
 }
 
 func (h *IntHeap) Push(x interface{}) {
+	// Since we control all usage and only push integers,
+	// we can safely assume the type is correct
 	*h = append(*h, x.(int))
 }
 
 func (h *IntHeap) Pop() interface{} {
 	old := *h
 	n := len(old)
+
 	if n == 0 {
 		return nil
 	}
+
 	val := old[n-1]
 	*h = old[:n-1]
+
 	return val
 }
 
