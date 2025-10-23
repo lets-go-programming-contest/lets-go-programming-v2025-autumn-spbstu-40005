@@ -57,7 +57,7 @@ func main() {
 
 	_, err := fmt.Scan(&dishCount)
 	if err != nil {
-		fmt.Printf("Invalid read: %v\n", err)
+		fmt.Printf("Error reading number of dishes: %v\n", err)
 
 		return
 	}
@@ -66,7 +66,7 @@ func main() {
 	for i := range dishCount {
 		_, err := fmt.Scan(&dishes[i])
 		if err != nil {
-			fmt.Printf("Invalid read: %v\n", err)
+			fmt.Printf("Error reading rating for dish: %v\n", err)
 
 			return
 		}
@@ -74,20 +74,20 @@ func main() {
 
 	_, err = fmt.Scan(&preferenceOrder)
 	if err != nil {
-		fmt.Printf("Invalid read: %v\n", err)
+		fmt.Printf("Error reading preference order: %v\n", err)
 
 		return
 	}
 
 	if err := ValidateInput(len(dishes), dishes, preferenceOrder); err != nil {
-		fmt.Printf("Validation error: %v\n", err)
+		fmt.Printf("Input validation error: %v\n", err)
 
 		return
 	}
 
 	result, err := FindKthPreference(dishes, preferenceOrder)
 	if err != nil {
-		fmt.Printf("Processing Error: %v\n", err)
+		fmt.Printf("Data processing error: %v\n", err)
 
 		return
 	}
