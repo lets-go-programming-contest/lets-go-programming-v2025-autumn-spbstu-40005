@@ -6,18 +6,20 @@ func (h *CustomHeap) Len() int {
 	return len(*h)
 }
 
-func (h CustomHeap) Less(index1, index2 int) bool {
-	if index1 < 0 || index1 >= len(h) || index2 < 0 || index2 >= len(h) {
+func (h *CustomHeap) Less(index1, index2 int) bool {
+	if index1 < 0 || index1 >= len(*h) || index2 < 0 || index2 >= len(*h) {
 		return false
 	}
-	return h[index1] < h[index2]
+
+	return (*h)[index1] < (*h)[index2]
 }
 
-func (h CustomHeap) Swap(index1, index2 int) {
-	if index1 < 0 || index1 >= len(h) || index2 < 0 || index2 >= len(h) {
+func (h *CustomHeap) Swap(index1, index2 int) {
+	if index1 < 0 || index1 >= len(*h) || index2 < 0 || index2 >= len(*h) {
 		return
 	}
-	h[index1], h[index2] = h[index2], h[index1]
+
+	(*h)[index1], (*h)[index2] = (*h)[index2], (*h)[index1]
 }
 
 func (h *CustomHeap) Push(x interface{}) {

@@ -8,9 +8,15 @@ import (
 	"anton.mezentsev/task-2-2/internal/intheap"
 )
 
+var (
+	ErrInvalidInput  = errors.New("invalid input parameters")
+	ErrEmptyHeap     = errors.New("heap is empty after processing")
+	ErrTypeAssertion = errors.New("type assertion failed")
+)
+
 func FindKthPreference(ratings []int, preferenceOrder int) (int, error) {
 	if len(ratings) == 0 || preferenceOrder <= 0 || preferenceOrder > len(ratings) {
-		return 0, errors.New("invalid input parameters")
+		return 0, ErrInvalidInput
 	}
 
 	heapContainer := &intheap.CustomHeap{}
@@ -26,10 +32,14 @@ func FindKthPreference(ratings []int, preferenceOrder int) (int, error) {
 	}
 
 	if heapContainer.Len() == 0 {
-		return 0, errors.New("heap is empty after processing")
+		return 0, ErrEmptyHeap
 	}
 
-	result := heap.Pop(heapContainer).(int)
+	result, ok := heap.Pop(heapContainer).(int)
+	if !ok {
+		return 0, ErrTypeAssertion
+	}
+
 	return result, nil
 }
 
@@ -42,6 +52,7 @@ func main() {
 
 		return
 	}
+
 	if totalItems <= 0 {
 		fmt.Printf("Invalid number of dishes: must be positive, got %d\n", totalItems)
 
@@ -70,7 +81,9 @@ func main() {
 	finalChoice, err := FindKthPreference(scores, selectionIndex)
 	if err != nil {
 		fmt.Printf("Error finding preference: %v\n", err)
+
 		return
 	}
+
 	fmt.Println(finalChoice)
 }
