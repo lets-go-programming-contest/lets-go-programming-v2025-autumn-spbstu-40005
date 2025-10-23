@@ -18,15 +18,14 @@ func SortCurrencies(currencies []Currency) []Output {
 	for _, curr := range currencies {
 		valStr := strings.ReplaceAll(curr.Value, ",", ".")
 		val, err := strconv.ParseFloat(valStr, 64)
-
 		if err != nil {
 			continue
 		}
 
-		num, _ := strconv.Atoi(strings.TrimSpace(curr.NumCode))
+		num, _ := strconv.Atoi(curr.NumCode)
 		out = append(out, Output{
 			NumCode:  num,
-			CharCode: strings.TrimSpace(curr.CharCode),
+			CharCode: curr.CharCode,
 			Value:    val,
 		})
 	}
