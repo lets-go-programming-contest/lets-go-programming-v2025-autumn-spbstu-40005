@@ -49,21 +49,21 @@ func readConstraint() (string, int, error) {
 	)
 
 	if _, err := fmt.Scan(&operand, &temp); err != nil {
-		return "", 0, ErrInput
+		return "", 0, err
 	}
 
 	return operand, temp, nil
 }
 
 func processDepartment() error {
-	var size int
-	if _, err := fmt.Scan(&size); err != nil {
+	var DepartmentSize int
+	if _, err := fmt.Scan(&DepartmentSize); err != nil {
 		return errors.Join(ErrInput, err)
 	}
 
 	depart := NewDepartment()
 
-	for range size {
+	for range DepartmentSize {
 		operand, temp, err := readConstraint()
 		if err != nil {
 			return err
@@ -82,7 +82,7 @@ func processDepartment() error {
 func main() {
 	var departmentCount int
 	if _, err := fmt.Scan(&departmentCount); err != nil {
-		fmt.Println("Error while department cpunt input:", err)
+		fmt.Println("Error while department count input:", err)
 
 		return
 	}
