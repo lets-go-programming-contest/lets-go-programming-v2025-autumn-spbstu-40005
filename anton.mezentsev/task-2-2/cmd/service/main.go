@@ -1,17 +1,49 @@
 package main
 
 import (
+	"container/heap"
+	"errors"
 	"fmt"
 
 	"anton.mezentsev/task-2-2/internal/intheap"
 )
 
+func FindKthPreference(ratings []int, preferenceOrder int) (int, error) {
+	if len(ratings) == 0 || preferenceOrder <= 0 || preferenceOrder > len(ratings) {
+		return 0, errors.New("invalid input parameters")
+	}
+
+	heapContainer := &intheap.CustomHeap{}
+	heap.Init(heapContainer)
+
+	for _, rating := range ratings {
+		if heapContainer.Len() < preferenceOrder {
+			heap.Push(heapContainer, rating)
+		} else if rating > (*heapContainer)[0] {
+			heap.Pop(heapContainer)
+			heap.Push(heapContainer, rating)
+		}
+	}
+
+	if heapContainer.Len() == 0 {
+		return 0, errors.New("heap is empty after processing")
+	}
+
+	result := heap.Pop(heapContainer).(int)
+	return result, nil
+}
+
 func main() {
 	var totalItems int
 
 	_, err := fmt.Scan(&totalItems)
-	if err != nil || totalItems <= 0 {
-		fmt.Printf("Invalid number of dishes: %v\n", err)
+	if err != nil {
+		fmt.Printf("Error reading number of dishes: %v\n", err)
+
+		return
+	}
+	if totalItems <= 0 {
+		fmt.Printf("Invalid number of dishes: must be positive, got %d\n", totalItems)
 
 		return
 	}
@@ -35,6 +67,10 @@ func main() {
 		return
 	}
 
-	finalChoice := intheap.FindKthPreference(scores, selectionIndex)
+	finalChoice, err := FindKthPreference(scores, selectionIndex)
+	if err != nil {
+		fmt.Printf("Error finding preference: %v\n", err)
+		return
+	}
 	fmt.Println(finalChoice)
 }
