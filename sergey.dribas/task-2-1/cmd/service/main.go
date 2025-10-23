@@ -49,7 +49,7 @@ func readConstraint() (string, int, error) {
 	)
 
 	if _, err := fmt.Scan(&operand, &temp); err != nil {
-		return "", 0, err
+		return "", 0, errors.Join(ErrInput, err)
 	}
 
 	return operand, temp, nil
