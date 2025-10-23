@@ -5,6 +5,7 @@ import (
 
 	"mohamedamine.drai/task-3/internal/utils"
 )
+
 func main() {
 	configPath := flag.String("config", "", "path to YAML config file")
 	flag.Parse()
@@ -24,6 +25,7 @@ func main() {
 	}
 
 	sorted := utils.SortCurrencies(data.Currencies)
+
 	if err := utils.SaveToJSON(sorted, cfg.OutputFile); err != nil {
 		panic(err)
 	}
