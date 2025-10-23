@@ -27,12 +27,6 @@ func (f *CustomFloat) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error
 		return fmt.Errorf("failed to decode: %w", err)
 	}
 
-	if temp == "" {
-		*f = 0.0
-
-		return nil
-	}
-
 	valueStr := strings.ReplaceAll(temp, ",", ".")
 
 	value, err := strconv.ParseFloat(valueStr, 64)
