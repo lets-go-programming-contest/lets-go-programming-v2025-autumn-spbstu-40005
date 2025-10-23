@@ -10,8 +10,6 @@ import (
 	"golang.org/x/net/html/charset"
 )
 
-type value float64
-
 func ParseXMLFile(filePath string) (*ValCurs, error) {
 	file, err := os.Open(filePath)
 	if err != nil {
