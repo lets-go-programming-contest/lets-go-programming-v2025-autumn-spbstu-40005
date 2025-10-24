@@ -7,7 +7,7 @@ import (
 	"github.com/KostyukovMichael/lets-go-programming-v2025-autumn-spbstu-40005/task-3/internal/converter"
 )
 
-var (
+const (
 	configFlagName    = "config"
 	configFlagDefault = "config.yaml"
 	configFlagUsage   = "path to config file"
