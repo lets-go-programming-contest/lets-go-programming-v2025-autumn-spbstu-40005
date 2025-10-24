@@ -4,6 +4,7 @@ import (
 	"flag"
 
 	"polina.gavrilova/task-3/internal/config"
+	"polina.gavrilova/task-3/internal/processor"
 )
 
 func main() {
@@ -14,8 +15,13 @@ func main() {
 		panic("--config flag is required")
 	}
 
-	_, err := config.LoadConfig(*configPath)
+	cfg, err := config.LoadConfig(*configPath)
 	if err != nil {
 		panic(err)
+	}
+
+	err = processor.Run(cfg)
+	if err != nil {
+		panic("Failed to process data")
 	}
 }

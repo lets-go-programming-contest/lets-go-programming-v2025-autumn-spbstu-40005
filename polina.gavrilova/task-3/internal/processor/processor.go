@@ -18,7 +18,6 @@ func Run(cfg *config.Config) error {
 
 	xmlData, err := readXMLData(cfg.InputFile)
 	if err != nil {
-
 		return fmt.Errorf("error reading xml file: %w", err)
 	}
 
@@ -59,7 +58,6 @@ func transformAndSort(xmlData *models.XMLValCurs) []models.JSONValute {
 
 		valFloat, err := strconv.ParseFloat(valStr, 64)
 		if err != nil {
-
 			continue
 		}
 
