@@ -21,10 +21,10 @@ type TemperatureRange struct {
 	max int
 }
 
-func NewTemperatureRange(min, max int) *TemperatureRange {
+func NewTemperatureRange(minTemp, maxTemp int) *TemperatureRange {
 	return &TemperatureRange{
-		min: min,
-		max: max,
+		min: minTemp,
+		max: maxTemp,
 	}
 }
 
@@ -77,17 +77,20 @@ func processDepartment(employeeCount int) {
 		var oper, tempStr string
 		if _, err := fmt.Scan(&oper, &tempStr); err != nil {
 			fmt.Println(-1)
+
 			continue
 		}
 
 		operation, temperature, err := ParseConstraint(oper, tempStr)
 		if err != nil {
 			fmt.Println(-1)
+
 			continue
 		}
 
 		if err := temperatureRange.Update(operation, temperature); err != nil {
 			fmt.Println(-1)
+
 			continue
 		}
 
@@ -101,6 +104,7 @@ func main() {
 	_, err := fmt.Scan(&departments)
 	if err != nil {
 		fmt.Println(-1)
+
 		return
 	}
 
@@ -110,6 +114,7 @@ func main() {
 		_, err := fmt.Scan(&employees)
 		if err != nil {
 			fmt.Println(-1)
+
 			return
 		}
 
