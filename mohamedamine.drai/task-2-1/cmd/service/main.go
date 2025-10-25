@@ -14,7 +14,6 @@ const (
 var (
 	ErrInvalidOperator    = errors.New("invalid operator")
 	ErrInvalidTemperature = errors.New("invalid temperature")
-	ErrNoValidTemperature = errors.New("no valid temperature")
 )
 
 type TemperatureRange struct {
@@ -22,10 +21,10 @@ type TemperatureRange struct {
 	max int
 }
 
-func NewTemperatureRange() *TemperatureRange {
+func NewTemperatureRange(min, max int) *TemperatureRange {
 	return &TemperatureRange{
-		min: MinTemperature,
-		max: MaxTemperature,
+		min: min,
+		max: max,
 	}
 }
 
@@ -40,7 +39,7 @@ func (tr *TemperatureRange) Update(operation string, temperature int) error {
 	}
 
 	if tr.min > tr.max {
-		return ErrNoValidTemperature
+		return ErrInvalidTemperature
 	}
 
 	return nil
@@ -71,35 +70,29 @@ func ParseConstraint(oper string, tempStr string) (string, int, error) {
 	return oper, tempInt, nil
 }
 
-func processDepartment(employeeCount int) []int {
-	temperatureRange := NewTemperatureRange()
-	results := make([]int, 0, employeeCount)
+func processDepartment(employeeCount int) {
+	temperatureRange := NewTemperatureRange(MinTemperature, MaxTemperature)
 
 	for range employeeCount {
 		var oper, tempStr string
 		if _, err := fmt.Scan(&oper, &tempStr); err != nil {
-			results = append(results, -1)
-
+			fmt.Println(-1)
 			continue
 		}
 
 		operation, temperature, err := ParseConstraint(oper, tempStr)
 		if err != nil {
-			results = append(results, -1)
-
+			fmt.Println(-1)
 			continue
 		}
 
 		if err := temperatureRange.Update(operation, temperature); err != nil {
-			results = append(results, -1)
-
+			fmt.Println(-1)
 			continue
 		}
 
-		results = append(results, temperatureRange.GetOptimalTemperature())
+		fmt.Println(temperatureRange.GetOptimalTemperature())
 	}
-
-	return results
 }
 
 func main() {
@@ -108,7 +101,6 @@ func main() {
 	_, err := fmt.Scan(&departments)
 	if err != nil {
 		fmt.Println(-1)
-
 		return
 	}
 
@@ -118,13 +110,9 @@ func main() {
 		_, err := fmt.Scan(&employees)
 		if err != nil {
 			fmt.Println(-1)
-
 			return
 		}
 
-		results := processDepartment(employees)
-		for _, result := range results {
-			fmt.Println(result)
-		}
+		processDepartment(employees)
 	}
 }
