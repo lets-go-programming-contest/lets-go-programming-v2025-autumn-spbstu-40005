@@ -1,17 +1,9 @@
 package main
 
 import (
-	"errors"
 	"fmt"
 
 	"github.com/DariaKhokhryakova/task-2-1/internal/temperature"
-)
-
-var ErrInput = errors.New("invalid input")
-
-const (
-	minTemperature = 15
-	maxTemperature = 30
 )
 
 func ReadTemperature() (string, int, error) {
@@ -24,15 +16,11 @@ func ReadTemperature() (string, int, error) {
 		return "", 0, fmt.Errorf("read temperature: %w", err)
 	}
 
-	if temp < minTemperature || temp > maxTemperature {
-		return "", 0, ErrInput
-	}
-
 	return operator, temp, nil
 }
 
 func ProcessEmployee(countEmployees int) error {
-	tempRange := &temperature.TemperatureRange{Min: minTemperature, Max: maxTemperature}
+	tempRange := temperature.NewTemperatureRange()
 
 	for range countEmployees {
 		icon, tempValue, err := ReadTemperature()
@@ -51,11 +39,8 @@ func ProcessEmployee(countEmployees int) error {
 			return fmt.Errorf("update temperature: %w", err)
 		}
 
-		if tempRange.IsValid() {
-			fmt.Println(tempRange.Min)
-		} else {
-			fmt.Println(-1)
-		}
+		result := tempRange.GetResult()
+		fmt.Println(result)
 	}
 
 	return nil
