@@ -31,6 +31,7 @@ func (h *IntHeap) Push(x interface{}) {
 	if !ok {
 		return
 	}
+
 	*h = append(*h, value)
 }
 
@@ -44,6 +45,7 @@ func (h *IntHeap) Pop() interface{} {
 
 	val := old[length-1]
 	*h = old[:length-1]
+
 	return val
 }
 
@@ -55,6 +57,7 @@ func main() {
 
 	if _, err := fmt.Scan(&dishCount); err != nil {
 		fmt.Println("Failed to read dish count:", err)
+
 		return
 	}
 
@@ -62,25 +65,30 @@ func main() {
 	for index := range dishRatings {
 		if _, err := fmt.Scan(&dishRatings[index]); err != nil {
 			fmt.Println("Failed to read dish rating:", err)
+
 			return
 		}
 	}
 
 	if _, err := fmt.Scan(&dishPreference); err != nil {
 		fmt.Println("Failed to read dish preference:", err)
+
 		return
 	}
 
 	if dishPreference < 1 || dishPreference > dishCount {
 		fmt.Println("Preference out of range")
+
 		return
 	}
 
 	result, err := getPreference(dishRatings, dishPreference)
 	if err != nil {
 		fmt.Println("Error:", err)
+
 		return
 	}
+
 	fmt.Println(result)
 }
 
