@@ -31,11 +31,13 @@ func WriteToJSON(valutes []currency.Valute, outputFile string) error {
 	if err != nil {
 		return fmt.Errorf("failed to create file: %w", err)
 	}
+
 	defer func() {
 		if closeErr := file.Close(); closeErr != nil {
 			fmt.Printf("Warning: failed to close file: %v\n", closeErr)
 		}
 	}()
+
 	encoder := json.NewEncoder(file)
 	encoder.SetIndent("", "  ")
 

@@ -15,12 +15,12 @@ type ValCurs struct {
 }
 
 type Valute struct {
-	ID       string  `xml:"ID,attr"`
-	NumCode  int     `json:"num_code" xml:"NumCode"`
+	ID       string  `json:"-"         xml:"ID,attr"`
+	NumCode  int     `json:"num_code"  xml:"NumCode"`
 	CharCode string  `json:"char_code" xml:"CharCode"`
-	Nominal  int     `xml:"Nominal"`
-	Name     string  `xml:"Name"`
-	Value    float64 `json:"value" xml:"Value"`
+	Nominal  int     `json:"-"         xml:"Nominal"`
+	Name     string  `json:"-"         xml:"Name"`
+	Value    float64 `json:"value"     xml:"Value"`
 }
 
 type currencyValue float64
@@ -31,6 +31,11 @@ func (v *currencyValue) UnmarshalXML(d *xml.Decoder, start xml.StartElement) err
 		return fmt.Errorf("failed to decode value: %w", err)
 	}
 
+	if str == "" {
+		*v = currencyValue(0)
+		return nil
+	}
+
 	str = strings.ReplaceAll(str, ",", ".")
 
 	value, err := strconv.ParseFloat(str, 64)
@@ -39,6 +44,7 @@ func (v *currencyValue) UnmarshalXML(d *xml.Decoder, start xml.StartElement) err
 	}
 
 	*v = currencyValue(value)
+
 	return nil
 }
 
@@ -54,9 +60,8 @@ type valuteXML struct {
 func (v *Valute) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
 	var temp valuteXML
 	if err := d.DecodeElement(&temp, &start); err != nil {
-		return err
+    		return fmt.Errorf("failed to decode XML element: %w", err)
 	}
-
 	v.ID = temp.ID
 	v.NumCode = temp.NumCode
 	v.CharCode = temp.CharCode

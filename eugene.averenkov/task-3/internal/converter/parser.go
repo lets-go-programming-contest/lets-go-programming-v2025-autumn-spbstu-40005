@@ -13,11 +13,13 @@ func ParseXMLFile(filePath string) ([]currency.Valute, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to open XML file: %w", err)
 	}
+
 	defer func() {
 		if closeErr := file.Close(); closeErr != nil {
 			fmt.Printf("Warning: failed to close file: %v\n", closeErr)
 		}
 	}()
+
 	decoder := xml.NewDecoder(file)
 	decoder.CharsetReader = charset.NewReaderLabel
 

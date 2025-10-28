@@ -8,8 +8,8 @@ import (
 )
 
 var (
-	ErrInputFileRequired  = fmt.Errorf("input-file is required")
-	ErrOutputFileRequired = fmt.Errorf("output-file is required")
+	ErrInputFileRequired  = errors.New("input-file is required")
+	ErrOutputFileRequired = errors.New("output-file is required")
 )
 
 type Config struct {
