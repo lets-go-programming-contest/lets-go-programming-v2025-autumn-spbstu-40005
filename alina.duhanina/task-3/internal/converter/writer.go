@@ -23,6 +23,7 @@ func SaveJSON(outputPath string, currencies []model.CurrencyResult) error {
 	if err != nil {
 		return fmt.Errorf("failed to create file: %w", err)
 	}
+
 	defer func() {
 		if err := file.Close(); err != nil {
 			panic("error closing JSON file")
