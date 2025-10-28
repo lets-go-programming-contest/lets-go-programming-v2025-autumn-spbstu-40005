@@ -34,7 +34,7 @@ func WriteToJSON(valutes []currency.Valute, outputFile string) error {
 
 	defer func() {
 		if closeErr := file.Close(); closeErr != nil {
-			fmt.Printf("Warning: failed to close file: %v\n", closeErr)
+			panic("failed close file")
 		}
 	}()
 

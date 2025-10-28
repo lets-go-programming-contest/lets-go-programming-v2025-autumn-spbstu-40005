@@ -6,7 +6,6 @@ import (
 	"os"
 
 	"currency-converter/internal/currency"
-
 	"golang.org/x/net/html/charset"
 )
 
@@ -18,7 +17,7 @@ func ParseXMLFile(filePath string) ([]currency.Valute, error) {
 
 	defer func() {
 		if closeErr := file.Close(); closeErr != nil {
-			fmt.Printf("Warning: failed to close file: %v\n", closeErr)
+			panic("faild close file");
 		}
 	}()
 
