@@ -7,8 +7,9 @@ import (
 	"strconv"
 	"strings"
 
-	"alina.duhanina/task-3/internal/model"
 	"golang.org/x/net/html/charset"
+
+	"alina.duhanina/task-3/internal/model"
 )
 
 func ParseXML(filePath string) (*model.ValCurs, error) {
@@ -16,6 +17,7 @@ func ParseXML(filePath string) (*model.ValCurs, error) {
 	if err != nil {
 		return nil, fmt.Errorf("cannot open XML file: %w", err)
 	}
+
 	defer func() {
 		if err := file.Close(); err != nil {
 			panic("error closing XML file")
@@ -35,5 +37,6 @@ func ParseXML(filePath string) (*model.ValCurs, error) {
 
 func parseValue(valueStr string) (float64, error) {
 	normalized := strings.ReplaceAll(valueStr, ",", ".")
+
 	return strconv.ParseFloat(normalized, 64)
 }
