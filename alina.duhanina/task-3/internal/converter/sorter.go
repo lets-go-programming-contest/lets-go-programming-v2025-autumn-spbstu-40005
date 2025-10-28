@@ -1,8 +1,8 @@
 package converter
 
 import (
+	"alina.duhanina/task-3/internal/model"
 	"sort"
-	"your-module-name/internal/model"
 )
 
 type ByValueDesc []model.CurrencyResult
