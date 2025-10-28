@@ -2,7 +2,6 @@ package main
 
 import (
 	"flag"
-	"log"
 
 	"currency-converter/internal/config"
 	"currency-converter/internal/converter"
@@ -34,5 +33,4 @@ func main() {
 		panic(err)
 	}
 
-	log.Printf("Successfully processed %d currencies. Output: %s", len(valutes), cfg.OutputFile)
 }

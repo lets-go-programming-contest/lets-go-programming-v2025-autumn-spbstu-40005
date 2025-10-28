@@ -17,7 +17,7 @@ func ParseXMLFile(filePath string) ([]currency.Valute, error) {
 
 	defer func() {
 		if closeErr := file.Close(); closeErr != nil {
-			panic("faild close file");
+			panic("faild close file")
 		}
 	}()
 
