@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"currency-converter/internal/currency"
+        "github.com/Savishna1/task-3/internal/currency"
 	"golang.org/x/net/html/charset"
 )
 
