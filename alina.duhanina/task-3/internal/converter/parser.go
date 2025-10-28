@@ -7,9 +7,9 @@ import (
 	"strconv"
 	"strings"
 
-	"golang.org/x/net/html/charset"
-
 	"alina.duhanina/task-3/internal/model"
+
+	"golang.org/x/net/html/charset"
 )
 
 func ParseXML(filePath string) (*model.ValCurs, error) {
