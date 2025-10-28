@@ -8,6 +8,8 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
+var ErrInvalidConfig = errors.New("invalid config")
+
 type Config struct {
 	InputFile  string `yaml:"input-file"`
 	OutputFile string `yaml:"output-file"`
@@ -36,7 +38,7 @@ func LoadConfig(configPath string) (*Config, error) {
 	}
 
 	if config.InputFile == "" || config.OutputFile == "" {
-		return nil, fmt.Errorf("invalid config")
+		return nil, ErrInvalidConfig
 	}
 
 	return &config, nil

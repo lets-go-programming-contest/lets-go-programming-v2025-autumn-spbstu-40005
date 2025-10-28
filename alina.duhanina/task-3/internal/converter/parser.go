@@ -38,5 +38,10 @@ func ParseXML(filePath string) (*model.ValCurs, error) {
 func parseValue(valueStr string) (float64, error) {
 	normalized := strings.ReplaceAll(valueStr, ",", ".")
 
-	return strconv.ParseFloat(normalized, 64)
+	value, err := strconv.ParseFloat(normalized, 64)
+	if err != nil {
+		return 0, fmt.Errorf("parse value %q: %w", valueStr, err)
+	}
+
+	return value, nil
 }
