@@ -8,7 +8,6 @@ import (
 	"strings"
 
 	"alina.duhanina/task-3/internal/model"
-
 	"golang.org/x/net/html/charset"
 )
 
