@@ -32,5 +32,4 @@ func main() {
 	if err := converter.WriteToJSON(valutes, cfg.OutputFile); err != nil {
 		panic(err)
 	}
-
 }
