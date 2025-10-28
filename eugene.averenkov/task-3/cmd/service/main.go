@@ -6,7 +6,6 @@ import (
 
     "currency-converter/internal/config"
     "currency-converter/internal/converter"
-    "currency-converter/internal/currency"
 )
 
 const (
