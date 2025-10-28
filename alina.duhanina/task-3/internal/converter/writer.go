@@ -9,13 +9,18 @@ import (
 	"alina.duhanina/task-3/internal/model"
 )
 
+const (
+	dirPerm  = 0o755
+	filePerm = 0o644
+)
+
 func SaveJSON(outputPath string, currencies []model.CurrencyResult) error {
 	jsonData, err := json.MarshalIndent(currencies, "", "  ")
 	if err != nil {
 		return fmt.Errorf("failed to marshal JSON: %w", err)
 	}
 
-	if err := os.MkdirAll(filepath.Dir(outputPath), 0o755); err != nil {
+	if err := os.MkdirAll(filepath.Dir(outputPath), dirPerm); err != nil {
 		return fmt.Errorf("failed to create directory: %w", err)
 	}
 
@@ -30,7 +35,7 @@ func SaveJSON(outputPath string, currencies []model.CurrencyResult) error {
 		}
 	}()
 
-	if err := os.WriteFile(outputPath, jsonData, 0o644); err != nil {
+	if err := os.WriteFile(outputPath, jsonData, filePerm); err != nil {
 		return fmt.Errorf("failed to write file: %w", err)
 	}
 
