@@ -1,4 +1,4 @@
-module currency-converter
+module eugene.averenkov/task-3
 
 go 1.22.7
 

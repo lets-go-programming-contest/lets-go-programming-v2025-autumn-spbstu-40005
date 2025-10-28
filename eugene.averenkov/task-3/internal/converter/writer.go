@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"sort"
 
-	"currency-converter/internal/currency"
+	"eugene.averenkov/task-3/internal/currency"
 )
 
 const (

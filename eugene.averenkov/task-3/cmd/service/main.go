@@ -3,8 +3,8 @@ package main
 import (
 	"flag"
 
-	"currency-converter/internal/config"
-	"currency-converter/internal/converter"
+	"eugene.averenkov/task-3/internal/config"
+	"eugene.averenkov/task-3/internal/converter"
 )
 
 const (
