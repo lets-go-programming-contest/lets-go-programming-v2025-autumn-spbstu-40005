@@ -33,6 +33,7 @@ func (v *currencyValue) UnmarshalXML(d *xml.Decoder, start xml.StartElement) err
 
 	if str == "" {
 		*v = currencyValue(0)
+
 		return nil
 	}
 
@@ -60,8 +61,9 @@ type valuteXML struct {
 func (v *Valute) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
 	var temp valuteXML
 	if err := d.DecodeElement(&temp, &start); err != nil {
-    		return fmt.Errorf("failed to decode XML element: %w", err)
+		return fmt.Errorf("failed to decode XML element: %w", err)
 	}
+
 	v.ID = temp.ID
 	v.NumCode = temp.NumCode
 	v.CharCode = temp.CharCode
