@@ -1,11 +1,13 @@
 package converter
 
 import (
-	"currency-converter/internal/currency"
 	"encoding/xml"
 	"fmt"
-	"golang.org/x/net/html/charset"
 	"os"
+
+	"currency-converter/internal/currency"
+
+	"golang.org/x/net/html/charset"
 )
 
 func ParseXMLFile(filePath string) ([]currency.Valute, error) {
