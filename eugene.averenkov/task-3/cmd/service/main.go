@@ -20,18 +20,18 @@ func main() {
 
 	cfg, err := config.Load(*configPath)
 	if err != nil {
-		log.Fatalf("Failed to load config: %v", err)
+		panic(err)
 	}
 
 	valutes, err := converter.ParseXMLFile(cfg.InputFile)
 	if err != nil {
-		log.Fatalf("Failed to parse XML: %v", err)
+		panic(err)
 	}
 
 	converter.SortByValueDesc(valutes)
 
 	if err := converter.WriteToJSON(valutes, cfg.OutputFile); err != nil {
-		log.Fatalf("Failed to write JSON: %v", err)
+		panic(err)
 	}
 
 	log.Printf("Successfully processed %d currencies. Output: %s", len(valutes), cfg.OutputFile)
