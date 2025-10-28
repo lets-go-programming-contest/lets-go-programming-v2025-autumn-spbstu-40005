@@ -1,7 +1,5 @@
 package converter
 
-import "your-module-name/internal/model"
-
 func ConvertXMLToJSON(inputFile, outputFile string) error {
 	valCurs, err := ParseXML(inputFile)
 	if err != nil {

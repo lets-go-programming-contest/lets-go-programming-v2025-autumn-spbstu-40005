@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"log"
 
-	"your-module-name/internal/config"
-	"your-module-name/internal/converter"
+	"alina.duhanina/task-3/internal/config"
+	"alina.duhanina/task-3/internal/converter"
 )
 
 func main() {

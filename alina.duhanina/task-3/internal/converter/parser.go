@@ -3,13 +3,12 @@ package converter
 import (
 	"encoding/xml"
 	"fmt"
-	"io"
 	"os"
 	"strconv"
 	"strings"
 
+	"alina.duhanina/task-3/internal/model"
 	"golang.org/x/net/html/charset"
-	"your-module-name/internal/model"
 )
 
 func ParseXML(filePath string) (*model.ValCurs, error) {

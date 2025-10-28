@@ -1,4 +1,4 @@
-module github.com/dualya/task-3
+module alina.duhanina/task-3
 
 go 1.22.7
 

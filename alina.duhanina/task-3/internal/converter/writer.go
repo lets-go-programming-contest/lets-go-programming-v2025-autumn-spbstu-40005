@@ -6,7 +6,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"your-module-name/internal/model"
+	"alina.duhanina/task-3/internal/model"
 )
 
 func SaveJSON(outputPath string, currencies []model.CurrencyResult) error {
