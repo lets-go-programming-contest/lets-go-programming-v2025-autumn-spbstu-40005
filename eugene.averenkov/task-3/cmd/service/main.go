@@ -3,8 +3,8 @@ package main
 import (
 	"flag"
 
-        "github.com/Savishna1/task-3/internal/converter"
-        "github.com/Savishna1/task-3/internal/config"
+	"currency-converter/internal/config"
+	"currency-converter/internal/converter"
 )
 
 const (

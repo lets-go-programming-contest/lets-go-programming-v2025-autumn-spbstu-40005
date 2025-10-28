@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"sort"
 
-	"github.com/Savishna1/task-3/internal/currency"
+	"currency-converter/internal/currency"
 )
 
 const (
