@@ -2,6 +2,7 @@ package model
 
 import (
 	"encoding/xml"
+	"fmt"
 	"strconv"
 	"strings"
 )
@@ -16,21 +17,25 @@ type ValCurs struct {
 type Amount float64
 
 func (a *Amount) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
-	var s string
-	if err := d.DecodeElement(&s, &start); err != nil {
-		return err
+	var str string
+	if err := d.DecodeElement(&str, &start); err != nil {
+		return fmt.Errorf("decode element: %w", err)
 	}
-	s = strings.ReplaceAll(s, ",", ".")
-	v, err := strconv.ParseFloat(s, 64)
+
+	str = strings.ReplaceAll(str, ",", ".")
+
+	v, err := strconv.ParseFloat(str, 64)
 	if err != nil {
-		return err
+		return fmt.Errorf("parse float '%s': %w", str, err)
 	}
+
 	*a = Amount(v)
+
 	return nil
 }
 
 type Currency struct {
-	NumCode  int    `xml:"NumCode" json:"num_code"`
-	CharCode string `xml:"CharCode" json:"char_code"`
-	Value    Amount `xml:"Value" json:"value"`
+	NumCode  int    `json:"num_code"  xml:"NumCode"`
+	CharCode string `json:"char_code" xml:"CharCode"`
+	Value    Amount `json:"value"     xml:"Value"`
 }
