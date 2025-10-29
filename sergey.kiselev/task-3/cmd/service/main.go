@@ -6,18 +6,19 @@ import (
 
 	"github.com/deonik3/task-3/internal/bank"
 	"github.com/deonik3/task-3/internal/config"
+	"github.com/deonik3/task-3/internal/parser"
 )
 
 func main() {
 	configPath := flag.String("config", "config.yaml", "path to config file")
 	flag.Parse()
 
-	config, err := config.ParseFile(*configPath)
+	config, err := parser.ParseYAMLFile[config.Config](*configPath)
 	if err != nil {
 		panic(err)
 	}
 
-	valCurs, err := bank.ParseXMLFile(config.InputFile)
+	valCurs, err := parser.ParseXMLFile[bank.ValCurs](config.InputFile)
 	if err != nil {
 		panic(err)
 	}
@@ -26,7 +27,7 @@ func main() {
 		return valCurs.Valute[i].Value > valCurs.Valute[j].Value
 	})
 
-	if err = bank.EncodeFile(valCurs.Valute, config.OutputFile); err != nil {
+	if err = parser.EncodeFile(valCurs.Valute, config.OutputFile); err != nil {
 		panic(err)
 	}
 }
