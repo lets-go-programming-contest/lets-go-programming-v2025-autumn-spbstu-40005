@@ -5,13 +5,11 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-
-	"github.com/TvoyBatyA12343/task-3/internal/datamodels"
 )
 
 const permission = 0o755
 
-func SaveValutesToFile(valutes []datamodels.Valute, output string) error {
+func SaveToFile[T any](data T, output string) error {
 	dir := filepath.Dir(output)
 
 	err := os.MkdirAll(dir, permission)
@@ -19,7 +17,7 @@ func SaveValutesToFile(valutes []datamodels.Valute, output string) error {
 		return fmt.Errorf("failed to create directory: %w", err)
 	}
 
-	jsonData, err := json.MarshalIndent(valutes, "", "  ")
+	jsonData, err := json.MarshalIndent(data, "", "  ")
 	if err != nil {
 		return fmt.Errorf("failed marshal to JSON: %w", err)
 	}
