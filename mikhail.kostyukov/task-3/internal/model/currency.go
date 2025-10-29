@@ -37,3 +37,29 @@ type Valute struct {
 	CharCode string        `json:"char_code" xml:"CharCode"`
 	Value    CurrencyValue `json:"value"     xml:"Value"`
 }
+
+type ByValueDesc []Valute
+
+func (v ByValueDesc) Len() int {
+	return len(v)
+}
+
+func (v ByValueDesc) Swap(first, second int) {
+	if (first < 0) || (first >= len(v)) {
+		panic("first index out of range")
+	} else if (second < 0) || (second >= len(v)) {
+		panic("second index out of range")
+	}
+
+	v[first], v[second] = v[second], v[first]
+}
+
+func (v ByValueDesc) Less(first, second int) bool {
+	if (first < 0) || (first >= len(v)) {
+		panic("first index out of range")
+	} else if (second < 0) || (second >= len(v)) {
+		panic("second index out of range")
+	}
+
+	return v[first].Value > v[second].Value
+}
