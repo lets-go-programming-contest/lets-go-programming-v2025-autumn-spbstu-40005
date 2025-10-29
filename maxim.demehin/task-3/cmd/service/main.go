@@ -19,14 +19,16 @@ func main() {
 		panic(err)
 	}
 
-	valutes, err := parserxml.ParseXML(config.InputFile)
+	valCurs, err := parserxml.ParseXML[datamodels.ValCurs](config.InputFile)
 	if err != nil {
 		panic(err)
 	}
 
+	valutes := valCurs.Valutes
+
 	sort.Sort(datamodels.ByValue(valutes))
 
-	err = jsonutils.SaveValutesToFile(valutes, config.OutputFile)
+	err = jsonutils.SaveToFile(valutes, config.OutputFile)
 	if err != nil {
 		panic(err)
 	}
