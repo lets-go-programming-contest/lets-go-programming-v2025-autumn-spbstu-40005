@@ -29,6 +29,7 @@ func EncodeFile[T any](data T, outputFile string) error {
 	encoder := json.NewEncoder(file)
 
 	encoder.SetIndent("", "  ")
+
 	if err := encoder.Encode(data); err != nil {
 		return fmt.Errorf("error encoding JSON: %w", err)
 	}
