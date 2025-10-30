@@ -15,6 +15,14 @@ type Config struct {
 	Output string `yaml:"output-file"`
 }
 
+func (c *Config) Validate() error {
+	if c.Input == "" || c.Output == "" {
+		return ErrMissingPaths
+	}
+
+	return nil
+}
+
 func LoadConfig(filePath string) (*Config, error) {
 	data, err := os.ReadFile(filePath)
 	if err != nil {
@@ -26,8 +34,8 @@ func LoadConfig(filePath string) (*Config, error) {
 		return nil, fmt.Errorf("unmarshal config from %q: %w", filePath, err)
 	}
 
-	if cfg.Input == "" || cfg.Output == "" {
-		return nil, fmt.Errorf("%q: %w", filePath, ErrMissingPaths)
+	if err := cfg.Validate(); err != nil {
+		return nil, fmt.Errorf("%q: %w", filePath, err)
 	}
 
 	return &cfg, nil
