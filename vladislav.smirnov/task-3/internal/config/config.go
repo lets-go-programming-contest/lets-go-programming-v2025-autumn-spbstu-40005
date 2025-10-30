@@ -1,10 +1,15 @@
 package config
 
 import (
+	"errors"
 	"fmt"
 	"os"
 
 	"gopkg.in/yaml.v3"
+)
+
+var (
+	ErrMissingPaths = errors.New("config file is missing required paths")
 )
 
 type Config struct {
@@ -24,7 +29,7 @@ func LoadConfig(filePath string) (*Config, error) {
 	}
 
 	if cfg.Input == "" || cfg.Output == "" {
-		return nil, fmt.Errorf("config file %q is missing required paths", filePath)
+		return nil, fmt.Errorf("%q: %w", filePath, ErrMissingPaths)
 	}
 
 	return &cfg, nil
