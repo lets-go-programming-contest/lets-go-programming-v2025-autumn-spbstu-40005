@@ -26,8 +26,8 @@ func FindKthPreference(ratings []int, preferenceOrder int) (int, error) {
 		if heapContainer.Len() < preferenceOrder {
 			heap.Push(heapContainer, rating)
 		} else if rating > (*heapContainer)[0] {
-			heap.Pop(heapContainer)
-			heap.Push(heapContainer, rating)
+			(*heapContainer)[0] = rating
+			heap.Fix(heapContainer, 0)
 		}
 	}
 
@@ -72,8 +72,14 @@ func main() {
 	var selectionIndex int
 	_, err = fmt.Scan(&selectionIndex)
 
-	if err != nil || selectionIndex <= 0 || selectionIndex > totalItems {
+	if err != nil {
 		fmt.Printf("Invalid preference order: %v\n", err)
+
+		return
+	}
+
+	if selectionIndex <= 0 || selectionIndex > totalItems {
+		fmt.Printf("Invalid preference order: must be between 1 and %d, got %d\n", totalItems, selectionIndex)
 
 		return
 	}
