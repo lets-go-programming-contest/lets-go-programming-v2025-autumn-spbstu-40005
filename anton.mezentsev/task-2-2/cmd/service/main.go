@@ -70,8 +70,8 @@ func main() {
 	}
 
 	var selectionIndex int
-	_, err = fmt.Scan(&selectionIndex)
 
+	_, err = fmt.Scan(&selectionIndex)
 	if err != nil {
 		fmt.Printf("Invalid preference order: %v\n", err)
 
