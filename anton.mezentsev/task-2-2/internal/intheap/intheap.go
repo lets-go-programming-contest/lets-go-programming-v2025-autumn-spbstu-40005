@@ -1,5 +1,7 @@
 package intheap
 
+import "fmt"
+
 type CustomHeap []int
 
 func (h *CustomHeap) Len() int {
@@ -8,7 +10,7 @@ func (h *CustomHeap) Len() int {
 
 func (h *CustomHeap) Less(index1, index2 int) bool {
 	if index1 < 0 || index1 >= len(*h) || index2 < 0 || index2 >= len(*h) {
-		return false
+		panic(fmt.Sprintf("intheap: index out of range [%d] or [%d] with length %d", index1, index2, h.Len()))
 	}
 
 	return (*h)[index1] < (*h)[index2]
@@ -16,7 +18,7 @@ func (h *CustomHeap) Less(index1, index2 int) bool {
 
 func (h *CustomHeap) Swap(index1, index2 int) {
 	if index1 < 0 || index1 >= len(*h) || index2 < 0 || index2 >= len(*h) {
-		return
+		panic(fmt.Sprintf("intheap: index out of range [%d] or [%d] with length %d", index1, index2, h.Len()))
 	}
 
 	(*h)[index1], (*h)[index2] = (*h)[index2], (*h)[index1]
