@@ -28,7 +28,6 @@ func (dec *Decimal) UnmarshalXML(decoder *xml.Decoder, start xml.StartElement) e
 
 	str = strings.Replace(str, ",", ".", 1)
 	value, err := strconv.ParseFloat(str, 64)
-
 	if err != nil {
 		return fmt.Errorf("fail to parse float: %w", err)
 	}
@@ -37,4 +36,3 @@ func (dec *Decimal) UnmarshalXML(decoder *xml.Decoder, start xml.StartElement) e
 
 	return nil
 }
-

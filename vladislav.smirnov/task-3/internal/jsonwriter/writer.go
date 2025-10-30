@@ -33,4 +33,3 @@ func Write(path string, value any) error {
 
 	return nil
 }
-
