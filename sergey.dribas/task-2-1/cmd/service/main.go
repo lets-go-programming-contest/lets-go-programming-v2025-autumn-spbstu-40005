@@ -49,7 +49,7 @@ func readConstraint() (string, int, error) {
 	)
 
 	if _, err := fmt.Scan(&operand, &temp); err != nil {
-		return "", 0, errors.Join(ErrInput, err)
+		return "", 0, fmt.Errorf("error while reading operand + temperature: %w", err)
 	}
 
 	return operand, temp, nil
@@ -58,7 +58,7 @@ func readConstraint() (string, int, error) {
 func processDepartment() error {
 	var DepartmentSize int
 	if _, err := fmt.Scan(&DepartmentSize); err != nil {
-		return errors.Join(ErrInput, err)
+		return fmt.Errorf("error while reading department size: %w", err)
 	}
 
 	depart := NewDepartment()
