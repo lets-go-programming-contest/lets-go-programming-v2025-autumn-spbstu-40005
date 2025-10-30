@@ -12,9 +12,9 @@ type ValCursXML struct {
 }
 
 type Valute struct {
-	NumCode  int     `json:"num_code" xml:"NumCode"`
+	NumCode  int     `json:"num_code"  xml:"NumCode"`
 	CharCode string  `json:"char_code" xml:"CharCode"`
-	Value    Decimal `json:"value" xml:"Value"`
+	Value    Decimal `json:"value"     xml:"Value"`
 }
 
 type Decimal float64
@@ -28,6 +28,7 @@ func (dec *Decimal) UnmarshalXML(decoder *xml.Decoder, start xml.StartElement) e
 
 	str = strings.Replace(str, ",", ".", 1)
 	value, err := strconv.ParseFloat(str, 64)
+
 	if err != nil {
 		return fmt.Errorf("fail to parse float: %w", err)
 	}
@@ -36,3 +37,5 @@ func (dec *Decimal) UnmarshalXML(decoder *xml.Decoder, start xml.StartElement) e
 
 	return nil
 }
+
+
