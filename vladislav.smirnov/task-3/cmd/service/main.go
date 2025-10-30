@@ -4,10 +4,10 @@ import (
 	"flag"
 	"sort"
 
-	"github.com/smirnov-vladislav/vladislav.smirnov/task-3/internal/config"
-	"github.com/smirnov-vladislav/vladislav.smirnov/task-3/internal/jsonwriter"
-	"github.com/smirnov-vladislav/vladislav.smirnov/task-3/internal/valute"
-	"github.com/smirnov-vladislav/vladislav.smirnov/task-3/internal/xmlparser"
+	"task-3/internal/config"
+	"task-3/internal/jsonwriter"
+	"task-3/internal/valute"
+	"task-3/internal/xmlparser"
 )
 
 func main() {

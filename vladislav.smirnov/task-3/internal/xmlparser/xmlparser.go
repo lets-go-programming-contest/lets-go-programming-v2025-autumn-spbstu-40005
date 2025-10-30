@@ -6,7 +6,6 @@ import (
 	"os"
 
 	"golang.org/x/net/html/charset"
-	"task-3/internal/valute"
 )
 
 func ReadXML(path string, target any) error {
