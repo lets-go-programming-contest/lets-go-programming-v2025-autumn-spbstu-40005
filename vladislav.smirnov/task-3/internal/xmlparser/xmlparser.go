@@ -10,7 +10,6 @@ import (
 
 func ReadXML(path string, target any) error {
 	file, err := os.Open(path)
-
 	if err != nil {
 		return fmt.Errorf("fail to open file %q: %w", path, err)
 	}

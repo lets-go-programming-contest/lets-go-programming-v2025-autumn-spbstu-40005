@@ -15,7 +15,6 @@ func Write(path string, value any) error {
 	}
 
 	file, err := os.Create(path)
-
 	if err != nil {
 		return fmt.Errorf("fail to create file: %w", err)
 	}

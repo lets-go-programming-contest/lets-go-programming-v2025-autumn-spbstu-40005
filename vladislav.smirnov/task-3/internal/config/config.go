@@ -8,9 +8,7 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-var (
-	ErrMissingPaths = errors.New("config file is missing required paths")
-)
+var ErrMissingPaths = errors.New("config file is missing required paths")
 
 type Config struct {
 	Input  string `yaml:"input-file"`
