@@ -38,4 +38,3 @@ func (dec *Decimal) UnmarshalXML(decoder *xml.Decoder, start xml.StartElement) e
 	return nil
 }
 
-

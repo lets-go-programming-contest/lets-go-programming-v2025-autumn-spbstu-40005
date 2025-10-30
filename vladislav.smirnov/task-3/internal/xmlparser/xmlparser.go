@@ -29,3 +29,4 @@ func ReadXML(path string, target any) error {
 
 	return nil
 }
+

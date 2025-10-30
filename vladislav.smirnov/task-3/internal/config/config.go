@@ -32,3 +32,4 @@ func LoadConfig(filePath string) (*Config, error) {
 
 	return &cfg, nil
 }
+
