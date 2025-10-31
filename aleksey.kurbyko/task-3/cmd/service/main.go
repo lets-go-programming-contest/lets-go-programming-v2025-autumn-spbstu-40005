@@ -7,10 +7,16 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/aleksey.kurbyko/task-3/internal/dataprocessor"
-	"github.com/aleksey.kurbyko/task-3/internal/currencyhandler"
 	"golang.org/x/net/html/charset"
 	"gopkg.in/yaml.v3"
+
+	"github.com/aleksey.kurbyko/task-3/internal/dataprocessor"
+	"github.com/aleksey.kurbyko/task-3/internal/currencyhandler"
+)
+
+const (
+	dirPerm  = 0o755
+	filePerm = 0o600
 )
 
 func main() {
@@ -23,6 +29,7 @@ func main() {
 	}
 
 	var paths dataprocessor.FilePaths
+
 	err = yaml.Unmarshal(configData, &paths)
 	if err != nil {
 		panic(err)
@@ -37,6 +44,7 @@ func main() {
 	xmlDecoder.CharsetReader = charset.NewReaderLabel
 
 	var currencies currencyhandler.CurrencyList
+
 	err = xmlDecoder.Decode(&currencies)
 	if err != nil {
 		panic(err)
@@ -52,12 +60,12 @@ func main() {
 		panic(err)
 	}
 
-	err = os.MkdirAll(filepath.Dir(paths.Output), 0o755)
+	err = os.MkdirAll(filepath.Dir(paths.Output), dirPerm)
 	if err != nil {
 		panic(err)
 	}
 
-	err = os.WriteFile(paths.Output, outputData, 0o600)
+	err = os.WriteFile(paths.Output, outputData, filePerm)
 	if err != nil {
 		panic(err)
 	}
