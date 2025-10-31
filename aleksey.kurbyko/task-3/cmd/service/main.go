@@ -32,7 +32,6 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	defer inputFile.Close()
 
 	xmlDecoder := xml.NewDecoder(inputFile)
 	xmlDecoder.CharsetReader = charset.NewReaderLabel
@@ -43,6 +42,8 @@ func main() {
 		panic(err)
 	}
 
+	_ = inputFile.Close()
+
 	currencyhandler.SortCurrencies(&currencies)
 	jsonOutput := dataprocessor.ConvertToJSON(currencies)
 
@@ -51,12 +52,12 @@ func main() {
 		panic(err)
 	}
 
-	err = os.MkdirAll(filepath.Dir(paths.Output), 0755)
+	err = os.MkdirAll(filepath.Dir(paths.Output), 0o755)
 	if err != nil {
 		panic(err)
 	}
 
-	err = os.WriteFile(paths.Output, outputData, 0644)
+	err = os.WriteFile(paths.Output, outputData, 0o600)
 	if err != nil {
 		panic(err)
 	}

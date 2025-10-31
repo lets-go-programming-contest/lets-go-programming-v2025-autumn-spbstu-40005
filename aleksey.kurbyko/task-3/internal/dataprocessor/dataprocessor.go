@@ -36,13 +36,16 @@ func processCurrency(currency currencyhandler.CurrencyItem) JSONCurrency {
 	}
 
 	result.CharCode = currency.CharCode
+
 	return result
 }
 
 func ConvertToJSON(data currencyhandler.CurrencyList) []JSONCurrency {
 	converted := make([]JSONCurrency, 0, len(data.Items))
+
 	for _, item := range data.Items {
 		converted = append(converted, processCurrency(item))
 	}
+
 	return converted
 }
