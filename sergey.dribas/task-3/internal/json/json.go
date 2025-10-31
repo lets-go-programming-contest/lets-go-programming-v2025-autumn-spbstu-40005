@@ -17,7 +17,7 @@ type CurrencyJSON struct {
 }
 
 func SaveCurrenciesToJSON(currencies valute.ValCurs, filename string) error {
-	var result []CurrencyJSON
+	result := make([]CurrencyJSON, 0, len(currencies.Valutes))
 	dir := filepath.Dir(filename)
 	for _, currency := range currencies.Valutes {
 		var (
@@ -43,12 +43,11 @@ func SaveCurrenciesToJSON(currencies valute.ValCurs, filename string) error {
 	if err != nil {
 		return err
 	}
-
 	if err := os.MkdirAll(dir, 0755); err != nil {
 		return err
 	}
 
-	err = os.WriteFile(filename, jsonData, 0644)
+	err = os.WriteFile(filename, jsonData, 0600)
 	if err != nil {
 		return err
 	}
