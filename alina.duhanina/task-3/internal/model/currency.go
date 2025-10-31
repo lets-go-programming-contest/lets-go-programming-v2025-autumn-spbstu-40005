@@ -2,6 +2,7 @@ package model
 
 import (
 	"encoding/xml"
+	"fmt"
 	"strconv"
 	"strings"
 )
