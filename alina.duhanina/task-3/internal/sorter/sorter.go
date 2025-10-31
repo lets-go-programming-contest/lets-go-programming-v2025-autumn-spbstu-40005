@@ -33,7 +33,7 @@ func ConvertAndSortCurrencies(valCurs *model.ValCurs) []model.CurrencyResult {
 		currency := model.CurrencyResult{
 			NumCode:  valute.NumCode,
 			CharCode: valute.CharCode,
-			Value:    float64(value),
+			Value:    float64(valute.Value),
 		}
 		currencies = append(currencies, currency)
 	}
