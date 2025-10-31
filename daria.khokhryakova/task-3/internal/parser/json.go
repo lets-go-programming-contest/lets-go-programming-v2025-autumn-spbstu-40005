@@ -1,4 +1,4 @@
-package bank
+package parser
 
 import (
 	"encoding/json"
@@ -6,9 +6,13 @@ import (
 	"os"
 	"path/filepath"
 	"sort"
+
+	"github.com/DariaKhokhryakova/task-3/internal/models"
 )
 
-func ProcessCurrencies(valCurs *ValCurs) ([]CurrencyResult, error) {
+const dirPerm = 0o755
+
+func ProcessCurrencies(valCurs *models.ValCurs) ([]models.CurrencyResult, error) {
 	results := valCurs.Currencies
 
 	sort.Slice(results, func(i, j int) bool {
@@ -18,10 +22,23 @@ func ProcessCurrencies(valCurs *ValCurs) ([]CurrencyResult, error) {
 	return results, nil
 }
 
-func SaveResults(results []CurrencyResult, outputPath string) error {
+func panicErr(err error) {
+	if err != nil {
+		panic(err)
+	}
+}
+
+func FileClose(file *os.File) {
+	if file != nil {
+		err := file.Close()
+		panicErr(err)
+	}
+}
+
+func SaveJSONResults(results []models.CurrencyResult, outputPath string) error {
 	dir := filepath.Dir(outputPath)
 
-	err := os.MkdirAll(dir, DirPerm)
+	err := os.MkdirAll(dir, dirPerm)
 	if err != nil {
 		return fmt.Errorf("create dir: %w", err)
 	}

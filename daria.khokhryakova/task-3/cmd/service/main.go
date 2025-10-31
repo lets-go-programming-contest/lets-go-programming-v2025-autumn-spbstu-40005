@@ -3,8 +3,8 @@ package main
 import (
 	"flag"
 
-	"github.com/DariaKhokhryakova/task-3/internal/bank"
 	"github.com/DariaKhokhryakova/task-3/internal/config"
+	"github.com/DariaKhokhryakova/task-3/internal/parser"
 )
 
 func main() {
@@ -18,17 +18,17 @@ func main() {
 		panic(err)
 	}
 
-	valCurs, err := bank.ParseXMLData(config.InputFile)
+	valCurs, err := parser.ParseXMLData(config.InputFile)
 	if err != nil {
 		panic(err)
 	}
 
-	result, err := bank.ProcessCurrencies(valCurs)
+	result, err := parser.ProcessCurrencies(valCurs)
 	if err != nil {
 		panic(err)
 	}
 
-	err = bank.SaveResults(result, config.OutputFile)
+	err = parser.SaveJSONResults(result, config.OutputFile)
 	if err != nil {
 		panic(err)
 	}
