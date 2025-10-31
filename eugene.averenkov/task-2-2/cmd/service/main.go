@@ -86,19 +86,19 @@ func findKthLargest(arr []int, kValue int) (int, error) {
 	return minHeap.Peek(), nil
 }
 
-func main() int {
+func main() {
 	arr, kValue, err := readInput()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Ошибка ввода: %v\n", err)
-		return 1
+		return
 	}
 
 	result, err := findKthLargest(arr, kValue)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Ошибка обработки: %v\n", err)
-		return 1
+		return
 	}
 
 	fmt.Println(result)
-	return 0
+	return
 }
