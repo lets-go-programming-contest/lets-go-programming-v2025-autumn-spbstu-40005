@@ -23,6 +23,7 @@ func (v *CurrencyValue) UnmarshalXML(d *xml.Decoder, start xml.StartElement) err
 	}
 
 	*v = CurrencyValue(value)
+
 	return nil
 }
 
@@ -33,9 +34,9 @@ type ValCurs struct {
 }
 
 type Valute struct {
-	NumCode  int           `json:"num_code" xml:"NumCode"`
+	NumCode  int           `json:"num_code"  xml:"NumCode"`
 	CharCode string        `json:"char_code" xml:"CharCode"`
-	Value    CurrencyValue `json:"value" xml:"Value"`
+	Value    CurrencyValue `json:"value"     xml:"Value"`
 }
 
 type byValueDesc []Valute

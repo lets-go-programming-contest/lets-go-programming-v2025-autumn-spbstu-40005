@@ -13,13 +13,20 @@ type Config struct {
 	OutputFile string `yaml:"output-file"`
 }
 
+var (
+	ErrInputFileRequired  = errors.New("input-file is required")
+	ErrOutputFileRequired = errors.New("output-file is required")
+)
+
 func (c *Config) Validate() error {
 	if c.InputFile == "" {
-		return errors.New("input-file is required")
+		return ErrInputFileRequired
 	}
+
 	if c.OutputFile == "" {
-		return errors.New("output-file is required")
+		return ErrOutputFileRequired
 	}
+
 	return nil
 }
 
