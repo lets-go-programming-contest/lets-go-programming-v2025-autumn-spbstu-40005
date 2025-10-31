@@ -30,11 +30,6 @@ func ConvertAndSortCurrencies(valCurs *model.ValCurs) []model.CurrencyResult {
 	currencies := make([]model.CurrencyResult, 0, len(valCurs.Valutes))
 
 	for _, valute := range valCurs.Valutes {
-		value, err := valute.ValueAsFloat()
-		if err != nil {
-			continue
-		}
-
 		currency := model.CurrencyResult{
 			NumCode:  valute.NumCode,
 			CharCode: valute.CharCode,
