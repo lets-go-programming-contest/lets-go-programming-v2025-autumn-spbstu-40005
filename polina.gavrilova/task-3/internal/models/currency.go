@@ -7,47 +7,31 @@ import (
 	"strings"
 )
 
+type CurrencyValue float64
+
+func (v *CurrencyValue) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
+	var str string
+	if err := d.DecodeElement(&str, &start); err != nil {
+		return fmt.Errorf("failed to unmarshal currency value: %w", err)
+	}
+
+	str = strings.ReplaceAll(str, ",", ".")
+	value, err := strconv.ParseFloat(str, 64)
+	if err != nil {
+		return fmt.Errorf("failed to parse currency value: %w", err)
+	}
+
+	*v = CurrencyValue(value)
+	return nil
+}
+
 type ValCurs struct {
 	XMLName xml.Name `xml:"ValCurs"`
 	Valutes []Valute `xml:"Valute"`
 }
 
 type Valute struct {
-	NumCode  int     `json:"num_code"  xml:"NumCode"`
-	CharCode string  `json:"char_code" xml:"CharCode"`
-	Value    float64 `json:"value"     xml:"Value"`
-}
-
-type valuteTemp struct {
-	NumCode  string `xml:"NumCode"`
-	CharCode string `xml:"CharCode"`
-	Value    string `xml:"Value"`
-}
-
-func (v *Valute) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
-	var temp valuteTemp
-	if err := d.DecodeElement(&temp, &start); err != nil {
-		return fmt.Errorf("failed to decode element: %w", err)
-	}
-
-	if temp.NumCode == "" || temp.CharCode == "" || temp.Value == "" {
-		return nil
-	}
-
-	numCode, err := strconv.Atoi(temp.NumCode)
-	if err != nil {
-		return fmt.Errorf("invalid NumCode %s: %w", temp.NumCode, err)
-	}
-
-	valueStr := strings.Replace(temp.Value, ",", ".", 1)
-	value, err := strconv.ParseFloat(valueStr, 64)
-	if err != nil {
-		return fmt.Errorf("invalid Value %s: %w", temp.Value, err)
-	}
-
-	v.NumCode = numCode
-	v.CharCode = temp.CharCode
-	v.Value = value
-
-	return nil
+	NumCode  int           `json:"num_code"  xml:"NumCode"`
+	CharCode string        `json:"char_code" xml:"CharCode"`
+	Value    CurrencyValue `json:"value"     xml:"Value"`
 }
