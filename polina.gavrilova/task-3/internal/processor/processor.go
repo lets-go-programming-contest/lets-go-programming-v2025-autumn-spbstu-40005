@@ -57,7 +57,7 @@ func transformAndSort(xmlData *models.ValCurs) []models.Valute {
 	copy(valutes, xmlData.Valutes)
 
 	sort.Slice(valutes, func(i, j int) bool {
-		return valutes[i].Value > valutes[j].Value
+		return float64(valutes[i].Value) > float64(valutes[j].Value)
 	})
 
 	return valutes
