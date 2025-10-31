@@ -1,4 +1,4 @@
-package bank
+package parser
 
 import (
 	"bytes"
@@ -6,10 +6,11 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/DariaKhokhryakova/task-3/internal/models"
 	"golang.org/x/net/html/charset"
 )
 
-func ParseXMLData(filePath string) (*ValCurs, error) {
+func ParseXMLData(filePath string) (*models.ValCurs, error) {
 	data, err := os.ReadFile(filePath)
 	if err != nil {
 		return nil, fmt.Errorf("read file: %w", err)
@@ -20,7 +21,7 @@ func ParseXMLData(filePath string) (*ValCurs, error) {
 
 	decoder.CharsetReader = charset.NewReaderLabel
 
-	var valCurs ValCurs
+	var valCurs models.ValCurs
 
 	err = decoder.Decode(&valCurs)
 	if err != nil {
