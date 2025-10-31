@@ -37,30 +37,34 @@ func Run(cfg *config.Config) error {
 func readXMLData(path string) (*models.XMLValCurs, error) {
 	file, err := os.Open(path)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to open file: %w", err)
 	}
-	defer file.Close()
+	defer func() {
+		if closeErr := file.Close(); closeErr != nil {
+			fmt.Printf("warning: failed to close file: %v\n", closeErr)
+		}
+	}()
 
 	decoder := xml.NewDecoder(file)
 	decoder.CharsetReader = charset.NewReaderLabel
 
 	var valCurs models.XMLValCurs
-	err = decoder.Decode(&valCurs)
-	if err != nil {
-		return nil, err
+	if err := decoder.Decode(&valCurs); err != nil {
+		return nil, fmt.Errorf("failed to decode XML: %w", err)
 	}
 
 	return &valCurs, nil
 }
 
 func transformAndSort(xmlData *models.XMLValCurs) ([]models.JSONValute, error) {
-
 	jsonValutes := make([]models.JSONValute, 0, len(xmlData.Valutes))
 
 	for _, xmlVal := range xmlData.Valutes {
+		if xmlVal.NumCode == "" || xmlVal.CharCode == "" || xmlVal.Value == "" {
+			continue
+		}
 
 		valStr := strings.Replace(xmlVal.Value, ",", ".", 1)
-
 		valFloat, err := strconv.ParseFloat(valStr, 64)
 		if err != nil {
 			return nil, fmt.Errorf("error parsing value for currency %s: %w", xmlVal.CharCode, err)
@@ -86,21 +90,18 @@ func transformAndSort(xmlData *models.XMLValCurs) ([]models.JSONValute, error) {
 }
 
 func writeJSONData(path string, data []models.JSONValute) error {
-
 	dir := filepath.Dir(path)
-
 	if err := os.MkdirAll(dir, 0755); err != nil {
-		return err
+		return fmt.Errorf("failed to create directory: %w", err)
 	}
 
 	jsonData, err := json.MarshalIndent(data, "", "    ")
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to marshal JSON: %w", err)
 	}
 
-	err = os.WriteFile(path, jsonData, 0644)
-	if err != nil {
-		return err
+	if err := os.WriteFile(path, jsonData, 0600); err != nil {
+		return fmt.Errorf("failed to write file: %w", err)
 	}
 
 	return nil
