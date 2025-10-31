@@ -20,10 +20,12 @@ type JSONCurrency struct {
 
 func processCurrency(currency currencyhandler.CurrencyItem) JSONCurrency {
 	var result JSONCurrency
+
 	var parseError error
 
 	if currency.NumCode != "" {
 		result.NumCode, parseError = strconv.Atoi(currency.NumCode)
+
 		if parseError != nil {
 			panic(parseError)
 		}
@@ -31,6 +33,7 @@ func processCurrency(currency currencyhandler.CurrencyItem) JSONCurrency {
 
 	cleanValue := strings.ReplaceAll(currency.Value, ",", ".")
 	result.Value, parseError = strconv.ParseFloat(cleanValue, 64)
+
 	if parseError != nil {
 		panic(parseError)
 	}
