@@ -2,8 +2,8 @@ package convert
 
 import (
 	"encoding/xml"
-	"fmt"
 	"os"
+	"fmt"
 
 	"feodor.khoroshilov/task-3/internal/currency"
 	"golang.org/x/net/html/charset"
