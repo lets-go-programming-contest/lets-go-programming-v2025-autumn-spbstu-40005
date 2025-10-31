@@ -11,7 +11,7 @@ import (
 	"golang.org/x/net/html/charset"
 )
 
-func ParseXML(filePath string) (*model.ValCurs, error) {
+func ParseXML[T any](filePath string) (*T, error) {
 	file, err := os.Open(filePath)
 	if err != nil {
 		return nil, fmt.Errorf("cannot open XML file: %w", err)
@@ -26,12 +26,12 @@ func ParseXML(filePath string) (*model.ValCurs, error) {
 	decoder := xml.NewDecoder(file)
 	decoder.CharsetReader = charset.NewReaderLabel
 
-	var valCurs model.ValCurs
-	if err := decoder.Decode(&valCurs); err != nil {
+	var data T
+	if err := decoder.Decode(&data); err != nil {
 		return nil, fmt.Errorf("cannot decode XML: %w", err)
 	}
 
-	return &valCurs, nil
+	return &data, nil
 }
 
 func parseValue(valueStr string) (float64, error) {
