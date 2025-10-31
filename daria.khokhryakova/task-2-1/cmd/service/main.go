@@ -6,6 +6,11 @@ import (
 	"github.com/DariaKhokhryakova/task-2-1/internal/temperature"
 )
 
+const (
+	minLimit = 15
+	maxLimit = 30
+)
+
 func ReadTemperature() (string, int, error) {
 	var operator string
 
@@ -20,18 +25,12 @@ func ReadTemperature() (string, int, error) {
 }
 
 func ProcessEmployee(countEmployees int) error {
-	tempRange := temperature.NewTemperatureRange()
+	tempRange := temperature.NewTemperatureRange(minLimit, maxLimit)
 
 	for range countEmployees {
 		icon, tempValue, err := ReadTemperature()
 		if err != nil {
 			return fmt.Errorf("read temperature: %w", err)
-		}
-
-		if !tempRange.IsValid() {
-			fmt.Println(-1)
-
-			continue
 		}
 
 		err = temperature.UpdateTemperature(icon, tempValue, tempRange)
