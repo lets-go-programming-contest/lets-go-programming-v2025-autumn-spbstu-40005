@@ -1,4 +1,4 @@
-package json_utils
+package jsonwriter
 
 import (
 	"encoding/json"
