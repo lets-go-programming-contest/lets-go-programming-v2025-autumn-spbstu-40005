@@ -19,19 +19,24 @@ func (h *IntHeap) Len() int {
 }
 
 func (h *IntHeap) Less(i, j int) bool {
+	if i < 0 || i >= len(*h) || j < 0 || j >= len(*h) {
+		panic("heap index out of range")
+	}
 	return (*h)[i] < (*h)[j]
 }
 
 func (h *IntHeap) Swap(i, j int) {
+	if i < 0 || i >= len(*h) || j < 0 || j >= len(*h) {
+		panic("heap index out of range")
+	}
 	(*h)[i], (*h)[j] = (*h)[j], (*h)[i]
 }
 
 func (h *IntHeap) Push(x interface{}) {
 	value, ok := x.(int)
 	if !ok {
-		return
+		panic("invalid type pushed to IntHeap")
 	}
-
 	*h = append(*h, value)
 }
 
@@ -40,79 +45,57 @@ func (h *IntHeap) Pop() interface{} {
 	length := len(old)
 
 	if length == 0 {
-		return nil
+		panic("pop from empty heap")
 	}
 
 	val := old[length-1]
 	*h = old[:length-1]
-
 	return val
 }
 
 func main() {
-	var (
-		dishCount      int
-		dishPreference int
-	)
+	var dishCount int
 
 	if _, err := fmt.Scan(&dishCount); err != nil {
 		fmt.Println("Failed to read dish count:", err)
-
 		return
 	}
 
-	dishRatings := make([]int, dishCount)
-	for index := range dishRatings {
-		if _, err := fmt.Scan(&dishRatings[index]); err != nil {
-			fmt.Println("Failed to read dish rating:", err)
+	dishRatings := &IntHeap{}
+	heap.Init(dishRatings)
 
+	for range dishCount {
+		var rating int
+		if _, err := fmt.Scan(&rating); err != nil {
+			fmt.Println("Failed to read dish rating:", err)
 			return
 		}
+
+		heap.Push(dishRatings, rating)
 	}
+
+	var dishPreference int
 
 	if _, err := fmt.Scan(&dishPreference); err != nil {
 		fmt.Println("Failed to read dish preference:", err)
-
 		return
 	}
 
-	if dishPreference < 1 || dishPreference > dishCount {
+	if dishPreference <= 0 || dishPreference > dishRatings.Len() {
 		fmt.Println("Preference out of range")
-
 		return
 	}
 
-	result, err := getPreference(dishRatings, dishPreference)
-	if err != nil {
-		fmt.Println("Error:", err)
+	for range dishPreference - 1 {
+		heap.Pop(dishRatings)
+	}
 
+	result := heap.Pop(dishRatings)
+
+	if result == nil {
+		fmt.Println("No result available")
 		return
 	}
 
 	fmt.Println(result)
-}
-
-func getPreference(dishRatings []int, preference int) (int, error) {
-	ratingHeap := &IntHeap{}
-	heap.Init(ratingHeap)
-
-	for _, rating := range dishRatings {
-		heap.Push(ratingHeap, rating)
-
-		if ratingHeap.Len() > preference {
-			heap.Pop(ratingHeap)
-		}
-	}
-
-	result := heap.Pop(ratingHeap)
-	if result == nil {
-		return 0, ErrHeapOperation
-	}
-
-	value, ok := result.(int)
-	if !ok {
-		return 0, ErrHeapOperation
-	}
-
-	return value, nil
 }
