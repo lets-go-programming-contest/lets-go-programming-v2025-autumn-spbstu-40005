@@ -5,8 +5,8 @@ import (
 	"sort"
 
 	"sergey.dribas/task-3/internal/config"
-	"sergey.dribas/task-3/internal/data"
 	"sergey.dribas/task-3/internal/json"
+	"sergey.dribas/task-3/internal/valute"
 )
 
 const (
