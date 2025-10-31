@@ -9,7 +9,7 @@ import (
 )
 
 var (
-	ErrOpeningFileYAML = errors.New("error opening file")
+	ErrOpeningFile     = errors.New("error opening file")
 	ErrClosingFileYAML = errors.New("error closing file")
 	ErrYAMLDecoding    = errors.New("error yaml decoding")
 )
@@ -17,7 +17,7 @@ var (
 func ParseYAML[T any](configfilePath string) (*T, error) {
 	file, err := os.Open(configfilePath)
 	if err != nil {
-		return nil, fmt.Errorf("%w: %w", ErrOpeningFileYAML, err)
+		return nil, fmt.Errorf("%w: %w", ErrOpeningFile, err)
 	}
 
 	defer func() {
@@ -27,6 +27,7 @@ func ParseYAML[T any](configfilePath string) (*T, error) {
 	}()
 
 	var config T
+
 	decoder := yaml.NewDecoder(file)
 
 	if err := decoder.Decode(&config); err != nil {
