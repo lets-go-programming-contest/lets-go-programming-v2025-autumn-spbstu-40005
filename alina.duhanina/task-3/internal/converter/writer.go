@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-
-	"alina.duhanina/task-3/internal/model"
 )
 
 const (
