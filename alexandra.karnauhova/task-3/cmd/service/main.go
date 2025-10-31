@@ -4,10 +4,10 @@ import (
 	"flag"
 	"path/filepath"
 
-	"alexandra.karnauhova/task-1/internal/config"
-	"alexandra.karnauhova/task-1/internal/parserxml"
-	"alexandra.karnauhova/task-1/internal/sorter"
-	"alexandra.karnauhova/task-1/internal/writer"
+	"alexandra.karnauhova/task-3/internal/config"
+	"alexandra.karnauhova/task-3/internal/parserxml"
+	"alexandra.karnauhova/task-3/internal/sorter"
+	"alexandra.karnauhova/task-3/internal/writer"
 )
 
 func main() {

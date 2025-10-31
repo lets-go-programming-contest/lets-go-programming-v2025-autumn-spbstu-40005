@@ -3,7 +3,7 @@ package sorter
 import (
 	"sort"
 
-	"alexandra.karnauhova/task-1/internal/data"
+	"alexandra.karnauhova/task-3/internal/data"
 )
 
 func SortByValueDesc(valutes []data.Valute) []data.Valute {

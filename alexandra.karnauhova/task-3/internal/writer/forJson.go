@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"os"
 
-	"alexandra.karnauhova/task-1/internal/data"
+	"alexandra.karnauhova/task-3/internal/data"
 )
 
 func CreateDirectory(directory string) error {

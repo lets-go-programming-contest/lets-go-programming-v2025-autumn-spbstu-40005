@@ -8,7 +8,7 @@ import (
 	"io"
 	"os"
 
-	"alexandra.karnauhova/task-1/internal/data"
+	"alexandra.karnauhova/task-3/internal/data"
 	"golang.org/x/net/html/charset"
 )
 
