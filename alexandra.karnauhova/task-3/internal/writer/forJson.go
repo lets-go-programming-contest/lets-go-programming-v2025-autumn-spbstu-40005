@@ -2,24 +2,33 @@ package writer
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
 
 	"alexandra.karnauhova/task-3/internal/data"
 )
 
 func CreateDirectory(directory string) error {
-	return os.MkdirAll(directory, 0755)
+	return os.MkdirAll(directory, 0o755)
 }
 
-func ParseJson(valutes []data.Valute, filePath string) error {
+func SaveToJSON(valutes []data.Valute, filePath string) error {
 	file, err := os.Create(filePath)
 	if err != nil {
 		return err
 	}
-	defer file.Close()
+	defer func() {
+		if closeErr := file.Close(); closeErr != nil {
+			fmt.Printf("Warning: failed to close file: %v\n", closeErr)
+		}
+	}()
 
 	encoder := json.NewEncoder(file)
 	encoder.SetIndent("", "  ")
 
-	return encoder.Encode(valutes)
+	if err := encoder.Encode(valutes); err != nil {
+		return fmt.Errorf("failed to encode JSON: %w", err)
+	}
+
+	return nil
 }
