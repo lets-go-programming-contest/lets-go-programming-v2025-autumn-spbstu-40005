@@ -16,7 +16,7 @@ func main() {
 		panic("--config flag is required")
 	}
 
-	cfg, err := config.LoadConfig(*configPath)
+	cfg, err := config.Load(*configPath)
 	if err != nil {
 		panic(err)
 	}
