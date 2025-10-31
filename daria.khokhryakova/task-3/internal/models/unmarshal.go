@@ -12,12 +12,12 @@ type CurrencyValue float64
 func (cv *CurrencyValue) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
 	var valueStr string
 	if err := d.DecodeElement(&valueStr, &start); err != nil {
-		return err
+		return fmt.Errorf("decode element: %w", err)
 	}
 
 	value, err := convertValue(valueStr)
 	if err != nil {
-		return err
+		return fmt.Errorf("convert value: %w", err)
 	}
 
 	*cv = CurrencyValue(value)
@@ -32,5 +32,6 @@ func convertValue(valueStr string) (float64, error) {
 	if err != nil {
 		return 0, fmt.Errorf("parse float: %w", err)
 	}
+
 	return value, nil
 }
