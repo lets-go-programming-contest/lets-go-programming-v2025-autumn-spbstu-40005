@@ -21,7 +21,10 @@ func Run(cfg *config.Config) error {
 		return fmt.Errorf("error reading xml file: %w", err)
 	}
 
-	jsonValutes := transformAndSort(xmlData)
+	jsonValutes, err := transformAndSort(xmlData)
+	if err != nil {
+		return err
+	}
 
 	err = writeJSONData(cfg.OutputFile, jsonValutes)
 	if err != nil {
@@ -50,7 +53,7 @@ func readXMLData(path string) (*models.XMLValCurs, error) {
 	return &valCurs, nil
 }
 
-func transformAndSort(xmlData *models.XMLValCurs) []models.JSONValute {
+func transformAndSort(xmlData *models.XMLValCurs) ([]models.JSONValute, error) {
 
 	jsonValutes := make([]models.JSONValute, 0, len(xmlData.Valutes))
 
@@ -60,12 +63,12 @@ func transformAndSort(xmlData *models.XMLValCurs) []models.JSONValute {
 
 		valFloat, err := strconv.ParseFloat(valStr, 64)
 		if err != nil {
-			continue
+			return nil, fmt.Errorf("error parsing value for currency %s: %w", xmlVal.CharCode, err)
 		}
 
 		numCodeInt, err := strconv.Atoi(xmlVal.NumCode)
 		if err != nil {
-			continue
+			return nil, fmt.Errorf("error parsing numcode for currency %s: %w", xmlVal.CharCode, err)
 		}
 
 		jsonValutes = append(jsonValutes, models.JSONValute{
@@ -79,7 +82,7 @@ func transformAndSort(xmlData *models.XMLValCurs) []models.JSONValute {
 		return jsonValutes[i].Value > jsonValutes[j].Value
 	})
 
-	return jsonValutes
+	return jsonValutes, nil
 }
 
 func writeJSONData(path string, data []models.JSONValute) error {

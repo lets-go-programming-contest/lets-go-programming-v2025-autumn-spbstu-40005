@@ -22,6 +22,6 @@ func main() {
 
 	err = processor.Run(cfg)
 	if err != nil {
-		panic("Failed to process data")
+		panic(err)
 	}
 }
