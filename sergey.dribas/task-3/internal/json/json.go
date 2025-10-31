@@ -3,6 +3,7 @@ package jsonstorage
 import (
 	"encoding/json"
 	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 
@@ -17,7 +18,7 @@ type CurrencyJSON struct {
 
 func SaveCurrenciesToJSON(currencies valute.ValCurs, filename string) error {
 	var result []CurrencyJSON
-
+	dir := filepath.Dir(filename)
 	for _, currency := range currencies.Valutes {
 		if numCode, err := strconv.Atoi(currency.NumCode); err != nil {
 			return err
@@ -34,6 +35,10 @@ func SaveCurrenciesToJSON(currencies valute.ValCurs, filename string) error {
 
 	jsonData, err := json.MarshalIndent(result, "", "  ")
 	if err != nil {
+		return err
+	}
+
+	if err := os.MkdirAll(dir, 0755); err != nil {
 		return err
 	}
 
