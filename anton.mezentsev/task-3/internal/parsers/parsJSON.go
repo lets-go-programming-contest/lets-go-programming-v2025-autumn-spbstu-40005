@@ -9,15 +9,17 @@ import (
 )
 
 var (
-	ErrCreatingDir     = errors.New("error creating directory")
-	ErrCreatingFile    = errors.New("error creating file")
-	ErrEncodingJSON    = errors.New("error encoding json")
-	ErrClosingFileJSON = errors.New("error closing file")
+	ErrCreatingDir  = errors.New("error creating directory")
+	ErrCreatingFile = errors.New("error creating file")
+	ErrEncodingJSON = errors.New("error encoding json")
+	ErrClosingFile  = errors.New("error closing file")
 )
+
+const directoryPermissions = 0o755
 
 func SaveToJSON(data any, filePath string) error {
 	dir := filepath.Dir(filePath)
-	if err := os.MkdirAll(dir, 0o755); err != nil {
+	if err := os.MkdirAll(dir, directoryPermissions); err != nil {
 		return fmt.Errorf("%w: %w", ErrCreatingDir, err)
 	}
 
@@ -28,7 +30,7 @@ func SaveToJSON(data any, filePath string) error {
 
 	defer func() {
 		if err := file.Close(); err != nil {
-			panic(ErrClosingFileJSON)
+			panic(ErrClosingFile)
 		}
 	}()
 
