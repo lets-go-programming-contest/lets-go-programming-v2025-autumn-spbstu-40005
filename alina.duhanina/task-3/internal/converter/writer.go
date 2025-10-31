@@ -14,8 +14,8 @@ const (
 	filePerm = 0o644
 )
 
-func SaveJSON(outputPath string, currencies []model.CurrencyResult) error {
-	jsonData, err := json.MarshalIndent(currencies, "", "  ")
+func SaveJSON[T any](outputPath string, data T) error {
+	jsonData, err := json.MarshalIndent(data, "", "  ")
 	if err != nil {
 		return fmt.Errorf("failed to marshal JSON: %w", err)
 	}
