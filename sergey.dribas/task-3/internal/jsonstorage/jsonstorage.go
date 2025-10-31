@@ -17,9 +17,9 @@ const (
 )
 
 type CurrencyJSON struct {
-	NumCode  int             `json:"num_code"`
-	CharCode string          `json:"char_code"`
-	Value    json.RawMessage `json:"value"`
+	NumCode  int             `jsonstorage:"num_code"`
+	CharCode string          `jsonstorage:"char_code"`
+	Value    json.RawMessage `jsonstorage:"value"`
 }
 
 func SaveCurrenciesToJSON(currencies valute.ValCurs, filename string) error {

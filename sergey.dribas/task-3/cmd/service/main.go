@@ -5,7 +5,7 @@ import (
 	"sort"
 
 	"sergey.dribas/task-3/internal/config"
-	"sergey.dribas/task-3/internal/json"
+	"sergey.dribas/task-3/internal/jsonstorage"
 	"sergey.dribas/task-3/internal/valute"
 )
 
