@@ -30,6 +30,10 @@ func (v *Valute) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
 		return err
 	}
 
+	if temp.NumCode == "" || temp.CharCode == "" || temp.Value == "" {
+		return fmt.Errorf("skipping valute with empty fields")
+	}
+
 	numCode, err := strconv.Atoi(temp.NumCode)
 	if err != nil {
 		return fmt.Errorf("invalid NumCode %s: %w", temp.NumCode, err)
