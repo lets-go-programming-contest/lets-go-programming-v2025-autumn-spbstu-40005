@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"strings"
 
-	"sergey.dribas/task-3/internal/data"
+	"sergey.dribas/task-3/internal/valute"
 )
 
 const (
