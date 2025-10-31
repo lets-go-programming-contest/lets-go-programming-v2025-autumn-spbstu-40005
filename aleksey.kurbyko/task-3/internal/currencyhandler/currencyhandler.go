@@ -9,7 +9,7 @@ import (
 
 type CurrencyList struct {
 	XMLName xml.Name       `xml:"ValCurs"`
-	Items   []CurrencyItem `xml:"Valute"
+	Items   []CurrencyItem `xml:"Valute"`
 }
 
 type CurrencyItem struct {
