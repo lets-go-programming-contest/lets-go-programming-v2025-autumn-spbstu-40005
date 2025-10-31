@@ -2,25 +2,17 @@ package temperature
 
 import "errors"
 
-var (
-	ErrIcon = errors.New("invalid icon")
-	ErrTemp = errors.New("temperature out of range")
-)
-
-const (
-	minLimit = 15
-	maxLimit = 30
-)
+var ErrIcon = errors.New("invalid icon")
 
 type TemperatureRange struct {
 	minTemp int
 	maxTemp int
 }
 
-func NewTemperatureRange() *TemperatureRange {
+func NewTemperatureRange(min, max int) *TemperatureRange {
 	return &TemperatureRange{
-		minTemp: minLimit,
-		maxTemp: maxLimit,
+		minTemp: min,
+		maxTemp: max,
 	}
 }
 
@@ -37,10 +29,6 @@ func (temp *TemperatureRange) GetResult() int {
 }
 
 func UpdateTemperature(icon string, temperature int, tempRange *TemperatureRange) error {
-	if temperature < minLimit || temperature > maxLimit {
-		return ErrTemp
-	}
-
 	switch icon {
 	case ">=":
 		if temperature > tempRange.minTemp {
