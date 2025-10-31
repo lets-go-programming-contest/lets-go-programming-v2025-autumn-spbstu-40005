@@ -1,6 +1,6 @@
-module alexandra.karnauhova/task-1
+module alexandra.karnauhova/task-3
 
-go 1.22.7
+go 1.24.0
 
 require (
 	golang.org/x/net v0.46.0
