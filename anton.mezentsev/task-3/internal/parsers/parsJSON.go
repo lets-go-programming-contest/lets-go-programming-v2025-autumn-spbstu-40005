@@ -10,17 +10,17 @@ import (
 func SaveToJSON(data any, filePath string) error {
 	dir := filepath.Dir(filePath)
 	if err := os.MkdirAll(dir, 0755); err != nil {
-		return fmt.Errorf("Error: creating a directory: %v", err)
+		return fmt.Errorf("error: creating a directory: %v", err)
 	}
 
 	file, err := os.Create(filePath)
 	if err != nil {
-		return fmt.Errorf("Error: creating a file: %v", err)
+		return fmt.Errorf("error: creating a file: %v", err)
 	}
 
 	defer func() {
 		if err := file.Close(); err != nil {
-			panic("Error: closing file")
+			panic("error: closing file")
 		}
 	}()
 
@@ -28,7 +28,7 @@ func SaveToJSON(data any, filePath string) error {
 	encoder.SetIndent("", " ")
 
 	if err := encoder.Encode(data); err != nil {
-		return fmt.Errorf("Error: encoding json: %v", err)
+		return fmt.Errorf("error: encoding json: %v", err)
 	}
 
 	return nil

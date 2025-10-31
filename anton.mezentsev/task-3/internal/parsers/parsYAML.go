@@ -10,12 +10,12 @@ import (
 func ParseYAML[T any](configfilePath string) (*T, error) {
 	file, err := os.Open(configfilePath)
 	if err != nil {
-		return nil, fmt.Errorf("Error: opening a file: %w", err)
+		return nil, fmt.Errorf("error: opening a file: %w", err)
 	}
 
 	defer func() {
 		if err := file.Close(); err != nil {
-			panic("Error: closing config file")
+			panic("error: closing config file")
 		}
 	}()
 
@@ -24,7 +24,7 @@ func ParseYAML[T any](configfilePath string) (*T, error) {
 	decoder := yaml.NewDecoder(file)
 
 	if err := decoder.Decode(&config); err != nil {
-		return nil, fmt.Errorf("Error: yaml decoding: %w", err)
+		return nil, fmt.Errorf("error: yaml decoding: %w", err)
 	}
 
 	return &config, nil

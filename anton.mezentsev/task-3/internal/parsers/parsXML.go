@@ -11,12 +11,12 @@ import (
 func ParseXML[T any](filePath string) (*T, error) {
 	file, err := os.Open(filePath)
 	if err != nil {
-		return nil, fmt.Errorf("Error: opening a file: %w", err)
+		return nil, fmt.Errorf("error: opening a file: %w", err)
 	}
 
 	defer func() {
 		if err := file.Close(); err != nil {
-			panic("Error: closing xml file")
+			panic("error: closing xml file")
 		}
 	}()
 
@@ -26,7 +26,7 @@ func ParseXML[T any](filePath string) (*T, error) {
 
 	var result T
 	if err := decoder.Decode(&result); err != nil {
-		return nil, fmt.Errorf("Error: xml decoding: %w", err)
+		return nil, fmt.Errorf("error: xml decoding: %w", err)
 	}
 
 	return &result, nil

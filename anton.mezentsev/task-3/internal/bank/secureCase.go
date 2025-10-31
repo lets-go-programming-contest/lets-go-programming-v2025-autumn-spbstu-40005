@@ -21,7 +21,7 @@ type Valute struct {
 	Value    value  `json:"value" xml:"Value"`
 }
 
-func (val *value) ParseCurrencyValue(decoder *xml.Decoder, start xml.StartElement) error {
+func (val *value) UnmarshalXML(decoder *xml.Decoder, start xml.StartElement) error {
 	var field string
 	if err := decoder.DecodeElement(&field, &start); err != nil {
 		return fmt.Errorf("cannot decode value: %w", err)
