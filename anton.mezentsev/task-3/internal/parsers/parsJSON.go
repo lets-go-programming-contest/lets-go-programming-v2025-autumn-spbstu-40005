@@ -2,25 +2,33 @@ package parsers
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
 )
 
+var (
+	ErrCreatingDir  = errors.New("error creating directory")
+	ErrCreatingFile = errors.New("error creating file")
+	ErrEncodingJSON = errors.New("error encoding json")
+	ErrClosingFile  = errors.New("error closing file")
+)
+
 func SaveToJSON(data any, filePath string) error {
 	dir := filepath.Dir(filePath)
 	if err := os.MkdirAll(dir, 0755); err != nil {
-		return fmt.Errorf("error: creating a directory: %v", err)
+		return fmt.Errorf("%w: %v", ErrCreatingDir, err)
 	}
 
 	file, err := os.Create(filePath)
 	if err != nil {
-		return fmt.Errorf("error: creating a file: %v", err)
+		return fmt.Errorf("%w: %v", ErrCreatingFile, err)
 	}
 
 	defer func() {
 		if err := file.Close(); err != nil {
-			panic("error: closing file")
+			panic(ErrClosingFile)
 		}
 	}()
 
@@ -28,7 +36,7 @@ func SaveToJSON(data any, filePath string) error {
 	encoder.SetIndent("", " ")
 
 	if err := encoder.Encode(data); err != nil {
-		return fmt.Errorf("error: encoding json: %v", err)
+		return fmt.Errorf("%w: %v", ErrEncodingJSON, err)
 	}
 
 	return nil
