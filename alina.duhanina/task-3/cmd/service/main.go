@@ -7,19 +7,27 @@ import (
 
 	"alina.duhanina/task-3/internal/config"
 	"alina.duhanina/task-3/internal/converter"
+	"alina.duhanina/task-3/internal/model"
 )
 
 func main() {
-	configPath := flag.String("config", "", "Path to configuration file")
+	configPath := flag.String("config", "config.yaml", "Path to configuration file")
 	flag.Parse()
-
-	if *configPath == "" {
-		log.Panic("Config path is required")
-	}
 
 	cfg, err := config.LoadConfig(*configPath)
 	if err != nil {
 		log.Panicf("Error loading config: %v", err)
+	}
+
+	valCurs, err := converter.ParseXML[model.ValCurs](cfg.InputFile)
+	if err != nil {
+		log.Panicf("Error parsing XML: %v", err)
+	}
+
+	currencies := converter.ConvertAndSortCurrencies(valCurs)
+
+	if err := converter.SaveJSON(cfg.OutputFile, currencies); err != nil {
+		log.Panicf("Error saving JSON: %v", err)
 	}
 
 	err = converter.ConvertXMLToJSON(cfg.InputFile, cfg.OutputFile)
