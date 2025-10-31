@@ -1,4 +1,3 @@
-// parser.go
 package convert
 
 import (

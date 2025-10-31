@@ -1,4 +1,3 @@
-// currency.go
 package currency
 
 import (
@@ -34,6 +33,7 @@ func (mv *moneyValue) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error
 
 	if text == "" {
 		*mv = moneyValue(0)
+		
 		return nil
 	}
 
@@ -45,6 +45,7 @@ func (mv *moneyValue) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error
 	}
 
 	*mv = moneyValue(num)
+
 	return nil
 }
 

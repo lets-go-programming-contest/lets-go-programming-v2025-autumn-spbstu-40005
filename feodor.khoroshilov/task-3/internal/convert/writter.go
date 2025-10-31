@@ -1,4 +1,3 @@
-// writter.go
 package convert
 
 import (
