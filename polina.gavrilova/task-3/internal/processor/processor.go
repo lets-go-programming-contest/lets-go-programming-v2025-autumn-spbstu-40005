@@ -14,8 +14,8 @@ import (
 )
 
 const (
-	dirPermissions  = 0755
-	filePermissions = 0600
+	dirPermissions  = 0o755
+	filePermissions = 0o600
 )
 
 func Run(cfg *config.Config) error {
