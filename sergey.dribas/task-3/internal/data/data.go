@@ -2,16 +2,17 @@ package valute
 
 import (
 	"encoding/xml"
+	"errors"
 	"fmt"
 	"io"
 	"os"
 	"strconv"
 	"strings"
 
-	`golang.org/x/text/encoding/charmap`
+	"golang.org/x/text/encoding/charmap"
 )
 
-var errUnsupportedCharset = fmt.Errorf("unsupported charset")
+var errUnsupportedCharset = errors.New("unsupported charset")
 
 type ValCurs struct {
 	Valutes []Valute `xml:"Valute"`

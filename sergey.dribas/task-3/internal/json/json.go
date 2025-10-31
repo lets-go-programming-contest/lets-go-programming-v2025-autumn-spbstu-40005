@@ -2,6 +2,7 @@ package jsonstorage
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -27,7 +28,7 @@ func SaveCurrenciesToJSON(currencies valute.ValCurs, filename string) error {
 		if currency.NumCode != "" {
 			numCode, err = strconv.Atoi(currency.NumCode)
 			if err != nil {
-				return err
+				return fmt.Errorf("error cast to int: %w", err)
 			}
 		}
 		value := strings.Replace(currency.Value, ",", ".", 1)
@@ -41,15 +42,16 @@ func SaveCurrenciesToJSON(currencies valute.ValCurs, filename string) error {
 
 	jsonData, err := json.MarshalIndent(result, "", "  ")
 	if err != nil {
-		return err
-	}
-	if err := os.MkdirAll(dir, 0755); err != nil {
-		return err
+		return fmt.Errorf("error marshalling JSON: %w", err)
 	}
 
-	err = os.WriteFile(filename, jsonData, 0600)
-	if err != nil {
-		return err
+	if err := os.MkdirAll(dir, 0755); err != nil {
+		return fmt.Errorf("error creating directory: %w", err)
+	}
+
+
+	if 	err = os.WriteFile(filename, jsonData,0600,); err != nil {
+		return fmt.Errorf("error creating file: %w", err)
 	}
 
 	return nil
