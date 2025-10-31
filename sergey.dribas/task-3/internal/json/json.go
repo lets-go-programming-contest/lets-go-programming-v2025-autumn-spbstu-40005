@@ -11,6 +11,11 @@ import (
 	"sergey.dribas/task-3/internal/data"
 )
 
+const (
+	defaultDirPerm  os.FileMode = 0755
+	defaultFilePerm os.FileMode = 0600
+)
+
 type CurrencyJSON struct {
 	NumCode  int             `json:"num_code"`
 	CharCode string          `json:"char_code"`
@@ -20,17 +25,20 @@ type CurrencyJSON struct {
 func SaveCurrenciesToJSON(currencies valute.ValCurs, filename string) error {
 	result := make([]CurrencyJSON, 0, len(currencies.Valutes))
 	dir := filepath.Dir(filename)
+
 	for _, currency := range currencies.Valutes {
 		var (
 			numCode int
 			err     error
 		)
+
 		if currency.NumCode != "" {
 			numCode, err = strconv.Atoi(currency.NumCode)
 			if err != nil {
 				return fmt.Errorf("error cast to int: %w", err)
 			}
 		}
+
 		value := strings.Replace(currency.Value, ",", ".", 1)
 		rawValue := json.RawMessage(value)
 		result = append(result, CurrencyJSON{
@@ -45,12 +53,11 @@ func SaveCurrenciesToJSON(currencies valute.ValCurs, filename string) error {
 		return fmt.Errorf("error marshalling JSON: %w", err)
 	}
 
-	if err := os.MkdirAll(dir, 0755); err != nil {
+	if err := os.MkdirAll(dir, defaultDirPerm); err != nil {
 		return fmt.Errorf("error creating directory: %w", err)
 	}
 
-
-	if 	err = os.WriteFile(filename, jsonData,0600,); err != nil {
+	if err = os.WriteFile(filename, jsonData, defaultFilePerm); err != nil {
 		return fmt.Errorf("error creating file: %w", err)
 	}
 
