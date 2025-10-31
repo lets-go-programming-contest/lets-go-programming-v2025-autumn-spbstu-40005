@@ -13,6 +13,11 @@ import (
 	"polina.gavrilova/task-3/internal/models"
 )
 
+const (
+	dirPermissions  = 0755
+	filePermissions = 0600
+)
+
 func Run(cfg *config.Config) error {
 	xmlData, err := readXMLData(cfg.InputFile)
 	if err != nil {
@@ -66,7 +71,7 @@ func transformAndSort(xmlData *models.ValCurs) []models.Valute {
 func writeJSONData(path string, data []models.Valute) error {
 	dir := filepath.Dir(path)
 
-	if err := os.MkdirAll(dir, 0o755); err != nil {
+	if err := os.MkdirAll(dir, dirPermissions); err != nil {
 		return fmt.Errorf("failed to create directory: %w", err)
 	}
 
@@ -75,7 +80,7 @@ func writeJSONData(path string, data []models.Valute) error {
 		return fmt.Errorf("failed to marshal JSON: %w", err)
 	}
 
-	if err := os.WriteFile(path, jsonData, 0o600); err != nil {
+	if err := os.WriteFile(path, jsonData, filePermissions); err != nil {
 		return fmt.Errorf("failed to write file: %w", err)
 	}
 
