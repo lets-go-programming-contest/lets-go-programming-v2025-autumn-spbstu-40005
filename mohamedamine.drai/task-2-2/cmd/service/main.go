@@ -23,7 +23,7 @@ func (h *IntHeap) Less(i, j int) bool {
 		panic("heap index out of range")
 	}
 
-	return (*h)[i] < (*h)[j]
+	return (*h)[i] > (*h)[j]
 }
 
 func (h *IntHeap) Swap(i, j int) {
@@ -99,12 +99,6 @@ func main() {
 	}
 
 	result := heap.Pop(dishRatings)
-
-	if result == nil {
-		fmt.Println("No result available")
-
-		return
-	}
 
 	fmt.Println(result)
 }
