@@ -10,12 +10,12 @@ import (
 	"strconv"
 	"strings"
 
+	"golang.org/x/net/html/charset"
 	"polina.gavrilova/task-3/internal/config"
 	"polina.gavrilova/task-3/internal/models"
 )
 
 func Run(cfg *config.Config) error {
-
 	xmlData, err := readXMLData(cfg.InputFile)
 	if err != nil {
 		return fmt.Errorf("error reading xml file: %w", err)
@@ -32,15 +32,17 @@ func Run(cfg *config.Config) error {
 }
 
 func readXMLData(path string) (*models.XMLValCurs, error) {
-
-	data, err := os.ReadFile(path)
+	file, err := os.Open(path)
 	if err != nil {
 		return nil, err
 	}
+	defer file.Close()
+
+	decoder := xml.NewDecoder(file)
+	decoder.CharsetReader = charset.NewReaderLabel
 
 	var valCurs models.XMLValCurs
-
-	err = xml.Unmarshal(data, &valCurs)
+	err = decoder.Decode(&valCurs)
 	if err != nil {
 		return nil, err
 	}
@@ -61,7 +63,10 @@ func transformAndSort(xmlData *models.XMLValCurs) []models.JSONValute {
 			continue
 		}
 
-		numCodeInt, _ := strconv.Atoi(xmlVal.NumCode)
+		numCodeInt, err := strconv.Atoi(xmlVal.NumCode)
+		if err != nil {
+			continue
+		}
 
 		jsonValutes = append(jsonValutes, models.JSONValute{
 			NumCode:  numCodeInt,
