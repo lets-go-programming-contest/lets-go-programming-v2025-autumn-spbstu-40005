@@ -45,7 +45,7 @@ func (mv *moneyValue) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error
 	}
 
 	*mv = moneyValue(num)
-
+	
 	return nil
 }
 
