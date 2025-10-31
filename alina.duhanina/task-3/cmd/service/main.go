@@ -8,6 +8,7 @@ import (
 	"alina.duhanina/task-3/internal/config"
 	"alina.duhanina/task-3/internal/converter"
 	"alina.duhanina/task-3/internal/model"
+        "alina.duhanina/task-3/internal/sorter"
 )
 
 func main() {
@@ -28,11 +29,6 @@ func main() {
 
 	if err := converter.SaveJSON(cfg.OutputFile, currencies); err != nil {
 		log.Panicf("Error saving JSON: %v", err)
-	}
-
-	err = converter.ConvertXMLToJSON(cfg.InputFile, cfg.OutputFile)
-	if err != nil {
-		log.Panicf("Error converting XML to JSON: %v", err)
 	}
 
 	fmt.Printf("Program completed successfully. Output file: %s\n", cfg.OutputFile)
