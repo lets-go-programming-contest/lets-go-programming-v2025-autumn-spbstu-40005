@@ -4,9 +4,9 @@ import (
 	"flag"
 	"sort"
 
-	"github.com/nikita.brevnov/task-3/internal/bank"
-	"github.com/nikita.brevnov/task-3/internal/config"
-	"github.com/nikita.brevnov/task-3/internal/parser"
+	"nikita.brevnov/task-3/internal/bank"
+	"nikita.brevnov/task-3/internal/config"
+	"nikita.brevnov/task-3/internal/parser"
 )
 
 func main() {
