@@ -22,7 +22,11 @@ func ParseXMLFile(filePath string, target interface{}) error {
 	if err != nil {
 		return fmt.Errorf("failed to open XML file: %w", err)
 	}
-	defer file.Close()
+	defer func() {
+		if closeErr := file.Close(); closeErr != nil {
+			fmt.Fprintf(os.Stderr, "warning: failed to close file %s: %v\n", filePath, closeErr)
+		}
+	}()
 
 	decoder := xml.NewDecoder(file)
 	decoder.CharsetReader = charset.NewReaderLabel
