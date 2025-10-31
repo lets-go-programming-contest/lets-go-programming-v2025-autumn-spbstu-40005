@@ -22,6 +22,7 @@ func (h *IntHeap) Less(i, j int) bool {
 	if i < 0 || i >= len(*h) || j < 0 || j >= len(*h) {
 		panic("heap index out of range")
 	}
+
 	return (*h)[i] < (*h)[j]
 }
 
@@ -29,6 +30,7 @@ func (h *IntHeap) Swap(i, j int) {
 	if i < 0 || i >= len(*h) || j < 0 || j >= len(*h) {
 		panic("heap index out of range")
 	}
+
 	(*h)[i], (*h)[j] = (*h)[j], (*h)[i]
 }
 
@@ -37,6 +39,7 @@ func (h *IntHeap) Push(x interface{}) {
 	if !ok {
 		panic("invalid type pushed to IntHeap")
 	}
+
 	*h = append(*h, value)
 }
 
@@ -50,6 +53,7 @@ func (h *IntHeap) Pop() interface{} {
 
 	val := old[length-1]
 	*h = old[:length-1]
+
 	return val
 }
 
@@ -58,6 +62,7 @@ func main() {
 
 	if _, err := fmt.Scan(&dishCount); err != nil {
 		fmt.Println("Failed to read dish count:", err)
+
 		return
 	}
 
@@ -68,6 +73,7 @@ func main() {
 		var rating int
 		if _, err := fmt.Scan(&rating); err != nil {
 			fmt.Println("Failed to read dish rating:", err)
+
 			return
 		}
 
@@ -78,11 +84,13 @@ func main() {
 
 	if _, err := fmt.Scan(&dishPreference); err != nil {
 		fmt.Println("Failed to read dish preference:", err)
+
 		return
 	}
 
 	if dishPreference <= 0 || dishPreference > dishRatings.Len() {
 		fmt.Println("Preference out of range")
+
 		return
 	}
 
@@ -94,6 +102,7 @@ func main() {
 
 	if result == nil {
 		fmt.Println("No result available")
+
 		return
 	}
 
