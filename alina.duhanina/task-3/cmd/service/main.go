@@ -25,7 +25,7 @@ func main() {
 		log.Panicf("Error parsing XML: %v", err)
 	}
 
-	currencies := converter.ConvertAndSortCurrencies(valCurs)
+	currencies := sorter.ConvertAndSortCurrencies(valCurs)
 
 	if err := converter.SaveJSON(cfg.OutputFile, currencies); err != nil {
 		log.Panicf("Error saving JSON: %v", err)
