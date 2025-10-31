@@ -7,11 +7,10 @@ import (
 	"os"
 	"path/filepath"
 
-	"golang.org/x/net/html/charset"
-	"gopkg.in/yaml.v3"
-
 	"github.com/aleksey.kurbyko/task-3/internal/currencyhandler"
 	"github.com/aleksey.kurbyko/task-3/internal/dataprocessor"
+	"golang.org/x/net/html/charset"
+	"gopkg.in/yaml.v3"
 )
 
 const (
