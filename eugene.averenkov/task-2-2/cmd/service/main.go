@@ -100,4 +100,5 @@ func main() int {
 	}
 
 	fmt.Println(result)
+	return 0
 }
