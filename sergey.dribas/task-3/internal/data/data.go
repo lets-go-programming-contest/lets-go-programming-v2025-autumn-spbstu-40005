@@ -8,8 +8,10 @@ import (
 	"strconv"
 	"strings"
 
-	"golang.org/x/text/encoding/charmap"
+	`golang.org/x/text/encoding/charmap`
 )
+
+var errUnsupportedCharset = fmt.Errorf("unsupported charset")
 
 type ValCurs struct {
 	Valutes []Valute `xml:"Valute"`
@@ -25,14 +27,14 @@ func ValCursFromXML(path string) (*ValCurs, error) {
 	if err != nil {
 		return nil, fmt.Errorf("open xml file: %w", err)
 	}
-	defer file.Close()
 
 	decoder := xml.NewDecoder(file)
 	decoder.CharsetReader = func(charset string, input io.Reader) (io.Reader, error) {
 		if strings.ToLower(charset) == "windows-1251" {
 			return charmap.Windows1251.NewDecoder().Reader(input), nil
 		}
-		return nil, fmt.Errorf("unsupported charset: %s", charset)
+
+		return nil, fmt.Errorf("%w: %s", errUnsupportedCharset, charset)
 	}
 
 	var exch ValCurs
@@ -51,15 +53,17 @@ func (v ValCurs) Swap(i, j int) {
 	if i < 0 || j < 0 || i >= v.Len() || j >= v.Len() {
 		panic("index out of range")
 	}
+
 	v.Valutes[i], v.Valutes[j] = v.Valutes[j], v.Valutes[i]
 }
 
-func (v ValCurs) Less(i, j int) bool {
-	if i < 0 || j < 0 || i >= v.Len() || j >= v.Len() {
+func (v ValCurs) Less(left, right int) bool {
+	if left < 0 || right < 0 || left >= v.Len() || right >= v.Len() {
 		panic("index out of range")
 	}
 
-	leftOperand, _ := strconv.ParseFloat(strings.ReplaceAll(v.Valutes[i].Value, ",", "."), 32)
-	rightOperand, _ := strconv.ParseFloat(strings.ReplaceAll(v.Valutes[j].Value, ",", "."), 32)
+	leftOperand, _ := strconv.ParseFloat(strings.ReplaceAll(v.Valutes[left].Value, ",", "."), 32)
+	rightOperand, _ := strconv.ParseFloat(strings.ReplaceAll(v.Valutes[right].Value, ",", "."), 32)
+
 	return leftOperand > rightOperand
 }
