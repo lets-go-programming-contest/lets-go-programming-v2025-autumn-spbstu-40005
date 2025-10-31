@@ -18,16 +18,17 @@ type CurrencyValue float64
 func (cv *CurrencyValue) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
 	var s string
 	if err := d.DecodeElement(&s, &start); err != nil {
-		return err
+		return fmt.Errorf("decode element: %w", err)
 	}
 
 	normalized := strings.ReplaceAll(s, ",", ".")
 	value, err := strconv.ParseFloat(normalized, 64)
 	if err != nil {
-		return err
+		return fmt.Errorf("parse float: %w", err)
 	}
 
 	*cv = CurrencyValue(value)
+
 	return nil
 }
 
