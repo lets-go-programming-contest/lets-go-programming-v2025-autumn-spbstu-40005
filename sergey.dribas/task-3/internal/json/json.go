@@ -12,8 +12,8 @@ import (
 )
 
 const (
-	defaultDirPerm  os.FileMode = 0755
-	defaultFilePerm os.FileMode = 0600
+	defaultDirPerm      = 0755
+	defaultFilePerm= 0600
 )
 
 type CurrencyJSON struct {
