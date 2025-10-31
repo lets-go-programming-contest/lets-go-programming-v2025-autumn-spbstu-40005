@@ -27,11 +27,11 @@ type valuteTemp struct {
 func (v *Valute) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
 	var temp valuteTemp
 	if err := d.DecodeElement(&temp, &start); err != nil {
-		return err
+		return fmt.Errorf("failed to decode element: %w", err)
 	}
 
 	if temp.NumCode == "" || temp.CharCode == "" || temp.Value == "" {
-		return fmt.Errorf("skipping valute with empty fields")
+		return nil
 	}
 
 	numCode, err := strconv.Atoi(temp.NumCode)
