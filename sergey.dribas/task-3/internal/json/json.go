@@ -29,15 +29,14 @@ func SaveCurrenciesToJSON(currencies valute.ValCurs, filename string) error {
 			if err != nil {
 				return err
 			}
-		} else {
-			value := strings.Replace(currency.Value, ",", ".", 1)
-			rawValue := json.RawMessage(value)
-			result = append(result, CurrencyJSON{
-				NumCode:  numCode,
-				CharCode: currency.CharCode,
-				Value:    rawValue,
-			})
 		}
+		value := strings.Replace(currency.Value, ",", ".", 1)
+		rawValue := json.RawMessage(value)
+		result = append(result, CurrencyJSON{
+			NumCode:  numCode,
+			CharCode: currency.CharCode,
+			Value:    rawValue,
+		})
 	}
 
 	jsonData, err := json.MarshalIndent(result, "", "  ")
