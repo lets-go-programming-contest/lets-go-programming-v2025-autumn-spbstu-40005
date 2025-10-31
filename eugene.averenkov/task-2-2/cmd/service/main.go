@@ -15,6 +15,11 @@ var (
 	ErrKthNotFound    = errors.New("error not found k")
 )
 
+const (
+	EdgeArray = 10000
+	MinCount  = 1
+)
+
 func readInput() ([]int, int, error) {
 	var count int
 
@@ -23,7 +28,7 @@ func readInput() ([]int, int, error) {
 		return nil, 0, fmt.Errorf("ошибка чтения N: %w", err)
 	}
 
-	if count < 1 || count > 10000 {
+	if count < MinCount || count > EdgeArray {
 		return nil, 0, fmt.Errorf("%w, получено: %d", ErrInvalidN, count)
 	}
 
@@ -35,7 +40,7 @@ func readInput() ([]int, int, error) {
 			return nil, 0, fmt.Errorf("ошибка чтения элемента %d: %w", index+1, err)
 		}
 
-		if arr[index] < -10000 || arr[index] > 10000 {
+		if arr[index] < -EdgeArray || arr[index] > EdgeArray {
 			return nil, 0, fmt.Errorf("%w: элемент %d имеет значение %d", ErrInvalidElement, index+1, arr[index])
 		}
 	}
@@ -85,13 +90,13 @@ func main() {
 	arr, kValue, err := readInput()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Ошибка ввода: %v\n", err)
-		os.Exit(1)
+		return 1
 	}
 
 	result, err := findKthLargest(arr, kValue)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Ошибка обработки: %v\n", err)
-		os.Exit(1)
+		return 1
 	}
 
 	fmt.Println(result)
