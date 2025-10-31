@@ -30,7 +30,7 @@ func ConvertAndSortCurrencies(valCurs *model.ValCurs) []model.CurrencyResult {
 	currencies := make([]model.CurrencyResult, 0, len(valCurs.Valutes))
 
 	for _, valute := range valCurs.Valutes {
-		value, err := parseValue(valute.Value)
+		value, err := valute.ValueAsFloat()
 		if err != nil {
 			continue
 		}
