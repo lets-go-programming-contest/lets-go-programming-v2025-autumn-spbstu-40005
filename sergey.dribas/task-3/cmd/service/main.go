@@ -19,19 +19,19 @@ func main() {
 	configPath := flag.String(configFlagName, configFlagDefault, configFlagUsage)
 	flag.Parse()
 
-	config, err := config.ConfigInit(*configPath)
+	config_inited, err := config.ConfigInit(*configPath)
 	if err != nil {
 		panic(err)
 	}
 
-	valutes, err := valute.ValCursFromXML(config.InputFile)
+	valutes, err := valute.ValCursFromXML(config_inited.InputFile)
 	if err != nil {
 		panic(err)
 	}
 
 	sort.Sort(*valutes)
 
-	if err := jsonstorage.SaveCurrenciesToJSON(*valutes, config.OutputFile); err != nil {
+	if err := jsonstorage.SaveCurrenciesToJSON(*valutes, config_inited.OutputFile); err != nil {
 		panic(err)
 	}
 }
