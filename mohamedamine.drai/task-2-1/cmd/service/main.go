@@ -38,10 +38,6 @@ func (tr *TemperatureRange) Update(operation string, temperature int) error {
 		return ErrInvalidOperator
 	}
 
-	if tr.min > tr.max {
-		return ErrInvalidTemperature
-	}
-
 	return nil
 }
 
@@ -76,20 +72,20 @@ func processDepartment(employeeCount int) {
 	for range employeeCount {
 		var oper, tempStr string
 		if _, err := fmt.Scan(&oper, &tempStr); err != nil {
-			fmt.Println(-1)
+			fmt.Printf("Error reading input: %v\n", err)
 
 			continue
 		}
 
 		operation, temperature, err := ParseConstraint(oper, tempStr)
 		if err != nil {
-			fmt.Println(-1)
+			fmt.Printf("Error parsing constraint: %v\n", err)
 
 			continue
 		}
 
 		if err := temperatureRange.Update(operation, temperature); err != nil {
-			fmt.Println(-1)
+			fmt.Printf("Error updating temperature range: %v\n", err)
 
 			continue
 		}
@@ -103,7 +99,7 @@ func main() {
 
 	_, err := fmt.Scan(&departments)
 	if err != nil {
-		fmt.Println(-1)
+		fmt.Printf("Error reading departments: %v\n", err)
 
 		return
 	}
@@ -113,7 +109,7 @@ func main() {
 
 		_, err := fmt.Scan(&employees)
 		if err != nil {
-			fmt.Println(-1)
+			fmt.Printf("Error reading employees: %v\n", err)
 
 			return
 		}
