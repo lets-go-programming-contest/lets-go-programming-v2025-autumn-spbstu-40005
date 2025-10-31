@@ -34,5 +34,6 @@ func (v *value) UnmarshalXML(decoder *xml.Decoder, start xml.StartElement) error
 	}
 
 	*v = value(parsed)
+
 	return nil
 }
