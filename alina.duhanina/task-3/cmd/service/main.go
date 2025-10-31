@@ -8,7 +8,7 @@ import (
 	"alina.duhanina/task-3/internal/config"
 	"alina.duhanina/task-3/internal/converter"
 	"alina.duhanina/task-3/internal/model"
-        "alina.duhanina/task-3/internal/sorter"
+	"alina.duhanina/task-3/internal/sorter"
 )
 
 func main() {
