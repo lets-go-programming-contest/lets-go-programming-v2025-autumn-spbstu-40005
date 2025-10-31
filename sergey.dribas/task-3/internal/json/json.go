@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	defaultDirPerm      = 0755
+	defaultDirPerm = 0755
 	defaultFilePerm= 0600
 )
 
