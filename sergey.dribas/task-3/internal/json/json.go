@@ -20,8 +20,15 @@ func SaveCurrenciesToJSON(currencies valute.ValCurs, filename string) error {
 	var result []CurrencyJSON
 	dir := filepath.Dir(filename)
 	for _, currency := range currencies.Valutes {
-		if numCode, err := strconv.Atoi(currency.NumCode); err != nil {
-			return err
+		var (
+			numCode int
+			err     error
+		)
+		if currency.NumCode != "" {
+			numCode, err = strconv.Atoi(currency.NumCode)
+			if err != nil {
+				return err
+			}
 		} else {
 			value := strings.Replace(currency.Value, ",", ".", 1)
 			rawValue := json.RawMessage(value)
