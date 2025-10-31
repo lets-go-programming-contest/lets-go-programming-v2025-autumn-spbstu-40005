@@ -32,5 +32,6 @@ func (v *CurrencyValue) UnmarshalXML(d *xml.Decoder, start xml.StartElement) err
 	}
 
 	*v = CurrencyValue(value)
+
 	return nil
 }

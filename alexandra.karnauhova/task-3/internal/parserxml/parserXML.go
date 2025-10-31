@@ -12,6 +12,8 @@ import (
 	"golang.org/x/net/html/charset"
 )
 
+var ErrUnsupportCharset = errors.New("unsupported charset")
+
 func ParseXML(filename string) (*data.ValArray, error) {
 	itData, err := os.ReadFile(filename)
 	if err != nil {
@@ -23,9 +25,7 @@ func ParseXML(filename string) (*data.ValArray, error) {
 	decoder.CharsetReader = getCharset
 
 	var res data.ValArray
-
-	err = decoder.Decode(&res)
-	if err != nil {
+	if err := decoder.Decode(&res); err != nil {
 		return nil, fmt.Errorf("failed to parse XML: %w", err)
 	}
 
@@ -35,7 +35,7 @@ func ParseXML(filename string) (*data.ValArray, error) {
 func getCharset(label string, input io.Reader) (io.Reader, error) {
 	encoding, _ := charset.Lookup(label)
 	if encoding == nil {
-		return nil, errors.New("unsupported charset")
+		return nil, ErrUnsupportCharset
 	}
 
 	return encoding.NewDecoder().Reader(input), nil

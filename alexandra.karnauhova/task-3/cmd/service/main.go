@@ -20,7 +20,7 @@ func main() {
 
 	files, err := config.LoadConfig(*thisConfig)
 	if err != nil {
-		panic("Failed to load config: " + err.Error())
+		panic(err)
 	}
 
 	valArray, err := parserxml.ParseXML(files.InputFile)
@@ -35,7 +35,7 @@ func main() {
 		panic("Failed to create output directory: " + err.Error())
 	}
 
-	if err := writer.ParseJson(sortedValutes, files.OutputFile); err != nil {
+	if err := writer.SaveToJSON(sortedValutes, files.OutputFile); err != nil {
 		panic("Failed to save JSON: " + err.Error())
 	}
 }
