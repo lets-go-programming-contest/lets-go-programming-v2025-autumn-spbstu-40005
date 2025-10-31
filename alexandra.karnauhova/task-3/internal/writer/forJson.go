@@ -11,7 +11,11 @@ import (
 const directoryPermissions = 0o755
 
 func CreateDirectory(directory string) error {
-	return os.MkdirAll(directory, directoryPermissions)
+	if err := os.MkdirAll(directory, directoryPermissions); err != nil {
+		return fmt.Errorf("failed to create directory: %w", err)
+	}
+
+	return nil
 }
 
 func SaveToJSON(valutes []data.Valute, filePath string) error {
