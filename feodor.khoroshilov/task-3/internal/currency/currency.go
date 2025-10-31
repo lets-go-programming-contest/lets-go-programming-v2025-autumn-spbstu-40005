@@ -64,6 +64,15 @@ func (i *Item) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
 		return fmt.Errorf("error decoding XML element: %w", err)
 	}
 
+	numCode := 0
+
+	if temp.NumCode != "" {
+		var err error
+		if numCode, err = strconv.Atoi(temp.NumCode); err != nil {
+			return fmt.Errorf("failed to parse NumCode '%s': %w", temp.NumCode, err)
+		}
+	}
+
 	i.ID = temp.ID
 	i.NumCode = numCode
 	i.CharCode = temp.CharCode
