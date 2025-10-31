@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+
+	"golang.org/x/net/html/charset"
 )
 
 const (
@@ -20,9 +22,10 @@ func ParseXMLFile(filePath string, target interface{}) error {
 	if err != nil {
 		return fmt.Errorf("failed to open XML file: %w", err)
 	}
-	defer closeFile(file, filePath)
+	defer file.Close()
 
 	decoder := xml.NewDecoder(file)
+	decoder.CharsetReader = charset.NewReaderLabel
 
 	if err := decoder.Decode(target); err != nil {
 		return fmt.Errorf("failed to decode XML: %w", err)
@@ -47,10 +50,4 @@ func WriteToJSON(data interface{}, outputPath string) error {
 	}
 
 	return nil
-}
-
-func closeFile(file *os.File, filePath string) {
-	if err := file.Close(); err != nil {
-		fmt.Fprintf(os.Stderr, "Warning: failed to close file %s: %v\n", filePath, err)
-	}
 }
