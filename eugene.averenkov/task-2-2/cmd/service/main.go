@@ -90,15 +90,18 @@ func main() {
 	arr, kValue, err := readInput()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Ошибка ввода: %v\n", err)
+
 		return
 	}
 
 	result, err := findKthLargest(arr, kValue)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Ошибка обработки: %v\n", err)
+
 		return
 	}
 
 	fmt.Println(result)
+
 	return
 }
