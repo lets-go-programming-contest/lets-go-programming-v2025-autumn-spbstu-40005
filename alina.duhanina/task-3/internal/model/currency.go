@@ -1,6 +1,10 @@
 package model
 
-import "encoding/xml"
+import (
+	"encoding/xml"
+	"strconv"
+	"strings"
+)
 
 type ValCurs struct {
 	XMLName xml.Name `xml:"ValCurs"`
