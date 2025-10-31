@@ -25,14 +25,14 @@ func processCurrency(currency currencyhandler.CurrencyItem) JSONCurrency {
 	if currency.NumCode != "" {
 		result.NumCode, parseError = strconv.Atoi(currency.NumCode)
 		if parseError != nil {
-			panic("Number code conversion error")
+			panic(parseError)
 		}
 	}
 
 	cleanValue := strings.ReplaceAll(currency.Value, ",", ".")
 	result.Value, parseError = strconv.ParseFloat(cleanValue, 64)
 	if parseError != nil {
-		panic("Value conversion error")
+		panic(parseError)
 	}
 
 	result.CharCode = currency.CharCode
