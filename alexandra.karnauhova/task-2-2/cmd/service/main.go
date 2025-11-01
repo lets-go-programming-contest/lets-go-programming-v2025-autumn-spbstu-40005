@@ -17,7 +17,6 @@ func readMenu(countDish int) (queue.Queue, error) {
 
 		_, err := fmt.Scan(&estimation)
 		if err != nil {
-
 			return menu, fmt.Errorf("invalid estimation %w", err)
 		}
 
