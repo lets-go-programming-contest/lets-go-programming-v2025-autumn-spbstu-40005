@@ -7,7 +7,7 @@ import (
 	"alexandra.karnauhova/task-2-2/internal/queue"
 )
 
-func chooseDish(countDish int) int {
+func readMenu(countDish int) (queue.Queue, error) {
 	menu := make(queue.Queue, 0)
 
 	heap.Init(&menu)
@@ -17,28 +17,34 @@ func chooseDish(countDish int) int {
 
 		_, err := fmt.Scan(&estimation)
 		if err != nil {
-			fmt.Println("Invalid estimation")
-
-			return 0
+			return menu, err
 		}
 
-		heap.Push(&menu, &queue.Element{
-			Value:    estimation,
-			Priority: estimation,
-			Index:    0,
-		})
+		heap.Push(&menu, estimation)
 	}
 
+	return menu, nil
+}
+
+func choosePreference(countDish int) int {
 	var kValue int
 
 	_, err := fmt.Scan(&kValue)
 	if err != nil {
-		fmt.Println("Invalid k")
-
 		return 0
 	}
 
 	if kValue <= 0 || kValue > countDish {
+		return 0
+	}
+
+	return kValue
+}
+
+func chooseDish(menu queue.Queue, countDish int) int {
+	kValue := choosePreference(countDish)
+
+	if kValue == 0 {
 		fmt.Println("Invalid k value")
 
 		return 0
@@ -46,7 +52,7 @@ func chooseDish(countDish int) int {
 
 	dishItem := heap.Pop(&menu)
 
-	dish, oke := dishItem.(*queue.Element)
+	dish, oke := dishItem.(int)
 	if !oke {
 		fmt.Println("Invalid dish type")
 
@@ -56,7 +62,7 @@ func chooseDish(countDish int) int {
 	for range kValue - 1 {
 		dishItem = heap.Pop(&menu)
 
-		dish, oke = dishItem.(*queue.Element)
+		dish, oke = dishItem.(int)
 		if !oke {
 			fmt.Println("Invalid dish type")
 
@@ -64,7 +70,7 @@ func chooseDish(countDish int) int {
 		}
 	}
 
-	return dish.Value
+	return dish
 }
 
 func main() {
@@ -72,15 +78,22 @@ func main() {
 
 	_, err := fmt.Scan(&countDish)
 	if err != nil {
-		fmt.Println("Invalid count dish")
+		fmt.Printf("Invalid count dish: %v\n", err)
 
 		return
 	}
 
-	res := chooseDish(countDish)
+	menu, err := readMenu(countDish)
+	if err != nil {
+		fmt.Printf("Error reading menu: %v\n", err)
+
+		return
+	}
+
+	res := chooseDish(menu, countDish)
 
 	if res == 0 {
-		fmt.Println("its bad")
+		fmt.Println("Error choosing a dish")
 
 		return
 	} else {
