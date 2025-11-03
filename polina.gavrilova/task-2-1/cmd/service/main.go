@@ -32,10 +32,7 @@ func execDepartment() error {
 		return fmt.Errorf("invalid number of employees: %w", err)
 	}
 
-	tempCondition := &temperature.TempCondition{
-		CurMin: temperature.MinTemp,
-		CurMax: temperature.MaxTemp,
-	}
+	tempCondition := &temperature.TempCondition{}
 
 	for range nEmployees {
 		err = execEmployee(tempCondition)
@@ -58,16 +55,17 @@ func execEmployee(tempCondition *temperature.TempCondition) error {
 		return fmt.Errorf("invalid employee command: %w", err)
 	}
 
-	hasPerfectTemp, err := tempCondition.Change(mode, parameter)
+	err = tempCondition.Change(mode, parameter)
 	if err != nil {
 		return fmt.Errorf("invalid employee execution: %w", err)
-	} else if !hasPerfectTemp {
-		fmt.Println(-1)
+	}
 
+	if !tempCondition.HasValidRange() {
+		fmt.Println(-1)
 		return nil
 	}
 
-	fmt.Println(tempCondition.CurMin)
+	fmt.Println(tempCondition.GetCurMin())
 
 	return nil
 }

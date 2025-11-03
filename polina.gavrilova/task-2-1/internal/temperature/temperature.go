@@ -2,7 +2,10 @@ package temperature
 
 import "errors"
 
-var errInvalidOperation = errors.New("invalid operation")
+var (
+	errInvalidOperation = errors.New("invalid operation")
+	errInvalidRange     = errors.New("invalid temperature range")
+)
 
 const (
 	MaxTemp = 30
@@ -10,22 +13,49 @@ const (
 )
 
 type TempCondition struct {
-	CurMin, CurMax int
+	curMin, curMax int
 }
 
-func (cond *TempCondition) Change(mode string, parametr int) (bool, error) {
+func (cond *TempCondition) Change(mode string, parameter int) error {
+	if cond.curMin == 0 && cond.curMax == 0 {
+		cond.curMin = MinTemp
+		cond.curMax = MaxTemp
+	}
+
 	switch mode {
 	case ">=":
-		cond.CurMin = max(cond.CurMin, parametr)
+		cond.curMin = max(cond.curMin, parameter)
 	case "<=":
-		cond.CurMax = min(cond.CurMax, parametr)
+		cond.curMax = min(cond.curMax, parameter)
 	default:
-		return false, errInvalidOperation
+		return errInvalidOperation
 	}
 
-	if cond.CurMax < cond.CurMin {
-		return false, nil
+	if cond.curMax < cond.curMin {
+		return errInvalidRange
 	}
 
-	return true, nil
+	return nil
+}
+
+func (cond *TempCondition) GetCurMin() int {
+	if cond.curMin == 0 && cond.curMax == 0 {
+		return MinTemp
+	}
+	return cond.curMin
+}
+
+func (cond *TempCondition) GetCurMax() int {
+	if cond.curMin == 0 && cond.curMax == 0 {
+		return MaxTemp
+	}
+	return cond.curMax
+}
+
+func (cond *TempCondition) HasValidRange() bool {
+	return cond.GetCurMin() <= cond.GetCurMax()
+}
+
+func (cond *TempCondition) GetTemperatureRange() (int, int) {
+	return cond.GetCurMin(), cond.GetCurMax()
 }
