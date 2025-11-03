@@ -12,11 +12,10 @@ func main() {
 	_, err := fmt.Scan(&nDepartments)
 	if err != nil {
 		fmt.Printf("Invalid number of departments: %v\n", err)
-
 		return
 	}
 
-	for i := range nDepartments {
+	for i := 0; i < nDepartments; i++ {
 		err = execDepartment()
 		if err != nil {
 			fmt.Printf("Department %d error: %v\n", i+1, err)
@@ -34,7 +33,7 @@ func execDepartment() error {
 
 	tempCondition := &temperature.TempCondition{}
 
-	for range nEmployees {
+	for i := 0; i < nEmployees; i++ {
 		err = execEmployee(tempCondition)
 		if err != nil {
 			fmt.Printf("Employee error: %v\n", err)
@@ -62,6 +61,7 @@ func execEmployee(tempCondition *temperature.TempCondition) error {
 
 	if !tempCondition.HasValidRange() {
 		fmt.Println(-1)
+
 		return nil
 	}
 
