@@ -28,11 +28,11 @@ func main() {
 		panic(fmt.Sprintf("Error parsing XML: %v", err))
 	}
 
-	currencies := datamodels.ConvertAndSort(valutes)
+	sortedValutes := datamodels.SortByValueDesc(valutes)
 
-	if err := jsonwriter.SaveJSON(cfg.OutputFile, currencies); err != nil {
+	if err := jsonwriter.SaveJSON(cfg.OutputFile, sortedValutes); err != nil {
 		panic(fmt.Sprintf("Error saving JSON: %v", err))
 	}
 
-	fmt.Printf("Successfully processed %d currencies. Output saved to: %s\n", len(currencies), cfg.OutputFile)
+	fmt.Printf("Successfully processed %d currencies. Output saved to: %s\n", len(sortedValutes), cfg.OutputFile)
 }
