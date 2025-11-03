@@ -1,10 +1,27 @@
 package main
 
 import (
+	"container/heap"
 	"fmt"
 
 	"polina.gavrilova/task-2-2/internal/minheap"
 )
+
+func FindKthLargest(ratings []int, preferenceOrder int) int {
+	heapInstance := &minheap.MinHeap{}
+	heap.Init(heapInstance)
+
+	for _, rating := range ratings {
+		if heapInstance.Len() < preferenceOrder {
+			heap.Push(heapInstance, rating)
+		} else if rating > heapInstance.GetMin() {
+			heap.Pop(heapInstance)
+			heap.Push(heapInstance, rating)
+		}
+	}
+
+	return heapInstance.GetMin()
+}
 
 func main() {
 	var nDishes int
@@ -35,6 +52,6 @@ func main() {
 		return
 	}
 
-	result := minheap.FindKthLargest(ratings, preferenceOrder)
+	result := FindKthLargest(ratings, preferenceOrder)
 	fmt.Println(result)
 }

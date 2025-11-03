@@ -1,7 +1,5 @@
 package minheap
 
-import "container/heap"
-
 type MinHeap []int
 
 func (heap *MinHeap) Len() int {
@@ -9,18 +7,10 @@ func (heap *MinHeap) Len() int {
 }
 
 func (heap *MinHeap) Less(i, j int) bool {
-	if i >= len(*heap) || j >= len(*heap) {
-		panic("array index out of bounds")
-	}
-
 	return (*heap)[i] < (*heap)[j]
 }
 
 func (heap *MinHeap) Swap(i, j int) {
-	if i >= len(*heap) || j >= len(*heap) {
-		panic("array index out of bounds")
-	}
-
 	(*heap)[i], (*heap)[j] = (*heap)[j], (*heap)[i]
 }
 
@@ -46,18 +36,9 @@ func (heap *MinHeap) Pop() interface{} {
 	return x
 }
 
-func FindKthLargest(ratings []int, preferenceOrder int) int {
-	heapInstance := &MinHeap{}
-	heap.Init(heapInstance)
-
-	for _, rating := range ratings {
-		if heapInstance.Len() < preferenceOrder {
-			heap.Push(heapInstance, rating)
-		} else if rating > (*heapInstance)[0] {
-			heap.Pop(heapInstance)
-			heap.Push(heapInstance, rating)
-		}
+func (heap *MinHeap) GetMin() int {
+	if len(*heap) == 0 {
+		panic("heap is empty")
 	}
-
-	return (*heapInstance)[0]
+	return (*heap)[0]
 }
