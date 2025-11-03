@@ -12,6 +12,7 @@ func main() {
 	_, err := fmt.Scan(&nDepartments)
 	if err != nil {
 		fmt.Printf("Invalid number of departments: %v\n", err)
+
 		return
 	}
 
