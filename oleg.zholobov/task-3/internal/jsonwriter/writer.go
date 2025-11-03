@@ -8,9 +8,11 @@ import (
 	"oleg.zholobov/task-3/internal/datamodels"
 )
 
-func SaveJSON(path string, currencies []datamodels.Currency) error {
+const dirPermission = 0755
+
+func SaveJSON(path string, currencies []datamodels.Valute) error {
 	dir := filepath.Dir(path)
-	if err := os.MkdirAll(dir, 0755); err != nil {
+	if err := os.MkdirAll(dir, dirPermission); err != nil {
 		return err
 	}
 
