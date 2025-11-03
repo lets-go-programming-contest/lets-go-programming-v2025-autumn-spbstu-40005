@@ -2,9 +2,7 @@ package temperature
 
 import "errors"
 
-var (
-	errInvalidOperation = errors.New("invalid operation")
-)
+var errInvalidOperation = errors.New("invalid operation")
 
 const (
 	MaxTemp = 30
