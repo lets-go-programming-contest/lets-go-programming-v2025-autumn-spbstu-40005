@@ -40,5 +40,6 @@ func (heap *MinHeap) GetMin() int {
 	if len(*heap) == 0 {
 		panic("heap is empty")
 	}
+
 	return (*heap)[0]
 }
