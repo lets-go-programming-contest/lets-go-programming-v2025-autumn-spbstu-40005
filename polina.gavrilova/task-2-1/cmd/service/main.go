@@ -15,7 +15,7 @@ func main() {
 		return
 	}
 
-	for i := 0; i < nDepartments; i++ {
+	for i := range nDepartments {
 		err = execDepartment()
 		if err != nil {
 			fmt.Printf("Department %d error: %v\n", i+1, err)
@@ -33,7 +33,7 @@ func execDepartment() error {
 
 	tempCondition := &temperature.TempCondition{}
 
-	for i := 0; i < nEmployees; i++ {
+	for range nEmployees {
 		err = execEmployee(tempCondition)
 		if err != nil {
 			fmt.Printf("Employee error: %v\n", err)
