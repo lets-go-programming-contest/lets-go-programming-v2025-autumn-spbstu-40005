@@ -20,18 +20,31 @@ func (heap *MinHeap) Swap(i, j int) {
 }
 
 func (heap *MinHeap) Push(x any) {
-	if v, ok := x.(int); ok {
-		*heap = append(*heap, v)
+	v, ok := x.(int)
+	if !ok {
+		panic("MinHeap: expected int value")
 	}
+	*heap = append(*heap, v)
 }
 
 func (heap *MinHeap) Pop() any {
 	old := *heap
 	n := len(old)
+	if n == 0 {
+		return nil
+	}
 	x := old[n-1]
 	*heap = old[0 : n-1]
 
 	return x
+}
+
+func (heap *MinHeap) Peek() (int, bool) {
+	if len(*heap) == 0 {
+		return 0, false
+	}
+
+	return (*heap)[0], true
 }
 
 func main() {
@@ -85,6 +98,12 @@ func main() {
 		if dishesHeap.Len() > dishNumber {
 			heap.Pop(dishesHeap)
 		}
+	}
+
+	if result, ok := dishesHeap.Peek(); ok {
+		fmt.Println(result)
+	} else {
+		fmt.Println("No dish available")
 	}
 
 	fmt.Println((*dishesHeap)[0])
