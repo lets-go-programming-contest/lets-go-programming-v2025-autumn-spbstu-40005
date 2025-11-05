@@ -9,7 +9,7 @@ import (
 	"oleg.zholobov/task-3/internal/datamodels"
 )
 
-const dirPermission = 0755
+const dirPermission = 0o755
 
 func SaveJSON(path string, currencies []datamodels.Valute) error {
 	dir := filepath.Dir(path)
@@ -21,7 +21,11 @@ func SaveJSON(path string, currencies []datamodels.Valute) error {
 	if err != nil {
 		return fmt.Errorf("create output file: %w", err)
 	}
-	defer file.Close()
+	defer func() {
+		if closeErr := file.Close(); closeErr != nil {
+			fmt.Printf("warning: close output file: %v\n", closeErr)
+		}
+	}()
 
 	encoder := json.NewEncoder(file)
 	encoder.SetIndent("", "    ")
