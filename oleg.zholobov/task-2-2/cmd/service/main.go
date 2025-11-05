@@ -31,13 +31,13 @@ func (heap *MinHeap) Push(x any) {
 func (heap *MinHeap) Pop() any {
 	old := *heap
 
-	n := len(old)
-	if n == 0 {
+	length := len(old)
+	if length == 0 {
 		return nil
 	}
 
-	x := old[n-1]
-	*heap = old[0 : n-1]
+	x := old[length-1]
+	*heap = old[0 : length-1]
 
 	return x
 }
@@ -108,6 +108,4 @@ func main() {
 	} else {
 		fmt.Println("No dish available")
 	}
-
-	fmt.Println((*dishesHeap)[0])
 }
