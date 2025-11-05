@@ -21,6 +21,7 @@ func SaveJSON(path string, currencies []datamodels.Valute) error {
 	if err != nil {
 		return fmt.Errorf("create output file: %w", err)
 	}
+
 	defer func() {
 		if closeErr := file.Close(); closeErr != nil {
 			fmt.Printf("warning: close output file: %v\n", closeErr)

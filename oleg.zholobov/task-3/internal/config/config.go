@@ -18,6 +18,7 @@ func LoadConfig(path string) (*Config, error) {
 	if err != nil {
 		return nil, fmt.Errorf("open config file: %w", err)
 	}
+
 	defer func() {
 		if closeErr := file.Close(); closeErr != nil {
 			fmt.Printf("warning: close config file: %v\n", closeErr)
