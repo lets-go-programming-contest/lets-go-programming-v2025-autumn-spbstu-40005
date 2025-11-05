@@ -3,6 +3,7 @@ package xmlparser
 import (
 	"encoding/xml"
 	"errors"
+	"fmt"
 	"io"
 	"os"
 
@@ -24,7 +25,7 @@ func getCharset(charsetLabel string, input io.Reader) (io.Reader, error) {
 func ParseXML(filepath string) ([]datamodels.Valute, error) {
 	file, err := os.Open(filepath)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("open XML file: %w", err)
 	}
 	defer file.Close()
 
@@ -33,7 +34,7 @@ func ParseXML(filepath string) ([]datamodels.Valute, error) {
 
 	var valCurs datamodels.ValCurs
 	if err := decoder.Decode(&valCurs); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("parse XML: %w", err)
 	}
 
 	return valCurs.Valutes, nil
