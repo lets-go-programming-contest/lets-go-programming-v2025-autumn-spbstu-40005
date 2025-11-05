@@ -21,6 +21,7 @@ func getCharset(charsetLabel string, input io.Reader) (io.Reader, error) {
 
 	return encoding.NewDecoder().Reader(input), nil
 }
+
 func ParseXML(filepath string) ([]datamodels.Valute, error) {
 	file, err := os.Open(filepath)
 	if err != nil {
