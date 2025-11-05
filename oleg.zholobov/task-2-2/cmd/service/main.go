@@ -24,15 +24,18 @@ func (heap *MinHeap) Push(x any) {
 	if !ok {
 		panic("MinHeap: expected int value")
 	}
+
 	*heap = append(*heap, v)
 }
 
 func (heap *MinHeap) Pop() any {
 	old := *heap
+
 	n := len(old)
 	if n == 0 {
 		return nil
 	}
+
 	x := old[n-1]
 	*heap = old[0 : n-1]
 
