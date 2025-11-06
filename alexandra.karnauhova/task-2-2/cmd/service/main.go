@@ -2,10 +2,13 @@ package main
 
 import (
 	"container/heap"
+	"errors"
 	"fmt"
 
 	"alexandra.karnauhova/task-2-2/internal/queue"
 )
+
+var ErrInvalidDishSelection = errors.New("invalid dish selection")
 
 func readMenu(countDish int) (queue.Queue, error) {
 	menu := make(queue.Queue, 0)
@@ -26,7 +29,7 @@ func readMenu(countDish int) (queue.Queue, error) {
 	return menu, nil
 }
 
-func choosePreference(countDish int) int {
+func readPreference(countDish int) int {
 	var kValue int
 
 	_, err := fmt.Scan(&kValue)
@@ -41,36 +44,25 @@ func choosePreference(countDish int) int {
 	return kValue
 }
 
-func chooseDish(menu queue.Queue, countDish int) int {
-	kValue := choosePreference(countDish)
+func chooseDish(menu queue.Queue, countDish int) (int, error) {
+	kValue := readPreference(countDish)
 
 	if kValue == 0 {
-		fmt.Println("Invalid k value")
-
-		return 0
+		return 0, fmt.Errorf("%w: k value cannot be zero", ErrInvalidDishSelection)
 	}
 
 	dishItem := heap.Pop(&menu)
 
-	dish, oke := dishItem.(int)
-	if !oke {
-		fmt.Println("Invalid dish type")
-
-		return 0
-	}
-
 	for range kValue - 1 {
 		dishItem = heap.Pop(&menu)
-
-		dish, oke = dishItem.(int)
-		if !oke {
-			fmt.Println("Invalid dish type")
-
-			return 0
-		}
 	}
 
-	return dish
+	dish, ok := dishItem.(int)
+	if !ok {
+		return 0, fmt.Errorf("%w: expected int dish type", ErrInvalidDishSelection)
+	}
+
+	return dish, nil
 }
 
 func main() {
@@ -90,13 +82,12 @@ func main() {
 		return
 	}
 
-	res := chooseDish(menu, countDish)
-
-	if res == 0 {
-		fmt.Println("Error choosing a dish")
+	res, err := chooseDish(menu, countDish)
+	if err != nil {
+		fmt.Printf("Error choosing a dish: %v\n", err)
 
 		return
-	} else {
-		fmt.Println(res)
 	}
+
+	fmt.Println(res)
 }

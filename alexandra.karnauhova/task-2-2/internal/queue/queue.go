@@ -23,9 +23,9 @@ func (q *Queue) Swap(i, j int) {
 }
 
 func (q *Queue) Push(newElement any) {
-	element, oke := newElement.(int)
-	if !oke {
-		return
+	element, ok := newElement.(int)
+	if !ok {
+		panic("queue only accepts integer values")
 	}
 
 	*q = append(*q, element)
