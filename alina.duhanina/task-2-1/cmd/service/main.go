@@ -124,7 +124,7 @@ func main() {
 			fmt.Printf("failed to read employee count for department: %v\n", err)
 
 			return
-	}
+		}
 
 		err = processDepartmentRequests(employeeCount)
 		if err != nil {
