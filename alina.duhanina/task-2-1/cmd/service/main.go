@@ -113,13 +113,13 @@ func processDepartmentRequests(employeeCount int) error {
 func readAndProcessInput() error {
 	departmentCount, err := readInt()
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to read department count: %w", err)
 	}
 
 	for range departmentCount {
 		employeeCount, err := readInt()
 		if err != nil {
-			return err
+			return fmt.Errorf("failed to read employee count for department: %w", err)
 		}
 
 		err = processDepartmentRequests(employeeCount)
@@ -132,10 +132,23 @@ func readAndProcessInput() error {
 }
 
 func main() {
-	err := readAndProcessInput()
-	if err != nil {
-		fmt.Printf("input processing error: %v\n", err)
-
+	departmentCount, err := readInt()
+        if err != nil {
+		fmt.Printf("failed to read department count: %v\n", err)
 		return
-	}
+        }
+
+        for range departmentCount {
+                employeeCount, err := readInt()
+                if err != nil {
+			fmt.Printf("failed to read employee count for department: %v\n", err)
+			return
+                }
+
+                err = processDepartmentRequests(employeeCount)
+                if err != nil {
+			fmt.Printf("failed to process department requests: %v\n", err)
+			return
+                }
+        }
 }
