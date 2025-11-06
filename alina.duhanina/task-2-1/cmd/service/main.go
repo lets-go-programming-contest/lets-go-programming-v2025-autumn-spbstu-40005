@@ -133,22 +133,25 @@ func readAndProcessInput() error {
 
 func main() {
 	departmentCount, err := readInt()
-        if err != nil {
+	if err != nil {
 		fmt.Printf("failed to read department count: %v\n", err)
+
 		return
-        }
+	}
 
-        for range departmentCount {
-                employeeCount, err := readInt()
-                if err != nil {
+	for range departmentCount {
+		employeeCount, err := readInt()
+		if err != nil {
 			fmt.Printf("failed to read employee count for department: %v\n", err)
-			return
-                }
 
-                err = processDepartmentRequests(employeeCount)
-                if err != nil {
-			fmt.Printf("failed to process department requests: %v\n", err)
 			return
-                }
-        }
+	}
+
+		err = processDepartmentRequests(employeeCount)
+		if err != nil {
+			fmt.Printf("failed to process department requests: %v\n", err)
+
+			return
+		}
+	}
 }
