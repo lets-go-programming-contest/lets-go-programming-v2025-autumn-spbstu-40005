@@ -27,7 +27,7 @@ func main() {
 		return valCurs.Valute[index1].Value > valCurs.Valute[index2].Value
 	})
 
-	if err = parsers.SaveToJSON(valCurs.Valute, cfg.OutputFile); err != nil {
+	if err = parsers.SaveToJSON(valCurs.Valute, cfg.OutputFile, 0o755); err != nil {
 		panic(err)
 	}
 }
