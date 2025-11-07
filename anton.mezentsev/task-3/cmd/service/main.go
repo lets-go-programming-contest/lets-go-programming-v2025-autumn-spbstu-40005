@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"os"
 	"sort"
 
 	"anton.mezentsev/task-3/internal/bank"
@@ -27,7 +28,8 @@ func main() {
 		return valCurs.Valute[index1].Value > valCurs.Valute[index2].Value
 	})
 
-	if err = parsers.SaveToJSON(valCurs.Valute, cfg.OutputFile, 0o755); err != nil {
+	dirPerms := os.FileMode(cfg.DirPerms)
+	if err = parsers.SaveToJSON(valCurs.Valute, cfg.OutputFile, dirPerms); err != nil {
 		panic(err)
 	}
 }
