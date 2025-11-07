@@ -15,9 +15,7 @@ var (
 	ErrClosingFile  = errors.New("error closing file")
 )
 
-const directoryPermissions = 0o755
-
-func SaveToJSON(data any, filePath string) error {
+func SaveToJSON(data any, filePath string, directoryPermissions os.FileMode) error {
 	dir := filepath.Dir(filePath)
 	if err := os.MkdirAll(dir, directoryPermissions); err != nil {
 		return fmt.Errorf("%w: %w", ErrCreatingDir, err)
