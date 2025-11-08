@@ -77,12 +77,14 @@ func main() {
 	arr, kValue, err := readInput()
 	if err != nil {
 		fmt.Printf("input error: %v\n", err)
+
 		return
 	}
 
 	result, err := findKthLargest(arr, kValue)
 	if err != nil {
 		fmt.Printf("processing error: %v\n", err)
+
 		return
 	}
 
