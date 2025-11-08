@@ -27,7 +27,7 @@ func (h *MinHeap) Swap(i, j int) {
 func (h *MinHeap) Push(x interface{}) {
 	value, ok := x.(int)
 	if !ok {
-		return
+		panic("push error")
 	}
 
 	*h = append(*h, value)
@@ -35,7 +35,7 @@ func (h *MinHeap) Push(x interface{}) {
 
 func (h *MinHeap) Pop() interface{} {
 	if len(*h) == 0 {
-		return nil
+		panic("pop error")
 	}
 
 	old := *h
@@ -62,7 +62,7 @@ func (h *MinHeap) PopValue() int {
 	intValue, ok := value.(int)
 
 	if !ok {
-		return 0
+		panic("popvalue error")
 	}
 
 	return intValue
