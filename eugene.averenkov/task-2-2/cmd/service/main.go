@@ -21,7 +21,7 @@ func readInput() ([]int, int, error) {
 
 	_, err := fmt.Scan(&count)
 	if err != nil {
-		return nil, 0, fmt.Errorf("read error N: %w", err)
+		return nil, 0, ErrInvalidN
 	}
 
 	arr := make([]int, count)
@@ -29,7 +29,7 @@ func readInput() ([]int, int, error) {
 	for index := range count {
 		_, err := fmt.Scan(&arr[index])
 		if err != nil {
-			return nil, 0, fmt.Errorf("read element error %d: %w", index+1, err)
+			return nil, 0, ErrInvalidElement
 		}
 	}
 
@@ -37,11 +37,11 @@ func readInput() ([]int, int, error) {
 
 	_, err = fmt.Scan(&kValue)
 	if err != nil {
-		return nil, 0, fmt.Errorf("read error k: %w", err)
+		return nil, 0, ErrInvalidK
 	}
 
 	if kValue < 1 || kValue > count {
-		return nil, 0, fmt.Errorf("%w: k=%d, N=%d", ErrInvalidK, kValue, count)
+		return nil, 0, ErrInvalidK
 	}
 
 	return arr, kValue, nil
@@ -53,10 +53,10 @@ func findKthLargest(arr []int, kValue int) (int, error) {
 	}
 
 	if kValue > len(arr) {
-		return 0, fmt.Errorf("%w: k=%d, length=%d", ErrKTooLarge, kValue, len(arr))
+		return 0, ErrKTooLarge
 	}
 
-	minHeap := InitMinHeap()
+	minHeap := InitMinHeap(kValue)
 
 	for _, num := range arr {
 		if minHeap.Len() < kValue {
@@ -68,7 +68,7 @@ func findKthLargest(arr []int, kValue int) (int, error) {
 	}
 
 	if minHeap.Len() < kValue {
-		return 0, fmt.Errorf("%w: k=%d", ErrKthNotFound, kValue)
+		return 0, ErrKthNotFound
 	}
 
 	return minHeap.Peek(), nil
@@ -77,15 +77,13 @@ func findKthLargest(arr []int, kValue int) (int, error) {
 func main() {
 	arr, kValue, err := readInput()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "input error: %v\n", err)
-
+		fmt.Printf("input error: %v\n", err)
 		return
 	}
 
 	result, err := findKthLargest(arr, kValue)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "processing error: %v\n", err)
-
+		fmt.Printf("processing error: %v\n", err)
 		return
 	}
 

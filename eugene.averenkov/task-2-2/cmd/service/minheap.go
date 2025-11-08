@@ -46,11 +46,11 @@ func (h *MinHeap) Pop() interface{} {
 	return x
 }
 
-func InitMinHeap() *MinHeap {
-	minHeap := &MinHeap{}
-	heap.Init(minHeap)
+func InitMinHeap(capacity int) *MinHeap {
+	minHeap := make(MinHeap, 0, capacity)
+	heap.Init(&minHeap)
 
-	return minHeap
+	return &minHeap
 }
 
 func (h *MinHeap) Peek() int {
