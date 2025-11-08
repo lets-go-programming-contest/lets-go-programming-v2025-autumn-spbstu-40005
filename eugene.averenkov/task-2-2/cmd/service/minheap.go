@@ -53,21 +53,6 @@ func InitMinHeap() *MinHeap {
 	return minHeap
 }
 
-func (h *MinHeap) PushValue(x int) {
-	heap.Push(h, x)
-}
-
-func (h *MinHeap) PopValue() int {
-	value := heap.Pop(h)
-	intValue, ok := value.(int)
-
-	if !ok {
-		panic("popvalue error")
-	}
-
-	return intValue
-}
-
 func (h *MinHeap) Peek() int {
 	return (*h)[0]
 }
