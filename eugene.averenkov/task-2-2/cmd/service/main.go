@@ -59,10 +59,10 @@ func findKthLargest(arr []int, kValue int) (int, error) {
 
 	for _, num := range arr {
 		if minHeap.Len() < kValue {
-			minHeap.Push(num)
+			minHeap.PushValue(num)
 		} else if num > minHeap.Peek() {
-			minHeap.Pop()
-			minHeap.Push(num)
+			minHeap.PopValue()
+			minHeap.PushValue(num)
 		}
 	}
 
