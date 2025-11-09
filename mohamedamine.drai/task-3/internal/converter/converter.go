@@ -1,7 +1,6 @@
 package converter
 
 import (
-	"fmt"
 	"sort"
 	"strconv"
 	"strings"
@@ -29,17 +28,20 @@ func (c *CurrencyConverter) ConvertAndSort(currencies []xmlparser.Currency) []Cu
 		output = append(output, converted)
 	}
 
-	c.sortByValueDescending(output)
+	sort.Slice(output, func(i, j int) bool {
+		return output[i].Value > output[j].Value
+	})
+
 	return output
 }
 
 func (c *CurrencyConverter) convertCurrency(currency xmlparser.Currency) CurrencyOutput {
-	value, err := c.parseValue(currency.Value)
+	value, err := strconv.ParseFloat(strings.ReplaceAll(currency.Value, ",", "."), 64)
 	if err != nil {
 		value = 0
 	}
 
-	numCode, err := c.parseNumCode(currency.NumCode)
+	numCode, err := strconv.Atoi(strings.TrimSpace(currency.NumCode))
 	if err != nil {
 		numCode = 0
 	}
@@ -49,27 +51,4 @@ func (c *CurrencyConverter) convertCurrency(currency xmlparser.Currency) Currenc
 		CharCode: strings.TrimSpace(currency.CharCode),
 		Value:    value,
 	}
-}
-
-func (c *CurrencyConverter) parseValue(valueStr string) (float64, error) {
-	normalized := strings.ReplaceAll(valueStr, ",", ".")
-	value, err := strconv.ParseFloat(normalized, 64)
-	if err != nil {
-		return 0, fmt.Errorf("parse value %q: %w", normalized, err)
-	}
-	return value, nil
-}
-
-func (c *CurrencyConverter) parseNumCode(numCodeStr string) (int, error) {
-	numCode, err := strconv.Atoi(strings.TrimSpace(numCodeStr))
-	if err != nil {
-		return 0, fmt.Errorf("parse num code %q: %w", numCodeStr, err)
-	}
-	return numCode, nil
-}
-
-func (c *CurrencyConverter) sortByValueDescending(currencies []CurrencyOutput) {
-	sort.Slice(currencies, func(i, j int) bool {
-		return currencies[i].Value > currencies[j].Value
-	})
 }
