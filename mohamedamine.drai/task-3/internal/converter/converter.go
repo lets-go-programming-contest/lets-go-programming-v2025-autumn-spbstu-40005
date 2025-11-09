@@ -52,7 +52,6 @@ func (c *CurrencyConverter) parseValue(value string) float64 {
 	if err != nil {
 		return 0
 	}
-
 	return val
 }
 
@@ -61,7 +60,6 @@ func (c *CurrencyConverter) parseNumCode(numCode string) int {
 	if err != nil {
 		return 0
 	}
-
 	return num
 }
 
