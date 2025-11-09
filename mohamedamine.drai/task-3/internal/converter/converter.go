@@ -25,41 +25,30 @@ func (c *CurrencyConverter) ConvertAndSort(currencies []xmlparser.Currency) []Cu
 	output := make([]CurrencyOutput, 0, len(currencies))
 
 	for _, currency := range currencies {
-		converted, ok := c.convertCurrency(currency)
-		if ok {
-			output = append(output, converted)
-		}
+		converted := c.convertCurrency(currency)
+		output = append(output, converted)
 	}
 
 	c.sortByValueDescending(output)
-
 	return output
 }
 
-func (c *CurrencyConverter) convertCurrency(currency xmlparser.Currency) (CurrencyOutput, bool) {
+func (c *CurrencyConverter) convertCurrency(currency xmlparser.Currency) CurrencyOutput {
 	value, err := c.parseValue(currency.Value)
 	if err != nil {
-		return CurrencyOutput{
-			NumCode:  0,
-			CharCode: "",
-			Value:    0,
-		}, false
+		value = 0
 	}
 
 	numCode, err := c.parseNumCode(currency.NumCode)
 	if err != nil {
-		return CurrencyOutput{
-			NumCode:  0,
-			CharCode: "",
-			Value:    0,
-		}, false
+		numCode = 0
 	}
 
 	return CurrencyOutput{
 		NumCode:  numCode,
 		CharCode: strings.TrimSpace(currency.CharCode),
 		Value:    value,
-	}, true
+	}
 }
 
 func (c *CurrencyConverter) parseValue(valueStr string) (float64, error) {
@@ -68,7 +57,6 @@ func (c *CurrencyConverter) parseValue(valueStr string) (float64, error) {
 	if err != nil {
 		return 0, fmt.Errorf("parse value %q: %w", normalized, err)
 	}
-
 	return value, nil
 }
 
@@ -77,7 +65,6 @@ func (c *CurrencyConverter) parseNumCode(numCodeStr string) (int, error) {
 	if err != nil {
 		return 0, fmt.Errorf("parse num code %q: %w", numCodeStr, err)
 	}
-
 	return numCode, nil
 }
 
