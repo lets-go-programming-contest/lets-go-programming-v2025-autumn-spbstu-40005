@@ -39,7 +39,6 @@ func (c *CurrencyConverter) ConvertAndSort(currencies []xmlparser.Currency) []Cu
 func (c *CurrencyConverter) convertCurrency(currency xmlparser.Currency) (CurrencyOutput, bool) {
 	value, err := c.parseValue(currency.Value)
 	if err != nil {
-
 		return CurrencyOutput{
 			NumCode:  0,
 			CharCode: "",
