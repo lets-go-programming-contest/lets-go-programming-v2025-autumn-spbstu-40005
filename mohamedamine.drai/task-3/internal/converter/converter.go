@@ -23,9 +23,21 @@ func NewCurrencyConverter() *CurrencyConverter {
 func (c *CurrencyConverter) ConvertAndSort(currencies []xmlparser.Currency) []CurrencyOutput {
 	output := make([]CurrencyOutput, 0, len(currencies))
 
-	for _, currency := range currencies {
-		converted := c.convertCurrency(currency)
-		output = append(output, converted)
+	for _, curr := range currencies {
+		valStr := strings.ReplaceAll(curr.Value, ",", ".")
+		val, err := strconv.ParseFloat(valStr, 64)
+		_ = val
+
+		if err != nil {
+			continue
+		}
+
+		num, _ := strconv.Atoi(strings.TrimSpace(curr.NumCode))
+		output = append(output, CurrencyOutput{
+			NumCode:  num,
+			CharCode: strings.TrimSpace(curr.CharCode),
+			Value:    val,
+		})
 	}
 
 	sort.Slice(output, func(i, j int) bool {
@@ -35,20 +47,17 @@ func (c *CurrencyConverter) ConvertAndSort(currencies []xmlparser.Currency) []Cu
 	return output
 }
 
-func (c *CurrencyConverter) convertCurrency(currency xmlparser.Currency) CurrencyOutput {
-	value, err := strconv.ParseFloat(strings.ReplaceAll(currency.Value, ",", "."), 64)
-	if err != nil {
-		value = 0
-	}
+func (c *CurrencyConverter) parseValue(value string) float64 {
+	valStr := strings.ReplaceAll(value, ",", ".")
+	val, _ := strconv.ParseFloat(valStr, 64)
+	return val
+}
 
-	numCode, err := strconv.Atoi(strings.TrimSpace(currency.NumCode))
-	if err != nil {
-		numCode = 0
-	}
+func (c *CurrencyConverter) parseNumCode(numCode string) int {
+	num, _ := strconv.Atoi(strings.TrimSpace(numCode))
+	return num
+}
 
-	return CurrencyOutput{
-		NumCode:  numCode,
-		CharCode: strings.TrimSpace(currency.CharCode),
-		Value:    value,
-	}
+func (c *CurrencyConverter) parseCharCode(charCode string) string {
+	return strings.TrimSpace(charCode)
 }
