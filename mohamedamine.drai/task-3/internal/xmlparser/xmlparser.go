@@ -23,7 +23,11 @@ func ReadXML(path string) (*Exchange, error) {
 	if err != nil {
 		return nil, fmt.Errorf("open xml file: %w", err)
 	}
-	defer file.Close()
+	defer func() {
+		if err := file.Close(); err != nil {
+			fmt.Printf("warning: failed to close file: %v\n", err)
+		}
+	}()
 
 	decoder := xml.NewDecoder(file)
 	decoder.CharsetReader = charset.NewReaderLabel
