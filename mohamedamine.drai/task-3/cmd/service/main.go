@@ -3,7 +3,10 @@ package main
 import (
 	"flag"
 
-	"mohamedamine.drai/task-3/internal/utils"
+	"mohamedamine.drai/task-3/internal/config"
+	"mohamedamine.drai/task-3/internal/converter"
+	"mohamedamine.drai/task-3/internal/jsonwriter"
+	"mohamedamine.drai/task-3/internal/xmlparser"
 )
 
 func main() {
@@ -14,19 +17,20 @@ func main() {
 		panic("config path not provided")
 	}
 
-	cfg, err := utils.LoadConfig(*configPath)
+	cfg, err := config.LoadConfig(*configPath)
 	if err != nil {
 		panic(err)
 	}
 
-	data, err := utils.ReadXML(cfg.InputFile)
+	data, err := xmlparser.ReadXML(cfg.InputFile)
 	if err != nil {
 		panic(err)
 	}
 
-	sorted := utils.SortCurrencies(data.Currencies)
+	converter := converter.NewCurrencyConverter()
+	sortedCurrencies := converter.ConvertAndSort(data.Currencies)
 
-	if err := utils.SaveToJSON(sorted, cfg.OutputFile); err != nil {
+	if err := jsonwriter.SaveToJSON(sortedCurrencies, cfg.OutputFile); err != nil {
 		panic(err)
 	}
 }
