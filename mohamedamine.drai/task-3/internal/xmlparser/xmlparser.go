@@ -1,4 +1,4 @@
-package utils
+package xmlparser
 
 import (
 	"encoding/xml"
@@ -23,12 +23,7 @@ func ReadXML(path string) (*Exchange, error) {
 	if err != nil {
 		return nil, fmt.Errorf("open xml file: %w", err)
 	}
-
-	defer func() {
-		if closeErr := file.Close(); closeErr != nil {
-			panic(closeErr)
-		}
-	}()
+	defer file.Close()
 
 	decoder := xml.NewDecoder(file)
 	decoder.CharsetReader = charset.NewReaderLabel
