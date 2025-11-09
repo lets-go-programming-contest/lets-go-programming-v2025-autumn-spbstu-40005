@@ -3,8 +3,8 @@ package main
 import (
 	"flag"
 
-	"mohamedamine.drai/task-3/internal/config"
 	"mohamedamine.drai/task-3/internal/converter"
+	"mohamedamine.drai/task-3/internal/config"
 	"mohamedamine.drai/task-3/internal/jsonwriter"
 	"mohamedamine.drai/task-3/internal/xmlparser"
 )

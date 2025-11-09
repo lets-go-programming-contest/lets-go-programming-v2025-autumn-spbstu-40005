@@ -23,8 +23,7 @@ func SaveToJSON(data any, path string) error {
 		return fmt.Errorf("marshal json: %w", err)
 	}
 
-	err = os.WriteFile(path, bytes, filePerm)
-	if err != nil {
+	if err := os.WriteFile(path, bytes, filePerm); err != nil {
 		return fmt.Errorf("write json: %w", err)
 	}
 
