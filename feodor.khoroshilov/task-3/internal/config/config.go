@@ -18,6 +18,17 @@ type Settings struct {
 	OutputFile string `yaml:"output-file"`
 }
 
+func (s *Settings) Validate() error {
+	if s.InputFile == "" {
+		return ErrInputRequired
+	}
+	if s.OutputFile == "" {
+		return ErrOutputRequired
+	}
+
+	return nil
+}
+
 func LoadSettings(configPath string) (*Settings, error) {
 	data, err := os.ReadFile(configPath)
 	if err != nil {
@@ -29,12 +40,8 @@ func LoadSettings(configPath string) (*Settings, error) {
 		return nil, fmt.Errorf("error unmarshaling YAML: %w", err)
 	}
 
-	if settings.InputFile == "" {
-		return nil, ErrInputRequired
-	}
-
-	if settings.OutputFile == "" {
-		return nil, ErrOutputRequired
+	if err := settings.Validate(); err != nil {
+		return nil, err 
 	}
 
 	return &settings, nil
