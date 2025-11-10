@@ -48,21 +48,17 @@ func (c *CurrencyConverter) ConvertAndSort(currencies []xmlparser.Currency) []Cu
 
 func (c *CurrencyConverter) parseValue(value string) float64 {
 	valStr := strings.ReplaceAll(value, ",", ".")
-	val, err := strconv.ParseFloat(valStr, 64)
-	if err != nil {
-		return 0
+	if val, err := strconv.ParseFloat(valStr, 64); err == nil {
+		return val
 	}
-
-	return val
+	return 0
 }
 
 func (c *CurrencyConverter) parseNumCode(numCode string) int {
-	num, err := strconv.Atoi(strings.TrimSpace(numCode))
-	if err != nil {
-		return 0
+	if num, err := strconv.Atoi(strings.TrimSpace(numCode)); err == nil {
+		return num
 	}
-
-	return num
+	return 0
 }
 
 func (c *CurrencyConverter) parseCharCode(charCode string) string {
