@@ -14,10 +14,6 @@ const (
 	configFlagUsage   = "path to config file"
 )
 
-const (
-	DirPerms = 0o755
-)
-
 func main() {
 	configPath := flag.String(configFlagName, configFlagDefault, configFlagUsage)
 	flag.Parse()
@@ -34,7 +30,7 @@ func main() {
 
 	convert.SortItemsByRate(&fulldata.Items)
 
-	if err := convert.SaveItemsAsJSON(fulldata.Items, settings.OutputFile, DirPerms); err != nil {
+	if err := convert.SaveItemsAsJSON(fulldata.Items, settings.OutputFile); err != nil {
 		panic(err)
 	}
 }
