@@ -5,6 +5,7 @@ import (
 
 	"feodor.khoroshilov/task-3/internal/config"
 	"feodor.khoroshilov/task-3/internal/convert"
+	"feodor.khoroshilov/task-3/internal/currency"
 )
 
 const (
@@ -22,14 +23,14 @@ func main() {
 		panic(err)
 	}
 
-	items, err := convert.LoadXMLData(settings.InputFile)
+	fulldata, err := convert.LoadXMLData[currency.ExchangeData](settings.InputFile)
 	if err != nil {
 		panic(err)
 	}
 
-	convert.SortItemsByRate(items)
+	convert.SortItemsByRate(&fulldata.Items)
 
-	if err := convert.SaveItemsAsJSON(items, settings.OutputFile); err != nil {
+	if err := convert.SaveItemsAsJSON(fulldata.Items, settings.OutputFile); err != nil {
 		panic(err)
 	}
 }

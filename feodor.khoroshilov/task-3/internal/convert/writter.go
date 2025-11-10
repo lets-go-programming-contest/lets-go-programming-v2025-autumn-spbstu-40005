@@ -15,9 +15,10 @@ const (
 	filePerms = 0o644
 )
 
-func SortItemsByRate(items []currency.Item) {
-	sort.Slice(items, func(i, j int) bool {
-		return items[i].RateValue > items[j].RateValue
+func SortItemsByRate(items *[]currency.Item) {
+	slice := *items
+	sort.Slice(slice, func(i, j int) bool {
+		return slice[i].RateValue > slice[j].RateValue
 	})
 }
 
