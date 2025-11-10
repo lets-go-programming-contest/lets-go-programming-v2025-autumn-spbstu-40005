@@ -22,6 +22,7 @@ func (s *Settings) Validate() error {
 	if s.InputFile == "" {
 		return ErrInputRequired
 	}
+
 	if s.OutputFile == "" {
 		return ErrOutputRequired
 	}
@@ -41,7 +42,7 @@ func LoadSettings(configPath string) (*Settings, error) {
 	}
 
 	if err := settings.Validate(); err != nil {
-		return nil, err 
+		return nil, err
 	}
 
 	return &settings, nil
