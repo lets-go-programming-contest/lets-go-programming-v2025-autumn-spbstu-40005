@@ -17,9 +17,9 @@ func SortItemsByRate(items *[]currency.Item) {
 	})
 }
 
-func SaveItemsAsJSON(items []currency.Item, outputPath string, dirPerms os.FileMode) error {
+func SaveItemsAsJSON(items []currency.Item, outputPath string, DirPerms os.FileMode) error {
 	dirName := filepath.Dir(outputPath)
-	if err := os.MkdirAll(dirName, dirPerms); err != nil {
+	if err := os.MkdirAll(dirName, DirPerms); err != nil {
 		return fmt.Errorf("error creating directory: %w", err)
 	}
 
