@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	DirPerms  = 0o755
+	dirPerms  = 0o755
 	filePerms = 0o644
 )
 
@@ -24,7 +24,7 @@ func SortItemsByRate(items *[]currency.Item) {
 
 func SaveItemsAsJSON(items []currency.Item, outputPath string) error {
 	dirName := filepath.Dir(outputPath)
-	if err := os.MkdirAll(dirName, DirPerms); err != nil {
+	if err := os.MkdirAll(dirName, dirPerms); err != nil {
 		return fmt.Errorf("error creating directory: %w", err)
 	}
 
