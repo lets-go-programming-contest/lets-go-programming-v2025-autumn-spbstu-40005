@@ -51,6 +51,7 @@ func (c *CurrencyConverter) parseValue(value string) float64 {
 	if val, err := strconv.ParseFloat(valStr, 64); err == nil {
 		return val
 	}
+
 	return 0
 }
 
@@ -58,6 +59,7 @@ func (c *CurrencyConverter) parseNumCode(numCode string) int {
 	if num, err := strconv.Atoi(strings.TrimSpace(numCode)); err == nil {
 		return num
 	}
+
 	return 0
 }
 
