@@ -11,6 +11,10 @@ import (
 )
 
 func SortItemsByRate(items *[]currency.Item) {
+	if items == nil {
+		return
+	}
+	
 	slice := *items
 	sort.Slice(slice, func(i, j int) bool {
 		return slice[i].RateValue > slice[j].RateValue
