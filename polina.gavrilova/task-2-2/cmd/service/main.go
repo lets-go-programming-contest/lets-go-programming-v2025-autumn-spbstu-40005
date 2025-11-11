@@ -11,6 +11,7 @@ func FindKthLargest(ratings []int, preferenceOrder int) int {
 	if preferenceOrder <= 0 || preferenceOrder > len(ratings) {
 		panic("invalid preferenceOrder")
 	}
+
 	heapInstance := &minheap.MinHeap{}
 	heap.Init(heapInstance)
 
