@@ -10,10 +10,6 @@ import (
 	"feodor.khoroshilov/task-3/internal/currency"
 )
 
-const (
-	filePerms = 0o644
-)
-
 func SortItemsByRate(items *[]currency.Item) {
 	slice := *items
 	sort.Slice(slice, func(i, j int) bool {
@@ -21,7 +17,7 @@ func SortItemsByRate(items *[]currency.Item) {
 	})
 }
 
-func SaveItemsAsJSON(items []currency.Item, outputPath string , dirPerms os.FileMode) error {
+func SaveItemsAsJSON(items []currency.Item, outputPath string, dirPerms os.FileMode) error {
 	dirName := filepath.Dir(outputPath)
 	if err := os.MkdirAll(dirName, dirPerms); err != nil {
 		return fmt.Errorf("error creating directory: %w", err)

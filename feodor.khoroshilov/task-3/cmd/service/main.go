@@ -13,9 +13,11 @@ const (
 	configFlagDefault = "config.yaml"
 	configFlagUsage   = "path to config file"
 )
+
 const (
 	DirPerms = 0o755
 )
+
 func main() {
 	configPath := flag.String(configFlagName, configFlagDefault, configFlagUsage)
 	flag.Parse()
