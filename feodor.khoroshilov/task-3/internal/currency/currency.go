@@ -46,17 +46,30 @@ func (mv *moneyValue) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error
 	return nil
 }
 
+type itemXML struct {
+	NumCode  string     `xml:"NumCode"`
+	CharCode string     `xml:"CharCode"`
+	Value    moneyValue `xml:"Value"`
+}
+
 func (i *Item) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
-	var temp Item
+	var temp itemXML
 	if err := d.DecodeElement(&temp, &start); err != nil {
 		return fmt.Errorf("error decoding XML element: %w", err)
 	}
 
 	numCode := 0
 
+	if temp.NumCode != "" {
+		var err error
+		if numCode, err = strconv.Atoi(temp.NumCode); err != nil {
+			return fmt.Errorf("failed to parse NumCode '%s': %w", temp.NumCode, err)
+		}
+	}
+
 	i.NumCode = numCode
 	i.CharCode = temp.CharCode
-	i.RateValue = float64(temp.RateValue)
+	i.RateValue = float64(temp.Value)
 
 	return nil
 }
