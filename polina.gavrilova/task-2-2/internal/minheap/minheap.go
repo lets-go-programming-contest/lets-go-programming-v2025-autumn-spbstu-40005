@@ -36,7 +36,7 @@ func (heap *MinHeap) Pop() interface{} {
 	return x
 }
 
-func (heap *MinHeap) GetMin() int {
+func (heap *MinHeap) Top() int {
 	if len(*heap) == 0 {
 		panic("heap is empty")
 	}
