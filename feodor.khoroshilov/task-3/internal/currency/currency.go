@@ -15,11 +15,8 @@ type ExchangeData struct {
 }
 
 type Item struct {
-	ID        string  `json:"-"         xml:"ID,attr"`
 	NumCode   int     `json:"num_code"  xml:"NumCode"`
 	CharCode  string  `json:"char_code" xml:"CharCode"`
-	Nominal   int     `json:"-"         xml:"Nominal"`
-	ItemName  string  `json:"-"         xml:"Name"`
 	RateValue float64 `json:"value"     xml:"Value"`
 }
 
@@ -73,11 +70,8 @@ func (i *Item) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
 		}
 	}
 
-	i.ID = temp.ID
 	i.NumCode = numCode
 	i.CharCode = temp.CharCode
-	i.Nominal = temp.Nominal
-	i.ItemName = temp.Name
 	i.RateValue = float64(temp.Value)
 
 	return nil
