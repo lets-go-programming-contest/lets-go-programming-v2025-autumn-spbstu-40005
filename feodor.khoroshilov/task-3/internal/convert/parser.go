@@ -23,7 +23,7 @@ func LoadXMLData[T any](filePath string) (*T, error) {
 	xmlDecoder := xml.NewDecoder(file)
 	xmlDecoder.CharsetReader = charset.NewReaderLabel
 
-	var data *T = new(T)
+	data := new(T)
 	if err := xmlDecoder.Decode(&data); err != nil {
 		return nil, fmt.Errorf("error decoding XML: %w", err)
 	}
