@@ -8,10 +8,10 @@ type TempCondition struct {
 	curMin, curMax int
 }
 
-func NewTempCondition(min int, max int) *TempCondition {
+func NewTempCondition(minTemp, maxTemp int) *TempCondition {
 	return &TempCondition{
-		curMin: min,
-		curMax: max,
+		curMin: minTemp,
+		curMax: maxTemp,
 	}
 }
 
@@ -28,7 +28,7 @@ func (cond *TempCondition) Change(mode string, parameter int) error {
 	return nil
 }
 
-func (cond *TempCondition) GetCurrent() (min int, max int) {
+func (cond *TempCondition) GetCurrent() (minTemp, max_temp int) {
 	return cond.curMin, cond.curMax
 }
 
