@@ -32,7 +32,12 @@ func execDepartment() error {
 		return fmt.Errorf("invalid number of employees: %w", err)
 	}
 
-	tempCondition := temperature.NewTempCondition(15, 30)
+	const (
+		initialMinTemp = 15
+		initialMaxTemp = 30
+	)
+
+	tempCondition := temperature.NewTempCondition(initialMinTemp, initialMaxTemp)
 
 	for range nEmployees {
 		err = execEmployee(tempCondition)

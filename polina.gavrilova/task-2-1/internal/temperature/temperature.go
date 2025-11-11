@@ -28,7 +28,7 @@ func (cond *TempCondition) Change(mode string, parameter int) error {
 	return nil
 }
 
-func (cond *TempCondition) GetCurrent() (minTemp, max_temp int) {
+func (cond *TempCondition) GetCurrent() (int, int) {
 	return cond.curMin, cond.curMax
 }
 
