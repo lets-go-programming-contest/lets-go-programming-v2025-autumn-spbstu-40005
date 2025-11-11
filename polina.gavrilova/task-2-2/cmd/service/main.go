@@ -8,19 +8,22 @@ import (
 )
 
 func FindKthLargest(ratings []int, preferenceOrder int) int {
+	if preferenceOrder <= 0 || preferenceOrder > len(ratings) {
+		panic("invalid preferenceOrder")
+	}
 	heapInstance := &minheap.MinHeap{}
 	heap.Init(heapInstance)
 
 	for _, rating := range ratings {
 		if heapInstance.Len() < preferenceOrder {
 			heap.Push(heapInstance, rating)
-		} else if rating > heapInstance.GetMin() {
+		} else if rating > (*heapInstance)[0] {
 			heap.Pop(heapInstance)
 			heap.Push(heapInstance, rating)
 		}
 	}
 
-	return heapInstance.GetMin()
+	return (*heapInstance)[0]
 }
 
 func main() {
