@@ -27,7 +27,7 @@ func main() {
 		return currencyData.Valute[i].Value > currencyData.Valute[j].Value
 	})
 
-	if err = parser.SaveAsJSON(currencyData.Valute, cfg.OutputFile); err != nil {
+	if err = parser.SaveAsJSON(currencyData.Valute, cfg.OutputFile, cfg.DirPermissions); err != nil {
 		panic(err)
 	}
 }

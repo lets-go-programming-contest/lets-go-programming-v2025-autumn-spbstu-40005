@@ -7,11 +7,17 @@ import (
 	"path/filepath"
 )
 
-const dirPermissions = 0o755
+const defaultDirPermissions = 0o755
 
-func SaveAsJSON[T any](data T, outputPath string) error {
+func SaveAsJSON[T any](data T, outputPath string, dirPermissions *int) error {
 	dir := filepath.Dir(outputPath)
-	if err := os.MkdirAll(dir, dirPermissions); err != nil {
+
+	perms := defaultDirPermissions
+	if dirPermissions != nil {
+		perms = *dirPermissions
+	}
+
+	if err := os.MkdirAll(dir, os.FileMode(perms)); err != nil {
 		return fmt.Errorf("failed to create directory: %w", err)
 	}
 
