@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-
-	"evgeniy.kizhin/task-3/internal/model"
 )
 
 const (
@@ -14,7 +12,7 @@ const (
 	filePerm = 0o644
 )
 
-func SaveAsJSON(vals []model.Currency, outPath string) error {
+func SaveAsJSON(vals any, outPath string) error {
 	data, err := json.MarshalIndent(vals, "", "  ")
 	if err != nil {
 		return fmt.Errorf("json marshal: %w", err)

@@ -10,19 +10,26 @@ import (
 	"golang.org/x/net/html/charset"
 )
 
-func LoadRates(path string) ([]model.Currency, error) {
+func LoadXML(path string, out any) error {
 	data, err := os.ReadFile(path)
 	if err != nil {
-		return nil, fmt.Errorf("read xml: %w", err)
+		return fmt.Errorf("read xml: %w", err)
 	}
 
 	dec := xml.NewDecoder(bytes.NewReader(data))
 	dec.CharsetReader = charset.NewReaderLabel
 
-	var root model.ValCurs
+	if err := dec.Decode(out); err != nil {
+		return fmt.Errorf("xml decode: %w", err)
+	}
 
-	if err := dec.Decode(&root); err != nil {
-		return nil, fmt.Errorf("xml decode: %w", err)
+	return nil
+}
+
+func LoadRates(path string) ([]model.Currency, error) {
+	var root model.ValCurs
+	if err := LoadXML(path, &root); err != nil {
+		return nil, err
 	}
 
 	return root.Valute, nil
