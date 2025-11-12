@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"os"
 	"sort"
 
 	"nikita.brevnov/task-3/internal/bank"
@@ -27,7 +28,7 @@ func main() {
 		return rates.Currencies[i].Rate > rates.Currencies[j].Rate
 	})
 
-	if err = parser.SaveAsJSON(rates.Currencies, cfg.OutputFile, 0o755); err != nil {
+	if err = parser.SaveAsJSON(rates.Currencies, cfg.OutputFile, os.ModePerm); err != nil {
 		panic(err)
 	}
 }
