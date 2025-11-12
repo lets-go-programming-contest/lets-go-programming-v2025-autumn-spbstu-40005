@@ -3,7 +3,6 @@ package parser
 import (
 	"encoding/json"
 	"fmt"
-	"io/fs"
 	"os"
 	"path/filepath"
 )
@@ -13,12 +12,12 @@ const defaultDirPermissions = 0o755
 func SaveAsJSON[T any](data T, outputPath string, dirPermissions *int) error {
 	dir := filepath.Dir(outputPath)
 
-	var perms fs.FileMode = defaultDirPermissions
+	perms := uint32(defaultDirPermissions)
 	if dirPermissions != nil {
-		perms = fs.FileMode(*dirPermissions)
+		perms = uint32(*dirPermissions)
 	}
 
-	if err := os.MkdirAll(dir, perms); err != nil {
+	if err := os.MkdirAll(dir, os.FileMode(perms)); err != nil {
 		return fmt.Errorf("failed to create directory: %w", err)
 	}
 
