@@ -7,9 +7,7 @@ import (
 	"path/filepath"
 )
 
-const dirPermissions = 0o755
-
-func SaveAsJSON[T any](obj T, outputPath string) error {
+func SaveAsJSON[T any](obj T, outputPath string, dirPermissions os.FileMode) error {
 	dir := filepath.Dir(outputPath)
 	if err := os.MkdirAll(dir, dirPermissions); err != nil {
 		return fmt.Errorf("failed to create directories: %w", err)
