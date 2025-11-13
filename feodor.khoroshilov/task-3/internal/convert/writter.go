@@ -17,7 +17,7 @@ func SortItemsByRate(items *[]currency.Item) {
 	})
 }
 
-func SaveItemsAsJSON(items []currency.Item, outputPath string, dirPerms os.FileMode) error {
+func SaveItemsAsJSON[T any](data T, outputPath string, dirPerms os.FileMode) error {
 	dirName := filepath.Dir(outputPath)
 	if err := os.MkdirAll(dirName, dirPerms); err != nil {
 		return fmt.Errorf("error creating directory: %w", err)
@@ -37,7 +37,7 @@ func SaveItemsAsJSON(items []currency.Item, outputPath string, dirPerms os.FileM
 	jsonEncoder := json.NewEncoder(output)
 	jsonEncoder.SetIndent("", "  ")
 
-	if err := jsonEncoder.Encode(items); err != nil {
+	if err := jsonEncoder.Encode(data); err != nil {
 		return fmt.Errorf("error encoding JSON: %w", err)
 	}
 
