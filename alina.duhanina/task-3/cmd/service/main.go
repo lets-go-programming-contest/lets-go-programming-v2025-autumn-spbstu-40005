@@ -4,11 +4,17 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"os"
 
 	"alina.duhanina/task-3/internal/config"
 	"alina.duhanina/task-3/internal/converter"
 	"alina.duhanina/task-3/internal/model"
 	"alina.duhanina/task-3/internal/sorter"
+)
+
+const (
+	DefaultDirPermissions  = 0o755
+	DefaultFilePermissions = 0o644
 )
 
 func main() {
@@ -27,7 +33,12 @@ func main() {
 
 	currencies := sorter.ConvertAndSortCurrencies(valCurs)
 
-	if err := converter.SaveJSON(cfg.OutputFile, currencies); err != nil {
+	if err := converter.SaveJSON(
+		cfg.OutputFile,
+		currencies,
+		DefaultDirPermissions,
+		DefaultFilePermissions,
+	); err != nil {
 		log.Panicf("Error saving JSON: %v", err)
 	}
 
