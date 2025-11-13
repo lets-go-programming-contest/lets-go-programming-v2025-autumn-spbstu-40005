@@ -10,7 +10,7 @@ import (
 	"github.com/smirnov-vladislav/task-3/internal/xmlparser"
 )
 
-const dirPermission os.FileMode = 0o755
+const dirPermission = 0o755
 
 func main() {
 	configPath := flag.String("config", "config.yaml", "config file path")
