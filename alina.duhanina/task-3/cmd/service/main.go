@@ -4,7 +4,6 @@ import (
 	"flag"
 	"fmt"
 	"log"
-	"os"
 
 	"alina.duhanina/task-3/internal/config"
 	"alina.duhanina/task-3/internal/converter"
