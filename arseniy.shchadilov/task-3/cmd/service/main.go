@@ -3,7 +3,6 @@ package main
 import (
 	"flag"
 	"fmt"
-	"os"
 
 	"arseniy.shchadilov/task-3/internal/config"
 	"arseniy.shchadilov/task-3/internal/converter"
@@ -11,36 +10,27 @@ import (
 )
 
 func main() {
-	configPath := flag.String("config", "", "path to YAML config file")
+	configPath := flag.String("config", "config.yaml", "path to YAML config file")
 	flag.Parse()
-
-	if *configPath == "" {
-		fmt.Fprintln(os.Stderr, "ERROR: --config flag is required")
-		os.Exit(1)
-	}
 
 	cfg, err := config.Load(*configPath)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "ERROR: %v\n", err)
-		os.Exit(1)
+		panic(fmt.Sprintf("ERROR: %v", err))
 	}
 
 	if err := cfg.Validate(); err != nil {
-		fmt.Fprintf(os.Stderr, "ERROR: Invalid config: %v\n", err)
-		os.Exit(1)
+		panic(fmt.Sprintf("ERROR: Invalid config: %v", err))
 	}
 
 	var currencyData model.ValCurs
 	if err := converter.ParseXMLFile(cfg.InputFile, &currencyData); err != nil {
-		fmt.Fprintf(os.Stderr, "ERROR: Failed to parse XML: %v\n", err)
-		os.Exit(1)
+		panic(fmt.Sprintf("ERROR: Failed to parse XML: %v", err))
 	}
 
 	currencyData.SortByValueDesc()
 
 	if err := converter.WriteToJSON(currencyData.Valutes, cfg.OutputFile); err != nil {
-		fmt.Fprintf(os.Stderr, "ERROR: Failed to write JSON: %v\n", err)
-		os.Exit(1)
+		panic(fmt.Sprintf("ERROR: Failed to write JSON: %v", err))
 	}
 
 	fmt.Printf("Successfully processed %d currency records to %s\n",
