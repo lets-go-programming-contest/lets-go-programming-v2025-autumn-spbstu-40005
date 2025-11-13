@@ -17,7 +17,7 @@ type ExchangeData struct {
 type Item struct {
 	NumCode   int     `json:"num_code"  xml:"NumCode"`
 	CharCode  string  `json:"char_code" xml:"CharCode"`
-	RateValue float64 `json:"value"     xml:"Value"`
+	RateValue moneyValue `json:"value"     xml:"Value"`
 }
 
 type moneyValue float64
@@ -48,10 +48,12 @@ func (mv *moneyValue) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error
 
 func (i *Item) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
 	type alias Item
+
 	var data alias
 
 	if err := d.DecodeElement(&data, &start); err != nil {
 		return fmt.Errorf("error decoding XML element: %w", err)
 	}
+	
 	return nil
 }
