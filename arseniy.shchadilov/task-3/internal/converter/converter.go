@@ -11,10 +11,8 @@ import (
 )
 
 const (
-	jsonPrefix      = ""
-	jsonIndent      = "    "
-	dirPermissions  = 0o755
-	filePermissions = 0o644
+	jsonPrefix = ""
+	jsonIndent = "    "
 )
 
 func ParseXMLFile(filePath string, target interface{}) error {
@@ -23,11 +21,7 @@ func ParseXMLFile(filePath string, target interface{}) error {
 		return fmt.Errorf("failed to open XML file: %w", err)
 	}
 
-	defer func() {
-		if closeErr := file.Close(); closeErr != nil {
-			fmt.Fprintf(os.Stderr, "warning: failed to close file %s: %v\n", filePath, closeErr)
-		}
-	}()
+	defer file.Close()
 
 	decoder := xml.NewDecoder(file)
 	decoder.CharsetReader = charset.NewReaderLabel
@@ -39,7 +33,7 @@ func ParseXMLFile(filePath string, target interface{}) error {
 	return nil
 }
 
-func WriteToJSON(data interface{}, outputPath string) error {
+func WriteToJSON(data interface{}, outputPath string, dirPermissions, filePermissions os.FileMode) error {
 	jsonData, err := json.MarshalIndent(data, jsonPrefix, jsonIndent)
 	if err != nil {
 		return fmt.Errorf("failed to marshal JSON: %w", err)
