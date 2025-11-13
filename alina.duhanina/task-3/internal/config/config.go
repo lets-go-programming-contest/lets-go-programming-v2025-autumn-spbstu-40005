@@ -3,7 +3,6 @@ package config
 import (
 	"errors"
 	"fmt"
-	"io"
 	"os"
 
 	"gopkg.in/yaml.v2"
@@ -16,19 +15,15 @@ type Config struct {
 	OutputFile string `yaml:"output-file"`
 }
 
-func LoadConfig(configPath string) (*Config, error) {
-	file, err := os.Open(configPath)
-	if err != nil {
-		return nil, fmt.Errorf("cannot open config file: %w", err)
+func (c *Config) Validate() error {
+	if c.InputFile == "" || c.OutputFile == "" {
+		return ErrInvalidConfig
 	}
+	return nil
+}
 
-	defer func() {
-		if err := file.Close(); err != nil {
-			panic("error closing config file")
-		}
-	}()
-
-	content, err := io.ReadAll(file)
+func LoadConfig(configPath string) (*Config, error) {
+	content, err := os.ReadFile(configPath)
 	if err != nil {
 		return nil, fmt.Errorf("cannot read config file: %w", err)
 	}
@@ -38,8 +33,8 @@ func LoadConfig(configPath string) (*Config, error) {
 		return nil, fmt.Errorf("cannot unmarshal YAML: %w", err)
 	}
 
-	if config.InputFile == "" || config.OutputFile == "" {
-		return nil, ErrInvalidConfig
+	if err := config.Validate(); err != nil {
+		return nil, err
 	}
 
 	return &config, nil

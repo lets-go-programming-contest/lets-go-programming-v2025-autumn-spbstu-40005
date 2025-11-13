@@ -6,7 +6,7 @@ import (
 	"alina.duhanina/task-3/internal/model"
 )
 
-type ByValueDesc []model.CurrencyResult
+type ByValueDesc []model.Valute
 
 func (a ByValueDesc) Len() int { return len(a) }
 
@@ -23,22 +23,17 @@ func (a ByValueDesc) Less(i, j int) bool {
 		panic("index out of range in Less")
 	}
 
-	return a[i].Value > a[j].Value
+	return float64(a[i].Value) > float64(a[j].Value)
 }
 
-func ConvertAndSortCurrencies(valCurs *model.ValCurs) []model.CurrencyResult {
-	currencies := make([]model.CurrencyResult, 0, len(valCurs.Valutes))
+func ConvertAndSortCurrencies(valCurs *model.ValCurs) []model.Valute {
+	valutes := make([]model.Valute, 0, len(valCurs.Valutes))
 
 	for _, valute := range valCurs.Valutes {
-		currency := model.CurrencyResult{
-			NumCode:  valute.NumCode,
-			CharCode: valute.CharCode,
-			Value:    float64(valute.Value),
-		}
-		currencies = append(currencies, currency)
+		valutes = append(valutes, valute)
 	}
 
-	sort.Sort(ByValueDesc(currencies))
+	sort.Sort(ByValueDesc(valutes))
 
-	return currencies
+	return valutes
 }
