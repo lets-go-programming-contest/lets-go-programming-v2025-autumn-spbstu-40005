@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 )
 
-func Write(path string, value any, dirPermission fs.FileMode) error {
+func Write(path string, value any, dirPermission os.FileMode) error {
 	if err := os.MkdirAll(filepath.Dir(path), dirPermission); err != nil {
 		return fmt.Errorf("fail to make directory: %w", err)
 	}
