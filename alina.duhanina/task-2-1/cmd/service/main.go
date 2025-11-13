@@ -5,10 +5,7 @@ import (
 	"fmt"
 )
 
-var (
-	ErrInvalidInput = errors.New("invalid input")
-	ErrInvalidRead  = errors.New("invalid read")
-)
+var ErrInvalidOperator = errors.New("invalid operator")
 
 type Operator string
 
@@ -75,7 +72,7 @@ func (tr *TemperatureRange) updateTemperatureRange(req Request) error {
 			tr.maxTemp = req.Temp
 		}
 	default:
-		return ErrInvalidInput
+		return ErrInvalidOperator
 	}
 
 	return nil
