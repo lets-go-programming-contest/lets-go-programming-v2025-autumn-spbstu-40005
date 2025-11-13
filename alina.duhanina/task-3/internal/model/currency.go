@@ -35,11 +35,11 @@ func (cv *CurrencyValue) UnmarshalXML(d *xml.Decoder, start xml.StartElement) er
 }
 
 type Valute struct {
-	XMLName  xml.Name      `xml:"Valute"`
-	ID       string        `xml:"ID,attr"`
-	NumCode  int           `xml:"NumCode"`
-	CharCode string        `xml:"CharCode"`
-	Nominal  int           `xml:"Nominal"`
-	Name     string        `xml:"Name"`
-	Value    CurrencyValue `xml:"Value"`
+	XMLName  xml.Name      `xml:"Valute" json:"-"`
+	ID       string        `xml:"ID,attr" json:"-"`
+	NumCode  int           `xml:"NumCode" json:"num_code"`
+	CharCode string        `xml:"CharCode" json:"char_code"`
+	Nominal  int           `xml:"Nominal" json:"-"`
+	Name     string        `xml:"Name" json:"-"`
+	Value    CurrencyValue `xml:"Value" json:"value"`
 }
