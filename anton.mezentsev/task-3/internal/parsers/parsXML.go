@@ -2,28 +2,21 @@ package parsers
 
 import (
 	"encoding/xml"
-	"errors"
 	"fmt"
 	"os"
 
 	"golang.org/x/net/html/charset"
 )
 
-var (
-	ErrOpeningFileXML = errors.New("error opening file")
-	ErrClosingFileXML = errors.New("error closing file")
-	ErrXMLDecoding    = errors.New("error xml decoding")
-)
-
 func ParseXML[T any](filePath string) (*T, error) {
 	file, err := os.Open(filePath)
 	if err != nil {
-		return nil, fmt.Errorf("%w: %w", ErrOpeningFileXML, err)
+		return nil, fmt.Errorf("opening file: %w", err)
 	}
 
 	defer func() {
 		if err := file.Close(); err != nil {
-			panic(ErrClosingFileXML)
+			panic("closing file: " + err.Error())
 		}
 	}()
 
@@ -32,7 +25,7 @@ func ParseXML[T any](filePath string) (*T, error) {
 
 	var result T
 	if err := decoder.Decode(&result); err != nil {
-		return nil, fmt.Errorf("%w: %w", ErrXMLDecoding, err)
+		return nil, fmt.Errorf("xml decoding: %w", err)
 	}
 
 	return &result, nil
