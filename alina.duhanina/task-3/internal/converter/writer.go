@@ -7,12 +7,7 @@ import (
 	"path/filepath"
 )
 
-const (
-	dirPerm  = 0o755
-	filePerm = 0o644
-)
-
-func SaveJSON[T any](outputPath string, data T) error {
+func SaveJSON[T any](outputPath string, data T, dirPerm, filePerm os.FileMode) error {
 	jsonData, err := json.MarshalIndent(data, "", "  ")
 	if err != nil {
 		return fmt.Errorf("failed to marshal JSON: %w", err)
