@@ -28,10 +28,7 @@ func (a ByValueDesc) Less(i, j int) bool {
 
 func ConvertAndSortCurrencies(valCurs *model.ValCurs) []model.Valute {
 	valutes := make([]model.Valute, 0, len(valCurs.Valutes))
-
-	for _, valute := range valCurs.Valutes {
-		valutes = append(valutes, valute)
-	}
+	valutes = append(valutes, valCurs.Valutes...)
 
 	sort.Sort(ByValueDesc(valutes))
 

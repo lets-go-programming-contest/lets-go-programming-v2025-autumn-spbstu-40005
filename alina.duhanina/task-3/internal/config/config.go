@@ -19,6 +19,7 @@ func (c *Config) Validate() error {
 	if c.InputFile == "" || c.OutputFile == "" {
 		return ErrInvalidConfig
 	}
+
 	return nil
 }
 
