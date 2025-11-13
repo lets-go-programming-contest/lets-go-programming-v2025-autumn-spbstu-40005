@@ -13,14 +13,13 @@ type ExchangeData struct {
 	SourceName string   `xml:"name,attr"`
 	Items      []Item   `xml:"Valute"`
 }
+type moneyValue float64
 
 type Item struct {
 	NumCode   int     `json:"num_code"  xml:"NumCode"`
 	CharCode  string  `json:"char_code" xml:"CharCode"`
-	RateValue float64 `json:"value"     xml:"Value"`
+	RateValue moneyValue `json:"value"     xml:"Value"`
 }
-
-type moneyValue float64
 
 func (mv *moneyValue) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
 	var text string
