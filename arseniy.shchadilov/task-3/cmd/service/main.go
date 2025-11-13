@@ -29,7 +29,7 @@ func main() {
 
 	currencyData.SortByValueDesc()
 
-	if err := converter.WriteToJSON(currencyData.Valutes, cfg.OutputFile); err != nil {
+	if err := converter.WriteToJSON(currencyData.Valutes, cfg.OutputFile, 0o755, 0o644); err != nil {
 		panic(fmt.Sprintf("ERROR: Failed to write JSON: %v", err))
 	}
 
