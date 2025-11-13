@@ -16,8 +16,8 @@ type ExchangeData struct {
 type moneyValue float64
 
 type Item struct {
-	NumCode   int     `json:"num_code"  xml:"NumCode"`
-	CharCode  string  `json:"char_code" xml:"CharCode"`
+	NumCode   int        `json:"num_code"  xml:"NumCode"`
+	CharCode  string     `json:"char_code" xml:"CharCode"`
 	RateValue moneyValue `json:"value"     xml:"Value"`
 }
 
