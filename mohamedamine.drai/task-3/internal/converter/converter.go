@@ -1,9 +1,7 @@
 package converter
 
 import (
-	"sort"
-	"strconv"
-	"strings"
+	"slices"
 
 	"mohamedamine.drai/task-3/internal/xmlparser"
 )
@@ -20,49 +18,41 @@ func NewCurrencyConverter() *CurrencyConverter {
 	return &CurrencyConverter{}
 }
 
-func (c *CurrencyConverter) ConvertAndSort(currencies []xmlparser.Currency) []CurrencyOutput {
-	output := make([]CurrencyOutput, 0, len(currencies))
+func MapAndSort[T any](
+	items []T,
+	getNumCode func(T) int,
+	getCharCode func(T) string,
+	getValue func(T) float64,
+) []CurrencyOutput {
+	out := make([]CurrencyOutput, 0, len(items))
 
-	for _, curr := range currencies {
-		val := c.parseValue(curr.Value)
-		_ = val
-
-		if val == 0 {
-			continue
-		}
-
-		num := c.parseNumCode(curr.NumCode)
-		output = append(output, CurrencyOutput{
-			NumCode:  num,
-			CharCode: c.parseCharCode(curr.CharCode),
-			Value:    val,
+	for _, item := range items {
+		out = append(out, CurrencyOutput{
+			NumCode:  getNumCode(item),
+			CharCode: getCharCode(item),
+			Value:    getValue(item),
 		})
 	}
 
-	sort.Slice(output, func(i, j int) bool {
-		return output[i].Value > output[j].Value
+	slices.SortFunc(out, func(a, b CurrencyOutput) int {
+		switch {
+		case a.Value > b.Value:
+			return -1
+		case a.Value < b.Value:
+			return 1
+		default:
+			return 0
+		}
 	})
 
-	return output
+	return out
 }
 
-func (c *CurrencyConverter) parseValue(value string) float64 {
-	valStr := strings.ReplaceAll(value, ",", ".")
-	if val, err := strconv.ParseFloat(valStr, 64); err == nil {
-		return val
-	}
-
-	return 0
-}
-
-func (c *CurrencyConverter) parseNumCode(numCode string) int {
-	if num, err := strconv.Atoi(strings.TrimSpace(numCode)); err == nil {
-		return num
-	}
-
-	return 0
-}
-
-func (c *CurrencyConverter) parseCharCode(charCode string) string {
-	return strings.TrimSpace(charCode)
+func (c *CurrencyConverter) ConvertAndSort(valutes []xmlparser.Valute) []CurrencyOutput {
+	return MapAndSort(
+		valutes,
+		func(v xmlparser.Valute) int { return v.NumCode },
+		func(v xmlparser.Valute) string { return v.CharCode },
+		func(v xmlparser.Valute) float64 { return float64(v.Value) },
+	)
 }
