@@ -25,14 +25,18 @@ type Float64 float64
 func (f *Float64) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
 	var raw string
 	if err := d.DecodeElement(&raw, &start); err != nil {
-		return err
+		return fmt.Errorf("decode xml element: %w", err)
 	}
+
 	raw = strings.ReplaceAll(raw, ",", ".")
+
 	val, err := strconv.ParseFloat(raw, 64)
 	if err != nil {
-		return err
+		return fmt.Errorf("parse float: %w", err)
 	}
+
 	*f = Float64(val)
+
 	return nil
 }
 
@@ -42,7 +46,11 @@ func ReadXML(path string) (*ValCurs, error) {
 		return nil, fmt.Errorf("open xml file: %w", err)
 	}
 
-	defer file.Close()
+	defer func() {
+		if closeErr := file.Close(); closeErr != nil {
+			fmt.Printf("warning: failed to close file: %v\n", closeErr)
+		}
+	}()
 
 	decoder := xml.NewDecoder(file)
 	decoder.CharsetReader = charset.NewReaderLabel

@@ -7,7 +7,16 @@ import (
 	"path/filepath"
 )
 
-func SaveToJSON(data any, path string, dirPerm os.FileMode, filePerm os.FileMode) error {
+const (
+	DefaultDirPerm  = 0o755
+	DefaultFilePerm = 0o600
+)
+
+func SaveToJSON(data any, path string) error {
+	return SaveToJSONWithPerms(data, path, DefaultDirPerm, DefaultFilePerm)
+}
+
+func SaveToJSONWithPerms(data any, path string, dirPerm os.FileMode, filePerm os.FileMode) error {
 	dir := filepath.Dir(path)
 
 	if err := os.MkdirAll(dir, dirPerm); err != nil {
