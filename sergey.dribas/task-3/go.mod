@@ -1,4 +1,4 @@
-module sergey.dribas/task-3
+module github.com/Rassoha/lets-go-programming-v2025-autumn-spbstu-40005/sergey.dribas/task-3
 
 go 1.22.7
 

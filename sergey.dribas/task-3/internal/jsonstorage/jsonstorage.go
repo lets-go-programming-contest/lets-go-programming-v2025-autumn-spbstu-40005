@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"strings"
 
-	"sergey.dribas/task-3/internal/valute"
+	"github.com/Rassoha/lets-go-programming-v2025-autumn-spbstu-40005/sergey.dribas/task-3/internal/valute"
 )
 
 const (

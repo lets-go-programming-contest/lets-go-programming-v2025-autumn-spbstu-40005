@@ -4,9 +4,9 @@ import (
 	"flag"
 	"sort"
 
-	"sergey.dribas/task-3/internal/config"
-	"sergey.dribas/task-3/internal/jsonstorage"
-	"sergey.dribas/task-3/internal/valute"
+	"github.com/Rassoha/lets-go-programming-v2025-autumn-spbstu-40005/sergey.dribas/task-3/internal/config"
+	"github.com/Rassoha/lets-go-programming-v2025-autumn-spbstu-40005/sergey.dribas/task-3/internal/jsonstorage"
+	"github.com/Rassoha/lets-go-programming-v2025-autumn-spbstu-40005/sergey.dribas/task-3/internal/valute"
 )
 
 const (
