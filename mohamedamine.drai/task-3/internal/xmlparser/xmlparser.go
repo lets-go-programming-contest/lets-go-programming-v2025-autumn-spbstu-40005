@@ -4,39 +4,53 @@ import (
 	"encoding/xml"
 	"fmt"
 	"os"
+	"strconv"
+	"strings"
 
 	"golang.org/x/net/html/charset"
 )
 
-type Exchange struct {
-	Currencies []Currency `xml:"Valute"`
+type ValCurs struct {
+	Valutes []Valute `xml:"Valute"`
 }
 
-type Currency struct {
-	NumCode  string `xml:"NumCode"`
-	CharCode string `xml:"CharCode"`
-	Value    string `xml:"Value"`
+type Valute struct {
+	NumCode  int     `xml:"NumCode"`
+	CharCode string  `xml:"CharCode"`
+	Value    Float64 `xml:"Value"`
 }
 
-func ReadXML(path string) (*Exchange, error) {
+type Float64 float64
+
+func (f *Float64) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
+	var raw string
+	if err := d.DecodeElement(&raw, &start); err != nil {
+		return err
+	}
+	raw = strings.ReplaceAll(raw, ",", ".")
+	val, err := strconv.ParseFloat(raw, 64)
+	if err != nil {
+		return err
+	}
+	*f = Float64(val)
+	return nil
+}
+
+func ReadXML(path string) (*ValCurs, error) {
 	file, err := os.Open(path)
 	if err != nil {
 		return nil, fmt.Errorf("open xml file: %w", err)
 	}
 
-	defer func() {
-		if closeErr := file.Close(); closeErr != nil {
-			panic(closeErr)
-		}
-	}()
+	defer file.Close()
 
 	decoder := xml.NewDecoder(file)
 	decoder.CharsetReader = charset.NewReaderLabel
 
-	var exch Exchange
-	if err := decoder.Decode(&exch); err != nil {
+	var vc ValCurs
+	if err := decoder.Decode(&vc); err != nil {
 		return nil, fmt.Errorf("decode xml: %w", err)
 	}
 
-	return &exch, nil
+	return &vc, nil
 }

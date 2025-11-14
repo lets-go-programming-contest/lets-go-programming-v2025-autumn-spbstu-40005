@@ -10,27 +10,23 @@ import (
 )
 
 func main() {
-	configPath := flag.String("config", "", "path to YAML config file")
+	configPath := flag.String("config", "config.yaml", "path to YAML config file")
 	flag.Parse()
-
-	if *configPath == "" {
-		panic("config path not provided")
-	}
 
 	cfg, err := config.LoadConfig(*configPath)
 	if err != nil {
 		panic(err)
 	}
 
-	data, err := xmlparser.ReadXML(cfg.InputFile)
+	xmlData, err := xmlparser.ReadXML(cfg.InputFile)
 	if err != nil {
 		panic(err)
 	}
 
-	converter := converter.NewCurrencyConverter()
-	sortedCurrencies := converter.ConvertAndSort(data.Currencies)
+	conv := converter.NewCurrencyConverter()
+	out := conv.ConvertAndSort(xmlData.Valutes)
 
-	if err := jsonwriter.SaveToJSON(sortedCurrencies, cfg.OutputFile); err != nil {
+	if err := jsonwriter.SaveToJSON(out, cfg.OutputFile, 0o755, 0o600); err != nil {
 		panic(err)
 	}
 }
