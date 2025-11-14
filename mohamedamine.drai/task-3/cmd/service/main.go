@@ -26,7 +26,7 @@ func main() {
 	conv := converter.NewCurrencyConverter()
 	out := conv.ConvertAndSort(xmlData.Valutes)
 
-	if err := jsonwriter.SaveToJSON(out, cfg.OutputFile, 0o755, 0o600); err != nil {
+	if err := jsonwriter.SaveToJSON(out, cfg.OutputFile); err != nil {
 		panic(err)
 	}
 }
