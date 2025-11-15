@@ -8,10 +8,7 @@ import (
 )
 
 type ValCurs struct {
-	XMLName xml.Name   `xml:"ValCurs"`
-	Date    string     `xml:"Date,attr"`
-	Name    string     `xml:"name,attr"`
-	Valute  []Currency `xml:"Valute"`
+	Valute []Currency `xml:"Valute"`
 }
 
 type Amount float64

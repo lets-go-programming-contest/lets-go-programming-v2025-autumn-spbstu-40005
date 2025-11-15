@@ -7,12 +7,12 @@ import (
 	"path/filepath"
 )
 
-const (
-	dirPerm  = 0o755
-	filePerm = 0o644
-)
+type SaveOpts struct {
+	DirPerm  os.FileMode
+	FilePerm os.FileMode
+}
 
-func SaveAsJSON(vals any, outPath string) error {
+func SaveAsJSON(opts SaveOpts, vals any, outPath string) error {
 	data, err := json.MarshalIndent(vals, "", "  ")
 	if err != nil {
 		return fmt.Errorf("json marshal: %w", err)
@@ -20,13 +20,11 @@ func SaveAsJSON(vals any, outPath string) error {
 
 	dir := filepath.Dir(outPath)
 
-	if dir != "." {
-		if err := os.MkdirAll(dir, dirPerm); err != nil {
-			return fmt.Errorf("mkdir: %w", err)
-		}
+	if err := os.MkdirAll(dir, opts.DirPerm); err != nil {
+		return fmt.Errorf("mkdir: %w", err)
 	}
 
-	if err := os.WriteFile(outPath, data, filePerm); err != nil {
+	if err := os.WriteFile(outPath, data, opts.FilePerm); err != nil {
 		return fmt.Errorf("write file: %w", err)
 	}
 
