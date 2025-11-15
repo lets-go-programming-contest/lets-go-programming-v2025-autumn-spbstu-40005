@@ -9,6 +9,11 @@ import (
 	"evgeniy.kizhin/task-3/internal/rates"
 )
 
+const (
+	defDirPerm  = 0o755
+	defFilePerm = 0o644
+)
+
 func main() {
 	cfgPath := flag.String("config", "config.yaml", "path to yaml configuration")
 	flag.Parse()
@@ -27,7 +32,11 @@ func main() {
 		return float64(rates[i].Value) > float64(rates[j].Value)
 	})
 
-	if err := out.SaveAsJSON(rates, conf.OutputFile); err != nil {
+	opts := out.SaveOpts{
+		DirPerm:  defDirPerm,
+		FilePerm: defFilePerm,
+	}
+	if err := out.SaveAsJSON(opts, rates, conf.OutputFile); err != nil {
 		panic(err)
 	}
 }
