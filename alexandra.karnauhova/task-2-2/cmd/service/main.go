@@ -51,11 +51,11 @@ func chooseDish(menu queue.Queue, countDish int) (int, error) {
 		return 0, fmt.Errorf("%w: k value cannot be zero", ErrInvalidDishSelection)
 	}
 
-	dishItem := heap.Pop(&menu)
-
 	for range kValue - 1 {
-		dishItem = heap.Pop(&menu)
+		heap.Pop(&menu)
 	}
+
+	dishItem := heap.Pop(&menu)
 
 	dish, ok := dishItem.(int)
 	if !ok {
