@@ -7,7 +7,7 @@ import (
 	"sync"
 )
 
-var ErrNoDecorator = errors.New("can’t be decorated")
+var ErrNoDecorator = errors.New("can't be decorated")
 
 func orDone[T any](done <-chan struct{}, channel <-chan T) <-chan T {
 	out := make(chan T)
