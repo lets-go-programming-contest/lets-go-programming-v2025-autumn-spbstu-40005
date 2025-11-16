@@ -48,8 +48,11 @@ func (p *Conveyer) RegisterDecorator(
 	input string,
 	output string,
 ) {
+	inCh := p.register(input)
+	outCh := p.register(output)
+
 	p.handlers = append(p.handlers, func(ctx context.Context) error {
-		return fn(ctx, p.register(input), p.register(output))
+		return fn(ctx, inCh, outCh)
 	})
 }
 
@@ -94,8 +97,10 @@ func (p *Conveyer) RegisterSeparator(
 		outChans[i] = p.register(name)
 	}
 
+	inCh := p.register(input)
+
 	p.handlers = append(p.handlers, func(ctx context.Context) error {
-		return fn(ctx, p.register(input), outChans)
+		return fn(ctx, inCh, outChans)
 	})
 }
 
