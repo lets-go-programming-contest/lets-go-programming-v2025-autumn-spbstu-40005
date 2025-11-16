@@ -3,14 +3,11 @@ package handlers
 import (
 	"context"
 	"errors"
-	"fmt"
 	"strings"
 	"sync"
 )
 
-var (
-	ErrNoDecorator = errors.New("can’t be decorated")
-)
+var ErrNoDecorator = errors.New("can’t be decorated")
 
 func orDone[T any](done <-chan struct{}, channel <-chan T) <-chan T {
 	out := make(chan T)
@@ -30,13 +27,13 @@ func orDone[T any](done <-chan struct{}, channel <-chan T) <-chan T {
 			case <-done:
 				return
 
-			case v, ok := <-channel:
+			case value, ok := <-channel:
 				if !ok {
 					return
 				}
 
 				select {
-				case out <- v:
+				case out <- value:
 
 				case <-done:
 					return
@@ -59,7 +56,7 @@ func PrefixDecoratorFunc(
 		}
 
 		if !strings.HasPrefix(str, "decorated: ") {
-			str = fmt.Sprintf("decorated: %s", str)
+			str = "decorated: " + str
 		}
 
 		select {
@@ -99,7 +96,7 @@ func MultiplexerFunc(
 	inputs []chan string,
 	output chan string,
 ) error {
-	wg := sync.WaitGroup{}
+	wg := sync.WaitGroup{} //nolint:varnamelen
 
 	wg.Add(len(inputs))
 

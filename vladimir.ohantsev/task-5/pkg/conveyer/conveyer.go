@@ -3,13 +3,12 @@ package conveyer
 import (
 	"context"
 	"errors"
+	"fmt"
 
 	"golang.org/x/sync/errgroup"
 )
 
-var (
-	ErrChanNotFound = errors.New("chan not found")
-)
+var ErrChanNotFound = errors.New("chan not found")
 
 type Conveyer struct {
 	size     int
@@ -41,7 +40,7 @@ func (p *Conveyer) register(name string) chan string {
 }
 
 func (p *Conveyer) RegisterDecorator(
-	fn func(
+	fn func( //nolint:varnamelen
 		ctx context.Context,
 		input chan string,
 		output chan string,
@@ -55,7 +54,7 @@ func (p *Conveyer) RegisterDecorator(
 }
 
 func (p *Conveyer) RegisterMultiplexer(
-	fn func(
+	fn func( //nolint:varnamelen
 		ctx context.Context,
 		inputs []chan string,
 		output chan string,
@@ -78,7 +77,7 @@ func (p *Conveyer) RegisterMultiplexer(
 }
 
 func (p *Conveyer) RegisterSeparator(
-	fn func(
+	fn func( //nolint:varnamelen
 		ctx context.Context,
 		input chan string,
 		outputs []chan string,
@@ -109,7 +108,7 @@ func (p *Conveyer) Run(ctx context.Context) error {
 		p.channels = make(map[string]chan string)
 	}()
 
-	eg, ctx := errgroup.WithContext(ctx)
+	eg, ctx := errgroup.WithContext(ctx) //nolint:varnamelen
 
 	for _, handler := range p.handlers {
 		eg.Go(func() error {
@@ -117,7 +116,11 @@ func (p *Conveyer) Run(ctx context.Context) error {
 		})
 	}
 
-	return eg.Wait()
+	if err := eg.Wait(); err != nil {
+		return fmt.Errorf("run conveyer: %w", err)
+	}
+
+	return nil
 }
 
 func (p *Conveyer) Send(input string, data string) error {
@@ -133,7 +136,7 @@ func (p *Conveyer) Send(input string, data string) error {
 
 func (p *Conveyer) Recv(output string) (string, error) {
 	ch, ok := p.channels[output]
-	if !ok {
+	if !ok { //nolint:varnamelen
 		return "", ErrChanNotFound
 	}
 
