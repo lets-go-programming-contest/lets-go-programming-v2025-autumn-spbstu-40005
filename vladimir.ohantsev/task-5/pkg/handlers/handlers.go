@@ -78,14 +78,14 @@ func SeparatorFunc(
 	index := 0
 
 	for str := range orDone(ctx.Done(), input) {
-		index = (index + 1) % len(outputs)
-
 		select {
 		case outputs[index] <- str:
 
 		case <-ctx.Done():
 			return nil
 		}
+
+		index = (index + 1) % len(outputs)
 	}
 
 	return nil
@@ -96,13 +96,13 @@ func MultiplexerFunc(
 	inputs []chan string,
 	output chan string,
 ) error {
-	wg := sync.WaitGroup{} //nolint:varnamelen
+	waitgr := sync.WaitGroup{}
 
-	wg.Add(len(inputs))
+	waitgr.Add(len(inputs))
 
 	for _, ch := range inputs {
 		go func() {
-			defer wg.Done()
+			defer waitgr.Done()
 
 			for str := range orDone(ctx.Done(), ch) {
 				if strings.Contains(str, "no multiplexer") {
@@ -119,7 +119,7 @@ func MultiplexerFunc(
 		}()
 	}
 
-	wg.Wait()
+	waitgr.Wait()
 
 	return nil
 }

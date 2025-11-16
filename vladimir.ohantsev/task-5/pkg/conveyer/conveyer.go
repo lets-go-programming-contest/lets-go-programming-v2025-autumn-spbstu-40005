@@ -104,19 +104,17 @@ func (p *Conveyer) Run(ctx context.Context) error {
 		for _, ch := range p.channels {
 			close(ch)
 		}
-
-		p.channels = make(map[string]chan string)
 	}()
 
-	eg, ctx := errgroup.WithContext(ctx) //nolint:varnamelen
+	errgr, ctx := errgroup.WithContext(ctx)
 
 	for _, handler := range p.handlers {
-		eg.Go(func() error {
+		errgr.Go(func() error {
 			return handler(ctx)
 		})
 	}
 
-	if err := eg.Wait(); err != nil {
+	if err := errgr.Wait(); err != nil {
 		return fmt.Errorf("run conveyer: %w", err)
 	}
 
@@ -135,8 +133,8 @@ func (p *Conveyer) Send(input string, data string) error {
 }
 
 func (p *Conveyer) Recv(output string) (string, error) {
-	ch, ok := p.channels[output]
-	if !ok { //nolint:varnamelen
+	ch, ok := p.channels[output] //nolint:varnamelen
+	if !ok {
 		return "", ErrChanNotFound
 	}
 
