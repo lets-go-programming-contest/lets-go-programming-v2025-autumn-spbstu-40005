@@ -19,7 +19,6 @@ func orDone[T any](done <-chan struct{}, channel <-chan T) <-chan T {
 			select {
 			case <-done:
 				return
-
 			default:
 			}
 
@@ -32,12 +31,7 @@ func orDone[T any](done <-chan struct{}, channel <-chan T) <-chan T {
 					return
 				}
 
-				select {
-				case out <- value:
-
-				case <-done:
-					return
-				}
+				out <- value
 			}
 		}
 	}()

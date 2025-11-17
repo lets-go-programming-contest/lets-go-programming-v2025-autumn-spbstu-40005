@@ -9,25 +9,25 @@ import (
 
 var ErrChanNotFound = errors.New("chan not found")
 
-type Conveyer struct {
+type Pipeline struct {
 	size     int
 	channels map[string]chan string
 	handlers []func(ctx context.Context) error
 }
 
-func New(size int) *Conveyer {
+func New(size int) *Pipeline {
 	if size < 0 {
 		panic("invalid chan size")
 	}
 
-	return &Conveyer{
+	return &Pipeline{
 		size:     size,
 		channels: make(map[string]chan string),
 		handlers: []func(ctx context.Context) error{},
 	}
 }
 
-func (p *Conveyer) register(name string) chan string {
+func (p *Pipeline) register(name string) chan string {
 	if ch, ok := p.channels[name]; ok {
 		return ch
 	}
@@ -38,8 +38,8 @@ func (p *Conveyer) register(name string) chan string {
 	return ch
 }
 
-func (p *Conveyer) RegisterDecorator(
-	fn func( //nolint:varnamelen
+func (p *Pipeline) RegisterDecorator(
+	callback func(
 		ctx context.Context,
 		input chan string,
 		output chan string,
@@ -51,12 +51,12 @@ func (p *Conveyer) RegisterDecorator(
 	outCh := p.register(output)
 
 	p.handlers = append(p.handlers, func(ctx context.Context) error {
-		return fn(ctx, inCh, outCh)
+		return callback(ctx, inCh, outCh)
 	})
 }
 
-func (p *Conveyer) RegisterMultiplexer(
-	fn func( //nolint:varnamelen
+func (p *Pipeline) RegisterMultiplexer(
+	callback func(
 		ctx context.Context,
 		inputs []chan string,
 		output chan string,
@@ -74,12 +74,12 @@ func (p *Conveyer) RegisterMultiplexer(
 	}
 
 	p.handlers = append(p.handlers, func(ctx context.Context) error {
-		return fn(ctx, inChans, p.register(output))
+		return callback(ctx, inChans, p.register(output))
 	})
 }
 
-func (p *Conveyer) RegisterSeparator(
-	fn func( //nolint:varnamelen
+func (p *Pipeline) RegisterSeparator(
+	callback func(
 		ctx context.Context,
 		input chan string,
 		outputs []chan string,
@@ -99,11 +99,11 @@ func (p *Conveyer) RegisterSeparator(
 	inCh := p.register(input)
 
 	p.handlers = append(p.handlers, func(ctx context.Context) error {
-		return fn(ctx, inCh, outChans)
+		return callback(ctx, inCh, outChans)
 	})
 }
 
-func (p *Conveyer) Run(ctx context.Context) error {
+func (p *Pipeline) Run(ctx context.Context) error {
 	defer func() {
 		for _, ch := range p.channels {
 			close(ch)
@@ -121,7 +121,7 @@ func (p *Conveyer) Run(ctx context.Context) error {
 	return errgr.Wait() //nolint:wrapcheck
 }
 
-func (p *Conveyer) Send(input string, data string) error {
+func (p *Pipeline) Send(input string, data string) error {
 	ch, ok := p.channels[input]
 	if !ok {
 		return ErrChanNotFound
@@ -132,14 +132,14 @@ func (p *Conveyer) Send(input string, data string) error {
 	return nil
 }
 
-func (p *Conveyer) Recv(output string) (string, error) {
-	ch, ok := p.channels[output] //nolint:varnamelen
-	if !ok {
+func (p *Pipeline) Recv(output string) (string, error) {
+	channel, okey := p.channels[output]
+	if !okey {
 		return "", ErrChanNotFound
 	}
 
-	data, ok := <-ch
-	if !ok {
+	data, okey := <-channel
+	if !okey {
 		return "undefined", nil
 	}
 
