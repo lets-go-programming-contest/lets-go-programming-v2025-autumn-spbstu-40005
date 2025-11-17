@@ -7,10 +7,16 @@ func (heap *MinHeap) Len() int {
 }
 
 func (heap *MinHeap) Less(i, j int) bool {
+	if i < 0 || j < 0 || i >= heap.Len() || j >= heap.Len() {
+		panic("less index is out of range")
+	}
 	return (*heap)[i] < (*heap)[j]
 }
 
 func (heap *MinHeap) Swap(i, j int) {
+	if i < 0 || j < 0 || i >= heap.Len() || j >= heap.Len() {
+		panic("swap index is out of range")
+	}
 	(*heap)[i], (*heap)[j] = (*heap)[j], (*heap)[i]
 }
 

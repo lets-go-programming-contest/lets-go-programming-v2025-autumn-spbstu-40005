@@ -18,13 +18,13 @@ func FindKthLargest(ratings []int, preferenceOrder int) int {
 	for _, rating := range ratings {
 		if heapInstance.Len() < preferenceOrder {
 			heap.Push(heapInstance, rating)
-		} else if rating > (*heapInstance)[0] {
+		} else if rating > heapInstance.Top() {
 			heap.Pop(heapInstance)
 			heap.Push(heapInstance, rating)
 		}
 	}
 
-	return (*heapInstance)[0]
+	return heapInstance.Top()
 }
 
 func main() {
