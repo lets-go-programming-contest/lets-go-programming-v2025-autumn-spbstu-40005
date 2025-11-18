@@ -8,10 +8,10 @@ import (
 )
 
 type Config struct {
-	InputFile  string `yaml:"input-file"`
-	OutputFile string `yaml:"output-file"`
-	DirPerms   *int   `yaml:"dir-permissions,omitempty"`
-	FilePerms  *int   `yaml:"file-permissions,omitempty"`
+	InputFile  string  `yaml:"input-file"`
+	OutputFile string  `yaml:"output-file"`
+	DirPerms   *uint32 `yaml:"dir-permissions,omitempty"`
+	FilePerms  *uint32 `yaml:"file-permissions,omitempty"`
 }
 
 func LoadConfig(path string) (*Config, error) {
