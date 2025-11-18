@@ -9,6 +9,8 @@ import (
 
 var ErrChanNotFound = errors.New("chan not found")
 
+const undefined = "undefined"
+
 type Pipeline struct {
 	size     int
 	channels map[string]chan string
@@ -16,10 +18,6 @@ type Pipeline struct {
 }
 
 func New(size int) *Pipeline {
-	if size < 0 {
-		panic("invalid chan size")
-	}
-
 	return &Pipeline{
 		size:     size,
 		channels: make(map[string]chan string),
@@ -64,10 +62,6 @@ func (p *Pipeline) RegisterMultiplexer(
 	inputs []string,
 	output string,
 ) {
-	if len(inputs) == 0 {
-		panic("empty inputs")
-	}
-
 	inChans := make([]chan string, len(inputs))
 	for i, name := range inputs {
 		inChans[i] = p.register(name)
@@ -87,10 +81,6 @@ func (p *Pipeline) RegisterSeparator(
 	input string,
 	outputs []string,
 ) {
-	if len(outputs) == 0 {
-		panic("empty outputs")
-	}
-
 	outChans := make([]chan string, len(outputs))
 	for i, name := range outputs {
 		outChans[i] = p.register(name)
@@ -133,14 +123,14 @@ func (p *Pipeline) Send(input string, data string) error {
 }
 
 func (p *Pipeline) Recv(output string) (string, error) {
-	channel, okey := p.channels[output]
-	if !okey {
+	channel, ok := p.channels[output] //nolint:varnamelen
+	if !ok {
 		return "", ErrChanNotFound
 	}
 
-	data, okey := <-channel
-	if !okey {
-		return "undefined", nil
+	data, ok := <-channel
+	if !ok {
+		return undefined, nil
 	}
 
 	return data, nil

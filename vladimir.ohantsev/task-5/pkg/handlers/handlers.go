@@ -9,6 +9,12 @@ import (
 
 var ErrNoDecorator = errors.New("can't be decorated")
 
+const (
+	noDecorator     = "no decorator"
+	noMultiplexer   = "no multiplexer"
+	decoratedPrefix = "decorated: "
+)
+
 func orDone[T any](done <-chan struct{}, channel <-chan T) <-chan T {
 	out := make(chan T)
 
@@ -45,12 +51,12 @@ func PrefixDecoratorFunc(
 	output chan string,
 ) error {
 	for str := range orDone(ctx.Done(), input) {
-		if strings.Contains(str, "no decorator") {
+		if strings.Contains(str, noDecorator) {
 			return ErrNoDecorator
 		}
 
-		if !strings.HasPrefix(str, "decorated: ") {
-			str = "decorated: " + str
+		if !strings.HasPrefix(str, decoratedPrefix) {
+			str = decoratedPrefix + str
 		}
 
 		select {
@@ -69,6 +75,10 @@ func SeparatorFunc(
 	input chan string,
 	outputs []chan string,
 ) error {
+	if len(outputs) == 0 {
+		panic("empty outputs")
+	}
+
 	index := 0
 
 	for str := range orDone(ctx.Done(), input) {
@@ -99,7 +109,7 @@ func MultiplexerFunc(
 			defer waitgr.Done()
 
 			for str := range orDone(ctx.Done(), ch) {
-				if strings.Contains(str, "no multiplexer") {
+				if strings.Contains(str, noMultiplexer) {
 					continue
 				}
 
