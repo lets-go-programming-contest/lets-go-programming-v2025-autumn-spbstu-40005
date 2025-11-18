@@ -13,6 +13,7 @@ import (
 const (
 	DefaultDirPermissions  = 0o755
 	DefaultFilePermissions = 0o600
+	PermissionMask         = 0o777
 )
 
 func Run(cfg *config.Config) error {
@@ -36,14 +37,9 @@ func Run(cfg *config.Config) error {
 
 func getDirPermissions(cfg *config.Config) os.FileMode {
 	if cfg.DirPerms != nil {
-		perms := *cfg.DirPerms
-		if perms < 0 {
-			perms = 0
-		}
+		perms := uint32(*cfg.DirPerms) & PermissionMask
 
-		maskedPerms := perms & 0o777
-
-		return os.FileMode(maskedPerms)
+		return os.FileMode(perms)
 	}
 
 	return DefaultDirPermissions
@@ -51,14 +47,9 @@ func getDirPermissions(cfg *config.Config) os.FileMode {
 
 func getFilePermissions(cfg *config.Config) os.FileMode {
 	if cfg.FilePerms != nil {
-		perms := *cfg.FilePerms
-		if perms < 0 {
-			perms = 0
-		}
+		perms := uint32(*cfg.FilePerms) & PermissionMask
 
-		maskedPerms := perms & 0o777
-
-		return os.FileMode(maskedPerms)
+		return os.FileMode(perms)
 	}
 
 	return DefaultFilePermissions
