@@ -107,27 +107,6 @@ func processDepartmentRequests(employeeCount int) error {
 	return nil
 }
 
-func readAndProcessInput() error {
-	departmentCount, err := readInt()
-	if err != nil {
-		return fmt.Errorf("failed to read department count: %w", err)
-	}
-
-	for range departmentCount {
-		employeeCount, err := readInt()
-		if err != nil {
-			return fmt.Errorf("failed to read employee count for department: %w", err)
-		}
-
-		err = processDepartmentRequests(employeeCount)
-		if err != nil {
-			return fmt.Errorf("invalid input: department: %w", err)
-		}
-	}
-
-	return nil
-}
-
 func main() {
 	departmentCount, err := readInt()
 	if err != nil {
