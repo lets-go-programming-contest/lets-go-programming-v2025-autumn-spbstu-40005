@@ -10,6 +10,11 @@ import (
 	"polina.gavrilova/task-3/internal/parser"
 )
 
+const (
+	DefaultDirPermissions  = 0o755
+	DefaultFilePermissions = 0o600
+)
+
 func Run(cfg *config.Config) error {
 	xmlData, err := parser.ReadXMLData(cfg.InputFile)
 	if err != nil {
@@ -18,8 +23,8 @@ func Run(cfg *config.Config) error {
 
 	valutes := transformAndSort(xmlData)
 
-	dirPerm := os.FileMode(0o755)
-	filePerm := os.FileMode(0o600)
+	dirPerm := getDirPermissions(cfg)
+	filePerm := getFilePermissions(cfg)
 
 	err = parser.WriteJSONData(cfg.OutputFile, valutes, dirPerm, filePerm)
 	if err != nil {
@@ -29,8 +34,21 @@ func Run(cfg *config.Config) error {
 	return nil
 }
 
+func getDirPermissions(cfg *config.Config) os.FileMode {
+	if cfg.DirPerms != nil {
+		return os.FileMode(*cfg.DirPerms)
+	}
+	return DefaultDirPermissions
+}
+
+func getFilePermissions(cfg *config.Config) os.FileMode {
+	if cfg.FilePerms != nil {
+		return os.FileMode(*cfg.FilePerms)
+	}
+	return DefaultFilePermissions
+}
+
 func transformAndSort(xmlData *models.ValCurs) []models.Valute {
-	// Правильное копирование - создаем новый слайс и копируем элементы
 	valutes := make([]models.Valute, len(xmlData.Valutes))
 	for i, v := range xmlData.Valutes {
 		valutes[i] = models.Valute{
