@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"strings"
+	"sync"
 )
 
 var ErrDecorator = errors.New("can`t be decorated")
@@ -64,5 +65,49 @@ func SeparatorFunc(ctx context.Context, input chan string, outputs []chan string
 				return ctx.Err()
 			}
 		}
+	}
+}
+
+func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan string) error {
+	var wg sync.WaitGroup
+	done := make(chan struct{})
+
+	for _, in := range inputs {
+		wg.Add(1)
+		go func(ch chan string) {
+			defer wg.Done()
+			for {
+				select {
+				case <-ctx.Done():
+					return
+				case data, ok := <-ch:
+					if !ok {
+						return
+					}
+
+					if strings.Contains(data, "no multiplexer") {
+						continue
+					}
+
+					select {
+					case output <- data:
+					case <-ctx.Done():
+						return
+					}
+				}
+			}
+		}(in)
+	}
+
+	go func() {
+		wg.Wait()
+		close(done)
+	}()
+
+	select {
+	case <-done:
+		return nil
+	case <-ctx.Done():
+		return ctx.Err()
 	}
 }
