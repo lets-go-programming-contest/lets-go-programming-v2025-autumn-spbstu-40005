@@ -3,6 +3,7 @@ package conveyer
 import (
 	"context"
 	"errors"
+	"sync"
 )
 
 type conveyer interface {
@@ -29,6 +30,8 @@ type conveyer interface {
 type conveyerImpl struct {
 	size     int
 	channels map[string]chan string
+	handlers []func(ctx context.Context) error
+	mu       sync.RWMutex
 }
 
 func New(size int) conveyer {
@@ -39,12 +42,45 @@ func New(size int) conveyer {
 }
 
 func (c *conveyerImpl) RegisterDecorator(fn func(ctx context.Context, input chan string, output chan string) error, input, output string) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
+	inputCh := c.getOrCreateChannel(input)
+	outputCh := c.getOrCreateChannel(output)
+
+	c.handlers = append(c.handlers, func(ctx context.Context) error {
+		return fn(ctx, inputCh, outputCh)
+	})
 }
 
 func (c *conveyerImpl) RegisterMultiplexer(fn func(ctx context.Context, inputs []chan string, output chan string) error, inputs []string, output string) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
+	outputCh := c.getOrCreateChannel(output)
+	inputChs := make([]chan string, len(inputs))
+	for i, name := range inputs {
+		inputChs[i] = c.getOrCreateChannel(name)
+	}
+
+	c.handlers = append(c.handlers, func(ctx context.Context) error {
+		return fn(ctx, inputChs, outputCh)
+	})
 }
 
 func (c *conveyerImpl) RegisterSeparator(fn func(ctx context.Context, input chan string, outputs []chan string) error, input string, outputs []string) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
+	inputCh := c.getOrCreateChannel(input)
+	outputChs := make([]chan string, len(outputs))
+	for i, name := range outputs {
+		outputChs[i] = c.getOrCreateChannel(name)
+	}
+
+	c.handlers = append(c.handlers, func(ctx context.Context) error {
+		return fn(ctx, inputCh, outputChs)
+	})
 }
 
 func (c *conveyerImpl) Run(ctx context.Context) error {
@@ -57,4 +93,13 @@ func (c *conveyerImpl) Send(input string, data string) error {
 
 func (c *conveyerImpl) Recv(output string) (string, error) {
 	return "", errors.New("chan not found")
+}
+
+func (c *conveyerImpl) getOrCreateChannel(name string) chan string {
+	if ch, ok := c.channels[name]; ok {
+		return ch
+	}
+	ch := make(chan string, c.size)
+	c.channels[name] = ch
+	return ch
 }
