@@ -88,11 +88,32 @@ func (c *conveyerImpl) Run(ctx context.Context) error {
 }
 
 func (c *conveyerImpl) Send(input string, data string) error {
-	return errors.New("chan not found")
+	c.mu.RLock()
+	ch, exists := c.channels[input]
+	c.mu.RUnlock()
+
+	if !exists {
+		return errors.New("chan not found")
+	}
+
+	ch <- data
+	return nil
 }
 
 func (c *conveyerImpl) Recv(output string) (string, error) {
-	return "", errors.New("chan not found")
+	c.mu.RLock()
+	ch, exists := c.channels[output]
+	c.mu.RUnlock()
+
+	if !exists {
+		return "", errors.New("chan not found")
+	}
+
+	val, ok := <-ch
+	if !ok {
+		return "undefined", nil
+	}
+	return val, nil
 }
 
 func (c *conveyerImpl) getOrCreateChannel(name string) chan string {
