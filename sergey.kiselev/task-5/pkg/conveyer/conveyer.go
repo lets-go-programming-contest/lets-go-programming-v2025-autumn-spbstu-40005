@@ -94,7 +94,11 @@ func (c *conveyerImpl) Run(ctx context.Context) error {
 		})
 	}
 
-	return fmt.Errorf("%w", errgr.Wait())
+	err := errgr.Wait()
+	if err != nil {
+		return fmt.Errorf("%w", err)
+	}
+	return nil
 }
 
 func (c *conveyerImpl) closeAllChannels() {
