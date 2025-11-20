@@ -75,14 +75,14 @@ func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan stri
 
 	for _, inputCh := range inputs {
 		waitgrr.Add(1)
-		go func(ch chan string) {
+		go func(channel chan string) {
 			defer waitgrr.Done()
 
 			for {
 				select {
 				case <-ctx.Done():
 					return
-				case data, ok := <-ch:
+				case data, ok := <-channel:
 					if !ok {
 						return
 					}

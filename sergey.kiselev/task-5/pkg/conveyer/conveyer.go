@@ -3,6 +3,7 @@ package conveyer
 import (
 	"context"
 	"errors"
+	"fmt"
 	"sync"
 
 	"golang.org/x/sync/errgroup"
@@ -84,6 +85,7 @@ func (c *conveyerImpl) RegisterSeparator(
 
 func (c *conveyerImpl) Run(ctx context.Context) error {
 	defer c.closeAllChannels()
+
 	errgr, ctx := errgroup.WithContext(ctx)
 
 	for _, h := range c.handlers {
@@ -92,7 +94,7 @@ func (c *conveyerImpl) Run(ctx context.Context) error {
 		})
 	}
 
-	return errgr.Wait()
+	return fmt.Errorf("%w", errgr.Wait())
 }
 
 func (c *conveyerImpl) closeAllChannels() {
@@ -139,6 +141,7 @@ func (c *conveyerImpl) getOrCreateChannel(name string) chan string {
 	if channel, ok := c.channels[name]; ok {
 		return channel
 	}
+
 	channel := make(chan string, c.size)
 	c.channels[name] = channel
 
