@@ -4,28 +4,9 @@ import (
 	"context"
 	"errors"
 	"sync"
-)
 
-type conveyer interface {
-	RegisterDecorator(
-		fn func(ctx context.Context, input chan string, output chan string) error,
-		input string,
-		output string,
-	)
-	RegisterMultiplexer(
-		fn func(ctx context.Context, inputs []chan string, output chan string) error,
-		inputs []string,
-		output string,
-	)
-	RegisterSeparator(
-		fn func(ctx context.Context, input chan string, outputs []chan string) error,
-		input string,
-		outputs []string,
-	)
-	Run(ctx context.Context) error
-	Send(input string, data string) error
-	Recv(output string) (string, error)
-}
+	"golang.org/x/sync/errgroup"
+)
 
 type conveyerImpl struct {
 	size     int
@@ -34,7 +15,7 @@ type conveyerImpl struct {
 	mu       sync.RWMutex
 }
 
-func New(size int) conveyer {
+func New(size int) *conveyerImpl {
 	return &conveyerImpl{
 		size:     size,
 		channels: make(map[string]chan string),
@@ -84,45 +65,14 @@ func (c *conveyerImpl) RegisterSeparator(fn func(ctx context.Context, input chan
 }
 
 func (c *conveyerImpl) Run(ctx context.Context) error {
-	ctx, cancel := context.WithCancel(ctx)
-	defer cancel()
-
-	errCh := make(chan error, 1)
-	var wg sync.WaitGroup
-
+	defer c.closeAllChannels()
+	eg, ctx := errgroup.WithContext(ctx)
 	for _, h := range c.handlers {
-		wg.Add(1)
-		go func(fn func(context.Context) error) {
-			defer wg.Done()
-			if err := fn(ctx); err != nil {
-				select {
-				case errCh <- err:
-				default:
-				}
-				cancel()
-			}
-		}(h)
+		eg.Go(func() error {
+			return h(ctx)
+		})
 	}
-
-	go func() {
-		wg.Wait()
-		close(errCh)
-	}()
-
-	select {
-	case err := <-errCh:
-		if err != nil {
-			c.closeAllChannels()
-			return err
-		}
-
-		<-ctx.Done()
-	case <-ctx.Done():
-		wg.Wait()
-	}
-
-	c.closeAllChannels()
-	return ctx.Err()
+	return eg.Wait()
 }
 
 func (c *conveyerImpl) closeAllChannels() {
