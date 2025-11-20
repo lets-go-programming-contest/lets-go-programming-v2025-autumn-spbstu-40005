@@ -27,7 +27,7 @@ func New(size int) *conveyerImpl {
 }
 
 func (c *conveyerImpl) RegisterDecorator(
-	fn func(ctx context.Context, input chan string, output chan string) error,
+	functional func(ctx context.Context, input chan string, output chan string) error,
 	input,
 	output string,
 ) {
@@ -38,12 +38,12 @@ func (c *conveyerImpl) RegisterDecorator(
 	outputCh := c.getOrCreateChannel(output)
 
 	c.handlers = append(c.handlers, func(ctx context.Context) error {
-		return fn(ctx, inputCh, outputCh)
+		return functional(ctx, inputCh, outputCh)
 	})
 }
 
 func (c *conveyerImpl) RegisterMultiplexer(
-	fn func(ctx context.Context, inputs []chan string, output chan string) error,
+	functional func(ctx context.Context, inputs []chan string, output chan string) error,
 	inputs []string,
 	output string,
 ) {
@@ -52,17 +52,18 @@ func (c *conveyerImpl) RegisterMultiplexer(
 
 	outputCh := c.getOrCreateChannel(output)
 	inputChs := make([]chan string, len(inputs))
+
 	for i, name := range inputs {
 		inputChs[i] = c.getOrCreateChannel(name)
 	}
 
 	c.handlers = append(c.handlers, func(ctx context.Context) error {
-		return fn(ctx, inputChs, outputCh)
+		return functional(ctx, inputChs, outputCh)
 	})
 }
 
 func (c *conveyerImpl) RegisterSeparator(
-	fn func(ctx context.Context, input chan string, outputs []chan string) error,
+	functional func(ctx context.Context, input chan string, outputs []chan string) error,
 	input string,
 	outputs []string,
 ) {
@@ -71,18 +72,20 @@ func (c *conveyerImpl) RegisterSeparator(
 
 	inputCh := c.getOrCreateChannel(input)
 	outputChs := make([]chan string, len(outputs))
+
 	for i, name := range outputs {
 		outputChs[i] = c.getOrCreateChannel(name)
 	}
 
 	c.handlers = append(c.handlers, func(ctx context.Context) error {
-		return fn(ctx, inputCh, outputChs)
+		return functional(ctx, inputCh, outputChs)
 	})
 }
 
 func (c *conveyerImpl) Run(ctx context.Context) error {
 	defer c.closeAllChannels()
 	errgr, ctx := errgroup.WithContext(ctx)
+
 	for _, h := range c.handlers {
 		errgr.Go(func() error {
 			return h(ctx)
@@ -95,6 +98,7 @@ func (c *conveyerImpl) Run(ctx context.Context) error {
 func (c *conveyerImpl) closeAllChannels() {
 	c.mu.Lock()
 	defer c.mu.Unlock()
+
 	for _, channel := range c.channels {
 		close(channel)
 	}
