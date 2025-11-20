@@ -84,7 +84,53 @@ func (c *conveyerImpl) RegisterSeparator(fn func(ctx context.Context, input chan
 }
 
 func (c *conveyerImpl) Run(ctx context.Context) error {
-	return nil
+	ctx, cancel := context.WithCancel(ctx)
+	defer cancel()
+
+	errCh := make(chan error, 1)
+	var wg sync.WaitGroup
+
+	for _, h := range c.handlers {
+		wg.Add(1)
+		go func(fn func(context.Context) error) {
+			defer wg.Done()
+			if err := fn(ctx); err != nil {
+				select {
+				case errCh <- err:
+				default:
+				}
+				cancel()
+			}
+		}(h)
+	}
+
+	go func() {
+		wg.Wait()
+		close(errCh)
+	}()
+
+	select {
+	case err := <-errCh:
+		if err != nil {
+			c.closeAllChannels()
+			return err
+		}
+
+		<-ctx.Done()
+	case <-ctx.Done():
+		wg.Wait()
+	}
+
+	c.closeAllChannels()
+	return ctx.Err()
+}
+
+func (c *conveyerImpl) closeAllChannels() {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	for _, ch := range c.channels {
+		close(ch)
+	}
 }
 
 func (c *conveyerImpl) Send(input string, data string) error {
