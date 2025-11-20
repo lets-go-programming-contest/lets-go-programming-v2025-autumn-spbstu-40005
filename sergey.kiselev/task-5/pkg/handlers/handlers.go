@@ -7,11 +7,11 @@ import (
 	"sync"
 )
 
-var ErrDecorator = errors.New("can`t be decorated")
+var ErrDecorator = errors.New("can't be decorated")
 
 const (
 	noDecorator   = "no decorator"
-	prefix        = "decorated:"
+	prefix        = "decorated: "
 	noMultiplexer = "no multiplexer"
 )
 
@@ -70,12 +70,12 @@ func SeparatorFunc(ctx context.Context, input chan string, outputs []chan string
 }
 
 func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan string) error {
-	var wg sync.WaitGroup
+	var waitgrr sync.WaitGroup
 
-	for _, in := range inputs {
-		wg.Add(1)
+	for _, inputCh := range inputs {
+		waitgrr.Add(1)
 		go func(ch chan string) {
-			defer wg.Done()
+			defer waitgrr.Done()
 			for {
 				select {
 				case <-ctx.Done():
@@ -96,9 +96,10 @@ func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan stri
 					}
 				}
 			}
-		}(in)
+		}(inputCh)
 	}
 
-	wg.Wait()
+	waitgrr.Wait()
+
 	return nil
 }
