@@ -3,11 +3,14 @@ package conveyer
 import (
 	"context"
 	"errors"
+	"fmt"
 
 	"golang.org/x/sync/errgroup"
 )
 
 var ErrChanNotFound = errors.New("chan not found")
+
+const undefined = "undefined"
 
 type Pipeline struct {
 	size     int
@@ -102,7 +105,11 @@ func (pipe *Pipeline) Run(ctx context.Context) error {
 		close(ch)
 	}
 
-	return err
+	if err != nil {
+		return fmt.Errorf("pipeline failed: %w", err)
+	}
+
+	return nil
 }
 
 func (pipe *Pipeline) Send(input string, data string) error {
@@ -124,7 +131,7 @@ func (pipe *Pipeline) Recv(output string) (string, error) {
 
 	data, ok := <-ch
 	if !ok {
-		return "undefined", nil
+		return undefined, nil
 	}
 
 	return data, nil
