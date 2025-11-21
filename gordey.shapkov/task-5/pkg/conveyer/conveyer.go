@@ -87,12 +87,6 @@ func (pipe *Pipeline) RegisterSeparator(
 }
 
 func (pipe *Pipeline) Run(ctx context.Context) error {
-	defer func() {
-		for _, ch := range pipe.channels {
-			close(ch)
-		}
-	}()
-
 	errgr, ctx := errgroup.WithContext(ctx)
 
 	for _, handler := range pipe.handlers {
@@ -101,11 +95,13 @@ func (pipe *Pipeline) Run(ctx context.Context) error {
 		})
 	}
 
-	if err := errgr.Wait(); err != nil {
-		return err
+	err := errgr.Wait()
+
+	for _, ch := range pipe.channels {
+		close(ch)
 	}
 
-	return nil
+	return err
 }
 
 func (pipe *Pipeline) Send(input string, data string) error {
