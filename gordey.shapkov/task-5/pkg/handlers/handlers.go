@@ -34,23 +34,27 @@ func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan stri
 	wgroup.Add(len(inputs))
 
 	for _, ch := range inputs {
-		go func(channel chan string) {
+		go func(in chan string) {
 			defer wgroup.Done()
-
-			for str := range channel {
-				if !strings.Contains(str, "no multiplexer") {
+			for {
+				select {
+				case <-ctx.Done():
+					return
+				case str, ok := <-in:
+					if !ok {
+						return
+					}
+					if strings.Contains(str, "no multiplexer") {
+						continue
+					}
 					select {
+					case output <- str:
 					case <-ctx.Done():
 						return
-
-					case output <- str:
 					}
-				} else {
-					continue
 				}
 			}
 		}(ch)
-
 	}
 
 	wgroup.Wait()
