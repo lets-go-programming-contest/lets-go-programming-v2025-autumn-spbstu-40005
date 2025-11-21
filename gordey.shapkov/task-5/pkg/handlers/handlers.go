@@ -78,7 +78,7 @@ func SeparatorFunc(ctx context.Context, input chan string, outputs []chan string
 	for {
 		select {
 		case <-ctx.Done():
-			return ctx.Err()
+			return nil
 		case str, ok := <-input:
 			if !ok {
 				return nil
