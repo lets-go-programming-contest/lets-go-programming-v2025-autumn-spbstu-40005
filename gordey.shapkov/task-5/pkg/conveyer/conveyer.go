@@ -2,7 +2,12 @@ package conveyer
 
 import (
 	"context"
+	"errors"
+
+	"golang.org/x/sync/errgroup"
 )
+
+var ErrChanNotFound = errors.New("chan not found")
 
 type Pipeline struct {
 	size     int
@@ -81,6 +86,49 @@ func (pipe *Pipeline) RegisterSeparator(
 	})
 }
 
-// Run(ctx context.Context) error
-// Send(input string, data string) error
-// Recv(output string) (string, error)
+func (pipe *Pipeline) Run(ctx context.Context) error {
+	defer func() {
+		for _, ch := range pipe.channels {
+			close(ch)
+		}
+	}()
+
+	errgr, ctx := errgroup.WithContext(ctx)
+
+	for _, handler := range pipe.handlers {
+		errgr.Go(func() error {
+			return handler(ctx)
+		})
+	}
+
+	if err := errgr.Wait(); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (pipe *Pipeline) Send(input string, data string) error {
+	ch, exists := pipe.channels[input]
+	if !exists {
+		return ErrChanNotFound
+	}
+
+	ch <- data
+
+	return nil
+}
+
+func (pipe *Pipeline) Recv(output string) (string, error) {
+	ch, exists := pipe.channels[output]
+	if !exists {
+		return "", ErrChanNotFound
+	}
+
+	data, ok := <-ch
+	if !ok {
+		return "undefined", nil
+	}
+
+	return data, nil
+}
