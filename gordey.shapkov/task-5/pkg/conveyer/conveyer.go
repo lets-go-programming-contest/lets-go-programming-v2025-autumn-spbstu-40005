@@ -69,6 +69,7 @@ func (pipe *Pipeline) RegisterMultiplexer(
 		return function(ctx, ins, out)
 	})
 }
+
 func (pipe *Pipeline) RegisterSeparator(
 	function func(
 		ctx context.Context,
