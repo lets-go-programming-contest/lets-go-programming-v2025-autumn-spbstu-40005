@@ -32,15 +32,14 @@ func orDone[T any](done <-chan struct{}, channel <-chan T) <-chan T {
 			}
 
 			select {
-			case <-done:
-				return
-
 			case value, ok := <-channel:
 				if !ok {
 					return
 				}
 
 				out <- value
+
+			default:
 			}
 		}
 	}()
