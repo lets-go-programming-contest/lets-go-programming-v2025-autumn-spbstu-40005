@@ -3,7 +3,6 @@ package conveyer
 import (
 	"context"
 	"errors"
-	"fmt"
 
 	"golang.org/x/sync/errgroup"
 )
@@ -97,15 +96,13 @@ func (pipe *Pipeline) Run(ctx context.Context) error {
 		})
 	}
 
-	if err := errgr.Wait(); err != nil {
-		for _, ch := range pipe.channels {
-			close(ch)
-		}
+	err := errgr.Wait()
 
-		return fmt.Errorf("run pipeline: %w", err)
+	for _, ch := range pipe.channels {
+		close(ch)
 	}
 
-	return nil
+	return err
 }
 
 func (pipe *Pipeline) Send(input string, data string) error {
