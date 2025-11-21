@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"strings"
+	"sync"
 )
 
 var ErrNoDecorator = errors.New("can't be decorated")
@@ -29,18 +30,30 @@ func PrefixDecoratorFunc(ctx context.Context, input chan string, output chan str
 }
 
 func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan string) error {
-	for _, ch := range inputs {
-		for str := range ch {
-			if !strings.Contains(str, "no multiplexer") {
-				select {
-				case <-ctx.Done():
-					return nil
+	var wgroup sync.WaitGroup
+	wgroup.Add(len(inputs))
 
-				case output <- str:
+	for _, ch := range inputs {
+		go func(channel chan string) {
+			defer wgroup.Done()
+
+			for str := range channel {
+				if !strings.Contains(str, "no multiplexer") {
+					select {
+					case <-ctx.Done():
+						return
+
+					case output <- str:
+					}
+				} else {
+					continue
 				}
 			}
-		}
+		}(ch)
+
 	}
+
+	wgroup.Wait()
 
 	return nil
 }
