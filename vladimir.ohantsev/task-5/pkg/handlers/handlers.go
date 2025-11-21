@@ -7,7 +7,10 @@ import (
 	"sync"
 )
 
-var ErrNoDecorator = errors.New("can't be decorated")
+var (
+	ErrNoDecorator  = errors.New("can't be decorated")
+	ErrEmptyOutputs = errors.New("empty outputs")
+)
 
 const (
 	noDecorator     = "no decorator"
@@ -76,7 +79,7 @@ func SeparatorFunc(
 	outputs []chan string,
 ) error {
 	if len(outputs) == 0 {
-		panic("empty outputs")
+		return ErrEmptyOutputs
 	}
 
 	index := 0
