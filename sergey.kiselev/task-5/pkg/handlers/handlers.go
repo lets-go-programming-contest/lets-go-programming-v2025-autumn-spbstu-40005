@@ -7,7 +7,10 @@ import (
 	"sync"
 )
 
-var ErrDecorator = errors.New("can't be decorated")
+var (
+	ErrDecorator    = errors.New("can't be decorated")
+	ErrOutpustEmpty = errors.New("outputs must not be empty")
+)
 
 const (
 	noDecorator   = "no decorator"
@@ -44,7 +47,7 @@ func PrefixDecoratorFunc(ctx context.Context, input chan string, output chan str
 
 func SeparatorFunc(ctx context.Context, input chan string, outputs []chan string) error {
 	if len(outputs) == 0 {
-		panic("outputs must not be empty")
+		return ErrOutpustEmpty
 	}
 
 	index := 0
