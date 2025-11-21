@@ -38,19 +38,22 @@ func PrefixDecoratorFunc(ctx context.Context, input, output chan string) error {
 
 func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan string) error {
 	var wgroup sync.WaitGroup
+
 	wgroup.Add(len(inputs))
 
-	for _, ch := range inputs {
-		go func(in chan string) {
+	for _, channel := range inputs {
+		go func(input chan string) {
 			defer wgroup.Done()
+
 			for {
 				select {
 				case <-ctx.Done():
 					return
-				case str, ok := <-in:
+				case str, ok := <-input:
 					if !ok {
 						return
 					}
+
 					if strings.Contains(str, "no multiplexer") {
 						continue
 					}
@@ -61,7 +64,7 @@ func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan stri
 					}
 				}
 			}
-		}(ch)
+		}(channel)
 	}
 
 	wgroup.Wait()
@@ -75,6 +78,7 @@ func SeparatorFunc(ctx context.Context, input chan string, outputs []chan string
 	}
 
 	index := 0
+
 	for {
 		select {
 		case <-ctx.Done():
@@ -89,6 +93,7 @@ func SeparatorFunc(ctx context.Context, input chan string, outputs []chan string
 			case <-ctx.Done():
 				return nil
 			}
+
 			index = (index + 1) % len(outputs)
 		}
 	}

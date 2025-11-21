@@ -3,6 +3,7 @@ package conveyer
 import (
 	"context"
 	"errors"
+	"fmt"
 
 	"golang.org/x/sync/errgroup"
 )
@@ -32,7 +33,7 @@ func (pipe *Pipeline) register(ch string) chan string {
 }
 
 func (pipe *Pipeline) RegisterDecorator(
-	fn func(
+	function func(
 		ctx context.Context,
 		input chan string,
 		output chan string,
@@ -43,12 +44,12 @@ func (pipe *Pipeline) RegisterDecorator(
 	in := pipe.register(input)
 	out := pipe.register(output)
 	pipe.handlers = append(pipe.handlers, func(ctx context.Context) error {
-		return fn(ctx, in, out)
+		return function(ctx, in, out)
 	})
 }
 
 func (pipe *Pipeline) RegisterMultiplexer(
-	fn func(
+	function func(
 		ctx context.Context,
 		inputs []chan string,
 		output chan string,
@@ -63,11 +64,11 @@ func (pipe *Pipeline) RegisterMultiplexer(
 
 	out := pipe.register(output)
 	pipe.handlers = append(pipe.handlers, func(ctx context.Context) error {
-		return fn(ctx, ins, out)
+		return function(ctx, ins, out)
 	})
 }
 func (pipe *Pipeline) RegisterSeparator(
-	fn func(
+	function func(
 		ctx context.Context,
 		input chan string,
 		outputs []chan string,
@@ -75,14 +76,15 @@ func (pipe *Pipeline) RegisterSeparator(
 	input string,
 	outputs []string,
 ) {
-	in := pipe.register(input)
+	inChan := pipe.register(input)
 	outs := make([]chan string, len(outputs))
+
 	for i, ch := range outputs {
 		outs[i] = pipe.register(ch)
 	}
 
 	pipe.handlers = append(pipe.handlers, func(ctx context.Context) error {
-		return fn(ctx, in, outs)
+		return function(ctx, inChan, outs)
 	})
 }
 
@@ -101,7 +103,7 @@ func (pipe *Pipeline) Run(ctx context.Context) error {
 		close(ch)
 	}
 
-	return err
+	return fmt.Errorf("Err group error: %w", err)
 }
 
 func (pipe *Pipeline) Send(input string, data string) error {
