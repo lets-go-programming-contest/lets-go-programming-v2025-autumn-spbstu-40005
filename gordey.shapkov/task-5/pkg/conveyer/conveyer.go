@@ -97,13 +97,15 @@ func (pipe *Pipeline) Run(ctx context.Context) error {
 		})
 	}
 
-	err := errgr.Wait()
+	if err := errgr.Wait(); err != nil {
+		for _, ch := range pipe.channels {
+			close(ch)
+		}
 
-	for _, ch := range pipe.channels {
-		close(ch)
+		return fmt.Errorf("run pipeline: %w", err)
 	}
 
-	return fmt.Errorf("Err group error: %w", err)
+	return nil
 }
 
 func (pipe *Pipeline) Send(input string, data string) error {
