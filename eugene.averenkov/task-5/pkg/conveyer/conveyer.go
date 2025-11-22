@@ -3,8 +3,9 @@ package conveyer
 import (
 	"context"
 	"errors"
-	"fmt"
 	"sync"
+
+	"golang.org/x/sync/errgroup"
 )
 
 var (
@@ -134,32 +135,18 @@ func (c *Conveyer) Run(ctx context.Context) error {
 		c.mu.Unlock()
 	}()
 
-	var wg sync.WaitGroup
-	errCh := make(chan error, len(c.tasks))
+	g, gCtx := errgroup.WithContext(runCtx)
 
 	for _, task := range c.tasks {
-		wg.Add(1)
-		go func(t task) {
-			defer wg.Done()
-			if err := t.fn(runCtx); err != nil {
-				errCh <- err
-			}
-		}(task)
+		t := task
+		g.Go(func() error {
+			return t.fn(gCtx)
+		})
 	}
 
-	go func() {
-		wg.Wait()
-		close(errCh)
-	}()
-
-	select {
-	case err, ok := <-errCh:
-		if ok && err != nil {
-			cancel()
-			return err
-		}
-	case <-runCtx.Done():
-		return runCtx.Err()
+	if err := g.Wait(); err != nil {
+		cancel()
+		return err
 	}
 
 	return nil
