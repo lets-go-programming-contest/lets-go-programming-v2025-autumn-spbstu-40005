@@ -89,6 +89,12 @@ func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan stri
 	for _, input := range inputs {
 		input := input
 		g.Go(func() error {
+			defer func() {
+				if len(inputs) == 1 {
+					close(merged)
+				}
+			}()
+			
 			for {
 				select {
 				case <-ctx.Done():
@@ -104,6 +110,14 @@ func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan stri
 					}
 				}
 			}
+		})
+	}
+
+	if len(inputs) > 1 {
+		g.Go(func() error {
+			g.Wait()
+			close(merged)
+			return nil
 		})
 	}
 
@@ -129,11 +143,6 @@ func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan stri
 			}
 		}
 	})
-
-	go func() {
-		g.Wait()
-		close(merged)
-	}()
 
 	return g.Wait()
 }
