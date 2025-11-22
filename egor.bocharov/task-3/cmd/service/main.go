@@ -9,6 +9,8 @@ import (
 	"egor.bocharov/task-3/internal/parser"
 )
 
+const defaultPermissions = 0o755
+
 func main() {
 	configPath := flag.String("config", "config.yaml", "path to config file")
 	flag.Parse()
@@ -27,7 +29,7 @@ func main() {
 		return valCurs.Valute[i].Value > valCurs.Valute[j].Value
 	})
 
-	if err = parser.EncodeFile(valCurs.Valute, config.OutputFile, 0o755); err != nil {
+	if err = parser.EncodeFile(valCurs.Valute, config.OutputFile, defaultPermissions); err != nil {
 		panic(err)
 	}
 }
