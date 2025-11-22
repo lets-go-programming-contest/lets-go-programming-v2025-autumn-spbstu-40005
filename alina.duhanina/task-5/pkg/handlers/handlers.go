@@ -8,11 +8,12 @@ import (
 )
 
 var (
-	ErrDecorationRejected = errors.New("can't be decorated")
+	errDecorationRejected = errors.New("can't be decorated")
 )
 
 func PrefixDecoratorFunc(ctx context.Context, source chan string, destination chan string) error {
 	defer close(destination)
+
 	const prefixMarker = "decorated: "
 
 	for {
@@ -25,8 +26,9 @@ func PrefixDecoratorFunc(ctx context.Context, source chan string, destination ch
 			}
 
 			if strings.Contains(content, "no decorator") {
-				return ErrDecorationRejected
+				return errDecorationRejected
 			}
+
 			if !strings.HasPrefix(content, prefixMarker) {
 				content = prefixMarker + content
 			}
@@ -81,12 +83,15 @@ func MultiplexerFunc(ctx context.Context, sources []chan string, destination cha
 		return nil
 	}
 
-	var wg sync.WaitGroup
+	var workerGroup sync.WaitGroup
 
 	for _, src := range sources {
-		wg.Add(1)
-		go func(input chan string) {
-			defer wg.Done()
+		workerGroup.Add(1)
+
+		input := src
+
+		go func() {
+			defer workerGroup.Done()
 
 			for {
 				select {
@@ -108,9 +113,10 @@ func MultiplexerFunc(ctx context.Context, sources []chan string, destination cha
 					}
 				}
 			}
-		}(src)
+		}()
 	}
 
-	wg.Wait()
+	workerGroup.Wait()
+
 	return nil
 }
