@@ -3,15 +3,15 @@ package conveyer
 import (
 	"context"
 	"errors"
+	"fmt"
 	"sync"
 
 	"golang.org/x/sync/errgroup"
 )
 
-var (
-	errChanNotFound = errors.New("chan not found")
-	undefinedValue  = "undefined"
-)
+var errChanNotFound = errors.New("chan not found")
+
+const undefinedValue = "undefined"
 
 type dataProcessor interface {
 	Process(ctx context.Context) error
@@ -181,7 +181,7 @@ func (c *Conveyer) Run(ctx context.Context) error {
 
 	err := workerGroup.Wait()
 	if err != nil {
-		return err
+		return fmt.Errorf("conveyer run failed: %w", err)
 	}
 
 	return nil
