@@ -3,6 +3,7 @@ package conveyer
 import (
 	"context"
 	"errors"
+	"sync"
 )
 
 var ErrChanNotFound = errors.New("chan not found")
