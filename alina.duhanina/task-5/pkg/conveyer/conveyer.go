@@ -19,25 +19,18 @@ type DecoratorFunc func(ctx context.Context, input chan string, output chan stri
 type MultiplexerFunc func(ctx context.Context, inputs []chan string, output chan string) error
 type SeparatorFunc func(ctx context.Context, input chan string, outputs []chan string) error
 
-type handler struct {
-	fn      interface{}
-	inputs  []string
-	outputs []string
-}
-
 type Conveyer struct {
-	size      int
-	channels  map[string]chan string
-	mu        sync.RWMutex
-	handlers  []handler
-	cancel    context.CancelFunc
+	size     int
+	channels map[string]chan string
+	mu       sync.RWMutex
+	wg       sync.WaitGroup
+	cancel   context.CancelFunc
 }
 
 func New(size int) *Conveyer {
 	return &Conveyer{
 		size:     size,
 		channels: make(map[string]chan string),
-		handlers: make([]handler, 0),
 	}
 }
 
@@ -72,12 +65,6 @@ func (c *Conveyer) RegisterDecorator(
 ) {
 	c.getOrCreateChannel(input)
 	c.getOrCreateChannel(output)
-	
-	c.handlers = append(c.handlers, handler{
-		fn:      fn,
-		inputs:  []string{input},
-		outputs: []string{output},
-	})
 }
 
 func (c *Conveyer) RegisterMultiplexer(
@@ -89,12 +76,6 @@ func (c *Conveyer) RegisterMultiplexer(
 		c.getOrCreateChannel(input)
 	}
 	c.getOrCreateChannel(output)
-	
-	c.handlers = append(c.handlers, handler{
-		fn:      fn,
-		inputs:  inputs,
-		outputs: []string{output},
-	})
 }
 
 func (c *Conveyer) RegisterSeparator(
@@ -106,49 +87,24 @@ func (c *Conveyer) RegisterSeparator(
 	for _, output := range outputs {
 		c.getOrCreateChannel(output)
 	}
-	
-	c.handlers = append(c.handlers, handler{
-		fn:      fn,
-		inputs:  []string{input},
-		outputs: outputs,
-	})
 }
 
 func (c *Conveyer) Run(ctx context.Context) error {
 	ctx, c.cancel = context.WithCancel(ctx)
 	defer c.cancel()
 
-	g, ctx := errgroup.WithContext(ctx)
+	done := make(chan struct{})
+	go func() {
+		c.wg.Wait()
+		close(done)
+	}()
 
-	for _, h := range c.handlers {
-		h := h
-		g.Go(func() error {
-			switch fn := h.fn.(type) {
-			case DecoratorFunc:
-				inputChan := c.getOrCreateChannel(h.inputs[0])
-				outputChan := c.getOrCreateChannel(h.outputs[0])
-				return fn(ctx, inputChan, outputChan)
-			case MultiplexerFunc:
-				inputChans := make([]chan string, len(h.inputs))
-				for i, input := range h.inputs {
-					inputChans[i] = c.getOrCreateChannel(input)
-				}
-				outputChan := c.getOrCreateChannel(h.outputs[0])
-				return fn(ctx, inputChans, outputChan)
-			case SeparatorFunc:
-				inputChan := c.getOrCreateChannel(h.inputs[0])
-				outputChans := make([]chan string, len(h.outputs))
-				for i, output := range h.outputs {
-					outputChans[i] = c.getOrCreateChannel(output)
-				}
-				return fn(ctx, inputChan, outputChans)
-			default:
-				return errors.New("unknown handler type")
-			}
-		})
+	select {
+	case <-done:
+		return nil
+	case <-ctx.Done():
+		return ctx.Err()
 	}
-
-	return g.Wait()
 }
 
 func (c *Conveyer) Send(input string, data string) error {

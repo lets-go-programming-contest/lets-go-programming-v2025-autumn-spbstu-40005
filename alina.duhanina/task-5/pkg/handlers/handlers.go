@@ -5,8 +5,6 @@ import (
 	"errors"
 	"strings"
 	"sync/atomic"
-
-	"golang.org/x/sync/errgroup"
 )
 
 var (
@@ -83,52 +81,36 @@ func SeparatorFunc(ctx context.Context, input chan string, outputs []chan string
 func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan string) error {
 	defer close(output)
 
-	g, ctx := errgroup.WithContext(ctx)
-	merged := make(chan string, len(inputs)*10)
-
-	for _, input := range inputs {
-		input := input
-		g.Go(func() error {
-			for {
-				select {
-				case <-ctx.Done():
-					return ctx.Err()
-				case data, ok := <-input:
-					if !ok {
-						return nil
-					}
-					select {
-					case merged <- data:
-					case <-ctx.Done():
-						return ctx.Err()
-					}
-				}
-			}
-		})
-	}
-
-	go func() {
-		g.Wait()
-		close(merged)
-	}()
-
 	for {
-		select {
-		case <-ctx.Done():
-			return ctx.Err()
-		case data, ok := <-merged:
-			if !ok {
-				return nil
-			}
-
-			if strings.Contains(data, "no multiplexer") {
-				continue
-			}
-
+		dataReceived := false
+		for _, input := range inputs {
 			select {
-			case output <- data:
 			case <-ctx.Done():
 				return ctx.Err()
+			case data, ok := <-input:
+				if !ok {
+					continue
+				}
+				dataReceived = true
+				
+				if strings.Contains(data, "no multiplexer") {
+					continue
+				}
+
+				select {
+				case output <- data:
+				case <-ctx.Done():
+					return ctx.Err()
+				}
+			default:
+			}
+		}
+
+		if !dataReceived {
+			select {
+			case <-ctx.Done():
+				return ctx.Err()
+			default:
 			}
 		}
 	}
