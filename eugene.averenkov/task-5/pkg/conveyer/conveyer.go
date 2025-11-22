@@ -78,20 +78,33 @@ func (c *Conveyer) RegisterSeparator(
 }
 
 func (c *Conveyer) Run(ctx context.Context) error {
-	done := make(chan struct{})
-	defer close(done)
+    var wg sync.WaitGroup
+    errCh := make(chan error, len(c.tasks))
 
-	for _, task := range c.tasks {
-		select {
-		case <-ctx.Done():
-			return nil
-		default:
-			if err := task(ctx); err != nil {
-				return err
-			}
-		}
-	}
-	return nil
+    for _, task := range c.tasks {
+        wg.Add(1)
+        go func(t func(ctx context.Context) error) {
+            defer wg.Done()
+            if err := t(ctx); err != nil {
+                select {
+                case errCh <- err:
+                default:
+                }
+            }
+        }(task)
+    }
+
+    go func() {
+        wg.Wait()
+        close(errCh)
+    }()
+
+    select {
+    case err := <-errCh:
+        return err
+    case <-ctx.Done():
+        return nil
+    }
 }
 
 func (c *Conveyer) Send(input string, data string) error {
