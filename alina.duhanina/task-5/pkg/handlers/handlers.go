@@ -86,7 +86,6 @@ func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan stri
 	g, ctx := errgroup.WithContext(ctx)
 	merged := make(chan string, len(inputs)*10)
 
-	// Reader горутины через errgroup
 	for _, input := range inputs {
 		input := input
 		g.Go(func() error {
@@ -108,10 +107,9 @@ func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan stri
 		})
 	}
 
-	// Writer горутина через errgroup
 	g.Go(func() error {
 		defer close(merged)
-		
+
 		for {
 			select {
 			case <-ctx.Done():
@@ -124,15 +122,3 @@ func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan stri
 				if strings.Contains(data, "no multiplexer") {
 					continue
 				}
-
-				select {
-				case output <- data:
-				case <-ctx.Done():
-					return ctx.Err()
-				}
-			}
-		}
-	})
-
-	return g.Wait()
-}
