@@ -216,7 +216,6 @@ func (c *Conveyer) Send(input string, data string) error {
 func (c *Conveyer) Recv(output string) (string, error) {
 	c.mu.RLock()
 	channel, exists := c.channels[output]
-	running := c.running
 	c.mu.RUnlock()
 
 	if !exists {
