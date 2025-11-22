@@ -106,8 +106,10 @@ func (c *Conveyer) RegisterSeparator(
 
 func (c *Conveyer) Run(ctx context.Context) error {
 	ctx, c.cancel = context.WithCancel(ctx)
-	defer c.cancel()
-
+	defer func() {
+		c.cancel()
+		c.closeAllChannels()
+	}()
 	group, ctx := errgroup.WithContext(ctx)
 
 	for _, op := range c.operations {
