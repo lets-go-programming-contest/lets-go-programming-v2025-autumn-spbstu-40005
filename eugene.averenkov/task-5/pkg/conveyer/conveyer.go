@@ -215,7 +215,7 @@ func (c *Conveyer) Recv(output string) (string, error) {
 		return "", errChanNotFound
 	}
 
-	data, ok := <-channel:
+	data, ok := <- channel
 	if !ok {
 		return errUndefined, nil
 	}
