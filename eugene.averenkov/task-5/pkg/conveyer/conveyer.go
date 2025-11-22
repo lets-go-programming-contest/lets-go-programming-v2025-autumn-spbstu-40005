@@ -10,7 +10,6 @@ import (
 var (
 	errChanNotFound    = errors.New("chan not found")
 	errConveyerRunning = errors.New("conveyer is already running")
-	errConveyerStopped = errors.New("conveyer is not running")
 	errChannelFull     = errors.New("channel is full")
 	errNoDataAvailable = errors.New("no data available")
 )
