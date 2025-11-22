@@ -4,13 +4,9 @@ import (
 	"context"
 	"errors"
 	"strings"
-
-	"golang.org/x/sync/errgroup"
 )
 
 func PrefixDecoratorFunc(ctx context.Context, input chan string, output chan string) error {
-	defer close(output)
-
 	prefix := "decorated: "
 
 	for {
@@ -40,12 +36,6 @@ func PrefixDecoratorFunc(ctx context.Context, input chan string, output chan str
 }
 
 func SeparatorFunc(ctx context.Context, input chan string, outputs []chan string) error {
-	defer func() {
-		for _, output := range outputs {
-			close(output)
-		}
-	}()
-
 	counter := 0
 	for {
 		select {
@@ -68,35 +58,26 @@ func SeparatorFunc(ctx context.Context, input chan string, outputs []chan string
 }
 
 func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan string) error {
-	defer close(output)
-
-	g, ctx := errgroup.WithContext(ctx)
-
-	for _, input := range inputs {
-		input := input
-		g.Go(func() error {
-			for {
-				select {
-				case <-ctx.Done():
-					return ctx.Err()
-				case data, ok := <-input:
-					if !ok {
-						return nil
-					}
-
-					if strings.Contains(data, "no multiplexer") {
-						continue
-					}
-
-					select {
-					case output <- data:
-					case <-ctx.Done():
-						return ctx.Err()
-					}
-				}
+	for {
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		case data, ok := <-inputs[0]:
+			if !ok {
+				inputs[0] = nil
+			} else if !strings.Contains(data, "no multiplexer") {
+				output <- data
 			}
-		})
-	}
+		case data, ok := <-inputs[1]:
+			if !ok {
+				inputs[1] = nil
+			} else if !strings.Contains(data, "no multiplexer") {
+				output <- data
+			}
+		}
 
-	return g.Wait()
+		if inputs[0] == nil && inputs[1] == nil {
+			return nil
+		}
+	}
 }
