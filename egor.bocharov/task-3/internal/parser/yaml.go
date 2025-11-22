@@ -19,13 +19,13 @@ func ParseYAMLFile[T any](configPath string) (*T, error) {
 		}
 	}()
 
-	var config T
+	var result T
 
 	decoder := yaml.NewDecoder(file)
 
-	if err := decoder.Decode(&config); err != nil {
+	if err := decoder.Decode(&result); err != nil {
 		return nil, fmt.Errorf("error decoding YAML: %w", err)
 	}
 
-	return &config, nil
+	return &result, nil
 }
