@@ -27,7 +27,7 @@ func main() {
 		return valCurs.Valute[i].Value > valCurs.Valute[j].Value
 	})
 
-	if err = parser.EncodeFile(valCurs.Valute, config.OutputFile); err != nil {
+	if err = parser.EncodeFile(valCurs.Valute, config.OutputFile, 0o755); err != nil {
 		panic(err)
 	}
 }

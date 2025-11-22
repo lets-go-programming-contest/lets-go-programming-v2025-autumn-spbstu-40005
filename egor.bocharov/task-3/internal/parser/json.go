@@ -7,9 +7,7 @@ import (
 	"path/filepath"
 )
 
-const permissions = 0o755
-
-func EncodeFile[T any](data T, outputFile string) error {
+func EncodeFile[T any](data T, outputFile string, permissions os.FileMode) error {
 	dir := filepath.Dir(outputFile)
 	if err := os.MkdirAll(dir, permissions); err != nil {
 		return fmt.Errorf("error creating directory: %w", err)
