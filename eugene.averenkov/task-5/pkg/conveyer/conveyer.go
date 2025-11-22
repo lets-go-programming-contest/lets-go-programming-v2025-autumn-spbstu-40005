@@ -9,8 +9,6 @@ import (
 var (
 	errChanNotFound    = errors.New("chan not found")
 	errConveyerRunning = errors.New("conveyer is already running")
-	errChannelFull     = errors.New("channel is full")
-	errNoDataAvailable = errors.New("no data available")
 )
 
 const errUndefined = "undefined"
@@ -203,12 +201,9 @@ func (c *Conveyer) Send(input string, data string) error {
 		return errChanNotFound
 	}
 
-	select {
-	case channel <- data:
-		return nil
-	default:
-		return errChannelFull
-	}
+	channel <- data
+
+	return nil
 }
 
 func (c *Conveyer) Recv(output string) (string, error) {
@@ -220,16 +215,12 @@ func (c *Conveyer) Recv(output string) (string, error) {
 		return "", errChanNotFound
 	}
 
-	select {
-	case data, ok := <-channel:
-		if !ok {
-			return errUndefined, nil
-		}
-
-		return data, nil
-	default:
-		return "", errNoDataAvailable
+	data, ok := <-channel:
+	if !ok {
+		return errUndefined, nil
 	}
+
+	return data, nil
 }
 
 func (c *Conveyer) Close() {
