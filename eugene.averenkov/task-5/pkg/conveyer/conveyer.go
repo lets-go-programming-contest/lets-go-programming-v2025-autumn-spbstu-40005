@@ -127,6 +127,7 @@ func (c *Conveyer) Run(ctx context.Context) error {
 	c.mu.Lock()
 	if c.running {
 		c.mu.Unlock()
+
 		return errConveyerRunning
 	}
 
@@ -172,9 +173,10 @@ func (c *Conveyer) Run(ctx context.Context) error {
 		return nil
 	case err := <-errorChannel:
 		cancel()
+
 		return err
 	case <-runCtx.Done():
-		return runCtx.Err()
+		return fmt.Errorf("context canseled: %w", runCtx.Err())
 	}
 }
 
@@ -187,7 +189,6 @@ func (c *Conveyer) closeAllChannels() {
 		case <-channel:
 
 		default:
-
 		}
 		close(channel)
 		delete(c.channels, name)
@@ -234,6 +235,7 @@ func (c *Conveyer) Recv(output string) (string, error) {
 		if !ok {
 			return errUndefined, nil
 		}
+
 		return data, nil
 	default:
 		return "", errNoDataAvailable

@@ -8,9 +8,7 @@ import (
 	"sync"
 )
 
-var (
-	ErrCannotBeDecorated = errors.New("can't be decorated")
-)
+var ErrCannotBeDecorated = errors.New("can't be decorated")
 
 func PrefixDecoratorFunc(ctx context.Context, input chan string, output chan string) error {
 	for {
@@ -105,7 +103,9 @@ func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan stri
 
 	for _, inputChannel := range inputs {
 		waitGroup.Add(1)
-		go readFromChannel(inputChannel)
+
+		channel := inputChannel
+		go readFromChannel(channel)
 	}
 
 	waitGroup.Wait()
