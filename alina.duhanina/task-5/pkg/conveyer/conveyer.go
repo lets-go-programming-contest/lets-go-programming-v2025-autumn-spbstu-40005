@@ -166,3 +166,13 @@ func (c *Conveyer) Stop() {
 		delete(c.channels, id)
 	}
 }
+
+func (c *Conveyer) closeAllChannels() {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
+	for id, ch := range c.channels {
+		close(ch)
+		delete(c.channels, id)
+	}
+}
