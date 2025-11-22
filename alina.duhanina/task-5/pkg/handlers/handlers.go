@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 	"strings"
-	"sync/atomic"
+	"sync"
 )
 
 var (
@@ -17,7 +17,7 @@ func PrefixDecoratorFunc(ctx context.Context, input chan string, output chan str
 	for {
 		select {
 		case <-ctx.Done():
-			return ctx.Err()
+			return nil
 		case data, ok := <-input:
 			if !ok {
 				return nil
@@ -34,7 +34,7 @@ func PrefixDecoratorFunc(ctx context.Context, input chan string, output chan str
 			select {
 			case output <- data:
 			case <-ctx.Done():
-				return ctx.Err()
+				return nil
 			}
 		}
 	}
@@ -42,66 +42,64 @@ func PrefixDecoratorFunc(ctx context.Context, input chan string, output chan str
 
 func SeparatorFunc(ctx context.Context, input chan string, outputs []chan string) error {
 	if len(outputs) == 0 {
-		return nil
+		return errors.New("outputs must not be empty")
 	}
 
-	var counter int64 = -1
+	index := 0
 
 	for {
 		select {
 		case <-ctx.Done():
-			return ctx.Err()
+			return nil
 		case data, ok := <-input:
 			if !ok {
 				return nil
 			}
 
-			index := atomic.AddInt64(&counter, 1) % int64(len(outputs))
-			if index < 0 {
-				index = 0
-			}
+			outCh := outputs[index%len(outputs)]
+			index++
 
 			select {
-			case outputs[index] <- data:
+			case outCh <- data:
 			case <-ctx.Done():
-				return ctx.Err()
+				return nil
 			}
 		}
 	}
 }
 
 func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan string) error {
-	for {
-		dataReceived := false
-		for _, input := range inputs {
-			select {
-			case <-ctx.Done():
-				return ctx.Err()
-			case data, ok := <-input:
-				if !ok {
-					continue
-				}
-				dataReceived = true
+	var wg sync.WaitGroup
 
-				if strings.Contains(data, "no multiplexer") {
-					continue
-				}
+	for _, inputCh := range inputs {
+		wg.Add(1)
 
+		go func(channel chan string) {
+			defer wg.Done()
+
+			for {
 				select {
-				case output <- data:
 				case <-ctx.Done():
-					return ctx.Err()
-				}
-			default:
-			}
-		}
+					return
+				case data, ok := <-channel:
+					if !ok {
+						return
+					}
 
-		if !dataReceived {
-			select {
-			case <-ctx.Done():
-				return ctx.Err()
-			default:
+					if strings.Contains(data, "no multiplexer") {
+						continue
+					}
+
+					select {
+					case output <- data:
+					case <-ctx.Done():
+						return
+					}
+				}
 			}
-		}
+		}(inputCh)
 	}
+
+	wg.Wait()
+	return nil
 }

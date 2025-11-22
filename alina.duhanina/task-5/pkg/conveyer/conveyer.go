@@ -8,11 +8,10 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
+const undefined = "undefined"
+
 var (
-	ErrChanNotFound    = errors.New("chan not found")
-	ErrChannelFull     = errors.New("channel is full")
-	ErrNoDataAvailable = errors.New("no data available")
-	ErrUndefined       = "undefined"
+	ErrChanNotFound = errors.New("chan not found")
 )
 
 type DecoratorFunc func(ctx context.Context, input chan string, output chan string) error
@@ -105,11 +104,10 @@ func (c *Conveyer) RegisterSeparator(
 }
 
 func (c *Conveyer) Run(ctx context.Context) error {
+	defer c.closeAllChannels()
+
 	ctx, c.cancel = context.WithCancel(ctx)
-	defer func() {
-		c.cancel()
-		c.closeAllChannels()
-	}()
+
 	group, ctx := errgroup.WithContext(ctx)
 
 	for _, op := range c.operations {
@@ -128,12 +126,8 @@ func (c *Conveyer) Send(input string, data string) error {
 		return ErrChanNotFound
 	}
 
-	select {
-	case ch <- data:
-		return nil
-	default:
-		return ErrChannelFull
-	}
+	ch <- data
+	return nil
 }
 
 func (c *Conveyer) Recv(output string) (string, error) {
@@ -142,15 +136,12 @@ func (c *Conveyer) Recv(output string) (string, error) {
 		return "", ErrChanNotFound
 	}
 
-	select {
-	case data, ok := <-ch:
-		if !ok {
-			return ErrUndefined, nil
-		}
-		return data, nil
-	default:
-		return "", ErrNoDataAvailable
+	val, ok := <-ch
+	if !ok {
+		return undefined, nil
 	}
+
+	return val, nil
 }
 
 func (c *Conveyer) Stop() {
@@ -158,13 +149,7 @@ func (c *Conveyer) Stop() {
 		c.cancel()
 	}
 
-	c.mu.Lock()
-	defer c.mu.Unlock()
-
-	for id, ch := range c.channels {
-		close(ch)
-		delete(c.channels, id)
-	}
+	c.closeAllChannels()
 }
 
 func (c *Conveyer) closeAllChannels() {
