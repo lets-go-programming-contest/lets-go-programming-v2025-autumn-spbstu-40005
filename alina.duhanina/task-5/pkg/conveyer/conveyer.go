@@ -9,10 +9,10 @@ import (
 )
 
 var (
-	ErrChanNotFound   = errors.New("chan not found")
-	ErrChannelFull    = errors.New("channel is full")
+	ErrChanNotFound    = errors.New("chan not found")
+	ErrChannelFull     = errors.New("channel is full")
 	ErrNoDataAvailable = errors.New("no data available")
-	ErrUndefined      = "undefined"
+	ErrUndefined       = "undefined"
 )
 
 type DecoratorFunc func(ctx context.Context, input chan string, output chan string) error
@@ -20,17 +20,18 @@ type MultiplexerFunc func(ctx context.Context, inputs []chan string, output chan
 type SeparatorFunc func(ctx context.Context, input chan string, outputs []chan string) error
 
 type Conveyer struct {
-	size     int
-	channels map[string]chan string
-	mu       sync.RWMutex
-	wg       sync.WaitGroup
-	cancel   context.CancelFunc
+	size       int
+	channels   map[string]chan string
+	mu         sync.RWMutex
+	operations []func(context.Context) error
+	cancel     context.CancelFunc
 }
 
 func New(size int) *Conveyer {
 	return &Conveyer{
-		size:     size,
-		channels: make(map[string]chan string),
+		size:       size,
+		channels:   make(map[string]chan string),
+		operations: make([]func(context.Context) error, 0),
 	}
 }
 
@@ -63,8 +64,12 @@ func (c *Conveyer) RegisterDecorator(
 	input string,
 	output string,
 ) {
-	c.getOrCreateChannel(input)
-	c.getOrCreateChannel(output)
+	inputChan := c.getOrCreateChannel(input)
+	outputChan := c.getOrCreateChannel(output)
+
+	c.operations = append(c.operations, func(ctx context.Context) error {
+		return fn(ctx, inputChan, outputChan)
+	})
 }
 
 func (c *Conveyer) RegisterMultiplexer(
@@ -72,10 +77,15 @@ func (c *Conveyer) RegisterMultiplexer(
 	inputs []string,
 	output string,
 ) {
-	for _, input := range inputs {
-		c.getOrCreateChannel(input)
+	inputChans := make([]chan string, len(inputs))
+	for i, input := range inputs {
+		inputChans[i] = c.getOrCreateChannel(input)
 	}
-	c.getOrCreateChannel(output)
+	outputChan := c.getOrCreateChannel(output)
+
+	c.operations = append(c.operations, func(ctx context.Context) error {
+		return fn(ctx, inputChans, outputChan)
+	})
 }
 
 func (c *Conveyer) RegisterSeparator(
@@ -83,28 +93,31 @@ func (c *Conveyer) RegisterSeparator(
 	input string,
 	outputs []string,
 ) {
-	c.getOrCreateChannel(input)
-	for _, output := range outputs {
-		c.getOrCreateChannel(output)
+	inputChan := c.getOrCreateChannel(input)
+	outputChans := make([]chan string, len(outputs))
+	for i, output := range outputs {
+		outputChans[i] = c.getOrCreateChannel(output)
 	}
+
+	c.operations = append(c.operations, func(ctx context.Context) error {
+		return fn(ctx, inputChan, outputChans)
+	})
 }
 
 func (c *Conveyer) Run(ctx context.Context) error {
 	ctx, c.cancel = context.WithCancel(ctx)
 	defer c.cancel()
 
-	done := make(chan struct{})
-	go func() {
-		c.wg.Wait()
-		close(done)
-	}()
+	group, ctx := errgroup.WithContext(ctx)
 
-	select {
-	case <-done:
-		return nil
-	case <-ctx.Done():
-		return ctx.Err()
+	for _, op := range c.operations {
+		op := op
+		group.Go(func() error {
+			return op(ctx)
+		})
 	}
+
+	return group.Wait()
 }
 
 func (c *Conveyer) Send(input string, data string) error {
