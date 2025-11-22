@@ -174,10 +174,7 @@ func (c *Conveyer) RegisterSeparator(
 
 func (c *Conveyer) Run(ctx context.Context) error {
 	c.mu.Lock()
-	defer func() {
-		c.storage.closeAll()
-		c.mu.Unlock()
-	}()
+	defer c.mu.Unlock()
 
 	workerGroup, ctx := errgroup.WithContext(ctx)
 
