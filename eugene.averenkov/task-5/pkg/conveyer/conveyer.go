@@ -102,21 +102,17 @@ func (c *Conveyer) Send(input string, data string) error {
 	ch <- data
 	return nil
 }
-
 func (c *Conveyer) Recv(output string) (string, error) {
-	ch, exists := c.channels[output]
-	if !exists {
-		return "", ErrChanNotFound
-	}
-	select {
-	case data, ok := <-ch:
-		if !ok {
-			return undefined, nil
-		}
-		return data, nil
-	default:
-		return "", errors.New("no data")
-	}
+    ch, exists := c.channels[output]
+    if !exists {
+        return "", ErrChanNotFound
+    }
+
+    data, ok := <-ch
+    if !ok {
+        return undefined, nil
+    }
+    return data, nil
 }
 
 /*package conveyer
