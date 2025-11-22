@@ -73,7 +73,7 @@ func (c *Conveyer) RegisterDecorator(
 	}()
 }
 
-func (c *Conveyer) RegisterMultipleser(
+func (c *Conveyer) RegisterMultiplexer(
 	fn MultiplexerFunc,
 	inputs []string,
 	output string,
