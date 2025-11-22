@@ -205,10 +205,6 @@ func (c *Conveyer) Send(input string, data string) error {
 		return errChanNotFound
 	}
 
-	if !c.running {
-		return errConveyerStopped
-	}
-
 	select {
 	case channel <- data:
 		return nil
@@ -225,10 +221,6 @@ func (c *Conveyer) Recv(output string) (string, error) {
 
 	if !exists {
 		return "", errChanNotFound
-	}
-
-	if !running {
-		return "", errConveyerStopped
 	}
 
 	select {
