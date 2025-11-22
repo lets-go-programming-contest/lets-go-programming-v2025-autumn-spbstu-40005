@@ -18,6 +18,7 @@ type Conveyer struct {
 	channels map[string]chan string
 	size     int
 	handlers []func(ctx context.Context) error
+	cancel   context.CancelFunc
 }
 
 func New(size int) *Conveyer {
@@ -84,6 +85,10 @@ func (c *Conveyer) RegisterSeparator(fn func(ctx context.Context, input chan str
 }
 
 func (c *Conveyer) Run(ctx context.Context) error {
+	ctx, cancel := context.WithCancel(ctx)
+	c.cancel = cancel
+	defer cancel()
+
 	g, ctx := errgroup.WithContext(ctx)
 
 	for _, handler := range c.handlers {
@@ -93,7 +98,16 @@ func (c *Conveyer) Run(ctx context.Context) error {
 		})
 	}
 
-	return g.Wait()
+	err := g.Wait()
+
+	c.mu.Lock()
+	for name, ch := range c.channels {
+		close(ch)
+		delete(c.channels, name)
+	}
+	c.mu.Unlock()
+
+	return err
 }
 
 func (c *Conveyer) Send(input string, data string) error {
