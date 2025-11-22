@@ -1,4 +1,4 @@
-module alina.duhanina/task-3
+module alina.duhanina/task-5
 
 go 1.22.7
 
