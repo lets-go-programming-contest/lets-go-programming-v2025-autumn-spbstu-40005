@@ -92,7 +92,7 @@ func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan stri
 					continue
 				}
 				dataReceived = true
-				
+
 				if strings.Contains(data, "no multiplexer") {
 					continue
 				}
