@@ -107,29 +107,33 @@ func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan stri
 		})
 	}
 
+	g.Go(func() error {
+		for {
+			select {
+			case <-ctx.Done():
+				return ctx.Err()
+			case data, ok := <-merged:
+				if !ok {
+					return nil
+				}
+
+				if strings.Contains(data, "no multiplexer") {
+					continue
+				}
+
+				select {
+				case output <- data:
+				case <-ctx.Done():
+					return ctx.Err()
+				}
+			}
+		}
+	})
+
 	go func() {
 		g.Wait()
 		close(merged)
 	}()
 
-	for {
-		select {
-		case <-ctx.Done():
-			return ctx.Err()
-		case data, ok := <-merged:
-			if !ok {
-				return nil
-			}
-
-			if strings.Contains(data, "no multiplexer") {
-				continue
-			}
-
-			select {
-			case output <- data:
-			case <-ctx.Done():
-				return ctx.Err()
-			}
-		}
-	}
+	return g.Wait()
 }
