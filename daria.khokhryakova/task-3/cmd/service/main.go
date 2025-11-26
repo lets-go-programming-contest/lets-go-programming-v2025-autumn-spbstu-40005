@@ -29,7 +29,7 @@ func main() {
 		panic(err)
 	}
 
-	err = parser.SaveJSONResults(result, config.OutputFile, 0755)
+	err = parser.SaveJSONResults(result, config.OutputFile, 0o755)
 	if err != nil {
 		panic(err)
 	}
