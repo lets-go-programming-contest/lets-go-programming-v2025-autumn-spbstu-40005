@@ -6,11 +6,10 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/DariaKhokhryakova/task-3/internal/models"
 	"golang.org/x/net/html/charset"
 )
 
-func ParseXMLData(filePath string) (*models.ValCurs, error) {
+func ParseXMLData[T any](filePath string) (*T, error) {
 	data, err := os.ReadFile(filePath)
 	if err != nil {
 		return nil, fmt.Errorf("read file: %w", err)
@@ -21,12 +20,12 @@ func ParseXMLData(filePath string) (*models.ValCurs, error) {
 
 	decoder.CharsetReader = charset.NewReaderLabel
 
-	var valCurs models.ValCurs
+	var result T
 
-	err = decoder.Decode(&valCurs)
+	err = decoder.Decode(&result)
 	if err != nil {
 		return nil, fmt.Errorf("decode xml: %w", err)
 	}
 
-	return &valCurs, nil
+	return &result, nil
 }

@@ -4,6 +4,7 @@ import (
 	"flag"
 
 	"github.com/DariaKhokhryakova/task-3/internal/config"
+	"github.com/DariaKhokhryakova/task-3/internal/models"
 	"github.com/DariaKhokhryakova/task-3/internal/parser"
 )
 
@@ -18,7 +19,7 @@ func main() {
 		panic(err)
 	}
 
-	valCurs, err := parser.ParseXMLData(config.InputFile)
+	valCurs, err := parser.ParseXMLData[models.ValCurs](config.InputFile)
 	if err != nil {
 		panic(err)
 	}
@@ -28,7 +29,7 @@ func main() {
 		panic(err)
 	}
 
-	err = parser.SaveJSONResults(result, config.OutputFile)
+	err = parser.SaveJSONResults(result, config.OutputFile, 0755)
 	if err != nil {
 		panic(err)
 	}

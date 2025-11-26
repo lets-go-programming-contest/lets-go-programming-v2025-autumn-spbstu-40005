@@ -10,8 +10,6 @@ import (
 	"github.com/DariaKhokhryakova/task-3/internal/models"
 )
 
-const dirPerm = 0o755
-
 func ProcessCurrencies(valCurs *models.ValCurs) ([]models.CurrencyResult, error) {
 	results := valCurs.Currencies
 
@@ -28,14 +26,7 @@ func panicErr(err error) {
 	}
 }
 
-func FileClose(file *os.File) {
-	if file != nil {
-		err := file.Close()
-		panicErr(err)
-	}
-}
-
-func SaveJSONResults(results []models.CurrencyResult, outputPath string) error {
+func SaveJSONResults[T any](results []T, outputPath string, dirPerm os.FileMode) error {
 	dir := filepath.Dir(outputPath)
 
 	err := os.MkdirAll(dir, dirPerm)
@@ -48,7 +39,9 @@ func SaveJSONResults(results []models.CurrencyResult, outputPath string) error {
 		return fmt.Errorf("create file: %w", err)
 	}
 
-	defer FileClose(file)
+	defer func() {
+		panicErr(file.Close())
+	}()
 
 	encoder := json.NewEncoder(file)
 	encoder.SetIndent("", "  ")
