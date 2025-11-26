@@ -8,6 +8,8 @@ import (
 	"github.com/DariaKhokhryakova/task-3/internal/parser"
 )
 
+const defaultDirPerm = 0o755
+
 func main() {
 	var configPath string
 
@@ -29,7 +31,7 @@ func main() {
 		panic(err)
 	}
 
-	err = parser.SaveJSONResults(result, config.OutputFile, 0o755)
+	err = parser.SaveJSONResults(result, config.OutputFile, defaultDirPerm)
 	if err != nil {
 		panic(err)
 	}
