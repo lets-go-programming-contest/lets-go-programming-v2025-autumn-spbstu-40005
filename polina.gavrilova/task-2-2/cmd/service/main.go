@@ -38,6 +38,7 @@ func FindKthLargest(ratings []int, preferenceOrder int) (int, error) {
 	if err != nil {
 		return 0, fmt.Errorf("FindKthLargest: get top during processing: %w", err)
 	}
+
 	return result, nil
 }
 
