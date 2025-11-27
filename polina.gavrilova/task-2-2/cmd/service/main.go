@@ -24,7 +24,7 @@ func FindKthLargest(ratings []int, preferenceOrder int) (int, error) {
 		} else {
 			top, err := heapInstance.Top()
 			if err != nil {
-				return 0, err
+				return 0, fmt.Errorf("FindKthLargest: get top during processing: %w", err)
 			}
 
 			if rating > top {
@@ -34,7 +34,11 @@ func FindKthLargest(ratings []int, preferenceOrder int) (int, error) {
 		}
 	}
 
-	return heapInstance.Top()
+	result, err := heapInstance.Top()
+	if err != nil {
+		return 0, fmt.Errorf("FindKthLargest: get top during processing: %w", err)
+	}
+	return result, nil
 }
 
 func main() {
