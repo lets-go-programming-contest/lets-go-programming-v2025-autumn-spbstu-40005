@@ -1,6 +1,10 @@
 package minheap
 
+import "errors"
+
 type MinHeap []int
+
+var ErrHeapEmpty = errors.New("heap is empty")
 
 func (heap *MinHeap) Len() int {
 	return len(*heap)
@@ -44,10 +48,10 @@ func (heap *MinHeap) Pop() interface{} {
 	return x
 }
 
-func (heap *MinHeap) Top() int {
+func (heap *MinHeap) Top() (int, error) {
 	if len(*heap) == 0 {
-		panic("heap is empty")
+		return 0, ErrHeapEmpty
 	}
 
-	return (*heap)[0]
+	return (*heap)[0], nil
 }

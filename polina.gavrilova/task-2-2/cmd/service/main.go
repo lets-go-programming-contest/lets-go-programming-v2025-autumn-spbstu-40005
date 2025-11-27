@@ -2,14 +2,17 @@ package main
 
 import (
 	"container/heap"
+	"errors"
 	"fmt"
 
 	"polina.gavrilova/task-2-2/internal/minheap"
 )
 
-func FindKthLargest(ratings []int, preferenceOrder int) int {
+var ErrPreferenceOrder = errors.New("invalid preference order")
+
+func FindKthLargest(ratings []int, preferenceOrder int) (int, error) {
 	if preferenceOrder <= 0 || preferenceOrder > len(ratings) {
-		panic("invalid preferenceOrder")
+		return 0, ErrPreferenceOrder
 	}
 
 	heapInstance := &minheap.MinHeap{}
@@ -18,9 +21,16 @@ func FindKthLargest(ratings []int, preferenceOrder int) int {
 	for _, rating := range ratings {
 		if heapInstance.Len() < preferenceOrder {
 			heap.Push(heapInstance, rating)
-		} else if rating > heapInstance.Top() {
-			heap.Pop(heapInstance)
-			heap.Push(heapInstance, rating)
+		} else {
+			top, err := heapInstance.Top()
+			if err != nil {
+				return 0, err
+			}
+
+			if rating > top {
+				heap.Pop(heapInstance)
+				heap.Push(heapInstance, rating)
+			}
 		}
 	}
 
@@ -56,6 +66,12 @@ func main() {
 		return
 	}
 
-	result := FindKthLargest(ratings, preferenceOrder)
+	result, err := FindKthLargest(ratings, preferenceOrder)
+	if err != nil {
+		fmt.Printf("Error: %v\n", err)
+
+		return
+	}
+
 	fmt.Println(result)
 }
