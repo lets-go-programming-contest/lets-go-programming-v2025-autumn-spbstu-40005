@@ -110,10 +110,8 @@ func (c *ConveyerType) closeChannels() {
 	c.mutex.Lock()
 	defer c.mutex.Unlock()
 
-	for name, ch := range c.channels {
+	for _, ch := range c.channels {
 		close(ch)
-
-		delete(c.channels, name)
 	}
 }
 
