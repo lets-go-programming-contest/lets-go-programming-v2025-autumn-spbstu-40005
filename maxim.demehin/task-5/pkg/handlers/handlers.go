@@ -9,7 +9,7 @@ import (
 const (
 	decorator_prefix    = "decorated: "
 	no_decorator_prefix = "no decorator"
-	no_multip_str = "no multiplexer"
+	no_multip_str       = "no multiplexer"
 )
 
 var ErrCantDecorate = errors.New("can't be decorated")
@@ -70,12 +70,39 @@ func SeparatorFunc(ctx context.Context, input chan string, outputs []chan string
 	}
 }
 
-func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan string) error {
+func sendData(ctx context.Context, input <-chan string, output chan<- string) {
 	for {
 		select {
 		case <-ctx.Done():
-			return nil
-		case 
+			return
+		case data, ok := <-input:
+			if !ok {
+				return
+			}
+
+			if !strings.Contains(data, no_multip_str) {
+				select {
+				case output <- data:
+				case <-ctx.Done():
+					return
+				}
+			}
 		}
 	}
+}
+
+func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan string) error {
+	in_len := len(inputs)
+
+	if in_len == 0 {
+		return nil
+	}
+
+	for _, input := range inputs {
+		go sendData(ctx, input, output)
+	}
+
+	<-ctx.Done()
+
+	return nil
 }
