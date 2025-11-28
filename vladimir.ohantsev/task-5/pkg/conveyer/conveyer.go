@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"sync"
 
 	"golang.org/x/sync/errgroup"
 )
@@ -16,6 +17,7 @@ type Pipeline struct {
 	size     int
 	channels map[string]chan string
 	handlers []func(ctx context.Context) error
+	mutex    sync.RWMutex
 }
 
 func New(size int) *Pipeline {
@@ -46,6 +48,9 @@ func (p *Pipeline) RegisterDecorator(
 	input string,
 	output string,
 ) {
+	p.mutex.Lock()
+	defer p.mutex.Unlock()
+
 	inCh := p.register(input)
 	outCh := p.register(output)
 
@@ -63,6 +68,9 @@ func (p *Pipeline) RegisterMultiplexer(
 	inputs []string,
 	output string,
 ) {
+	p.mutex.Lock()
+	defer p.mutex.Unlock()
+
 	inChans := make([]chan string, len(inputs))
 	for i, name := range inputs {
 		inChans[i] = p.register(name)
@@ -82,6 +90,9 @@ func (p *Pipeline) RegisterSeparator(
 	input string,
 	outputs []string,
 ) {
+	p.mutex.Lock()
+	defer p.mutex.Unlock()
+
 	outChans := make([]chan string, len(outputs))
 	for i, name := range outputs {
 		outChans[i] = p.register(name)
@@ -117,7 +128,12 @@ func (p *Pipeline) Run(ctx context.Context) error {
 }
 
 func (p *Pipeline) Send(input string, data string) error {
+	p.mutex.RLock()
+
 	ch, ok := p.channels[input]
+
+	p.mutex.RUnlock()
+
 	if !ok {
 		return ErrChanNotFound
 	}
@@ -128,7 +144,12 @@ func (p *Pipeline) Send(input string, data string) error {
 }
 
 func (p *Pipeline) Recv(output string) (string, error) {
+	p.mutex.RLock()
+
 	channel, ok := p.channels[output] //nolint:varnamelen
+
+	p.mutex.RUnlock()
+
 	if !ok {
 		return "", ErrChanNotFound
 	}
