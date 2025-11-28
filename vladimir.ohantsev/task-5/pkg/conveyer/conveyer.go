@@ -24,6 +24,7 @@ func New(size int) *Pipeline {
 	return &Pipeline{
 		size:     size,
 		channels: make(map[string]chan string),
+		mutex:    sync.RWMutex{},
 		handlers: []func(ctx context.Context) error{},
 	}
 }
@@ -137,7 +138,7 @@ func (p *Pipeline) Run(ctx context.Context) error {
 func (p *Pipeline) Send(input string, data string) error {
 	p.mutex.RLock()
 
-	ch, ok := p.channels[input]
+	channel, ok := p.channels[input] //nolint:varnamelen
 
 	p.mutex.RUnlock()
 
@@ -145,7 +146,7 @@ func (p *Pipeline) Send(input string, data string) error {
 		return ErrChanNotFound
 	}
 
-	ch <- data
+	channel <- data
 
 	return nil
 }
