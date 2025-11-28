@@ -162,15 +162,14 @@ func (c *conveyerImpl) Send(input string, data string) error {
 }
 
 func (c *conveyerImpl) Recv(output string) (string, error) {
-	ch := c.getOrCreateChannel(output)
-
-	select {
-	case data, ok := <-ch:
-		if !ok {
-			return "undefined", nil
-		}
-		return data, nil
-	default:
-		return "", fmt.Errorf("no data available")
+	ch, exists := c.getChannel(output)
+	if !exists {
+		return "", fmt.Errorf("chan not found")
 	}
+
+	data, ok := <-ch
+	if !ok {
+		return "undefined", nil
+	}
+	return data, nil
 }
