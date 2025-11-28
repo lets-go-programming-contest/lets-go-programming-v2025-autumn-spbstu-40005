@@ -3,14 +3,11 @@ package writer
 import (
 	"encoding/json"
 	"fmt"
+	"io/fs"
 	"os"
-
-	"alexandra.karnauhova/task-3/internal/data"
 )
 
-const directoryPermissions = 0o755
-
-func CreateDirectory(directory string) error {
+func CreateDirectory(directory string, directoryPermissions fs.FileMode) error {
 	if err := os.MkdirAll(directory, directoryPermissions); err != nil {
 		return fmt.Errorf("failed to create directory: %w", err)
 	}
@@ -18,7 +15,7 @@ func CreateDirectory(directory string) error {
 	return nil
 }
 
-func SaveToJSON(valutes []data.Valute, filePath string) error {
+func SaveToJSON(data interface{}, filePath string) error {
 	file, err := os.Create(filePath)
 	if err != nil {
 		return fmt.Errorf("failed to create file: %w", err)
@@ -33,7 +30,7 @@ func SaveToJSON(valutes []data.Valute, filePath string) error {
 	encoder := json.NewEncoder(file)
 	encoder.SetIndent("", "  ")
 
-	if err := encoder.Encode(valutes); err != nil {
+	if err := encoder.Encode(data); err != nil {
 		return fmt.Errorf("failed to encode JSON: %w", err)
 	}
 

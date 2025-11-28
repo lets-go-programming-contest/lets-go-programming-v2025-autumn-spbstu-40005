@@ -11,6 +11,8 @@ import (
 	"alexandra.karnauhova/task-3/internal/writer"
 )
 
+const directoryPermissions = 0o755
+
 func main() {
 	thisConfig := flag.String("config", "config.yaml", "Path to config file")
 	flag.Parse()
@@ -28,7 +30,7 @@ func main() {
 	sortedValutes := sorter.SortByValueDesc(valArray.Valutes)
 
 	outputDir := filepath.Dir(files.OutputFile)
-	if err := writer.CreateDirectory(outputDir); err != nil {
+	if err := writer.CreateDirectory(outputDir, directoryPermissions); err != nil {
 		panic("Failed to create output directory: " + err.Error())
 	}
 
