@@ -7,12 +7,16 @@ import (
 	"sync"
 )
 
+const (
+	prefixMarker        = "decorated: "
+	noDecoratorMarker   = "no decorator"
+	noMultiplexerMarker = "no multiplexer"
+)
+
 var errDecorationRejected = errors.New("can't be decorated")
 
 func PrefixDecoratorFunc(ctx context.Context, source chan string, destination chan string) error {
 	defer close(destination)
-
-	const prefixMarker = "decorated: "
 
 	for {
 		select {
@@ -23,7 +27,7 @@ func PrefixDecoratorFunc(ctx context.Context, source chan string, destination ch
 				return nil
 			}
 
-			if strings.Contains(content, "no decorator") {
+			if strings.Contains(content, noDecoratorMarker) {
 				return errDecorationRejected
 			}
 
@@ -100,7 +104,7 @@ func MultiplexerFunc(ctx context.Context, sources []chan string, destination cha
 						return
 					}
 
-					if strings.Contains(data, "no multiplexer") {
+					if strings.Contains(data, noMultiplexerMarker) {
 						continue
 					}
 
