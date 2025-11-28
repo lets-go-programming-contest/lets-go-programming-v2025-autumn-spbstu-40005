@@ -25,19 +25,18 @@ func New(size int) *ConveyerType {
 		size:     size,
 		channels: make(map[string]chan string),
 		tasks:    make([]func(ctx context.Context) error, 0),
+		mutex:    sync.RWMutex{},
 	}
 }
 
 func (c *ConveyerType) getOrCreateChannel(name string) chan string {
-	c.mutex.Lock()
-	defer c.mutex.Unlock()
-
 	if ch, exists := c.channels[name]; exists {
 		return ch
 	}
 
 	ch := make(chan string, c.size)
 	c.channels[name] = ch
+
 	return ch
 }
 
