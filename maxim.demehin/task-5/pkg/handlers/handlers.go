@@ -13,7 +13,10 @@ const (
 	no_multip_str       = "no multiplexer"
 )
 
-var ErrCantDecorate = errors.New("can't be decorated")
+var (
+	ErrCantDecorate = errors.New("can't be decorated")
+	ErrEmptyChan    = errors.New("channel is empty")
+)
 
 func PrefixDecoratorFunc(ctx context.Context, input chan string, output chan string) error {
 	for {
@@ -44,7 +47,7 @@ func PrefixDecoratorFunc(ctx context.Context, input chan string, output chan str
 
 func SeparatorFunc(ctx context.Context, input chan string, outputs []chan string) error {
 	if len(outputs) == 0 {
-		return nil
+		return ErrEmptyChan
 	}
 
 	counter := 0
