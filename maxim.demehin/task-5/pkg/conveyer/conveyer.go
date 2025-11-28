@@ -49,15 +49,15 @@ func (c *ConveyerType) RegisterDecorator(
 	input string,
 	output string,
 ) {
-	task := func(ctx context.Context) error {
-		inputChan := c.getOrCreateChannel(input)
+	c.mutex.Lock()
+	defer c.mutex.Unlock()
 
-		outputChan := c.getOrCreateChannel(output)
+	inputChan := c.getOrCreateChannel(input)
+	outputChan := c.getOrCreateChannel(output)
 
+	c.tasks = append(c.tasks, func(ctx context.Context) error {
 		return fn(ctx, inputChan, outputChan)
-	}
-
-	c.tasks = append(c.tasks, task)
+	})
 }
 
 func (c *ConveyerType) RegisterMultiplexer(
@@ -68,19 +68,19 @@ func (c *ConveyerType) RegisterMultiplexer(
 	inputs []string,
 	output string,
 ) {
-	task := func(ctx context.Context) error {
-		inputChans := make([]chan string, len(inputs))
+	c.mutex.Lock()
+	defer c.mutex.Unlock()
 
-		for index, inputName := range inputs {
-			inputChans[index] = c.getOrCreateChannel(inputName)
-		}
+	outputChan := c.getOrCreateChannel(output)
+	inputChans := make([]chan string, len(inputs))
 
-		outputChan := c.getOrCreateChannel(output)
-
-		return fn(ctx, inputChans, outputChan)
+	for index, inputName := range inputs {
+		inputChans[index] = c.getOrCreateChannel(inputName)
 	}
 
-	c.tasks = append(c.tasks, task)
+	c.tasks = append(c.tasks, func(ctx context.Context) error {
+		return fn(ctx, inputChans, outputChan)
+	})
 }
 
 func (c *ConveyerType) RegisterSeparator(
@@ -91,19 +91,19 @@ func (c *ConveyerType) RegisterSeparator(
 	input string,
 	outputs []string,
 ) {
-	task := func(ctx context.Context) error {
-		outputChans := make([]chan string, len(outputs))
+	c.mutex.Lock()
+	defer c.mutex.Unlock()
 
-		for index, outputName := range outputs {
-			outputChans[index] = c.getOrCreateChannel(outputName)
-		}
+	inputChan := c.getOrCreateChannel(input)
+	outputChans := make([]chan string, len(outputs))
 
-		inputChan := c.getOrCreateChannel(input)
-
-		return fn(ctx, inputChan, outputChans)
+	for index, outputName := range outputs {
+		outputChans[index] = c.getOrCreateChannel(outputName)
 	}
 
-	c.tasks = append(c.tasks, task)
+	c.tasks = append(c.tasks, func(ctx context.Context) error {
+		return fn(ctx, inputChan, outputChans)
+	})
 }
 
 func (c *ConveyerType) closeChannels() {
