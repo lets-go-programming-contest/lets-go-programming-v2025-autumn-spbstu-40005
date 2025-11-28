@@ -107,6 +107,9 @@ func (p *Pipeline) RegisterSeparator(
 
 func (p *Pipeline) Run(ctx context.Context) error {
 	defer func() {
+		p.mutex.Lock()
+		defer p.mutex.Unlock()
+
 		for _, ch := range p.channels {
 			close(ch)
 		}
@@ -114,11 +117,15 @@ func (p *Pipeline) Run(ctx context.Context) error {
 
 	errgr, ctx := errgroup.WithContext(ctx)
 
+	p.mutex.RLock()
+
 	for _, handler := range p.handlers {
 		errgr.Go(func() error {
 			return handler(ctx)
 		})
 	}
+
+	p.mutex.RUnlock()
 
 	if err := errgr.Wait(); err != nil {
 		return fmt.Errorf("run pipeline: %w", err)
