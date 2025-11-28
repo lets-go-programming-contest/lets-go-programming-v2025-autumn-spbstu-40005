@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"strings"
+	"sync"
 )
 
 const (
@@ -64,37 +65,38 @@ func SeparatorFunc(ctx context.Context, input chan string, outputs []chan string
 	}
 }
 
-func sendData(ctx context.Context, input <-chan string, output chan<- string) {
-	for {
-		select {
-		case <-ctx.Done():
-			return
-		case data, ok := <-input:
-			if !ok {
-				return
-			}
-
-			if !strings.Contains(data, no_multip_str) {
-				select {
-				case output <- data:
-				case <-ctx.Done():
-					return
-				}
-			}
-		}
-	}
-}
-
 func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan string) error {
 	if len(inputs) == 0 {
 		return nil
 	}
 
+	var wg sync.WaitGroup
+
 	for _, input := range inputs {
-		go sendData(ctx, input, output)
+		wg.Add(1)
+		go func(in chan string) {
+			defer wg.Done()
+			for {
+				select {
+				case <-ctx.Done():
+					return
+				case data, ok := <-in:
+					if !ok {
+						return
+					}
+
+					if !strings.Contains(data, no_multip_str) {
+						select {
+						case output <- data:
+						case <-ctx.Done():
+							return
+						}
+					}
+				}
+			}
+		}(input)
 	}
 
-	<-ctx.Done()
-
+	wg.Wait()
 	return nil
 }
