@@ -151,10 +151,7 @@ func (c *conveyerImpl) Run(ctx context.Context) error {
 }
 
 func (c *conveyerImpl) Send(input string, data string) error {
-	ch, exists := c.getChannel(input)
-	if !exists {
-		return fmt.Errorf("chan not found")
-	}
+	ch := c.getOrCreateChannel(input)
 
 	select {
 	case ch <- data:
@@ -165,10 +162,7 @@ func (c *conveyerImpl) Send(input string, data string) error {
 }
 
 func (c *conveyerImpl) Recv(output string) (string, error) {
-	ch, exists := c.getChannel(output)
-	if !exists {
-		return "", fmt.Errorf("chan not found")
-	}
+	ch := c.getOrCreateChannel(output)
 
 	select {
 	case data, ok := <-ch:
