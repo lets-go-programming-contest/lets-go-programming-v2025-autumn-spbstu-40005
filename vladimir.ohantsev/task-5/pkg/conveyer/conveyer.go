@@ -138,7 +138,7 @@ func (p *Pipeline) Run(ctx context.Context) error {
 func (p *Pipeline) Send(input string, data string) error {
 	p.mutex.RLock()
 
-	channel, ok := p.channels[input] //nolint:varnamelen
+	channel, ok := p.channels[input]
 
 	p.mutex.RUnlock()
 
