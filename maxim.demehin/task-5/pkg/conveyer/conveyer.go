@@ -30,18 +30,18 @@ func New(size int) *ConveyerType {
 }
 
 func (c *ConveyerType) getOrCreateChannel(name string) chan string {
-	if ch, exists := c.channels[name]; exists {
-		return ch
+	if channel, exists := c.channels[name]; exists {
+		return channel
 	}
 
-	ch := make(chan string, c.size)
-	c.channels[name] = ch
+	channel := make(chan string, c.size)
+	c.channels[name] = channel
 
-	return ch
+	return channel
 }
 
 func (c *ConveyerType) RegisterDecorator(
-	fn func(ctx context.Context,
+	function func(ctx context.Context,
 		input chan string,
 		output chan string,
 	) error,
@@ -55,12 +55,12 @@ func (c *ConveyerType) RegisterDecorator(
 	outputChan := c.getOrCreateChannel(output)
 
 	c.tasks = append(c.tasks, func(ctx context.Context) error {
-		return fn(ctx, inputChan, outputChan)
+		return function(ctx, inputChan, outputChan)
 	})
 }
 
 func (c *ConveyerType) RegisterMultiplexer(
-	fn func(ctx context.Context,
+	function func(ctx context.Context,
 		inputs []chan string,
 		output chan string,
 	) error,
@@ -78,12 +78,12 @@ func (c *ConveyerType) RegisterMultiplexer(
 	}
 
 	c.tasks = append(c.tasks, func(ctx context.Context) error {
-		return fn(ctx, inputChans, outputChan)
+		return function(ctx, inputChans, outputChan)
 	})
 }
 
 func (c *ConveyerType) RegisterSeparator(
-	fn func(ctx context.Context,
+	function func(ctx context.Context,
 		input chan string,
 		outputs []chan string,
 	) error,
@@ -101,7 +101,7 @@ func (c *ConveyerType) RegisterSeparator(
 	}
 
 	c.tasks = append(c.tasks, func(ctx context.Context) error {
-		return fn(ctx, inputChan, outputChans)
+		return function(ctx, inputChan, outputChans)
 	})
 }
 
@@ -109,8 +109,8 @@ func (c *ConveyerType) closeChannels() {
 	c.mutex.Lock()
 	defer c.mutex.Unlock()
 
-	for _, ch := range c.channels {
-		close(ch)
+	for _, channel := range c.channels {
+		close(channel)
 	}
 }
 
@@ -126,7 +126,6 @@ func (c *ConveyerType) Run(ctx context.Context) error {
 	}
 
 	err := group.Wait()
-
 	if err != nil {
 		return fmt.Errorf("%w", err)
 	}
@@ -138,31 +137,31 @@ func (c *ConveyerType) getChannel(name string) (chan string, bool) {
 	c.mutex.RLock()
 	defer c.mutex.RUnlock()
 
-	ch, exists := c.channels[name]
+	channel, exists := c.channels[name]
 
-	return ch, exists
+	return channel, exists
 }
 
 func (c *ConveyerType) Send(input string, data string) error {
-	ch, exists := c.getChannel(input)
+	channel, exists := c.getChannel(input)
 
 	if !exists {
 		return ErrChanNotFound
 	}
 
-	ch <- data
+	channel <- data
 
 	return nil
 }
 
 func (c *ConveyerType) Recv(output string) (string, error) {
-	ch, exists := c.getChannel(output)
+	channel, exists := c.getChannel(output)
 
 	if !exists {
 		return "", ErrChanNotFound
 	}
 
-	data, ok := <-ch
+	data, ok := <-channel
 
 	if !ok {
 		return undefinedMsg, nil
