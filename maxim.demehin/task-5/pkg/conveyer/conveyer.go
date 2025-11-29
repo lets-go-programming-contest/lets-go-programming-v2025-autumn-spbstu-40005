@@ -11,7 +11,7 @@ import (
 
 var ErrChanNotFound = errors.New("chan not found")
 
-const undefined_msg = "undefined"
+const undefinedMsg = "undefined"
 
 type ConveyerType struct {
 	size     int
@@ -165,7 +165,7 @@ func (c *ConveyerType) Recv(output string) (string, error) {
 	data, ok := <-ch
 
 	if !ok {
-		return undefined_msg, nil
+		return undefinedMsg, nil
 	}
 
 	return data, nil

@@ -8,9 +8,9 @@ import (
 )
 
 const (
-	decorator_prefix    = "decorated: "
-	no_decorator_prefix = "no decorator"
-	no_multip_str       = "no multiplexer"
+	decoratorPrefix   = "decorated: "
+	noDecoratorPrefix = "no decorator"
+	noMultipStr       = "no multiplexer"
 )
 
 var (
@@ -28,12 +28,12 @@ func PrefixDecoratorFunc(ctx context.Context, input chan string, output chan str
 				return nil
 			}
 
-			if strings.Contains(data, no_decorator_prefix) {
+			if strings.Contains(data, noDecoratorPrefix) {
 				return ErrCantDecorate
 			}
 
-			if !strings.HasPrefix(data, decorator_prefix) {
-				data = decorator_prefix + data
+			if !strings.HasPrefix(data, decoratorPrefix) {
+				data = decoratorPrefix + data
 			}
 
 			select {
@@ -46,7 +46,9 @@ func PrefixDecoratorFunc(ctx context.Context, input chan string, output chan str
 }
 
 func SeparatorFunc(ctx context.Context, input chan string, outputs []chan string) error {
-	if len(outputs) == 0 {
+	outsLen := len(outputs)
+
+	if outsLen == 0 {
 		return ErrEmptyChannel
 	}
 
@@ -61,7 +63,7 @@ func SeparatorFunc(ctx context.Context, input chan string, outputs []chan string
 				return nil
 			}
 
-			idx := counter % len(outputs)
+			idx := counter % outsLen
 			counter++
 
 			select {
@@ -90,7 +92,7 @@ func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan stri
 						return
 					}
 
-					if strings.Contains(data, no_multip_str) {
+					if strings.Contains(data, noMultipStr) {
 						continue
 					}
 
