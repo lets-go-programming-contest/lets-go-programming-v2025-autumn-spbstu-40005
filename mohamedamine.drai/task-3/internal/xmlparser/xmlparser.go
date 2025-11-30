@@ -12,7 +12,7 @@ import (
 func ReadXML(path string, result interface{}) error {
 	fileData, err := os.ReadFile(path)
 	if err != nil {
-		return fmt.Errorf("We cant read xml file: %w", err)
+		return fmt.Errorf("we cant read xml file: %w", err)
 	}
 
 	decoder := xml.NewDecoder(bytes.NewReader(fileData))
@@ -20,7 +20,7 @@ func ReadXML(path string, result interface{}) error {
 
 	err = decoder.Decode(result)
 	if err != nil {
-		return fmt.Errorf(" parse xml file in failed: %w", err)
+		return fmt.Errorf("parse xml file in failed: %w", err)
 	}
 
 	return nil
