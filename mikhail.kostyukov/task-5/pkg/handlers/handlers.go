@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	tagDecorated      = "decorated"
+	tagDecorated      = "decorated: "
 	stopDecorator     = "no decorator"
 	stopMultiplexer   = "no multiplexer"
 	msgCannotDecorate = "can't be decorated"
