@@ -17,12 +17,12 @@ func LoadConfig(configPath string) (*Config, error) {
 
 	file, err := os.ReadFile(configPath)
 	if err != nil {
-		return nil, fmt.Errorf("We cant read the config file: %w", err)
+		return nil, fmt.Errorf("we cant read the config file: %w", err)
 	}
 
 	err = yaml.Unmarshal(file, &result)
 	if err != nil {
-		return nil, fmt.Errorf("We cant unmarshal file: %w", err)
+		return nil, fmt.Errorf("we cant unmarshal file: %w", err)
 	}
 
 	return &result, nil

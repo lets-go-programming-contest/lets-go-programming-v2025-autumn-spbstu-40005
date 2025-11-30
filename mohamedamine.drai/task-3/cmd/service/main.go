@@ -26,7 +26,7 @@ func main() {
 
 	currencyList := converter.Rates{Data: []converter.Currency{}}
 
-	err = xmlparser.ReadXml(config.InputFile, &currencyList)
+	err = xmlparser.ReadXML(config.InputFile, &currencyList)
 	if err != nil {
 		panic(err)
 	}
