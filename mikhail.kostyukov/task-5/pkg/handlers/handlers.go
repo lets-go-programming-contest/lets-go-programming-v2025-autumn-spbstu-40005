@@ -52,17 +52,19 @@ func MultiplexerFunc(
 	inputs []chan string,
 	output chan string,
 ) error {
-	var wg sync.WaitGroup
-	wg.Add(len(inputs))
+	var waitGrp sync.WaitGroup
+
+	waitGrp.Add(len(inputs))
 
 	for _, channel := range inputs {
-		go func(ch chan string) {
-			defer wg.Done()
+		go func(inputChannel chan string) {
+			defer waitGrp.Done()
+
 			for {
 				select {
 				case <-ctx.Done():
 					return
-				case message, isOpen := <-ch:
+				case message, isOpen := <-inputChannel:
 					if !isOpen {
 						return
 					}
@@ -81,7 +83,7 @@ func MultiplexerFunc(
 		}(channel)
 	}
 
-	wg.Wait()
+	waitGrp.Wait()
 
 	return nil
 }
