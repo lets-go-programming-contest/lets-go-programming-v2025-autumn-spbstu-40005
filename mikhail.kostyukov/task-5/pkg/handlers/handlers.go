@@ -85,3 +85,35 @@ func MultiplexerFunc(
 
 	return nil
 }
+
+func SeparatorFunc(
+	ctx context.Context,
+	input chan string,
+	outputs []chan string,
+) error {
+	if len(outputs) == 0 {
+		return nil
+	}
+
+	var assignmentIndex int
+
+	for {
+		select {
+		case <-ctx.Done():
+			return nil
+		case message, isOpen := <-input:
+			if !isOpen {
+				return nil
+			}
+
+			targetChannel := outputs[assignmentIndex%len(outputs)]
+			assignmentIndex++
+
+			select {
+			case targetChannel <- message:
+			case <-ctx.Done():
+				return nil
+			}
+		}
+	}
+}
