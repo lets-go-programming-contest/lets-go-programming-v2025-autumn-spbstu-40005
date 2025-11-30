@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"sort"
 
 	"mohamedamine.drai/task-3/internal/config"
 	"mohamedamine.drai/task-3/internal/converter"
@@ -9,24 +10,33 @@ import (
 	"mohamedamine.drai/task-3/internal/xmlparser"
 )
 
+const (
+	dirPermissions  = 0o755
+	filePermissions = 0o600
+)
+
 func main() {
-	configPath := flag.String("config", "config.yaml", "path to YAML config file")
+	configPath := flag.String("config", "config.yaml", "path to config")
 	flag.Parse()
 
-	cfg, err := config.LoadConfig(*configPath)
+	config, err := config.LoadConfig(*configPath)
 	if err != nil {
 		panic(err)
 	}
 
-	xmlData, err := xmlparser.ReadXML(cfg.InputFile)
+	currencyList := converter.Rates{Data: []converter.Currency{}}
+
+	err = xmlparser.ReadXml(config.InputFile, &currencyList)
 	if err != nil {
 		panic(err)
 	}
 
-	conv := converter.NewCurrencyConverter()
-	out := conv.ConvertAndSort(xmlData.Valutes)
+	sort.Slice(currencyList.Data, func(i, j int) bool {
+		return currencyList.Data[i].Value > currencyList.Data[j].Value
+	})
 
-	if err := jsonwriter.SaveToJSON(out, cfg.OutputFile); err != nil {
+	err = jsonwriter.SaveToJSON(config.OutputFile, currencyList.Data, dirPermissions, filePermissions)
+	if err != nil {
 		panic(err)
 	}
 }

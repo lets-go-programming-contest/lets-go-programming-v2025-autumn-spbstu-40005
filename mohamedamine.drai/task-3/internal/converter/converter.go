@@ -1,58 +1,47 @@
 package converter
 
 import (
-	"slices"
-
-	"mohamedamine.drai/task-3/internal/xmlparser"
+	"errors"
+	"fmt"
+	"strconv"
+	"strings"
 )
 
-type CurrencyOutput struct {
-	NumCode  int     `json:"num_code"`
-	CharCode string  `json:"char_code"`
-	Value    float64 `json:"value"`
+var (
+	ErrEmptyNumber        = errors.New("empty number")
+	ErrMultipleSeparators = errors.New("multiple decimal separators")
+)
+
+type Rates struct {
+	Data []Currency `xml:"Valute"`
 }
 
-type CurrencyConverter struct{}
+type (
+	FloatforCur float64
+	Currency    struct {
+		NumCode  int         `json:"num_code"  xml:"NumCode"`
+		CharCode string      `json:"char_code" xml:"CharCode"`
+		Value    FloatforCur `json:"value"     xml:"Value"`
+	}
+)
 
-func NewCurrencyConverter() *CurrencyConverter {
-	return &CurrencyConverter{}
-}
-
-func MapAndSort[T any](
-	items []T,
-	getNumCode func(T) int,
-	getCharCode func(T) string,
-	getValue func(T) float64,
-) []CurrencyOutput {
-	out := make([]CurrencyOutput, 0, len(items))
-
-	for _, item := range items {
-		out = append(out, CurrencyOutput{
-			NumCode:  getNumCode(item),
-			CharCode: getCharCode(item),
-			Value:    getValue(item),
-		})
+func (cf *FloatforCur) UnmarshalText(text []byte) error {
+	input := strings.TrimSpace(string(text))
+	if input == "" {
+		return ErrEmptyNumber
 	}
 
-	slices.SortFunc(out, func(a, b CurrencyOutput) int {
-		switch {
-		case a.Value > b.Value:
-			return -1
-		case a.Value < b.Value:
-			return 1
-		default:
-			return 0
-		}
-	})
+	normalized := strings.Replace(input, ",", ".", 1)
+	if strings.Contains(normalized, ",") {
+		return ErrMultipleSeparators
+	}
 
-	return out
-}
+	value, err := strconv.ParseFloat(normalized, 64)
+	if err != nil {
+		return fmt.Errorf("The Number is Invalid %q: %w", text, err)
+	}
 
-func (c *CurrencyConverter) ConvertAndSort(valutes []xmlparser.Valute) []CurrencyOutput {
-	return MapAndSort(
-		valutes,
-		func(v xmlparser.Valute) int { return v.NumCode },
-		func(v xmlparser.Valute) string { return v.CharCode },
-		func(v xmlparser.Valute) float64 { return float64(v.Value) },
-	)
+	*cf = FloatforCur(value)
+
+	return nil
 }

@@ -1,64 +1,27 @@
 package xmlparser
 
 import (
+	"bytes"
 	"encoding/xml"
 	"fmt"
 	"os"
-	"strconv"
-	"strings"
 
 	"golang.org/x/net/html/charset"
 )
 
-type ValCurs struct {
-	Valutes []Valute `xml:"Valute"`
-}
-
-type Valute struct {
-	NumCode  int     `xml:"NumCode"`
-	CharCode string  `xml:"CharCode"`
-	Value    Float64 `xml:"Value"`
-}
-
-type Float64 float64
-
-func (f *Float64) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
-	var raw string
-	if err := d.DecodeElement(&raw, &start); err != nil {
-		return fmt.Errorf("decode xml element: %w", err)
-	}
-
-	raw = strings.ReplaceAll(raw, ",", ".")
-
-	val, err := strconv.ParseFloat(raw, 64)
+func ReadXml(path string, result interface{}) error {
+	fileData, err := os.ReadFile(path)
 	if err != nil {
-		return fmt.Errorf("parse float: %w", err)
+		return fmt.Errorf("We cant read xml file: %w", err)
 	}
 
-	*f = Float64(val)
-
-	return nil
-}
-
-func ReadXML(path string) (*ValCurs, error) {
-	file, err := os.Open(path)
-	if err != nil {
-		return nil, fmt.Errorf("open xml file: %w", err)
-	}
-
-	defer func() {
-		if closeErr := file.Close(); closeErr != nil {
-			fmt.Printf("warning: failed to close file: %v\n", closeErr)
-		}
-	}()
-
-	decoder := xml.NewDecoder(file)
+	decoder := xml.NewDecoder(bytes.NewReader(fileData))
 	decoder.CharsetReader = charset.NewReaderLabel
 
-	var vc ValCurs
-	if err := decoder.Decode(&vc); err != nil {
-		return nil, fmt.Errorf("decode xml: %w", err)
+	err = decoder.Decode(result)
+	if err != nil {
+		return fmt.Errorf(" parse xml file in failed: %w", err)
 	}
 
-	return &vc, nil
+	return nil
 }
