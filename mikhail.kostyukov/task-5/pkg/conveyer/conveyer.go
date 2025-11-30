@@ -4,6 +4,8 @@ import (
 	"context"
 	"errors"
 	"sync"
+
+	"golang.org/x/sync/errgroup"
 )
 
 const undefinedResult = "undefined"
@@ -11,16 +13,16 @@ const undefinedResult = "undefined"
 var ErrChannelNotFound = errors.New("chan not found")
 
 type Pipeline struct {
-	mutex sync.RWMutex
-	channels map[string]chan string
-	tasks []func(context.Context) error
+	mutex         sync.RWMutex
+	channels      map[string]chan string
+	tasks         []func(context.Context) error
 	channelBuffer int
 }
 
 func New(size int) *Pipeline {
 	return &Pipeline{
-		channels: make(map[string]chan string),
-		tasks: make([]func(context.Context) error, 0),
+		channels:      make(map[string]chan string),
+		tasks:         make([]func(context.Context) error, 0),
 		channelBuffer: size,
 	}
 }
@@ -48,7 +50,7 @@ func (p *Pipeline) Recv(outputName string) (string, error) {
 		return "", ErrChannelNotFound
 	}
 
-	data, ok := <- ch
+	data, ok := <-ch
 	if !ok {
 		return undefinedResult, nil
 	}
@@ -121,4 +123,26 @@ func (p *Pipeline) RegisterSeparator(
 	}
 
 	p.tasks = append(p.tasks, task)
+}
+
+func (p *Pipeline) Run(ctx context.Context) error {
+	group, groupCtx := errgroup.WithContext(ctx)
+
+	for _, task := range p.tasks {
+		currentTask := task
+		group.Go(func() error {
+			return currentTask(groupCtx)
+		})
+	}
+
+	err := group.Wait()
+
+	p.mutex.Lock()
+	for _, ch := range p.channels {
+		close(ch)
+	}
+
+	p.mutex.Unlock()
+
+	return err
 }
