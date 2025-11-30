@@ -3,6 +3,7 @@ package conveyer
 import (
 	"context"
 	"errors"
+	"fmt"
 	"sync"
 
 	"golang.org/x/sync/errgroup"
@@ -21,6 +22,7 @@ type Pipeline struct {
 
 func New(size int) *Pipeline {
 	return &Pipeline{
+		mutex:         sync.RWMutex{},
 		channels:      make(map[string]chan string),
 		tasks:         make([]func(context.Context) error, 0),
 		channelBuffer: size,
@@ -29,28 +31,28 @@ func New(size int) *Pipeline {
 
 func (p *Pipeline) Send(inputName string, data string) error {
 	p.mutex.RLock()
-	ch, exists := p.channels[inputName]
+	channel, exists := p.channels[inputName]
 	p.mutex.RUnlock()
 
 	if !exists {
 		return ErrChannelNotFound
 	}
 
-	ch <- data
+	channel <- data
 
 	return nil
 }
 
 func (p *Pipeline) Recv(outputName string) (string, error) {
 	p.mutex.RLock()
-	ch, exists := p.channels[outputName]
+	channel, exists := p.channels[outputName]
 	p.mutex.RUnlock()
 
 	if !exists {
 		return "", ErrChannelNotFound
 	}
 
-	data, ok := <-ch
+	data, ok := <-channel
 	if !ok {
 		return undefinedResult, nil
 	}
@@ -129,9 +131,8 @@ func (p *Pipeline) Run(ctx context.Context) error {
 	group, groupCtx := errgroup.WithContext(ctx)
 
 	for _, task := range p.tasks {
-		currentTask := task
 		group.Go(func() error {
-			return currentTask(groupCtx)
+			return task(groupCtx)
 		})
 	}
 
@@ -144,5 +145,9 @@ func (p *Pipeline) Run(ctx context.Context) error {
 
 	p.mutex.Unlock()
 
-	return err
+	if err != nil {
+		return fmt.Errorf("pipeline execution failed: %w", err)
+	}
+
+	return nil
 }
