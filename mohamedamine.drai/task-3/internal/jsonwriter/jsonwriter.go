@@ -20,7 +20,7 @@ func SaveToJSON(filePath string, data interface{}, dirPerm os.FileMode, filePerm
 	}
 
 	if err := os.WriteFile(filePath, jsonData, filePerm); err != nil {
-		return fmt.Errorf("We cant write to file '%s': %w", filePath, err)
+		return fmt.Errorf("we cant write to file '%s': %w", filePath, err)
 	}
 
 	return nil
