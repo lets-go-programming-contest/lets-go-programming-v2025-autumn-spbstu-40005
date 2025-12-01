@@ -123,6 +123,7 @@ func (c *conveyor) Send(name string, data string) error {
 	}
 
 	channel <- data
+
 	return nil
 }
 
