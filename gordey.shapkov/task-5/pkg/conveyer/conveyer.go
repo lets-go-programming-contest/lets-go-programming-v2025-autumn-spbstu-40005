@@ -109,7 +109,7 @@ func (pipe *Pipeline) RegisterSeparator(
 }
 
 func (pipe *Pipeline) Run(ctx context.Context) error {
-	pipe.mutexChans.Lock()
+	pipe.mutexChans.RLock()
 	errgr, ctx := errgroup.WithContext(ctx)
 
 	for _, handler := range pipe.handlers {
@@ -124,7 +124,7 @@ func (pipe *Pipeline) Run(ctx context.Context) error {
 		close(ch)
 	}
 
-	pipe.mutexChans.Unlock()
+	pipe.mutexChans.RUnlock()
 
 	if err != nil {
 		return fmt.Errorf("pipeline failed: %w", err)
@@ -134,33 +134,33 @@ func (pipe *Pipeline) Run(ctx context.Context) error {
 }
 
 func (pipe *Pipeline) Send(input string, data string) error {
-	pipe.mutexChans.Lock()
+	pipe.mutexChans.RLock()
 
-	ch, exists := pipe.channels[input]
+	channel, exists := pipe.channels[input]
 
-	pipe.mutexChans.Unlock()
+	pipe.mutexChans.RUnlock()
 
 	if !exists {
 		return ErrChanNotFound
 	}
 
-	ch <- data
+	channel <- data
 
 	return nil
 }
 
 func (pipe *Pipeline) Recv(output string) (string, error) {
-	pipe.mutexChans.Lock()
+	pipe.mutexChans.RLock()
 
-	ch, exists := pipe.channels[output]
+	channel, exists := pipe.channels[output]
 
-	pipe.mutexChans.Unlock()
+	pipe.mutexChans.RUnlock()
 
 	if !exists {
 		return "", ErrChanNotFound
 	}
 
-	data, ok := <-ch
+	data, ok := <-channel
 	if !ok {
 		return undefined, nil
 	}
