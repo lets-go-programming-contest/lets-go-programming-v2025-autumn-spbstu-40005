@@ -4,25 +4,30 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"sync"
 
 	"golang.org/x/sync/errgroup"
 )
 
 var ErrChanNotFound = errors.New("chan not found")
 
+type handler func(ctx context.Context) error
+
 const undefined = "undefined"
 
 type Pipeline struct {
-	size     int
-	channels map[string]chan string
-	handlers []func(ctx context.Context) error
+	size       int
+	channels   map[string]chan string
+	handlers   []handler
+	mutexChans sync.RWMutex
 }
 
 func New(size int) *Pipeline {
 	return &Pipeline{
-		size:     size,
-		channels: make(map[string]chan string),
-		handlers: []func(ctx context.Context) error{},
+		size:       size,
+		channels:   make(map[string]chan string),
+		handlers:   []handler{},
+		mutexChans: sync.RWMutex{},
 	}
 }
 
@@ -43,11 +48,15 @@ func (pipe *Pipeline) RegisterDecorator(
 	input string,
 	output string,
 ) {
+	pipe.mutexChans.Lock()
+
 	in := pipe.register(input)
 	out := pipe.register(output)
-	pipe.handlers = append(pipe.handlers, func(ctx context.Context) error {
+	pipe.handlers = append(pipe.handlers, handler(func(ctx context.Context) error {
 		return function(ctx, in, out)
-	})
+	}))
+
+	pipe.mutexChans.Unlock()
 }
 
 func (pipe *Pipeline) RegisterMultiplexer(
@@ -59,15 +68,19 @@ func (pipe *Pipeline) RegisterMultiplexer(
 	inputs []string,
 	output string,
 ) {
+	pipe.mutexChans.Lock()
+
 	ins := make([]chan string, len(inputs))
 	for i, ch := range inputs {
 		ins[i] = pipe.register(ch)
 	}
 
 	out := pipe.register(output)
-	pipe.handlers = append(pipe.handlers, func(ctx context.Context) error {
+	pipe.handlers = append(pipe.handlers, handler(func(ctx context.Context) error {
 		return function(ctx, ins, out)
-	})
+	}))
+
+	pipe.mutexChans.Unlock()
 }
 
 func (pipe *Pipeline) RegisterSeparator(
@@ -79,6 +92,8 @@ func (pipe *Pipeline) RegisterSeparator(
 	input string,
 	outputs []string,
 ) {
+	pipe.mutexChans.Lock()
+
 	inChan := pipe.register(input)
 	outs := make([]chan string, len(outputs))
 
@@ -86,12 +101,15 @@ func (pipe *Pipeline) RegisterSeparator(
 		outs[i] = pipe.register(ch)
 	}
 
-	pipe.handlers = append(pipe.handlers, func(ctx context.Context) error {
+	pipe.handlers = append(pipe.handlers, handler(func(ctx context.Context) error {
 		return function(ctx, inChan, outs)
-	})
+	}))
+
+	pipe.mutexChans.Unlock()
 }
 
 func (pipe *Pipeline) Run(ctx context.Context) error {
+	pipe.mutexChans.Lock()
 	errgr, ctx := errgroup.WithContext(ctx)
 
 	for _, handler := range pipe.handlers {
@@ -106,6 +124,8 @@ func (pipe *Pipeline) Run(ctx context.Context) error {
 		close(ch)
 	}
 
+	pipe.mutexChans.Unlock()
+
 	if err != nil {
 		return fmt.Errorf("pipeline failed: %w", err)
 	}
@@ -114,7 +134,12 @@ func (pipe *Pipeline) Run(ctx context.Context) error {
 }
 
 func (pipe *Pipeline) Send(input string, data string) error {
+	pipe.mutexChans.Lock()
+
 	ch, exists := pipe.channels[input]
+
+	pipe.mutexChans.Unlock()
+
 	if !exists {
 		return ErrChanNotFound
 	}
@@ -125,7 +150,12 @@ func (pipe *Pipeline) Send(input string, data string) error {
 }
 
 func (pipe *Pipeline) Recv(output string) (string, error) {
+	pipe.mutexChans.Lock()
+
 	ch, exists := pipe.channels[output]
+
+	pipe.mutexChans.Unlock()
+
 	if !exists {
 		return "", ErrChanNotFound
 	}
