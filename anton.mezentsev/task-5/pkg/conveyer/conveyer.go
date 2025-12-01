@@ -3,7 +3,6 @@ package conveyer
 import (
 	"context"
 	"errors"
-	"fmt"
 	"sync"
 
 	"golang.org/x/sync/errgroup"
@@ -11,7 +10,7 @@ import (
 
 const undefinedValue = "undefined"
 
-var ErrChannelNotFound = errors.New("channel not found")
+var ErrChannelNotFound = errors.New("chan not found")
 
 type conveyor struct {
 	bufferSize int
@@ -98,7 +97,7 @@ func (c *conveyor) Run(ctx context.Context) error {
 
 	err := errGr.Wait()
 	if err != nil {
-		return fmt.Errorf("execution failed: %w", err)
+		return err // Не оборачиваем в "execution failed: %w"
 	}
 
 	return nil

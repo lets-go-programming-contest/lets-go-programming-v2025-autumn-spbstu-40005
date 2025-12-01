@@ -8,8 +8,8 @@ import (
 )
 
 var (
-	ErrProcessingFailed = errors.New("processing failed")
-	ErrNoOutputs        = errors.New("outputs cannot be empty")
+	ErrDecorator = errors.New("can't be decorated")
+	ErrNoOutputs = errors.New("outputs cannot be empty")
 )
 
 const (
@@ -29,7 +29,7 @@ func PrefixDecoratorFunc(ctx context.Context, in chan string, out chan string) e
 			}
 
 			if strings.Contains(data, skipDecorator) {
-				return ErrProcessingFailed
+				return ErrDecorator
 			}
 
 			if !strings.HasPrefix(data, decoration) {
