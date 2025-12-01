@@ -109,9 +109,9 @@ func (c *conveyerImpl) Run(ctx context.Context) error {
 	group, ctx := errgroup.WithContext(ctx)
 
 	for _, handler := range c.handlers {
-		h := handler
+		handler := handler
 		group.Go(func() error {
-			return h(ctx)
+			return handler(ctx)
 		})
 	}
 
@@ -137,6 +137,7 @@ func (c *conveyerImpl) Send(input string, data string) error {
 	}
 
 	ch <- data
+
 	return nil
 }
 
@@ -150,5 +151,6 @@ func (c *conveyerImpl) Recv(output string) (string, error) {
 	if !ok {
 		return undefinedValue, nil
 	}
+
 	return data, nil
 }
