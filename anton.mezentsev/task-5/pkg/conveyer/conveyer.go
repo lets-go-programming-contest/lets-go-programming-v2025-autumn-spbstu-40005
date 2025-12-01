@@ -38,7 +38,7 @@ func (c *conveyor) RegisterDecorator(
 	defer c.mutex.Unlock()
 
 	inCh := c.getChannelOrCreate(inName)
-	outCh := c.getChannelOrCreate(OutName)
+	outCh := c.getChannelOrCreate(outName)
 
 	c.workers = append(c.workers, func(ctx context.Context) error {
 		return processor(ctx, inCh, outCh)
