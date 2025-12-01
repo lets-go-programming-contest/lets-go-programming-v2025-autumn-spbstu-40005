@@ -5,20 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"sort"
-
-	"github.com/DariaKhokhryakova/task-3/internal/models"
 )
-
-func ProcessCurrencies(valCurs *models.ValCurs) ([]models.CurrencyResult, error) {
-	results := valCurs.Currencies
-
-	sort.Slice(results, func(i, j int) bool {
-		return results[i].Value > results[j].Value
-	})
-
-	return results, nil
-}
 
 func panicErr(err error) {
 	if err != nil {

@@ -26,7 +26,7 @@ func main() {
 		panic(err)
 	}
 
-	result, err := parser.ProcessCurrencies(valCurs)
+	result, err := models.SortByValueDesc(valCurs)
 	if err != nil {
 		panic(err)
 	}

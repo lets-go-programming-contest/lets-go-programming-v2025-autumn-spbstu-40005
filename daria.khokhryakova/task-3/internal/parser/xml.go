@@ -9,10 +9,12 @@ import (
 	"golang.org/x/net/html/charset"
 )
 
-func ParseXMLData[T any](filePath string) (*T, error) {
+func ParseXMLData[T any](filePath string) (T, error) {
+	var result T
+
 	data, err := os.ReadFile(filePath)
 	if err != nil {
-		return nil, fmt.Errorf("read file: %w", err)
+		return result, fmt.Errorf("read file: %w", err)
 	}
 
 	reader := bytes.NewReader(data)
@@ -20,12 +22,10 @@ func ParseXMLData[T any](filePath string) (*T, error) {
 
 	decoder.CharsetReader = charset.NewReaderLabel
 
-	var result T
-
 	err = decoder.Decode(&result)
 	if err != nil {
-		return nil, fmt.Errorf("decode xml: %w", err)
+		return result, fmt.Errorf("decode xml: %w", err)
 	}
 
-	return &result, nil
+	return result, nil
 }
