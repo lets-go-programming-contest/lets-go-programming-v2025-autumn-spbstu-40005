@@ -112,8 +112,8 @@ func SeparatorFunc(
 				return nil
 			}
 
-			targetChannel := outputs[assignmentIndex%len(outputs)]
-			assignmentIndex++
+			targetChannel := outputs[assignmentIndex]
+			assignmentIndex = (assignmentIndex + 1) % len(outputs)
 
 			select {
 			case targetChannel <- message:

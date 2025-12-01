@@ -131,8 +131,10 @@ func (p *Pipeline) Run(ctx context.Context) error {
 	group, groupCtx := errgroup.WithContext(ctx)
 
 	for _, task := range p.tasks {
+		currentTask := task
+
 		group.Go(func() error {
-			return task(groupCtx)
+			return currentTask(groupCtx)
 		})
 	}
 
