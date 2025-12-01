@@ -75,52 +75,37 @@ func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan stri
 		return nil
 	}
 
-	var wg sync.WaitGroup
-	merged := make(chan string)
+	var waitgr sync.WaitGroup
 
 	for _, input := range inputs {
-		wg.Add(1)
-		go func(in chan string) {
-			defer wg.Done()
+		waitgr.Add(1)
+
+		go func(channel chan string) {
+			defer waitgr.Done()
+
 			for {
 				select {
 				case <-ctx.Done():
 					return
-				case data, ok := <-in:
+				case data, ok := <-channel:
 					if !ok {
 						return
 					}
+
+					if strings.Contains(data, noMultiplexer) {
+						continue
+					}
+
 					select {
 					case <-ctx.Done():
 						return
-					case merged <- data:
+					case output <- data:
 					}
 				}
 			}
 		}(input)
 	}
 
-	go func() {
-		wg.Wait()
-		close(merged)
-	}()
-
-	for {
-		select {
-		case <-ctx.Done():
-			return ctx.Err()
-		case data, ok := <-merged:
-			if !ok {
-				return nil
-			}
-			if strings.Contains(data, noMultiplexer) {
-				continue
-			}
-			select {
-			case <-ctx.Done():
-				return ctx.Err()
-			case output <- data:
-			}
-		}
-	}
+	waitgr.Wait()
+	return nil
 }
