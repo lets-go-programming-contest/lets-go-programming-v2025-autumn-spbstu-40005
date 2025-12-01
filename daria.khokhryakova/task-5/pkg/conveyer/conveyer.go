@@ -8,7 +8,7 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
-var ErrChannel = errors.New("channel not found")
+var ErrChannel = errors.New("chan not found")
 
 const undefinedValue = "undefined"
 
