@@ -9,7 +9,9 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
-var ErrChannelNotFound = errors.New("cahnnel not found")
+const undefinedValue = "undefined"
+
+var ErrChannelNotFound = errors.New("channel not found")
 
 type conveyor struct {
 	bufferSize int
@@ -54,8 +56,8 @@ func (c *conveyor) RegisterMultiplexer(
 	outCh := c.getChannelOrCreate(outName)
 	inChs := make([]chan string, len(inNames))
 
-	for index, name := range inNames {
-		inChs[index] = c.getChannelOrCreate(name)
+	for i, name := range inNames {
+		inChs[i] = c.getChannelOrCreate(name)
 	}
 
 	c.workers = append(c.workers, func(ctx context.Context) error {
@@ -74,8 +76,8 @@ func (c *conveyor) RegisterSeparator(
 	inCh := c.getChannelOrCreate(inName)
 	outChs := make([]chan string, len(outNames))
 
-	for index, name := range outNames {
-		outChs[index] = c.getChannelOrCreate(name)
+	for i, name := range outNames {
+		outChs[i] = c.getChannelOrCreate(name)
 	}
 
 	c.workers = append(c.workers, func(ctx context.Context) error {
@@ -122,6 +124,23 @@ func (c *conveyor) Send(name string, data string) error {
 
 	ch <- data
 	return nil
+}
+
+func (c *conveyor) Recv(name string) (string, error) {
+	c.mutex.RLock()
+	ch, exists := c.channels[name]
+	c.mutex.RUnlock()
+
+	if !exists {
+		return "", ErrChannelNotFound
+	}
+
+	value, ok := <-ch
+	if !ok {
+		return undefinedValue, nil
+	}
+
+	return value, nil
 }
 
 func (c *conveyor) getChannelOrCreate(name string) chan string {
