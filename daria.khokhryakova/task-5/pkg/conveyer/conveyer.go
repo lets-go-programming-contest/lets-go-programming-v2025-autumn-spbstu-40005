@@ -3,6 +3,7 @@ package conveyer
 import (
 	"context"
 	"errors"
+	"fmt"
 	"sync"
 
 	"golang.org/x/sync/errgroup"
@@ -53,12 +54,14 @@ func (c *conveyerImpl) RegisterDecorator(
 	input string,
 	output string,
 ) {
+	c.mutex.Lock()
 	inputChan := c.getChannelOrCreate(input)
 	outputChan := c.getChannelOrCreate(output)
 
 	c.handlers = append(c.handlers, func(ctx context.Context) error {
 		return fn(ctx, inputChan, outputChan)
 	})
+	c.mutex.Unlock()
 }
 
 func (c *conveyerImpl) RegisterMultiplexer(
@@ -66,6 +69,7 @@ func (c *conveyerImpl) RegisterMultiplexer(
 	inputs []string,
 	output string,
 ) {
+	c.mutex.Lock()
 	outputChan := c.getChannelOrCreate(output)
 	inputChans := make([]chan string, len(inputs))
 	for i, input := range inputs {
@@ -75,6 +79,7 @@ func (c *conveyerImpl) RegisterMultiplexer(
 	c.handlers = append(c.handlers, func(ctx context.Context) error {
 		return fn(ctx, inputChans, outputChan)
 	})
+	c.mutex.Unlock()
 }
 
 func (c *conveyerImpl) RegisterSeparator(
@@ -82,6 +87,7 @@ func (c *conveyerImpl) RegisterSeparator(
 	input string,
 	outputs []string,
 ) {
+	c.mutex.Lock()
 	inputChan := c.getChannelOrCreate(input)
 	outputChans := make([]chan string, len(outputs))
 	for i, output := range outputs {
@@ -91,6 +97,7 @@ func (c *conveyerImpl) RegisterSeparator(
 	c.handlers = append(c.handlers, func(ctx context.Context) error {
 		return fn(ctx, inputChan, outputChans)
 	})
+	c.mutex.Unlock()
 }
 
 func (c *conveyerImpl) Run(ctx context.Context) error {
@@ -109,11 +116,12 @@ func (c *conveyerImpl) Run(ctx context.Context) error {
 	for _, ch := range c.channels {
 		close(ch)
 	}
-	c.channels = make(map[string]chan string)
-	c.handlers = make([]func(ctx context.Context) error, 0)
 	c.mutex.Unlock()
 
-	return err
+	if err != nil {
+		return fmt.Errorf("%w", err)
+	}
+	return nil
 }
 
 func (c *conveyerImpl) Send(input string, data string) error {
