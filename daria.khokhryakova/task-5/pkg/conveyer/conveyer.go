@@ -29,9 +29,6 @@ func New(size int) *conveyerImpl {
 }
 
 func (c *conveyerImpl) getChannelOrCreate(name string) chan string {
-	c.mutex.Lock()
-	defer c.mutex.Unlock()
-
 	if ch, exists := c.channels[name]; exists {
 		return ch
 	}
@@ -55,13 +52,14 @@ func (c *conveyerImpl) RegisterDecorator(
 	output string,
 ) {
 	c.mutex.Lock()
+	defer c.mutex.Unlock()
+
 	inputChan := c.getChannelOrCreate(input)
 	outputChan := c.getChannelOrCreate(output)
 
 	c.handlers = append(c.handlers, func(ctx context.Context) error {
 		return fn(ctx, inputChan, outputChan)
 	})
-	c.mutex.Unlock()
 }
 
 func (c *conveyerImpl) RegisterMultiplexer(
@@ -70,8 +68,11 @@ func (c *conveyerImpl) RegisterMultiplexer(
 	output string,
 ) {
 	c.mutex.Lock()
+	defer c.mutex.Unlock()
+
 	outputChan := c.getChannelOrCreate(output)
 	inputChans := make([]chan string, len(inputs))
+
 	for i, input := range inputs {
 		inputChans[i] = c.getChannelOrCreate(input)
 	}
@@ -79,7 +80,6 @@ func (c *conveyerImpl) RegisterMultiplexer(
 	c.handlers = append(c.handlers, func(ctx context.Context) error {
 		return fn(ctx, inputChans, outputChan)
 	})
-	c.mutex.Unlock()
 }
 
 func (c *conveyerImpl) RegisterSeparator(
@@ -88,8 +88,11 @@ func (c *conveyerImpl) RegisterSeparator(
 	outputs []string,
 ) {
 	c.mutex.Lock()
+	defer c.mutex.Unlock()
+
 	inputChan := c.getChannelOrCreate(input)
 	outputChans := make([]chan string, len(outputs))
+
 	for i, output := range outputs {
 		outputChans[i] = c.getChannelOrCreate(output)
 	}
@@ -97,7 +100,6 @@ func (c *conveyerImpl) RegisterSeparator(
 	c.handlers = append(c.handlers, func(ctx context.Context) error {
 		return fn(ctx, inputChan, outputChans)
 	})
-	c.mutex.Unlock()
 }
 
 func (c *conveyerImpl) Run(ctx context.Context) error {
