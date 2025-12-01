@@ -18,12 +18,12 @@ const (
 	skipMultiplexer = "no multiplexer"
 )
 
-func PrefixDecoratorFunc(ctx context.Context, in chan string, out chan string) error {
+func PrefixDecoratorFunc(ctx context.Context, input chan string, output chan string) error {
 	for {
 		select {
 		case <-ctx.Done():
 			return nil
-		case data, isOpen := <-in:
+		case data, isOpen := <-input:
 			if !isOpen {
 				return nil
 			}
@@ -36,13 +36,13 @@ func PrefixDecoratorFunc(ctx context.Context, in chan string, out chan string) e
 				data = decoration + data
 			}
 
-			out <- data
+			output <- data
 		}
 	}
 }
 
-func SeparatorFunc(ctx context.Context, in chan string, outs []chan string) error {
-	if len(outs) == 0 {
+func SeparatorFunc(ctx context.Context, input chan string, outputs []chan string) error {
+	if len(outputs) == 0 {
 		return ErrNoOutputs
 	}
 
@@ -52,33 +52,33 @@ func SeparatorFunc(ctx context.Context, in chan string, outs []chan string) erro
 		select {
 		case <-ctx.Done():
 			return nil
-		case data, isOpen := <-in:
+		case data, isOpen := <-input:
 			if !isOpen {
 				return nil
 			}
 
-			targetCh := outs[roundRobinIndex%len(outs)]
+			targetChannel := outputs[roundRobinIndex%len(outputs)]
 			roundRobinIndex++
 
-			targetCh <- data
+			targetChannel <- data
 		}
 	}
 }
 
-func MultiplexerFunc(ctx context.Context, ins []chan string, out chan string) error {
-	var wg sync.WaitGroup
+func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan string) error {
+	var waitGroup sync.WaitGroup
 
-	for _, ch := range ins {
-		wg.Add(1)
+	for _, inputChannel := range inputs {
+		waitGroup.Add(1)
 
-		go func(inputCh chan string) {
-			defer wg.Done()
+		go func(channel chan string) {
+			defer waitGroup.Done()
 
 			for {
 				select {
 				case <-ctx.Done():
 					return
-				case data, isOpen := <-inputCh:
+				case data, isOpen := <-channel:
 					if !isOpen {
 						return
 					}
@@ -87,12 +87,13 @@ func MultiplexerFunc(ctx context.Context, ins []chan string, out chan string) er
 						continue
 					}
 
-					out <- data
+					output <- data
 				}
 			}
-		}(ch)
+		}(inputChannel)
 	}
 
-	wg.Wait()
+	waitGroup.Wait()
+
 	return nil
 }
