@@ -108,10 +108,9 @@ func (c *conveyerImpl) RegisterSeparator(
 func (c *conveyerImpl) Run(ctx context.Context) error {
 	group, ctx := errgroup.WithContext(ctx)
 
-	for _, handler := range c.handlers {
-		handler := handler
+	for _, h := range c.handlers {
 		group.Go(func() error {
-			return handler(ctx)
+			return h(ctx)
 		})
 	}
 
