@@ -61,6 +61,7 @@ func SeparatorFunc(ctx context.Context, input chan string, outputs []chan string
 
 			current := atomic.LoadUint64(&counter)
 			index := current % uint64(len(outputs))
+
 			atomic.AddUint64(&counter, 1)
 
 			select {

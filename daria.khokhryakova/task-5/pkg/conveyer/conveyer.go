@@ -22,6 +22,7 @@ type conveyerImpl struct {
 
 func New(size int) *conveyerImpl {
 	return &conveyerImpl{
+		mutex:    sync.RWMutex{},
 		channels: make(map[string]chan string),
 		size:     size,
 		handlers: make([]func(ctx context.Context) error, 0),
@@ -35,6 +36,7 @@ func (c *conveyerImpl) getChannelOrCreate(name string) chan string {
 
 	ch := make(chan string, c.size)
 	c.channels[name] = ch
+
 	return ch
 }
 
@@ -43,11 +45,12 @@ func (c *conveyerImpl) getChannel(name string) (chan string, bool) {
 	defer c.mutex.RUnlock()
 
 	ch, exists := c.channels[name]
+
 	return ch, exists
 }
 
 func (c *conveyerImpl) RegisterDecorator(
-	fn func(ctx context.Context, input chan string, output chan string) error,
+	function func(ctx context.Context, input chan string, output chan string) error,
 	input string,
 	output string,
 ) {
@@ -58,12 +61,12 @@ func (c *conveyerImpl) RegisterDecorator(
 	outputChan := c.getChannelOrCreate(output)
 
 	c.handlers = append(c.handlers, func(ctx context.Context) error {
-		return fn(ctx, inputChan, outputChan)
+		return function(ctx, inputChan, outputChan)
 	})
 }
 
 func (c *conveyerImpl) RegisterMultiplexer(
-	fn func(ctx context.Context, inputs []chan string, output chan string) error,
+	function func(ctx context.Context, inputs []chan string, output chan string) error,
 	inputs []string,
 	output string,
 ) {
@@ -78,12 +81,12 @@ func (c *conveyerImpl) RegisterMultiplexer(
 	}
 
 	c.handlers = append(c.handlers, func(ctx context.Context) error {
-		return fn(ctx, inputChans, outputChan)
+		return function(ctx, inputChans, outputChan)
 	})
 }
 
 func (c *conveyerImpl) RegisterSeparator(
-	fn func(ctx context.Context, input chan string, outputs []chan string) error,
+	function func(ctx context.Context, input chan string, outputs []chan string) error,
 	input string,
 	outputs []string,
 ) {
@@ -98,21 +101,21 @@ func (c *conveyerImpl) RegisterSeparator(
 	}
 
 	c.handlers = append(c.handlers, func(ctx context.Context) error {
-		return fn(ctx, inputChan, outputChans)
+		return function(ctx, inputChan, outputChans)
 	})
 }
 
 func (c *conveyerImpl) Run(ctx context.Context) error {
-	g, ctx := errgroup.WithContext(ctx)
+	group, ctx := errgroup.WithContext(ctx)
 
 	for _, handler := range c.handlers {
 		h := handler
-		g.Go(func() error {
+		group.Go(func() error {
 			return h(ctx)
 		})
 	}
 
-	err := g.Wait()
+	err := group.Wait()
 
 	c.mutex.Lock()
 	for _, ch := range c.channels {
@@ -123,6 +126,7 @@ func (c *conveyerImpl) Run(ctx context.Context) error {
 	if err != nil {
 		return fmt.Errorf("%w", err)
 	}
+
 	return nil
 }
 
