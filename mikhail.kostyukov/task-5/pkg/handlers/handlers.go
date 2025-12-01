@@ -12,9 +12,13 @@ const (
 	stopDecorator     = "no decorator"
 	stopMultiplexer   = "no multiplexer"
 	msgCannotDecorate = "can't be decorated"
+	msgEmptyOutputs   = "empty outputs channels"
 )
 
-var ErrDecorationRefused = errors.New(msgCannotDecorate)
+var (
+	ErrDecorationRefused = errors.New(msgCannotDecorate)
+	ErrEmptyOutputs      = errors.New(msgEmptyOutputs)
+)
 
 func PrefixDecoratorFunc(
 	ctx context.Context,
@@ -94,7 +98,7 @@ func SeparatorFunc(
 	outputs []chan string,
 ) error {
 	if len(outputs) == 0 {
-		return nil
+		return ErrEmptyOutputs
 	}
 
 	var assignmentIndex int
