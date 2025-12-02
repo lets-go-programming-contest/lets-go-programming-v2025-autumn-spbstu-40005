@@ -8,6 +8,8 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
+var ErrChannel = errors.New("chan not found")
+
 const undefinedValue = "undefined"
 
 type ConveyerConfig struct {
@@ -51,7 +53,7 @@ func (c *conveyerImpl) getChannel(name string) (chan string, error) {
 
 	ch, exists := cfg.channels[name]
 	if !exists {
-		return nil, fmt.Errorf("chan not found: channel '%s' not found", name)
+		return nil, fmt.Errorf("%w: channel '%s' not found", ErrChannel, name)
 	}
 
 	return ch, nil
