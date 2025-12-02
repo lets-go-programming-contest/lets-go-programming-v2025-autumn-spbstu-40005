@@ -29,11 +29,16 @@ func New(size int) *Pipeline {
 	}
 }
 
-func (p *Pipeline) Send(inputName string, data string) error {
+func (p *Pipeline) getChannel(name string) (chan string, bool) {
 	p.mutex.RLock()
-	channel, exists := p.channels[inputName]
-	p.mutex.RUnlock()
+	defer p.mutex.RUnlock()
 
+	channel, exists := p.channels[name]
+	return channel, exists
+}
+
+func (p *Pipeline) Send(inputName string, data string) error {
+	channel, exists := p.getChannel(inputName)
 	if !exists {
 		return ErrChannelNotFound
 	}
@@ -44,10 +49,7 @@ func (p *Pipeline) Send(inputName string, data string) error {
 }
 
 func (p *Pipeline) Recv(outputName string) (string, error) {
-	p.mutex.RLock()
-	channel, exists := p.channels[outputName]
-	p.mutex.RUnlock()
-
+	channel, exists := p.getChannel(outputName)
 	if !exists {
 		return "", ErrChannelNotFound
 	}
@@ -60,10 +62,7 @@ func (p *Pipeline) Recv(outputName string) (string, error) {
 	return data, nil
 }
 
-func (p *Pipeline) ensureChannelExists(name string) chan string {
-	p.mutex.Lock()
-	defer p.mutex.Unlock()
-
+func (p *Pipeline) getOrCreateChannel(name string) chan string {
 	if ch, exists := p.channels[name]; exists {
 		return ch
 	}
@@ -79,8 +78,11 @@ func (p *Pipeline) RegisterDecorator(
 	sourceName string,
 	destName string,
 ) {
-	sourceChan := p.ensureChannelExists(sourceName)
-	destChan := p.ensureChannelExists(destName)
+	p.mutex.Lock()
+	defer p.mutex.Unlock()
+
+	sourceChan := p.getOrCreateChannel(sourceName)
+	destChan := p.getOrCreateChannel(destName)
 
 	task := func(ctx context.Context) error {
 		return workerFunc(ctx, sourceChan, destChan)
@@ -94,12 +96,15 @@ func (p *Pipeline) RegisterMultiplexer(
 	sourceNames []string,
 	destName string,
 ) {
+	p.mutex.Lock()
+	defer p.mutex.Unlock()
+
 	sources := make([]chan string, len(sourceNames))
 	for i, name := range sourceNames {
-		sources[i] = p.ensureChannelExists(name)
+		sources[i] = p.getOrCreateChannel(name)
 	}
 
-	destChan := p.ensureChannelExists(destName)
+	destChan := p.getOrCreateChannel(destName)
 
 	task := func(ctx context.Context) error {
 		return workerFunc(ctx, sources, destChan)
@@ -113,11 +118,14 @@ func (p *Pipeline) RegisterSeparator(
 	sourceName string,
 	destNames []string,
 ) {
-	sourceChan := p.ensureChannelExists(sourceName)
+	p.mutex.Lock()
+	defer p.mutex.Unlock()
+
+	sourceChan := p.getOrCreateChannel(sourceName)
 
 	destinations := make([]chan string, len(destNames))
 	for i, name := range destNames {
-		destinations[i] = p.ensureChannelExists(name)
+		destinations[i] = p.getOrCreateChannel(name)
 	}
 
 	task := func(ctx context.Context) error {
