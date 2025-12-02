@@ -57,12 +57,9 @@ func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan stri
 	var wg sync.WaitGroup
 	wg.Add(len(inputs))
 
-	doneCh := make(chan struct{})
-
 	for _, inCh := range inputs {
 		go func(ch chan string) {
 			defer wg.Done()
-
 			for {
 				select {
 				case <-ctx.Done():
@@ -86,16 +83,8 @@ func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan stri
 		}(inCh)
 	}
 
-	go func() {
-		wg.Wait()
-	}()
-
-	select {
-	case <-ctx.Done():
-		return nil
-	case <-doneCh:
-		return nil
-	}
+	wg.Wait()
+	return nil
 }
 
 func SeparatorFunc(ctx context.Context, input chan string, outputs []chan string) error {

@@ -3,7 +3,6 @@ package conveyer
 import (
 	"context"
 	"errors"
-	"fmt"
 	"sync"
 
 	"golang.org/x/sync/errgroup"
@@ -127,18 +126,17 @@ func (p *pipeline) RegisterSeparator(
 func (p *pipeline) Send(input string, data string) error {
 	ch, err := p.getChannel(input)
 	if err != nil {
-		return fmt.Errorf("failed to send: %w", err)
+		return err
 	}
 
 	ch <- data
-
 	return nil
 }
 
 func (p *pipeline) Recv(output string) (string, error) {
 	ch, err := p.getChannel(output)
 	if err != nil {
-		return "", fmt.Errorf("failed to receive: %w", err)
+		return "", err
 	}
 
 	data, ok := <-ch
@@ -171,11 +169,10 @@ func (p *pipeline) Run(ctx context.Context) error {
 	p.mutex.RUnlock()
 
 	err := group.Wait()
-
 	p.closeChannels()
 
 	if err != nil {
-		return fmt.Errorf("pipeline run failed: %w", err)
+		return err
 	}
 
 	return nil
