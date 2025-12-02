@@ -159,19 +159,20 @@ func (p *pipeline) closeChannels() {
 }
 
 func (p *pipeline) Run(ctx context.Context) error {
-	defer p.closeChannels()
-
 	group, ctx := errgroup.WithContext(ctx)
 
+	p.mutex.RLock()
 	for _, w := range p.workers {
 		workerFunc := w
-
 		group.Go(func() error {
 			return workerFunc(ctx)
 		})
 	}
+	p.mutex.RUnlock()
 
 	err := group.Wait()
+
+	p.closeChannels()
 
 	if err != nil {
 		return fmt.Errorf("pipeline run failed: %w", err)
