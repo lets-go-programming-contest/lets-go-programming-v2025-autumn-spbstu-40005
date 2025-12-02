@@ -32,3 +32,28 @@ func New(size int) *pipeline {
 		mutex:      sync.RWMutex{},
 	}
 }
+
+func (p *pipeline) getOrCreateChannel(name string) chan string {
+	p.mutex.Lock()
+	defer p.mutex.Unlock()
+
+	if ch, ok := p.channels[name]; ok {
+		return ch
+	}
+
+	newChan := make(chan string, p.bufferSize)
+	p.channels[name] = newChan
+
+	return newChan
+}
+
+func (p *pipeline) getChannel(name string) (chan string, error) {
+	p.mutex.RLock()
+	defer p.mutex.RUnlock()
+
+	if ch, ok := p.channels[name]; ok {
+		return ch, nil
+	}
+
+	return nil, ErrChanNotFound
+}
