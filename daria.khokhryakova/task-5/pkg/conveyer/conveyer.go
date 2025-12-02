@@ -54,7 +54,7 @@ func (c *conveyerImpl) getChannel(name string) (chan string, error) {
 		return nil, fmt.Errorf("chan not found: channel '%s' not found", name)
 	}
 
-	return ch, exists
+	return ch, nil
 }
 
 func (c *conveyerImpl) RegisterDecorator(
