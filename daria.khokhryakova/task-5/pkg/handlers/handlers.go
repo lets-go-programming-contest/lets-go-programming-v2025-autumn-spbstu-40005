@@ -7,7 +7,10 @@ import (
 	"sync"
 )
 
-var ErrProcessingFailed = errors.New("can't be decorated")
+var (
+	ErrProcessingFailed = errors.New("can't be decorated")
+	ErrInvalidConfig    = errors.New("invalid handler configuration")
+)
 
 const (
 	prefix        = "decorated: "
@@ -44,7 +47,7 @@ func PrefixDecoratorFunc(ctx context.Context, input chan string, output chan str
 
 func SeparatorFunc(ctx context.Context, input chan string, outputs []chan string) error {
 	if len(outputs) == 0 {
-		return nil
+		return ErrInvalidConfig
 	}
 
 	index := 0
@@ -71,6 +74,10 @@ func SeparatorFunc(ctx context.Context, input chan string, outputs []chan string
 }
 
 func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan string) error {
+	if len(outputs) == 0 {
+		return ErrInvalidConfig
+	}
+
 	var waitgr sync.WaitGroup
 
 	for _, input := range inputs {
