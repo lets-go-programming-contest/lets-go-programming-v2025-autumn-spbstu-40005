@@ -164,7 +164,6 @@ func (p *pipeline) Run(ctx context.Context) error {
 	p.mutex.RLock()
 	for _, w := range p.workers {
 		workerFunc := w
-		
 		group.Go(func() error {
 			return workerFunc(ctx)
 		})
