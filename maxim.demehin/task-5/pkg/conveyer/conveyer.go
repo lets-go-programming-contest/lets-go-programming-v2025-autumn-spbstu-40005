@@ -118,8 +118,6 @@ func (c *ConveyerType) Run(ctx context.Context) error {
 	c.mutex.RLock()
 	defer c.mutex.RUnlock()
 
-	defer c.closeChannels()
-
 	group, ctx := errgroup.WithContext(ctx)
 
 	for _, task := range c.tasks {
@@ -129,6 +127,11 @@ func (c *ConveyerType) Run(ctx context.Context) error {
 	}
 
 	err := group.Wait()
+
+	c.closeChannels()
+
+	c.mutex.RUnlock()
+
 	if err != nil {
 		return fmt.Errorf("error while running tasks: %w", err)
 	}
@@ -138,7 +141,6 @@ func (c *ConveyerType) Run(ctx context.Context) error {
 
 func (c *ConveyerType) getChannel(name string) (chan string, error) {
 	c.mutex.RLock()
-	defer c.mutex.RUnlock()
 
 	channel, exists := c.channels[name]
 	if !exists {
