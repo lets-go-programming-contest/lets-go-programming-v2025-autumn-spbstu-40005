@@ -34,6 +34,7 @@ func (p *Pipeline) getChannel(name string) (chan string, bool) {
 	defer p.mutex.RUnlock()
 
 	channel, exists := p.channels[name]
+
 	return channel, exists
 }
 
@@ -63,8 +64,8 @@ func (p *Pipeline) Recv(outputName string) (string, error) {
 }
 
 func (p *Pipeline) getOrCreateChannel(name string) chan string {
-	if ch, exists := p.channels[name]; exists {
-		return ch
+	if channel, exists := p.channels[name]; exists {
+		return channel
 	}
 
 	newChannel := make(chan string, p.channelBuffer)
@@ -81,11 +82,11 @@ func (p *Pipeline) RegisterDecorator(
 	p.mutex.Lock()
 	defer p.mutex.Unlock()
 
-	sourceChan := p.getOrCreateChannel(sourceName)
-	destChan := p.getOrCreateChannel(destName)
+	sourceChannel := p.getOrCreateChannel(sourceName)
+	destChannel := p.getOrCreateChannel(destName)
 
 	task := func(ctx context.Context) error {
-		return workerFunc(ctx, sourceChan, destChan)
+		return workerFunc(ctx, sourceChannel, destChannel)
 	}
 
 	p.tasks = append(p.tasks, task)
@@ -104,10 +105,10 @@ func (p *Pipeline) RegisterMultiplexer(
 		sources[i] = p.getOrCreateChannel(name)
 	}
 
-	destChan := p.getOrCreateChannel(destName)
+	destChannel := p.getOrCreateChannel(destName)
 
 	task := func(ctx context.Context) error {
-		return workerFunc(ctx, sources, destChan)
+		return workerFunc(ctx, sources, destChannel)
 	}
 
 	p.tasks = append(p.tasks, task)
@@ -121,7 +122,7 @@ func (p *Pipeline) RegisterSeparator(
 	p.mutex.Lock()
 	defer p.mutex.Unlock()
 
-	sourceChan := p.getOrCreateChannel(sourceName)
+	sourceChannel := p.getOrCreateChannel(sourceName)
 
 	destinations := make([]chan string, len(destNames))
 	for i, name := range destNames {
@@ -129,14 +130,27 @@ func (p *Pipeline) RegisterSeparator(
 	}
 
 	task := func(ctx context.Context) error {
-		return workerFunc(ctx, sourceChan, destinations)
+		return workerFunc(ctx, sourceChannel, destinations)
 	}
 
 	p.tasks = append(p.tasks, task)
 }
 
+func (p *Pipeline) closeChannels() {
+	p.mutex.Lock()
+	defer p.mutex.Unlock()
+
+	for _, channel := range p.channels {
+		close(channel)
+	}
+}
+
 func (p *Pipeline) Run(ctx context.Context) error {
+	defer p.closeChannels()
+
 	group, groupCtx := errgroup.WithContext(ctx)
+
+	p.mutex.RLock()
 
 	for _, task := range p.tasks {
 		currentTask := task
@@ -146,16 +160,9 @@ func (p *Pipeline) Run(ctx context.Context) error {
 		})
 	}
 
-	err := group.Wait()
+	p.mutex.RUnlock()
 
-	p.mutex.Lock()
-	for _, ch := range p.channels {
-		close(ch)
-	}
-
-	p.mutex.Unlock()
-
-	if err != nil {
+	if err := group.Wait(); err != nil {
 		return fmt.Errorf("pipeline execution failed: %w", err)
 	}
 
