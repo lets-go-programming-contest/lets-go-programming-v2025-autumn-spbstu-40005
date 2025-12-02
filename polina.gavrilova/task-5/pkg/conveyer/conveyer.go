@@ -165,6 +165,7 @@ func (p *pipeline) Run(ctx context.Context) error {
 
 	for _, w := range p.workers {
 		workerFunc := w
+
 		group.Go(func() error {
 			return workerFunc(ctx)
 		})
