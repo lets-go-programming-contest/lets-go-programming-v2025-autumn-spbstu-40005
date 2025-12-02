@@ -3,7 +3,10 @@ package conveyer
 import (
 	"context"
 	"errors"
+	"fmt"
 	"sync"
+
+	"golang.org/x/sync/errgroup"
 )
 
 var ErrChanNotFound = errors.New("channel not found")
@@ -116,4 +119,59 @@ func (p *pipeline) RegisterSeparator(
 	}
 
 	p.workers = append(p.workers, worker)
+}
+
+func (p *pipeline) Send(input string, data string) error {
+	ch, err := p.getChannel(input)
+	if err != nil {
+		return fmt.Errorf("failed to send: %w", err)
+	}
+
+	ch <- data
+
+	return nil
+}
+
+func (p *pipeline) Recv(output string) (string, error) {
+	ch, err := p.getChannel(output)
+	if err != nil {
+		return "", fmt.Errorf("failed to receive: %w", err)
+	}
+
+	data, ok := <-ch
+	if !ok {
+		return "undefined", nil
+	}
+
+	return data, nil
+}
+
+func (p *pipeline) closeChannels() {
+	p.mutex.Lock()
+	defer p.mutex.Unlock()
+	for _, ch := range p.channels {
+		close(ch)
+	}
+}
+
+func (p *pipeline) Run(ctx context.Context) error {
+	group, ctx := errgroup.WithContext(ctx)
+
+	p.mutex.RLock()
+	for _, w := range p.workers {
+		workerFunc := w
+		group.Go(func() error {
+			return workerFunc(ctx)
+		})
+	}
+
+	p.mutex.RUnlock()
+	err := group.Wait()
+	p.closeChannels()
+
+	if err != nil {
+		return fmt.Errorf("pipeline run failed: %w", err)
+	}
+
+	return nil
 }
