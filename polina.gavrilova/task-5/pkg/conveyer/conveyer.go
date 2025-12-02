@@ -26,6 +26,7 @@ type pipeline struct {
 	channels   map[string]chan string
 	workers    []func(context.Context) error
 	mutex      sync.RWMutex
+	workersMu  sync.RWMutex
 }
 
 func New(size int) *pipeline {
@@ -34,6 +35,7 @@ func New(size int) *pipeline {
 		channels:   make(map[string]chan string),
 		workers:    make([]func(context.Context) error, 0),
 		mutex:      sync.RWMutex{},
+		workersMu:  sync.RWMutex{},
 	}
 }
 
@@ -66,9 +68,6 @@ func (p *pipeline) RegisterDecorator(
 	handler func(context.Context, chan string, chan string) error,
 	input, output string,
 ) {
-	p.mutex.Lock()
-	defer p.mutex.Unlock()
-
 	inChan := p.getOrCreateChannel(input)
 	outChan := p.getOrCreateChannel(output)
 
@@ -76,6 +75,8 @@ func (p *pipeline) RegisterDecorator(
 		return handler(ctx, inChan, outChan)
 	}
 
+	p.workersMu.Lock()
+	defer p.workersMu.Unlock()
 	p.workers = append(p.workers, worker)
 }
 
@@ -84,9 +85,6 @@ func (p *pipeline) RegisterMultiplexer(
 	inputs []string,
 	output string,
 ) {
-	p.mutex.Lock()
-	defer p.mutex.Unlock()
-
 	inChans := make([]chan string, len(inputs))
 	for i, name := range inputs {
 		inChans[i] = p.getOrCreateChannel(name)
@@ -98,6 +96,8 @@ func (p *pipeline) RegisterMultiplexer(
 		return handler(ctx, inChans, outChan)
 	}
 
+	p.workersMu.Lock()
+	defer p.workersMu.Unlock()
 	p.workers = append(p.workers, worker)
 }
 
@@ -106,9 +106,6 @@ func (p *pipeline) RegisterSeparator(
 	input string,
 	outputs []string,
 ) {
-	p.mutex.Lock()
-	defer p.mutex.Unlock()
-
 	inChan := p.getOrCreateChannel(input)
 
 	outChans := make([]chan string, len(outputs))
@@ -120,6 +117,8 @@ func (p *pipeline) RegisterSeparator(
 		return handler(ctx, inChan, outChans)
 	}
 
+	p.workersMu.Lock()
+	defer p.workersMu.Unlock()
 	p.workers = append(p.workers, worker)
 }
 
@@ -159,10 +158,10 @@ func (p *pipeline) closeChannels() {
 func (p *pipeline) Run(ctx context.Context) error {
 	group, ctx := errgroup.WithContext(ctx)
 
-	p.mutex.RLock()
+	p.workersMu.RLock()
 	workersCopy := make([]func(context.Context) error, len(p.workers))
 	copy(workersCopy, p.workers)
-	p.mutex.RUnlock()
+	p.workersMu.RUnlock()
 
 	for _, w := range workersCopy {
 		workerFunc := w
@@ -172,12 +171,8 @@ func (p *pipeline) Run(ctx context.Context) error {
 	}
 
 	err := group.Wait()
-	
+
 	p.closeChannels()
 
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return err
 }
