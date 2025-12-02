@@ -106,9 +106,6 @@ func (c *ConveyerType) RegisterSeparator(
 }
 
 func (c *ConveyerType) closeChannels() {
-	c.mutex.Lock()
-	defer c.mutex.Unlock()
-
 	for _, channel := range c.channels {
 		close(channel)
 	}
