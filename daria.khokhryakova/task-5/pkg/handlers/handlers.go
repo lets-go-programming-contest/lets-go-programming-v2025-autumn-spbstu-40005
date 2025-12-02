@@ -5,7 +5,6 @@ import (
 	"errors"
 	"strings"
 	"sync"
-	"sync/atomic"
 )
 
 var ErrProcessingFailed = errors.New("can't be decorated")
@@ -48,7 +47,7 @@ func SeparatorFunc(ctx context.Context, input chan string, outputs []chan string
 		return nil
 	}
 
-	var counter uint64
+	index := 0
 
 	for {
 		select {
@@ -59,25 +58,19 @@ func SeparatorFunc(ctx context.Context, input chan string, outputs []chan string
 				return nil
 			}
 
-			current := atomic.LoadUint64(&counter)
-			index := current % uint64(len(outputs))
-
-			atomic.AddUint64(&counter, 1)
+			outputChan := outputs[index%len(outputs)]
+			index++
 
 			select {
 			case <-ctx.Done():
 				return nil
-			case outputs[index] <- data:
+			case outputChan <- data:
 			}
 		}
 	}
 }
 
 func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan string) error {
-	if len(inputs) == 0 {
-		return nil
-	}
-
 	var waitgr sync.WaitGroup
 
 	for _, input := range inputs {
