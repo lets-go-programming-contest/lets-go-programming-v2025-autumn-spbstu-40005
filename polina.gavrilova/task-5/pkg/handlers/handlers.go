@@ -50,20 +50,23 @@ func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan stri
 		return ErrEmptyOutputs
 	}
 
-	var wg sync.WaitGroup
-	wg.Add(len(inputs))
+	var waitGroup sync.WaitGroup
+
+	waitGroup.Add(len(inputs))
 
 	for _, inCh := range inputs {
-		go func(ch chan string) {
-			defer wg.Done()
+		go func(inputChan chan string) {
+			defer waitGroup.Done()
+
 			for {
 				select {
 				case <-ctx.Done():
 					return
-				case data, ok := <-ch:
+				case data, ok := <-inputChan:
 					if !ok {
 						return
 					}
+
 					if strings.Contains(data, triggerNoMult) {
 						continue
 					}
@@ -77,7 +80,8 @@ func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan stri
 		}(inCh)
 	}
 
-	wg.Wait()
+	waitGroup.Wait()
+
 	return nil
 }
 

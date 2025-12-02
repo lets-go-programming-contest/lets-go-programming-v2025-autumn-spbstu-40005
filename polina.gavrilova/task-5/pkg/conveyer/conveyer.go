@@ -12,13 +12,15 @@ import (
 var ErrChanNotFound = errors.New("channel not found")
 
 type conveyer interface {
-	RegisterDecorator(fn func(context.Context, chan string, chan string) error, input, output string)
-	RegisterMultiplexer(fn func(context.Context, []chan string, chan string) error, inputs []string, output string)
-	RegisterSeparator(fn func(context.Context, chan string, []chan string) error, input string, outputs []string)
+	RegisterDecorator(handler func(context.Context, chan string, chan string) error, input, output string)
+	RegisterMultiplexer(handler func(context.Context, []chan string, chan string) error, inputs []string, output string)
+	RegisterSeparator(handler func(context.Context, chan string, []chan string) error, input string, outputs []string)
 	Run(ctx context.Context) error
 	Send(input string, data string) error
 	Recv(output string) (string, error)
 }
+
+var _ conveyer = (*pipeline)(nil)
 
 type pipeline struct {
 	bufferSize int
@@ -62,7 +64,7 @@ func (p *pipeline) getChannel(name string) (chan string, error) {
 }
 
 func (p *pipeline) RegisterDecorator(
-	fn func(context.Context, chan string, chan string) error,
+	handler func(context.Context, chan string, chan string) error,
 	input, output string,
 ) {
 	p.mutex.Lock()
@@ -72,14 +74,14 @@ func (p *pipeline) RegisterDecorator(
 	outChan := p.getOrCreateChannel(output)
 
 	worker := func(ctx context.Context) error {
-		return fn(ctx, inChan, outChan)
+		return handler(ctx, inChan, outChan)
 	}
 
 	p.workers = append(p.workers, worker)
 }
 
 func (p *pipeline) RegisterMultiplexer(
-	fn func(context.Context, []chan string, chan string) error,
+	handler func(context.Context, []chan string, chan string) error,
 	inputs []string,
 	output string,
 ) {
@@ -94,14 +96,14 @@ func (p *pipeline) RegisterMultiplexer(
 	outChan := p.getOrCreateChannel(output)
 
 	worker := func(ctx context.Context) error {
-		return fn(ctx, inChans, outChan)
+		return handler(ctx, inChans, outChan)
 	}
 
 	p.workers = append(p.workers, worker)
 }
 
 func (p *pipeline) RegisterSeparator(
-	fn func(context.Context, chan string, []chan string) error,
+	handler func(context.Context, chan string, []chan string) error,
 	input string,
 	outputs []string,
 ) {
@@ -109,13 +111,14 @@ func (p *pipeline) RegisterSeparator(
 	defer p.mutex.Unlock()
 
 	inChan := p.getOrCreateChannel(input)
+
 	outChans := make([]chan string, len(outputs))
 	for i, name := range outputs {
 		outChans[i] = p.getOrCreateChannel(name)
 	}
 
 	worker := func(ctx context.Context) error {
-		return fn(ctx, inChan, outChans)
+		return handler(ctx, inChan, outChans)
 	}
 
 	p.workers = append(p.workers, worker)
@@ -149,6 +152,7 @@ func (p *pipeline) Recv(output string) (string, error) {
 func (p *pipeline) closeChannels() {
 	p.mutex.Lock()
 	defer p.mutex.Unlock()
+
 	for _, ch := range p.channels {
 		close(ch)
 	}
@@ -164,9 +168,10 @@ func (p *pipeline) Run(ctx context.Context) error {
 			return workerFunc(ctx)
 		})
 	}
-
 	p.mutex.RUnlock()
+
 	err := group.Wait()
+
 	p.closeChannels()
 
 	if err != nil {
