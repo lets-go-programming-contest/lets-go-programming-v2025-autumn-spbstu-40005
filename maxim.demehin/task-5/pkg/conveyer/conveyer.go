@@ -41,7 +41,7 @@ func (c *ConveyerType) getOrCreateChannel(name string) chan string {
 }
 
 func (c *ConveyerType) RegisterDecorator(
-	function func(ctx context.Context,
+	fn func(ctx context.Context,
 		input chan string,
 		output chan string,
 	) error,
@@ -55,12 +55,12 @@ func (c *ConveyerType) RegisterDecorator(
 	outputChan := c.getOrCreateChannel(output)
 
 	c.tasks = append(c.tasks, func(ctx context.Context) error {
-		return function(ctx, inputChan, outputChan)
+		return fn(ctx, inputChan, outputChan)
 	})
 }
 
 func (c *ConveyerType) RegisterMultiplexer(
-	function func(ctx context.Context,
+	fn func(ctx context.Context,
 		inputs []chan string,
 		output chan string,
 	) error,
@@ -78,12 +78,12 @@ func (c *ConveyerType) RegisterMultiplexer(
 	}
 
 	c.tasks = append(c.tasks, func(ctx context.Context) error {
-		return function(ctx, inputChans, outputChan)
+		return fn(ctx, inputChans, outputChan)
 	})
 }
 
 func (c *ConveyerType) RegisterSeparator(
-	function func(ctx context.Context,
+	fn func(ctx context.Context,
 		input chan string,
 		outputs []chan string,
 	) error,
@@ -101,7 +101,7 @@ func (c *ConveyerType) RegisterSeparator(
 	}
 
 	c.tasks = append(c.tasks, func(ctx context.Context) error {
-		return function(ctx, inputChan, outputChans)
+		return fn(ctx, inputChan, outputChans)
 	})
 }
 
