@@ -41,7 +41,7 @@ func (c *ConveyerType) getOrCreateChannel(name string) chan string {
 }
 
 func (c *ConveyerType) RegisterDecorator(
-	fn func(ctx context.Context,
+	handler func(ctx context.Context,
 		input chan string,
 		output chan string,
 	) error,
@@ -55,12 +55,12 @@ func (c *ConveyerType) RegisterDecorator(
 	outputChan := c.getOrCreateChannel(output)
 
 	c.tasks = append(c.tasks, func(ctx context.Context) error {
-		return fn(ctx, inputChan, outputChan)
+		return handler(ctx, inputChan, outputChan)
 	})
 }
 
 func (c *ConveyerType) RegisterMultiplexer(
-	fn func(ctx context.Context,
+	handler func(ctx context.Context,
 		inputs []chan string,
 		output chan string,
 	) error,
@@ -78,12 +78,12 @@ func (c *ConveyerType) RegisterMultiplexer(
 	}
 
 	c.tasks = append(c.tasks, func(ctx context.Context) error {
-		return fn(ctx, inputChans, outputChan)
+		return handler(ctx, inputChans, outputChan)
 	})
 }
 
 func (c *ConveyerType) RegisterSeparator(
-	fn func(ctx context.Context,
+	handler func(ctx context.Context,
 		input chan string,
 		outputs []chan string,
 	) error,
@@ -101,7 +101,7 @@ func (c *ConveyerType) RegisterSeparator(
 	}
 
 	c.tasks = append(c.tasks, func(ctx context.Context) error {
-		return fn(ctx, inputChan, outputChans)
+		return handler(ctx, inputChan, outputChans)
 	})
 }
 
@@ -115,6 +115,9 @@ func (c *ConveyerType) closeChannels() {
 }
 
 func (c *ConveyerType) Run(ctx context.Context) error {
+	c.mutex.RLock()
+	defer c.mutex.RUnlock()
+
 	defer c.closeChannels()
 
 	group, ctx := errgroup.WithContext(ctx)
