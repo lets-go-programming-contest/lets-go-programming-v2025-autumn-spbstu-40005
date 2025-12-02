@@ -80,8 +80,6 @@ func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan stri
 					case output <- data:
 					case <-ctx.Done():
 						return
-					case <-doneCh:
-						return
 					}
 				}
 			}
@@ -90,7 +88,6 @@ func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan stri
 
 	go func() {
 		wg.Wait()
-		close(doneCh)
 	}()
 
 	select {
@@ -123,11 +120,11 @@ func SeparatorFunc(ctx context.Context, input chan string, outputs []chan string
 				return nil
 			}
 
-			targetChan := outputs[currentIndex]
-			currentIndex = (currentIndex + 1) % len(outputs)
+			targetIndex := currentIndex % len(outputs)
+			currentIndex++
 
 			select {
-			case targetChan <- data:
+			case outputs[targetIndex] <- data:
 			case <-ctx.Done():
 				return nil
 			}
