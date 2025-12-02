@@ -127,7 +127,7 @@ func (c *ConveyerType) Run(ctx context.Context) error {
 
 	err := group.Wait()
 	if err != nil {
-		return fmt.Errorf("%w", err)
+		return fmt.Errorf("error while running tasks: %w", err)
 	}
 
 	return nil
