@@ -133,20 +133,22 @@ func (c *ConveyerType) Run(ctx context.Context) error {
 	return nil
 }
 
-func (c *ConveyerType) getChannel(name string) (chan string, bool) {
+func (c *ConveyerType) getChannel(name string) (chan string, error) {
 	c.mutex.RLock()
 	defer c.mutex.RUnlock()
 
 	channel, exists := c.channels[name]
+	if !exists {
+		return nil, ErrChanNotFound
+	}
 
-	return channel, exists
+	return channel, nil
 }
 
 func (c *ConveyerType) Send(input string, data string) error {
-	channel, exists := c.getChannel(input)
-
-	if !exists {
-		return ErrChanNotFound
+	channel, err := c.getChannel(input)
+	if err != nil {
+		return fmt.Errorf("error while sending data: %w", err)
 	}
 
 	channel <- data
@@ -155,14 +157,12 @@ func (c *ConveyerType) Send(input string, data string) error {
 }
 
 func (c *ConveyerType) Recv(output string) (string, error) {
-	channel, exists := c.getChannel(output)
-
-	if !exists {
-		return "", ErrChanNotFound
+	channel, err := c.getChannel(output)
+	if err != nil {
+		return "", fmt.Errorf("error whule recieving data: %w", err)
 	}
 
 	data, ok := <-channel
-
 	if !ok {
 		return undefinedMsg, nil
 	}
