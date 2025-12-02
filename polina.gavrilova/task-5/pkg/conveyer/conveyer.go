@@ -57,3 +57,63 @@ func (p *pipeline) getChannel(name string) (chan string, error) {
 
 	return nil, ErrChanNotFound
 }
+
+func (p *pipeline) RegisterDecorator(
+	fn func(context.Context, chan string, chan string) error,
+	input, output string,
+) {
+	p.mutex.Lock()
+	defer p.mutex.Unlock()
+
+	inChan := p.getOrCreateChannel(input)
+	outChan := p.getOrCreateChannel(output)
+
+	worker := func(ctx context.Context) error {
+		return fn(ctx, inChan, outChan)
+	}
+
+	p.workers = append(p.workers, worker)
+}
+
+func (p *pipeline) RegisterMultiplexer(
+	fn func(context.Context, []chan string, chan string) error,
+	inputs []string,
+	output string,
+) {
+	p.mutex.Lock()
+	defer p.mutex.Unlock()
+
+	inChans := make([]chan string, len(inputs))
+	for i, name := range inputs {
+		inChans[i] = p.getOrCreateChannel(name)
+	}
+
+	outChan := p.getOrCreateChannel(output)
+
+	worker := func(ctx context.Context) error {
+		return fn(ctx, inChans, outChan)
+	}
+
+	p.workers = append(p.workers, worker)
+}
+
+func (p *pipeline) RegisterSeparator(
+	fn func(context.Context, chan string, []chan string) error,
+	input string,
+	outputs []string,
+) {
+	p.mutex.Lock()
+	defer p.mutex.Unlock()
+
+	inChan := p.getOrCreateChannel(input)
+	outChans := make([]chan string, len(outputs))
+	for i, name := range outputs {
+		outChans[i] = p.getOrCreateChannel(name)
+	}
+
+	worker := func(ctx context.Context) error {
+		return fn(ctx, inChan, outChans)
+	}
+
+	p.workers = append(p.workers, worker)
+}
