@@ -116,7 +116,6 @@ func (c *ConveyerType) closeChannels() {
 
 func (c *ConveyerType) Run(ctx context.Context) error {
 	c.mutex.RLock()
-	defer c.mutex.RUnlock()
 
 	group, ctx := errgroup.WithContext(ctx)
 
