@@ -13,11 +13,15 @@ const (
 	stopMultiplexer   = "no multiplexer"
 	msgCannotDecorate = "can't be decorated"
 	msgEmptyOutputs   = "empty outputs channels"
+	msgEmptyInputs    = "empty inputs channels"
+	msgInputClosed    = "input channel closed"
 )
 
 var (
-	ErrDecorationRefused = errors.New(msgCannotDecorate)
-	ErrEmptyOutputs      = errors.New(msgEmptyOutputs)
+	ErrDecorationRefused  = errors.New(msgCannotDecorate)
+	ErrEmptyOutputs       = errors.New(msgEmptyOutputs)
+	ErrEmptyInputs        = errors.New(msgEmptyInputs)
+	ErrInputChannelClosed = errors.New(msgInputClosed)
 )
 
 func PrefixDecoratorFunc(
@@ -29,9 +33,9 @@ func PrefixDecoratorFunc(
 		select {
 		case <-ctx.Done():
 			return nil
-		case message, isOpen := <-input:
-			if !isOpen {
-				return nil
+		case message, ok := <-input:
+			if !ok {
+				return ErrInputChannelClosed
 			}
 
 			if strings.Contains(message, stopDecorator) {
@@ -56,6 +60,10 @@ func MultiplexerFunc(
 	inputs []chan string,
 	output chan string,
 ) error {
+	if len(inputs) == 0 {
+		return ErrEmptyInputs
+	}
+
 	var waitGrp sync.WaitGroup
 
 	waitGrp.Add(len(inputs))
@@ -68,8 +76,8 @@ func MultiplexerFunc(
 				select {
 				case <-ctx.Done():
 					return
-				case message, isOpen := <-inputChannel:
-					if !isOpen {
+				case message, ok := <-inputChannel:
+					if !ok {
 						return
 					}
 
@@ -107,9 +115,9 @@ func SeparatorFunc(
 		select {
 		case <-ctx.Done():
 			return nil
-		case message, isOpen := <-input:
-			if !isOpen {
-				return nil
+		case message, ok := <-input:
+			if !ok {
+				return ErrInputChannelClosed
 			}
 
 			targetChannel := outputs[assignmentIndex]
