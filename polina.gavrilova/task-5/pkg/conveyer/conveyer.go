@@ -3,6 +3,7 @@ package conveyer
 import (
 	"context"
 	"errors"
+	"fmt"
 	"sync"
 
 	"golang.org/x/sync/errgroup"
@@ -129,6 +130,7 @@ func (p *pipeline) Send(input string, data string) error {
 	}
 
 	ch <- data
+
 	return nil
 }
 
@@ -165,6 +167,7 @@ func (p *pipeline) Run(ctx context.Context) error {
 
 	for _, w := range workersCopy {
 		workerFunc := w
+
 		group.Go(func() error {
 			return workerFunc(ctx)
 		})
@@ -174,5 +177,9 @@ func (p *pipeline) Run(ctx context.Context) error {
 
 	p.closeChannels()
 
-	return err
+	if err != nil {
+		return fmt.Errorf("pipeline run failed: %w", err)
+	}
+
+	return nil
 }
