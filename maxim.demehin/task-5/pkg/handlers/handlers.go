@@ -84,7 +84,7 @@ func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan stri
 	defer waitGr.Done()
 
 	for _, input := range inputs {
-		go processInputChannel(ctx, input, output)
+		go processInputChannel(ctx, &waitGr, input, output)
 	}
 
 	waitGr.Wait()
@@ -92,7 +92,9 @@ func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan stri
 	return nil
 }
 
-func processInputChannel(ctx context.Context, input <-chan string, output chan<- string) {
+func processInputChannel(ctx context.Context, waitGr *sync.WaitGroup, input <-chan string, output chan<- string) {
+	defer waitGr.Done()
+
 	for {
 		select {
 		case <-ctx.Done():

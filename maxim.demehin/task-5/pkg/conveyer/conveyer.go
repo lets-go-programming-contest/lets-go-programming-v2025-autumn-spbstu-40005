@@ -159,7 +159,7 @@ func (c *ConveyerType) Send(input string, data string) error {
 func (c *ConveyerType) Recv(output string) (string, error) {
 	channel, err := c.getChannel(output)
 	if err != nil {
-		return "", fmt.Errorf("error whule recieving data: %w", err)
+		return "", fmt.Errorf("error while receiving data: %w", err)
 	}
 
 	data, ok := <-channel
