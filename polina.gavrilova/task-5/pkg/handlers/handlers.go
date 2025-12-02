@@ -25,6 +25,7 @@ func PrefixDecoratorFunc(ctx context.Context, input, output chan string) error {
 			return nil
 		case data, ok := <-input:
 			if !ok {
+				close(output)
 				return nil
 			}
 
@@ -54,6 +55,11 @@ func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan stri
 
 	waitGroup.Add(len(inputs))
 
+	ctx, cancel := context.WithCancel(ctx)
+	defer cancel()
+
+	defer close(output)
+
 	for _, inCh := range inputs {
 		go func(inputChan chan string) {
 			defer waitGroup.Done()
@@ -80,7 +86,12 @@ func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan stri
 		}(inCh)
 	}
 
-	waitGroup.Wait()
+	go func() {
+		waitGroup.Wait()
+		cancel()
+	}()
+
+	<-ctx.Done()
 
 	return nil
 }
