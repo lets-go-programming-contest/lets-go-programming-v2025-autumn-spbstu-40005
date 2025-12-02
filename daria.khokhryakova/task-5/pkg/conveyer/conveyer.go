@@ -2,7 +2,7 @@ package conveyer
 
 import (
 	"context"
-    "errors"
+	"errors"
 	"fmt"
 	"sync"
 
