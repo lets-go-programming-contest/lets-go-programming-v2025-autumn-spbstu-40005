@@ -83,6 +83,7 @@ func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan stri
 
 	for _, input := range inputs {
 		defer waitGr.Done()
+
 		go processInputChannel(ctx, input, output)
 	}
 
