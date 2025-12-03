@@ -31,6 +31,8 @@ func testGetNames(
 	testFunc func(service database.DBService) ([]string, error),
 	query string,
 ) {
+	t.Helper()
+
 	tests := []testcase{
 		{
 			name:   "success case",
@@ -59,6 +61,8 @@ func testGetNames(
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
+			t.Parallel()
+
 			mock.ExpectQuery(query).
 				WillReturnRows(ListMock("name", test.values)).
 				WillReturnError(test.expectedError)
@@ -88,6 +92,8 @@ func testGetNames(
 	}
 
 	t.Run("rows error", func(t *testing.T) {
+		t.Parallel()
+
 		mock.ExpectQuery(query).
 			WillReturnRows(
 				sqlmock.
@@ -113,6 +119,8 @@ func testGetNames(
 	})
 
 	t.Run("scan error", func(t *testing.T) {
+		t.Parallel()
+
 		mock.ExpectQuery(query).
 			WillReturnRows(
 				sqlmock.
@@ -138,14 +146,20 @@ func testGetNames(
 }
 
 func TestGetNames(t *testing.T) {
+	t.Parallel()
+
 	testGetNames(t, database.DBService.GetNames, "SELECT name FROM users")
 }
 
 func TestGetUniqueNames(t *testing.T) {
+	t.Parallel()
+
 	testGetNames(t, database.DBService.GetUniqueNames, "SELECT DISTINCT name FROM users")
 }
 
 func TestNew(t *testing.T) {
+	t.Parallel()
+
 	db, _, err := sqlmock.New()
 	require.NoError(
 		t, err,
