@@ -47,21 +47,13 @@ func TestGetNames(t *testing.T) {
 		require.Equal(t, row.names, names, "expected names: %s, actual names: %s", row.names, names)
 	}
 
-	row := rowTestDb{
-		names:       []string{},
-		errExpected: errors.New("err"),
-	}
-
-	mock.ExpectQuery("SELECT name FROM users").WillReturnRows(mockDbRows(row.names).AddRow(nil)).WillReturnError(row.errExpected)
+	mock.ExpectQuery("SELECT name FROM users").
+		WillReturnRows(sqlmock.NewRows([]string{"name"}).AddRow(nil))
 
 	names, err := dbService.GetNames()
-	if row.errExpected != nil {
-		require.ErrorIs(t, err, row.errExpected, "expected error: %w, actual error: %w", row.errExpected, err)
-		require.Nil(t, names, "names must be nil")
-	} else {
-		require.NoError(t, err, "error must be nil")
-		require.Equal(t, row.names, names, "expected names: %s, actual names: %s", row.names, names)
-	}
+	require.Error(t, err)
+	require.Contains(t, err.Error(), "rows scanning")
+	require.Nil(t, names)
 
 	rows := sqlmock.NewRows([]string{"name"}).
 		AddRow("Alice").
@@ -96,21 +88,13 @@ func TestGetUniqueNames(t *testing.T) {
 		require.Equal(t, row.names, names, "expected names: %s, actual names: %s", row.names, names)
 	}
 
-	row := rowTestDb{
-		names:       []string{},
-		errExpected: errors.New("err"),
-	}
-
-	mock.ExpectQuery("SELECT DISTINCT name FROM users").WillReturnRows(mockDbRows(row.names).AddRow(nil)).WillReturnError(row.errExpected)
+	mock.ExpectQuery("SELECT DISTINCT name FROM users").
+		WillReturnRows(sqlmock.NewRows([]string{"name"}).AddRow(nil))
 
 	names, err := dbService.GetUniqueNames()
-	if row.errExpected != nil {
-		require.ErrorIs(t, err, row.errExpected, "expected error: %w, actual error: %w", row.errExpected, err)
-		require.Nil(t, names, "names must be nil")
-	} else {
-		require.NoError(t, err, "error must be nil")
-		require.Equal(t, row.names, names, "expected names: %s, actual names: %s", row.names, names)
-	}
+	require.Error(t, err)
+	require.Contains(t, err.Error(), "rows scanning")
+	require.Nil(t, names)
 
 	rows := sqlmock.NewRows([]string{"name"}).
 		AddRow("Alice").
@@ -131,4 +115,14 @@ func mockDbRows(names []string) *sqlmock.Rows {
 	}
 
 	return rows
+}
+
+func TestNew(t *testing.T) {
+	mockDB, _, err := sqlmock.New()
+	require.NoError(t, err)
+	defer mockDB.Close()
+
+	service := db.New(mockDB)
+
+	require.Equal(t, mockDB, service.DB)
 }
