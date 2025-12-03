@@ -49,19 +49,19 @@ func testGetNames(
 		},
 	}
 
-	db, mock, err := sqlmock.New()
-	require.NoError(
-		t, err,
-		"failed to create sqlmock: %s", err,
-	)
-
-	defer db.Close()
-
-	service := database.DBService{db}
-
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			t.Parallel()
+
+			db, mock, err := sqlmock.New()
+			require.NoError(
+				t, err,
+				"failed to create sqlmock: %s", err,
+			)
+
+			defer db.Close()
+
+			service := database.DBService{db}
 
 			mock.ExpectQuery(query).
 				WillReturnRows(ListMock("name", test.values)).
@@ -94,6 +94,16 @@ func testGetNames(
 	t.Run("rows error", func(t *testing.T) {
 		t.Parallel()
 
+		db, mock, err := sqlmock.New()
+		require.NoError(
+			t, err,
+			"failed to create sqlmock: %s", err,
+		)
+
+		defer db.Close()
+
+		service := database.DBService{db}
+
 		mock.ExpectQuery(query).
 			WillReturnRows(
 				sqlmock.
@@ -120,6 +130,16 @@ func testGetNames(
 
 	t.Run("scan error", func(t *testing.T) {
 		t.Parallel()
+
+		db, mock, err := sqlmock.New()
+		require.NoError(
+			t, err,
+			"failed to create sqlmock: %s", err,
+		)
+
+		defer db.Close()
+
+		service := database.DBService{db}
 
 		mock.ExpectQuery(query).
 			WillReturnRows(
