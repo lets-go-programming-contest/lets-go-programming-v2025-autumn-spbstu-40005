@@ -136,10 +136,10 @@ func (c *ConveyerStruct) Run(ctx context.Context) error {
 
 func (c *ConveyerStruct) Send(input string, data string) error {
 	c.mute.RLock()
-	channel, ok := c.channels[input]
+	channel, availability := c.channels[input]
 	c.mute.RUnlock()
 
-	if !ok {
+	if !availability {
 		return fmt.Errorf("error in send data: %w", ErrChanNotFound)
 	}
 
@@ -150,10 +150,10 @@ func (c *ConveyerStruct) Send(input string, data string) error {
 
 func (c *ConveyerStruct) Recv(output string) (string, error) {
 	c.mute.RLock()
-	channel, ok := c.channels[output]
+	channel, availability := c.channels[output]
 	c.mute.RUnlock()
 
-	if !ok {
+	if !availability {
 		return "", fmt.Errorf("error in receiv data: %w", ErrChanNotFound)
 	}
 

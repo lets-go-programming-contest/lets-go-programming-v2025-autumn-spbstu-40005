@@ -41,40 +41,41 @@ func PrefixDecoratorFunc(ctx context.Context, input chan string, output chan str
 }
 
 func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan string) error {
-	var waitg sync.WaitGroup
+	if len(inputs) == 0 {
+		return ErrEmptyChannel
+	}
 
-	reader := func(channel chan string) {
-		defer waitg.Done()
+	waitGroup := sync.WaitGroup{}
+	waitGroup.Add(len(inputs))
 
-		for {
-			select {
-			case <-ctx.Done():
-				return
-			case data, ok := <-channel:
-				if !ok {
-					return
-				}
+	for inputIdx := range inputs {
+		go func(inputChannel chan string) {
+			defer waitGroup.Done()
 
-				if strings.Contains(data, "no multiplexer") {
-					continue
-				}
-
+			for {
 				select {
-				case output <- data:
 				case <-ctx.Done():
 					return
+				case data, ok := <-inputChannel:
+					if !ok {
+						return
+					}
+
+					if strings.Contains(data, "no multiplexer") {
+						continue
+					}
+
+					select {
+					case output <- data:
+					case <-ctx.Done():
+						return
+					}
 				}
 			}
-		}
+		}(inputs[inputIdx])
 	}
 
-	for _, channel := range inputs {
-		waitg.Add(1)
-
-		go reader(channel)
-	}
-
-	waitg.Wait()
+	waitGroup.Wait()
 
 	return nil
 }
