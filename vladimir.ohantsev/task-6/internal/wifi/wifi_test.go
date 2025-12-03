@@ -104,7 +104,6 @@ func TestGetNames(t *testing.T) {
 				"expected: %s, actual: %s", test.names, actualNames,
 			)
 		})
-
 	}
 }
 
@@ -156,8 +155,8 @@ func parseMACs(macStr []string) []net.HardwareAddr {
 func parseMAC(macStr string) net.HardwareAddr {
 	hwAddr, err := net.ParseMAC(macStr)
 	if err != nil {
-
 		return nil
 	}
+
 	return hwAddr
 }
