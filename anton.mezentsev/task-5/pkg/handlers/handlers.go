@@ -8,10 +8,9 @@ import (
 )
 
 var (
-	ErrDecorator          = errors.New("can't be decorated")
-	ErrNoOutputs          = errors.New("outputs cannot be empty")
-	ErrNoInputs           = errors.New("inputs cannot be empty")
-	ErrInputChannelClosed = errors.New("input channel closed")
+	ErrDecorator = errors.New("can't be decorated")
+	ErrNoOutputs = errors.New("outputs cannot be empty")
+	ErrNoInputs  = errors.New("inputs cannot be empty")
 )
 
 const (
@@ -27,7 +26,7 @@ func PrefixDecoratorFunc(ctx context.Context, input chan string, output chan str
 			return nil
 		case data, ok := <-input:
 			if !ok {
-				return ErrInputChannelClosed
+				return nil
 			}
 
 			if strings.Contains(data, skipDecorator) {
@@ -60,7 +59,7 @@ func SeparatorFunc(ctx context.Context, input chan string, outputs []chan string
 			return nil
 		case data, ok := <-input:
 			if !ok {
-				return ErrInputChannelClosed
+				return nil
 			}
 
 			targetChannel := outputs[roundRobinIndex%len(outputs)]
@@ -81,7 +80,7 @@ func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan stri
 	}
 
 	var waitGroup sync.WaitGroup
-	errCh := make(chan error, 1)
+	errCh := make(chan error, len(inputs))
 
 	for _, inputChannel := range inputs {
 		waitGroup.Add(1)
@@ -95,10 +94,6 @@ func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan stri
 					return
 				case data, ok := <-channel:
 					if !ok {
-						select {
-						case errCh <- ErrInputChannelClosed:
-						default:
-						}
 						return
 					}
 
@@ -121,8 +116,10 @@ func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan stri
 		close(errCh)
 	}()
 
-	if err := <-errCh; err != nil {
-		return err
+	for err := range errCh {
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil

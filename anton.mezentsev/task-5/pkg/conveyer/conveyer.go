@@ -116,6 +116,9 @@ func (c *conveyor) RegisterSeparator(
 }
 
 func (c *conveyor) Run(ctx context.Context) error {
+	ctx, cancel := context.WithCancel(ctx)
+	defer cancel()
+
 	errGr, ctx := errgroup.WithContext(ctx)
 
 	c.mutex.RLock()
