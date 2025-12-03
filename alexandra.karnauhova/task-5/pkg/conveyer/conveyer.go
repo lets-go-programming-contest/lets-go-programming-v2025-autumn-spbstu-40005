@@ -115,11 +115,16 @@ func (c *ConveyerStruct) closeChans() {
 }
 
 func (c *ConveyerStruct) Run(ctx context.Context) error {
-	group, ctx := errgroup.WithContext(ctx)
+	group, gCtx := errgroup.WithContext(ctx)
 
-	for _, task := range c.tasks {
+	c.mute.RLock()
+	tasks := c.tasks
+	c.mute.RUnlock()
+
+	for _, task := range tasks {
+		t := task
 		group.Go(func() error {
-			return task(ctx)
+			return t(gCtx)
 		})
 	}
 
@@ -145,6 +150,10 @@ func (c *ConveyerStruct) Send(input string, data string) error {
 		return fmt.Errorf("error in send data: %w", ErrChanNotFound)
 	}
 
+	defer func() {
+		if r := recover(); r != nil {
+		}
+	}()
 	channel <- data
 
 	return nil
@@ -161,7 +170,7 @@ func (c *ConveyerStruct) Recv(output string) (string, error) {
 
 	data, ok := <-channel
 	if !ok {
-		return "undefined channel", nil
+		return "undefined", nil
 	}
 
 	return data, nil
