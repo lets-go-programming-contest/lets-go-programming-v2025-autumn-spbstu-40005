@@ -23,7 +23,7 @@ type rowTestSysInfo struct {
 func TestGetAddresses(t *testing.T) {
 	t.Parallel()
 
-	var testTable = []rowTestSysInfo{
+	testTable := []rowTestSysInfo{
 		{
 			addrs: []string{"00:11:22:33:44:55", "aa:bb:cc:dd:ee:ff"},
 			names: []string{"eth1", "eth2"},
@@ -40,6 +40,7 @@ func TestGetAddresses(t *testing.T) {
 
 	mockWifi := NewWiFiHandle(t)
 	wifiService := myWifi.WiFiService{WiFi: mockWifi}
+
 	for _, row := range testTable {
 		mockWifi.On("Interfaces").Unset()
 		mockWifi.On("Interfaces").Return(mockIfaces(row.addrs), row.errExpected)
@@ -51,15 +52,17 @@ func TestGetAddresses(t *testing.T) {
 
 			continue
 		}
+
 		require.NoError(t, err, "error must be nil")
-		require.Equal(t, parseMACs(row.addrs), actualAddrs, "expected addrs: %s, actual addrs: %s", parseMACs(row.addrs), actualAddrs)
+		require.Equal(t, parseMACs(row.addrs), actualAddrs,
+			"expected addrs: %s, actual addrs: %s", parseMACs(row.addrs), actualAddrs)
 	}
 }
 
 func TestGetNames(t *testing.T) {
 	t.Parallel()
 
-	var testTable = []rowTestSysInfo{
+	testTable := []rowTestSysInfo{
 		{
 			addrs: []string{"00:11:22:33:44:55", "aa:bb:cc:dd:ee:ff"},
 			names: []string{"eth1", "eth2"},
@@ -76,6 +79,7 @@ func TestGetNames(t *testing.T) {
 
 	mockWifi := NewWiFiHandle(t)
 	wifiService := myWifi.WiFiService{WiFi: mockWifi}
+
 	for _, row := range testTable {
 		mockWifi.On("Interfaces").Unset()
 		mockWifi.On("Interfaces").Return(mockIfaces(row.addrs), row.errExpected)
@@ -87,6 +91,7 @@ func TestGetNames(t *testing.T) {
 
 			continue
 		}
+
 		require.NoError(t, err, "error must be nil")
 		require.Equal(t, row.names, actualNames, "expected addrs: %s, actual addrs: %s", row.names, actualNames)
 	}
