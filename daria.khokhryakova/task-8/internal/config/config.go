@@ -21,16 +21,21 @@ var devConfig []byte
 //go:embed prod.yaml
 var prodConfig []byte
 
-func loadDefaultConfig() (*Config, error) {
-	return parseConfig(defaultConfig)
-}
+var currentEnv = "default"
 
-func loadDevConfig() (*Config, error) {
-	return parseConfig(devConfig)
-}
+func LoadConfig() (*Config, error) {
+	var data []byte
 
-func loadProdConfig() (*Config, error) {
-	return parseConfig(prodConfig)
+	switch currentEnv {
+	case "dev":
+		data = devConfig
+	case "prod":
+		data = prodConfig
+	default:
+		data = defaultConfig
+	}
+
+	return parseConfig(data)
 }
 
 func parseConfig(data []byte) (*Config, error) {

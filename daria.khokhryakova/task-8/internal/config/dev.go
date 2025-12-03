@@ -2,6 +2,6 @@
 
 package config
 
-func LoadConfig() (*Config, error) {
-	return loadDevConfig()
+func init() {
+	currentEnv = "dev"
 }

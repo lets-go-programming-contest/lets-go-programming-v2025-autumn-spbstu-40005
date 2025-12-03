@@ -2,6 +2,6 @@
 
 package config
 
-func LoadConfig() (*Config, error) {
-	return loadDefaultConfig()
+func init() {
+	currentEnv = "default"
 }

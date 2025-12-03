@@ -2,6 +2,6 @@
 
 package config
 
-func LoadConfig() (*Config, error) {
-	return loadProdConfig()
+func init() {
+	currentEnv = "prod"
 }
