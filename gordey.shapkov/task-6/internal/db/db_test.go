@@ -124,5 +124,5 @@ func TestNew(t *testing.T) {
 
 	service := db.New(mockDB)
 
-	require.Equal(t, mockDB, service.DB)
+	require.Equal(t, mockDB, service.DB, "expected: %s, actual: %s", mockDB, service.DB)
 }
