@@ -101,22 +101,8 @@ func (c *ConveyerStruct) RegisterSeparator(
 }
 
 func (c *ConveyerStruct) closeChans() {
-	c.mute.Lock()
-	defer c.mute.Unlock()
-
-	for _, ch := range c.channels {
-		select {
-		case <-ch:
-		default:
-			func() {
-				defer func() {
-					if r := recover(); r != nil {
-						fmt.Printf("recovered from panic: %v", r)
-					}
-				}()
-				close(ch)
-			}()
-		}
+	for _, channel := range c.channels {
+		close(channel)
 	}
 }
 
