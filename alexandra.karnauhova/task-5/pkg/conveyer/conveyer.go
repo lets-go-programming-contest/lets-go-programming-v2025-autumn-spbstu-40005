@@ -9,6 +9,10 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
+var (
+	ErrChanNotFound = errors.New("chan not found")
+)
+
 type ConveyerStruct struct {
 	channels map[string]chan string
 	mute     sync.RWMutex
@@ -33,6 +37,7 @@ func (c *ConveyerStruct) getChannel(name string) chan string {
 	}
 	ch := make(chan string, c.sizeChan)
 	c.channels[name] = ch
+
 	return ch
 }
 
@@ -41,11 +46,11 @@ func (c *ConveyerStruct) RegisterDecorator(
 	input string,
 	output string,
 ) {
-	in := c.getChannel(input)
-	out := c.getChannel(output)
+	inChan := c.getChannel(input)
+	outChan := c.getChannel(output)
 
 	task := func(ctx context.Context) error {
-		return fn(ctx, in, out)
+		return fn(ctx, inChan, outChan)
 	}
 
 	c.mute.Lock()
@@ -58,14 +63,15 @@ func (c *ConveyerStruct) RegisterMultiplexer(
 	inputs []string,
 	output string,
 ) {
-	var inChans []chan string
+	inChans := make([]chan string, 0, len(inputs))
+
 	for _, name := range inputs {
 		inChans = append(inChans, c.getChannel(name))
 	}
-	out := c.getChannel(output)
+	outChan := c.getChannel(output)
 
 	task := func(ctx context.Context) error {
-		return fn(ctx, inChans, out)
+		return fn(ctx, inChans, outChan)
 	}
 
 	c.mute.Lock()
@@ -78,14 +84,15 @@ func (c *ConveyerStruct) RegisterSeparator(
 	input string,
 	outputs []string,
 ) {
-	in := c.getChannel(input)
-	var outChans []chan string
+	inChan := c.getChannel(input)
+	outChans := make([]chan string, 0, len(outputs))
+
 	for _, name := range outputs {
 		outChans = append(outChans, c.getChannel(name))
 	}
 
 	task := func(ctx context.Context) error {
-		return fn(ctx, in, outChans)
+		return fn(ctx, inChan, outChans)
 	}
 
 	c.mute.Lock()
@@ -96,12 +103,17 @@ func (c *ConveyerStruct) RegisterSeparator(
 func (c *ConveyerStruct) closeChans() {
 	c.mute.Lock()
 	defer c.mute.Unlock()
+
 	for _, ch := range c.channels {
 		select {
 		case <-ch:
 		default:
 			func() {
-				defer func() { recover() }()
+				defer func() {
+					if r := recover(); r != nil {
+						fmt.Printf("recovered from panic: %v", r)
+					}
+				}()
 				close(ch)
 			}()
 		}
@@ -138,10 +150,11 @@ func (c *ConveyerStruct) Send(input string, data string) error {
 	c.mute.Unlock()
 
 	if !ok {
-		return fmt.Errorf("error in send data: %w", errors.New("chan not found"))
+		return fmt.Errorf("error in send data: %w", ErrChanNotFound)
 	}
 
 	ch <- data
+
 	return nil
 }
 
@@ -151,7 +164,7 @@ func (c *ConveyerStruct) Recv(output string) (string, error) {
 	c.mute.Unlock()
 
 	if !ok {
-		return "", fmt.Errorf("error in receiv data: %w", errors.New("chan not found"))
+		return "", fmt.Errorf("error in receiv data: %w", ErrChanNotFound)
 	}
 
 	data, ok := <-ch

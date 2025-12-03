@@ -45,6 +45,7 @@ func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan stri
 
 	reader := func(ch chan string) {
 		defer wg.Done()
+
 		for {
 			select {
 			case <-ctx.Done():
@@ -72,11 +73,13 @@ func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan stri
 	}
 
 	wg.Wait()
+
 	return nil
 }
 
 func SeparatorFunc(ctx context.Context, input chan string, outputs []chan string) error {
 	idx := 0
+
 	for {
 		select {
 		case <-ctx.Done():
