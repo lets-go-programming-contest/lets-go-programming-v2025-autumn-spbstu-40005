@@ -3,6 +3,5 @@
 package config
 
 func LoadConfig() (*Config, error) {
-    return loadProdConfig()
+	return loadProdConfig()
 }
-
