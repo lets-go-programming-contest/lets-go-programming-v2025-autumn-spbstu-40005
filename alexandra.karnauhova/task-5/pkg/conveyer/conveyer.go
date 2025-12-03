@@ -2,6 +2,7 @@ package conveyer
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"sync"
 
@@ -125,8 +126,38 @@ func (c *ConveyerStruct) Run(ctx context.Context) error {
 	c.mute.Unlock()
 
 	if err != nil {
-		return fmt.Errorf("error while running tasks: %w", err)
+		return fmt.Errorf("task run error: %w", err)
 	}
 
 	return nil
+}
+
+func (c *ConveyerStruct) Send(input string, data string) error {
+	c.mute.Lock()
+	ch, ok := c.channels[input]
+	c.mute.Unlock()
+
+	if !ok {
+		return fmt.Errorf("error in send data: %w", errors.New("chan not found"))
+	}
+
+	ch <- data
+	return nil
+}
+
+func (c *ConveyerStruct) Recv(output string) (string, error) {
+	c.mute.Lock()
+	ch, ok := c.channels[output]
+	c.mute.Unlock()
+
+	if !ok {
+		return "", fmt.Errorf("error in receiv data: %w", errors.New("chan not found"))
+	}
+
+	data, ok := <-ch
+	if !ok {
+		return "undefined channel", nil
+	}
+
+	return data, nil
 }
