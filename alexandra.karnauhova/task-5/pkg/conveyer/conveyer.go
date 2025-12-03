@@ -104,11 +104,13 @@ func (c *ConveyerStruct) RegisterSeparator(
 }
 
 func (c *ConveyerStruct) closeChans() {
-	c.mute.Lock()
-	defer c.mute.Unlock()
-
 	for _, channel := range c.channels {
-		close(channel)
+		func() {
+			defer func() {
+				_ = recover()
+			}()
+			close(channel)
+		}()
 	}
 }
 
