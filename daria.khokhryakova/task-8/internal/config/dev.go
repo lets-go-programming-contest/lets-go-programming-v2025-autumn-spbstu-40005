@@ -2,6 +2,9 @@
 
 package config
 
-func init() {
-	currentEnv = "dev"
+//go:embed dev.yaml
+var devConfig []byte
+
+func LoadConfig() (*Config, error) {
+	return loadConfig(devConfig)
 }
