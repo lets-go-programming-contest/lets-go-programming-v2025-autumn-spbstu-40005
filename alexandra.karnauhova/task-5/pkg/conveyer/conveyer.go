@@ -9,9 +9,7 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
-var (
-	ErrChanNotFound = errors.New("chan not found")
-)
+var ErrChanNotFound = errors.New("chan not found")
 
 type ConveyerStruct struct {
 	channels map[string]chan string
@@ -123,6 +121,7 @@ func (c *ConveyerStruct) Run(ctx context.Context) error {
 
 	for _, task := range tasks {
 		t := task
+
 		group.Go(func() error {
 			return t(gCtx)
 		})
@@ -151,8 +150,7 @@ func (c *ConveyerStruct) Send(input string, data string) error {
 	}
 
 	defer func() {
-		if r := recover(); r != nil {
-		}
+		_ = recover()
 	}()
 	channel <- data
 
