@@ -38,12 +38,12 @@ func getTests() []testcase {
 func TestGetAddresses(t *testing.T) {
 	t.Parallel()
 
-	mockWifi := NewWiFiHandle(t)
-	wifiService := mywifi.WiFiService{WiFi: mockWifi}
-
 	for _, test := range getTests() {
 		t.Run(test.testName, func(t *testing.T) {
 			t.Parallel()
+
+			mockWifi := NewWiFiHandle(t)
+			wifiService := mywifi.WiFiService{WiFi: mockWifi}
 
 			mockWifi.On("Interfaces").Unset()
 			mockWifi.On("Interfaces").Return(mockIfaces(&test), test.expectedError)
@@ -74,12 +74,12 @@ func TestGetAddresses(t *testing.T) {
 func TestGetNames(t *testing.T) {
 	t.Parallel()
 
-	mockWifi := NewWiFiHandle(t)
-	wifiService := mywifi.WiFiService{WiFi: mockWifi}
-
 	for _, test := range getTests() {
 		t.Run(test.testName, func(t *testing.T) {
 			t.Parallel()
+
+			mockWifi := NewWiFiHandle(t)
+			wifiService := mywifi.WiFiService{WiFi: mockWifi}
 
 			mockWifi.On("Interfaces").Unset()
 			mockWifi.On("Interfaces").Return(mockIfaces(&test), test.expectedError)
