@@ -55,7 +55,6 @@ func (c *conveyor) getChannelOrCreate(name string) chan string {
 
 	channel = make(chan string, c.bufferSize)
 	c.channels[name] = channel
-
 	return channel
 }
 
@@ -133,9 +132,10 @@ func (c *conveyor) Run(ctx context.Context) error {
 		})
 	}
 
-	defer c.closeAll()
-
 	err := errGr.Wait()
+
+	c.closeAll()
+
 	if err != nil {
 		return fmt.Errorf("execution failed: %w", err)
 	}
@@ -147,8 +147,13 @@ func (c *conveyor) closeAll() {
 	c.mutex.Lock()
 	defer c.mutex.Unlock()
 
-	for _, channel := range c.channels {
+	for name, channel := range c.channels {
+		select {
+		case <-channel:
+		default:
+		}
 		close(channel)
+		delete(c.channels, name)
 	}
 }
 
@@ -158,9 +163,12 @@ func (c *conveyor) Send(name string, data string) error {
 		return ErrChannelNotFound
 	}
 
-	channel <- data
-
-	return nil
+	select {
+	case channel <- data:
+		return nil
+	default:
+		return errors.New("channel is full")
+	}
 }
 
 func (c *conveyor) Recv(name string) (string, error) {
@@ -169,10 +177,13 @@ func (c *conveyor) Recv(name string) (string, error) {
 		return "", ErrChannelNotFound
 	}
 
-	value, ok := <-channel
-	if !ok {
-		return undefinedValue, nil
+	select {
+	case value, ok := <-channel:
+		if !ok {
+			return undefinedValue, nil
+		}
+		return value, nil
+	default:
+		return "", errors.New("no data available")
 	}
-
-	return value, nil
 }

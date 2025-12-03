@@ -26,6 +26,7 @@ func PrefixDecoratorFunc(ctx context.Context, input chan string, output chan str
 			return nil
 		case data, ok := <-input:
 			if !ok {
+
 				return nil
 			}
 
@@ -51,7 +52,7 @@ func SeparatorFunc(ctx context.Context, input chan string, outputs []chan string
 		return ErrNoOutputs
 	}
 
-	roundRobinIndex := 0
+	index := 0
 
 	for {
 		select {
@@ -59,14 +60,15 @@ func SeparatorFunc(ctx context.Context, input chan string, outputs []chan string
 			return nil
 		case data, ok := <-input:
 			if !ok {
+
 				return nil
 			}
 
-			targetChannel := outputs[roundRobinIndex%len(outputs)]
-			roundRobinIndex++
+			target := outputs[index]
+			index = (index + 1) % len(outputs)
 
 			select {
-			case targetChannel <- data:
+			case target <- data:
 			case <-ctx.Done():
 				return nil
 			}
@@ -79,21 +81,25 @@ func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan stri
 		return ErrNoInputs
 	}
 
-	var waitGroup sync.WaitGroup
-	errCh := make(chan error, len(inputs))
+	ctx, cancel := context.WithCancel(ctx)
+	defer cancel()
 
-	for _, inputChannel := range inputs {
-		waitGroup.Add(1)
+	var wg sync.WaitGroup
+	errCh := make(chan error, 1)
 
-		go func(channel chan string) {
-			defer waitGroup.Done()
+	for _, in := range inputs {
+		wg.Add(1)
+
+		go func(inputChan chan string) {
+			defer wg.Done()
 
 			for {
 				select {
 				case <-ctx.Done():
 					return
-				case data, ok := <-channel:
+				case data, ok := <-inputChan:
 					if !ok {
+
 						return
 					}
 
@@ -108,19 +114,18 @@ func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan stri
 					}
 				}
 			}
-		}(inputChannel)
+		}(in)
 	}
 
 	go func() {
-		waitGroup.Wait()
+		wg.Wait()
 		close(errCh)
 	}()
 
-	for err := range errCh {
-		if err != nil {
-			return err
-		}
+	select {
+	case err := <-errCh:
+		return err
+	case <-ctx.Done():
+		return nil
 	}
-
-	return nil
 }
