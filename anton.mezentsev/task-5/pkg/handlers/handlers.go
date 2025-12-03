@@ -8,8 +8,10 @@ import (
 )
 
 var (
-	ErrDecorator = errors.New("can't be decorated")
-	ErrNoOutputs = errors.New("outputs cannot be empty")
+	ErrDecorator          = errors.New("can't be decorated")
+	ErrNoOutputs          = errors.New("outputs cannot be empty")
+	ErrNoInputs           = errors.New("inputs cannot be empty")
+	ErrInputChannelClosed = errors.New("input channel closed")
 )
 
 const (
@@ -23,9 +25,9 @@ func PrefixDecoratorFunc(ctx context.Context, input chan string, output chan str
 		select {
 		case <-ctx.Done():
 			return nil
-		case data, isOpen := <-input:
-			if !isOpen {
-				return nil
+		case data, ok := <-input:
+			if !ok {
+				return ErrInputChannelClosed
 			}
 
 			if strings.Contains(data, skipDecorator) {
@@ -36,7 +38,11 @@ func PrefixDecoratorFunc(ctx context.Context, input chan string, output chan str
 				data = decoration + data
 			}
 
-			output <- data
+			select {
+			case output <- data:
+			case <-ctx.Done():
+				return nil
+			}
 		}
 	}
 }
@@ -52,21 +58,30 @@ func SeparatorFunc(ctx context.Context, input chan string, outputs []chan string
 		select {
 		case <-ctx.Done():
 			return nil
-		case data, isOpen := <-input:
-			if !isOpen {
-				return nil
+		case data, ok := <-input:
+			if !ok {
+				return ErrInputChannelClosed
 			}
 
 			targetChannel := outputs[roundRobinIndex%len(outputs)]
 			roundRobinIndex++
 
-			targetChannel <- data
+			select {
+			case targetChannel <- data:
+			case <-ctx.Done():
+				return nil
+			}
 		}
 	}
 }
 
 func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan string) error {
+	if len(inputs) == 0 {
+		return ErrNoInputs
+	}
+
 	var waitGroup sync.WaitGroup
+	errCh := make(chan error, 1)
 
 	for _, inputChannel := range inputs {
 		waitGroup.Add(1)
@@ -78,8 +93,12 @@ func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan stri
 				select {
 				case <-ctx.Done():
 					return
-				case data, isOpen := <-channel:
-					if !isOpen {
+				case data, ok := <-channel:
+					if !ok {
+						select {
+						case errCh <- ErrInputChannelClosed:
+						default:
+						}
 						return
 					}
 
@@ -87,13 +106,24 @@ func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan stri
 						continue
 					}
 
-					output <- data
+					select {
+					case output <- data:
+					case <-ctx.Done():
+						return
+					}
 				}
 			}
 		}(inputChannel)
 	}
 
-	waitGroup.Wait()
+	go func() {
+		waitGroup.Wait()
+		close(errCh)
+	}()
+
+	if err := <-errCh; err != nil {
+		return err
+	}
 
 	return nil
 }
