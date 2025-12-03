@@ -11,6 +11,8 @@ import (
 	myWifi "gordey.shapkov/task-6/internal/wifi"
 )
 
+var ErrExpected = errors.New("expected error")
+
 //go:generate mockery --all --testonly --quiet --outpkg wifi_test --output .
 type rowTestSysInfo struct {
 	addrs       []string
@@ -18,30 +20,35 @@ type rowTestSysInfo struct {
 	errExpected error
 }
 
-var testTable = []rowTestSysInfo{
-	{
-		addrs: []string{"00:11:22:33:44:55", "aa:bb:cc:dd:ee:ff"},
-		names: []string{"eth1", "eth2"},
-	},
-	{
-		addrs:       nil,
-		errExpected: errors.New("ExpectedError"),
-	},
-	{
-		addrs: []string{},
-		names: []string{},
-	},
-}
-
 func TestGetAddresses(t *testing.T) {
+	t.Parallel()
+
+	var testTable = []rowTestSysInfo{
+		{
+			addrs: []string{"00:11:22:33:44:55", "aa:bb:cc:dd:ee:ff"},
+			names: []string{"eth1", "eth2"},
+		},
+		{
+			addrs:       nil,
+			errExpected: ErrExpected,
+		},
+		{
+			addrs: []string{},
+			names: []string{},
+		},
+	}
+
 	mockWifi := NewWiFiHandle(t)
 	wifiService := myWifi.WiFiService{WiFi: mockWifi}
 	for _, row := range testTable {
 		mockWifi.On("Interfaces").Unset()
 		mockWifi.On("Interfaces").Return(mockIfaces(row.addrs), row.errExpected)
+
 		actualAddrs, err := wifiService.GetAddresses()
+
 		if row.errExpected != nil {
 			require.ErrorIs(t, err, row.errExpected, "expected error: %w, actual error: %w", row.errExpected, err)
+
 			continue
 		}
 		require.NoError(t, err, "error must be nil")
@@ -50,14 +57,34 @@ func TestGetAddresses(t *testing.T) {
 }
 
 func TestGetNames(t *testing.T) {
+	t.Parallel()
+
+	var testTable = []rowTestSysInfo{
+		{
+			addrs: []string{"00:11:22:33:44:55", "aa:bb:cc:dd:ee:ff"},
+			names: []string{"eth1", "eth2"},
+		},
+		{
+			addrs:       nil,
+			errExpected: ErrExpected,
+		},
+		{
+			addrs: []string{},
+			names: []string{},
+		},
+	}
+
 	mockWifi := NewWiFiHandle(t)
 	wifiService := myWifi.WiFiService{WiFi: mockWifi}
 	for _, row := range testTable {
 		mockWifi.On("Interfaces").Unset()
 		mockWifi.On("Interfaces").Return(mockIfaces(row.addrs), row.errExpected)
+
 		actualNames, err := wifiService.GetNames()
+
 		if row.errExpected != nil {
 			require.ErrorIs(t, err, row.errExpected, "expected error: %w, actual error: %w", row.errExpected, err)
+
 			continue
 		}
 		require.NoError(t, err, "error must be nil")
@@ -66,6 +93,8 @@ func TestGetNames(t *testing.T) {
 }
 
 func TestNew(t *testing.T) {
+	t.Parallel()
+
 	mockWifi := NewWiFiHandle(t)
 	wifiService := myWifi.New(mockWifi)
 	require.Equal(t, mockWifi, wifiService.WiFi, "expected: %s, actual: %s", mockWifi, wifiService.WiFi)
