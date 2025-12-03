@@ -1,18 +1,17 @@
-package db
+package db_test
 
 import (
 	"errors"
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
+	database "github.com/P3rCh1/task-6/internal/db"
 	"github.com/stretchr/testify/require"
 )
 
-var (
-	ErrSome = errors.New("some error")
-)
+var ErrSome = errors.New("some error")
 
-type testList struct {
+type testcase struct {
 	name          string
 	values        []string
 	expectedError error
@@ -29,10 +28,10 @@ func ListMock(name string, values []string) *sqlmock.Rows {
 
 func testGetNames(
 	t *testing.T,
-	testFunc func(service DBService) ([]string, error),
+	testFunc func(service database.DBService) ([]string, error),
 	query string,
 ) {
-	tests := []testList{
+	tests := []testcase{
 		{
 			name:   "success case",
 			values: []string{"Ivan", "Gena228"},
@@ -56,7 +55,7 @@ func testGetNames(
 
 	defer db.Close()
 
-	service := DBService{DB: db}
+	service := database.DBService{db}
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
@@ -139,11 +138,11 @@ func testGetNames(
 }
 
 func TestGetNames(t *testing.T) {
-	testGetNames(t, DBService.GetNames, "SELECT name FROM users")
+	testGetNames(t, database.DBService.GetNames, "SELECT name FROM users")
 }
 
 func TestGetUniqueNames(t *testing.T) {
-	testGetNames(t, DBService.GetUniqueNames, "SELECT DISTINCT name FROM users")
+	testGetNames(t, database.DBService.GetUniqueNames, "SELECT DISTINCT name FROM users")
 }
 
 func TestNew(t *testing.T) {
@@ -155,6 +154,6 @@ func TestNew(t *testing.T) {
 
 	defer db.Close()
 
-	service := New(db)
+	service := database.New(db)
 	require.Equal(t, service.DB, db, "use another object in service")
 }
