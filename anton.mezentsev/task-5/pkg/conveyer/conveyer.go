@@ -29,35 +29,6 @@ func New(size int) *conveyor {
 	}
 }
 
-func (c *conveyor) getChannel(name string) (chan string, bool) {
-	c.mutex.RLock()
-	defer c.mutex.RUnlock()
-
-	channel, exists := c.channels[name]
-	return channel, exists
-}
-
-func (c *conveyor) getChannelOrCreate(name string) chan string {
-	c.mutex.RLock()
-	channel, exists := c.channels[name]
-	c.mutex.RUnlock()
-
-	if exists {
-		return channel
-	}
-
-	c.mutex.Lock()
-	defer c.mutex.Unlock()
-
-	if channel, exists := c.channels[name]; exists {
-		return channel
-	}
-
-	channel = make(chan string, c.bufferSize)
-	c.channels[name] = channel
-	return channel
-}
-
 func (c *conveyor) RegisterDecorator(
 	processor func(ctx context.Context, input chan string, output chan string) error,
 	inputName,
@@ -115,27 +86,17 @@ func (c *conveyor) RegisterSeparator(
 }
 
 func (c *conveyor) Run(ctx context.Context) error {
-	ctx, cancel := context.WithCancel(ctx)
-	defer cancel()
+	defer c.closeAll()
 
 	errGr, ctx := errgroup.WithContext(ctx)
 
-	c.mutex.RLock()
-	workersCopy := make([]func(context.Context) error, len(c.workers))
-	copy(workersCopy, c.workers)
-	c.mutex.RUnlock()
-
-	for _, worker := range workersCopy {
-		worker := worker
+	for _, worker := range c.workers {
 		errGr.Go(func() error {
 			return worker(ctx)
 		})
 	}
 
 	err := errGr.Wait()
-
-	c.closeAll()
-
 	if err != nil {
 		return fmt.Errorf("execution failed: %w", err)
 	}
@@ -147,43 +108,49 @@ func (c *conveyor) closeAll() {
 	c.mutex.Lock()
 	defer c.mutex.Unlock()
 
-	for name, channel := range c.channels {
-		select {
-		case <-channel:
-		default:
-		}
+	for _, channel := range c.channels {
 		close(channel)
-		delete(c.channels, name)
 	}
 }
 
 func (c *conveyor) Send(name string, data string) error {
-	channel, exists := c.getChannel(name)
+	c.mutex.RLock()
+	channel, exists := c.channels[name]
+	c.mutex.RUnlock()
+
 	if !exists {
 		return ErrChannelNotFound
 	}
 
-	select {
-	case channel <- data:
-		return nil
-	default:
-		return errors.New("channel is full")
-	}
+	channel <- data
+
+	return nil
 }
 
 func (c *conveyor) Recv(name string) (string, error) {
-	channel, exists := c.getChannel(name)
+	c.mutex.RLock()
+	channel, exists := c.channels[name]
+	c.mutex.RUnlock()
+
 	if !exists {
 		return "", ErrChannelNotFound
 	}
 
-	select {
-	case value, ok := <-channel:
-		if !ok {
-			return undefinedValue, nil
-		}
-		return value, nil
-	default:
-		return "", errors.New("no data available")
+	value, ok := <-channel
+	if !ok {
+		return undefinedValue, nil
 	}
+
+	return value, nil
+}
+
+func (c *conveyor) getChannelOrCreate(name string) chan string {
+	if channel, ok := c.channels[name]; ok {
+		return channel
+	}
+
+	channel := make(chan string, c.bufferSize)
+	c.channels[name] = channel
+
+	return channel
 }
