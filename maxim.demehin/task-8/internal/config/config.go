@@ -23,5 +23,5 @@ func parseConfig(data []byte) (*Config, error) {
 }
 
 func (c *Config) PrintConfig() {
-	fmt.Printf("%s %s\n", c.Environment, c.LogLevel)
+	fmt.Println(c.Environment, " ", c.LogLevel)
 }
