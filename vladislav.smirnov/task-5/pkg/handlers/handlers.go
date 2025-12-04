@@ -80,7 +80,7 @@ func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan stri
 		channel := channel
 		waitGroup.Add(1)
 		errGroup.Go(func() error {
-			defer wg.Done()
+			defer waitGroup.Done()
 
 			for {
 				select {
