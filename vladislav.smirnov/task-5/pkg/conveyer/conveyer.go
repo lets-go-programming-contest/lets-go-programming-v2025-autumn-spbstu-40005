@@ -198,7 +198,7 @@ func (c *Conveyer) RegisterMultiplexer(
 
 	c.tasks = append(c.tasks, taskItem{
 		kind:    "multiplexer",
-		fn:      muxFunc,
+		fn:      decFunc,
 		inputs:  inputs,
 		outputs: []string{output},
 	})
@@ -217,7 +217,7 @@ func (c *Conveyer) RegisterSeparator(
 
 	c.tasks = append(c.tasks, taskItem{
 		kind:    "separator",
-		fn:      sepFunc,
+		fn:      decFunc,
 		inputs:  []string{input},
 		outputs: outputs,
 	})
