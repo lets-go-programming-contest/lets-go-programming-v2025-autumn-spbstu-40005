@@ -124,7 +124,7 @@ func (c *Conveyer) Recv(name string) (string, error) {
 func (c *Conveyer) executeTask(ctx context.Context, item taskItem) error {
 	switch item.kind {
 	case "decorator":
-		decFn, ok := item.fn.(DecoratorHandlerFunc)
+		decFn, ok := item.fn.(func(context.Context, chan string, []chan string) error)
 		if !ok {
 			return ErrInvalidTaskFunc
 		}
@@ -135,7 +135,7 @@ func (c *Conveyer) executeTask(ctx context.Context, item taskItem) error {
 		return decFn(ctx, inputChannel, outputChannel)
 
 	case "multiplexer":
-		muxFn, ok := item.fn.(MultiplexerHandlerFunc)
+		muxFn, ok := item.fn.(func(context.Context, chan string, []chan string) error)
 		if !ok {
 			return ErrInvalidTaskFunc
 		}
@@ -150,7 +150,7 @@ func (c *Conveyer) executeTask(ctx context.Context, item taskItem) error {
 		return muxFn(ctx, ins, outputChannel)
 
 	case "separator":
-		sepFn, ok := item.fn.(SeparatorHandlerFunc)
+		sepFn, ok := item.fn.(func(context.Context, chan string, []chan string) error)
 		if !ok {
 			return ErrInvalidTaskFunc
 		}
@@ -169,7 +169,7 @@ func (c *Conveyer) executeTask(ctx context.Context, item taskItem) error {
 }
 
 func (c *Conveyer) RegisterDecorator(
-	decFunc DecoratorHandlerFunc,
+	decFunc func(context.Context, chan string, chan string) error,
 	input string,
 	output string,
 ) {
@@ -185,7 +185,7 @@ func (c *Conveyer) RegisterDecorator(
 }
 
 func (c *Conveyer) RegisterMultiplexer(
-	muxFunc MultiplexerHandlerFunc,
+	decFunc func(context.Context, chan string, chan string) error,
 	inputs []string,
 	output string,
 ) {
@@ -205,7 +205,7 @@ func (c *Conveyer) RegisterMultiplexer(
 }
 
 func (c *Conveyer) RegisterSeparator(
-	sepFunc SeparatorHandlerFunc,
+	decFunc func(context.Context, chan string, chan string) error,
 	input string,
 	outputs []string,
 ) {
