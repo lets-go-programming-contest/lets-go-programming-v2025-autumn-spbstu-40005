@@ -3,11 +3,8 @@ package handlers
 import (
 	"context"
 	"errors"
-	"fmt"
 	"strings"
 	"sync"
-
-	"golang.org/x/sync/errgroup"
 )
 
 var (
@@ -80,44 +77,41 @@ func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan stri
 
 	var waitGroup sync.WaitGroup
 
-	errGroup, gCtx := errgroup.WithContext(ctx)
+	waitGroup.Add(len(inputs))
 
 	for _, channel := range inputs {
-		waitGroup.Add(1)
-		errGroup.Go(func(c chan string) func() error {
+		go func(in <-chan string) {
 			defer waitGroup.Done()
-			return func() error {
-				for {
-					select {
-					case <-gCtx.Done():
-						return gCtx.Err()
+			processString(ctx, in, output)
+		}(input)
+	}
 
-					case value, ok := <-channel:
-						if !ok {
-							return nil
-						}
+	waitGroup.Wait()
 
-						if strings.Contains(value, "no multiplexer") {
-							continue
-						}
+	return nil
+}
 
-						select {
-						case output <- value:
+func processChannel(ctx context.Context, input <-chan string, output chan<- string) {
+	for {
+		select {
+		case <-gCtx.Done():
+			return gCtx.Err()
 
-						case <-gCtx.Done():
-							return gCtx.Err()
-						}
-					}
-				}
+		case value, ok := <-channel:
+			if !ok {
+				return nil
 			}
-		}(channel))
+
+			if strings.Contains(value, "no nultiplexer") {
+				continue
+			}
+
+			select {
+			case output <- value:
+
+			case <-gCtx.Done():
+				return gCtx.Err()
+			}
+		}
 	}
-
-	err := errGroup.Wait()
-
-	if err != nil && errors.Is(err, context.Canceled) {
-		return nil
-	}
-
-	return fmt.Errorf("multiplexer failed: %w", err)
 }
