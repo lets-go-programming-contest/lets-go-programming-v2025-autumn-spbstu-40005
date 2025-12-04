@@ -32,7 +32,7 @@ type Conveyer struct {
 	mu       sync.RWMutex
 }
 
-func New(size int) conveyer {
+func New(size int) *Conveyer {
 	return &Conveyer{
 		channels: make(map[string]chan string),
 		size:     size,
