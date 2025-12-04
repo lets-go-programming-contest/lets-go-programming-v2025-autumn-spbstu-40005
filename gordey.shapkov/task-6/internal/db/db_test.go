@@ -32,7 +32,8 @@ func TestGetNames(t *testing.T) {
 	dbService := db.DBService{DB: mockDB}
 
 	for _, row := range testTable {
-		mock.ExpectQuery("SELECT name FROM users").WillReturnRows(helperMockDBRows(t, row.names)).WillReturnError(row.errExpected)
+		mock.ExpectQuery("SELECT name FROM users").WillReturnRows(helperMockDBRows(t, row.names)).
+			WillReturnError(row.errExpected)
 
 		names, err := dbService.GetNames()
 		if row.errExpected != nil {
