@@ -8,7 +8,7 @@ import (
 )
 
 var (
-	ErrProcessingFailed = errors.New("processing failed")
+	ErrProcessingFailed = errors.New("can't be decorated")
 	ErrNoOutputs        = errors.New("outputs cannot be empty")
 )
 
@@ -57,9 +57,8 @@ func SeparatorFunc(ctx context.Context, input chan string, outs []chan string) e
 				return nil
 			}
 
-			current := index % len(outs)
-			outs[current] <- data
-			index = current + 1
+			outs[index%len(outs)] <- data
+			index++
 		}
 	}
 }
