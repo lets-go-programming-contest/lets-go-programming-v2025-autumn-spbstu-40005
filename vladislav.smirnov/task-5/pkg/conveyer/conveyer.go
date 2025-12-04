@@ -43,11 +43,16 @@ func New(size int) *Conveyer {
 
 func (c *Conveyer) getChannel(name string) (chan string, bool) {
 	c.mu.RLock()
-	defer c.mu.RUnlock()
 
 	channel, found := c.channels[name]
 
-	return channel, found
+	c.mu.RUnlock()
+
+	if !found {
+		return nil, ErrChanNotFound
+	}
+
+	return channel, nil
 }
 
 func (c *Conveyer) createChannel(name string) chan string {
@@ -66,20 +71,32 @@ func (c *Conveyer) createChannel(name string) chan string {
 	return channel
 }
 
+func (c *Conveyer) closeAllChannels() {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
+	for _, channel := range c.channels {
+		close(channle)
+	}
+}
+
 func (c *Conveyer) Run(ctx context.Context) error {
-	defer func() {
-		c.mu.Lock()
-		for _, ch := range c.channels {
-			close(ch)
-		}
-		c.mu.Unlock()
-	}()
+	defer c.closeAllChannels()
 
 	errGroup, gCtx := errgroup.WithContext(ctx)
 
-	for _, item := range c.tasks {
+	c.mu.RLock()
+
+	tasksCopy := append([]taskItem(nil), c.tasks...)
+
+	c.mu.RUnlock()
+
+	for _, item := range tasksCopy {
+
+		it := item
+
 		errGroup.Go(func() error {
-			return c.executeTask(gCtx, item)
+			return c.executeTask(gCtx, it)
 		})
 	}
 
@@ -183,12 +200,14 @@ func (c *Conveyer) RegisterDecorator(
 	c.createChannel(input)
 	c.createChannel(output)
 
+	c.mu.Lock()
 	c.tasks = append(c.tasks, taskItem{
 		kind:    "decorator",
 		fn:      decFunc,
 		inputs:  []string{input},
 		outputs: []string{output},
 	})
+	c.mu.Unlock()
 }
 
 func (c *Conveyer) RegisterMultiplexer(
@@ -202,12 +221,14 @@ func (c *Conveyer) RegisterMultiplexer(
 
 	c.createChannel(output)
 
+	c.mu.Lock()
 	c.tasks = append(c.tasks, taskItem{
 		kind:    "multiplexer",
 		fn:      decFunc,
 		inputs:  inputs,
 		outputs: []string{output},
 	})
+	c.mu.Unlock()
 }
 
 func (c *Conveyer) RegisterSeparator(
@@ -221,10 +242,12 @@ func (c *Conveyer) RegisterSeparator(
 		c.createChannel(name)
 	}
 
+	c.mu.Lock()
 	c.tasks = append(c.tasks, taskItem{
 		kind:    "separator",
 		fn:      decFunc,
 		inputs:  []string{input},
 		outputs: outputs,
 	})
+	c.mu.Unlock()
 }

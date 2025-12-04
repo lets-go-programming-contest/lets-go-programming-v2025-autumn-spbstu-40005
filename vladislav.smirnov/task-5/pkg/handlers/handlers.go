@@ -12,9 +12,13 @@ var (
 	ErrEmptyChannel = errors.New("empty channel")
 )
 
-func PrefixDecoratorFunc(ctx context.Context, input, output chan string) error {
-	const prefix = "decorated: "
+const (
+	prefixStr = "decorated: "
+	noDecStr  = "no decorator"
+	noMultStr = "no multiplexer"
+)
 
+func PrefixDecoratorFunc(ctx context.Context, input, output chan string) error {
 	for {
 		select {
 		case <-ctx.Done():
@@ -25,11 +29,11 @@ func PrefixDecoratorFunc(ctx context.Context, input, output chan string) error {
 				return nil
 			}
 
-			if strings.Contains(value, "no decorator") {
+			if strings.Contains(value, noDecStr) {
 				return ErrCantDecorate
 			}
 
-			if !strings.HasPrefix(value, prefix) {
+			if !strings.HasPrefix(value, prefixStr) {
 				value = prefix + value
 			}
 
@@ -102,7 +106,7 @@ func processChannel(ctx context.Context, input <-chan string, output chan<- stri
 				return
 			}
 
-			if strings.Contains(value, "no multiplexer") {
+			if strings.Contains(value, noMultStr) {
 				continue
 			}
 
