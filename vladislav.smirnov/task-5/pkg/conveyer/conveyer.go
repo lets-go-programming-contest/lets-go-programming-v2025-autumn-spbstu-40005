@@ -91,7 +91,6 @@ func (c *Conveyer) Run(ctx context.Context) error {
 
 	c.mu.RUnlock()
 	for _, item := range tasksCopy {
-
 		it := item
 
 		errGroup.Go(func() error {
