@@ -5,8 +5,6 @@ import (
 	"errors"
 )
 
-var ErrHeapEmpty = errors.New("heap is empty")
-
 type MinHeap []int
 
 func (h *MinHeap) Len() int {
