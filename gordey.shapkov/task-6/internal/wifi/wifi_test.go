@@ -23,20 +23,7 @@ type rowTestSysInfo struct {
 func TestGetAddresses(t *testing.T) {
 	t.Parallel()
 
-	testTable := []rowTestSysInfo{
-		{
-			addrs: []string{"00:11:22:33:44:55", "aa:bb:cc:dd:ee:ff"},
-			names: []string{"eth1", "eth2"},
-		},
-		{
-			addrs:       nil,
-			errExpected: ErrExpected,
-		},
-		{
-			addrs: []string{},
-			names: []string{},
-		},
-	}
+	testTable := getTestCases()
 
 	mockWifi := NewWiFiHandle(t)
 	wifiService := myWifi.WiFiService{WiFi: mockWifi}
@@ -61,20 +48,7 @@ func TestGetAddresses(t *testing.T) {
 func TestGetNames(t *testing.T) {
 	t.Parallel()
 
-	testTable := []rowTestSysInfo{
-		{
-			addrs: []string{"00:11:22:33:44:55", "aa:bb:cc:dd:ee:ff"},
-			names: []string{"eth1", "eth2"},
-		},
-		{
-			addrs:       nil,
-			errExpected: ErrExpected,
-		},
-		{
-			addrs: []string{},
-			names: []string{},
-		},
-	}
+	testTable := getTestCases()
 
 	mockWifi := NewWiFiHandle(t)
 	wifiService := myWifi.WiFiService{WiFi: mockWifi}
@@ -150,4 +124,21 @@ func parseMAC(macStr string) net.HardwareAddr {
 	}
 
 	return hwAddr
+}
+
+func getTestCases() []rowTestSysInfo {
+	return []rowTestSysInfo{
+		{
+			addrs: []string{"00:11:22:33:44:55", "aa:bb:cc:dd:ee:ff"},
+			names: []string{"eth1", "eth2"},
+		},
+		{
+			addrs:       nil,
+			errExpected: ErrExpected,
+		},
+		{
+			addrs: []string{},
+			names: []string{},
+		},
+	}
 }
