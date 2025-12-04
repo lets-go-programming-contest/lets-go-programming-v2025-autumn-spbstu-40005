@@ -48,14 +48,13 @@ func TestGetAddresses(t *testing.T) {
 		actualAddrs, err := wifiService.GetAddresses()
 
 		if row.errExpected != nil {
-			require.ErrorIs(t, err, row.errExpected, "expected error: %w, actual error: %w", row.errExpected, err)
+			require.ErrorIs(t, err, row.errExpected)
 
 			continue
 		}
 
-		require.NoError(t, err, "error must be nil")
-		require.Equal(t, parseMACs(row.addrs), actualAddrs,
-			"expected addrs: %s, actual addrs: %s", parseMACs(row.addrs), actualAddrs)
+		require.NoError(t, err)
+		require.Equal(t, parseMACs(row.addrs), actualAddrs)
 	}
 }
 
@@ -87,13 +86,13 @@ func TestGetNames(t *testing.T) {
 		actualNames, err := wifiService.GetNames()
 
 		if row.errExpected != nil {
-			require.ErrorIs(t, err, row.errExpected, "expected error: %w, actual error: %w", row.errExpected, err)
+			require.ErrorIs(t, err, row.errExpected)
 
 			continue
 		}
 
-		require.NoError(t, err, "error must be nil")
-		require.Equal(t, row.names, actualNames, "expected addrs: %s, actual addrs: %s", row.names, actualNames)
+		require.NoError(t, err)
+		require.Equal(t, row.names, actualNames)
 	}
 }
 
@@ -102,7 +101,7 @@ func TestNew(t *testing.T) {
 
 	mockWifi := NewWiFiHandle(t)
 	wifiService := myWifi.New(mockWifi)
-	require.Equal(t, mockWifi, wifiService.WiFi, "expected: %s, actual: %s", mockWifi, wifiService.WiFi)
+	require.Equal(t, mockWifi, wifiService.WiFi)
 }
 
 func mockIfaces(addrs []string) []*wifi.Interface {

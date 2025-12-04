@@ -44,14 +44,14 @@ func TestGetNames(t *testing.T) {
 
 		names, err := dbService.GetNames()
 		if row.errExpected != nil {
-			require.ErrorIs(t, err, row.errExpected, "row: %d, expected error: %w, actual error: %w", row.errExpected, err)
-			require.Nil(t, names, "names must be nil")
+			require.ErrorIs(t, err, row.errExpected)
+			require.Nil(t, names)
 
 			continue
 		}
 
-		require.NoError(t, err, "error must be nil")
-		require.Equal(t, row.names, names, "expected names: %s, actual names: %s", row.names, names)
+		require.NoError(t, err)
+		require.Equal(t, row.names, names)
 	}
 
 	mock.ExpectQuery("SELECT name FROM users").
@@ -101,14 +101,14 @@ func TestGetUniqueNames(t *testing.T) {
 
 		names, err := dbService.GetUniqueNames()
 		if row.errExpected != nil {
-			require.ErrorIs(t, err, row.errExpected, "row: %d, expected error: %w, actual error: %w", row.errExpected, err)
-			require.Nil(t, names, "names must be nil")
+			require.ErrorIs(t, err, row.errExpected)
+			require.Nil(t, names)
 
 			continue
 		}
 
-		require.NoError(t, err, "error must be nil")
-		require.Equal(t, row.names, names, "expected names: %s, actual names: %s", row.names, names)
+		require.NoError(t, err)
+		require.Equal(t, row.names, names)
 	}
 
 	mock.ExpectQuery("SELECT DISTINCT name FROM users").
@@ -149,5 +149,5 @@ func TestNew(t *testing.T) {
 
 	service := db.New(mockDB)
 
-	require.Equal(t, mockDB, service.DB, "expected: %s, actual: %s", mockDB, service.DB)
+	require.Equal(t, mockDB, service.DB)
 }
