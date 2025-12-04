@@ -79,10 +79,10 @@ func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan stri
 
 	waitGroup.Add(len(inputs))
 
-	for _, channel := range inputs {
+	for _, input := range inputs {
 		go func(in <-chan string) {
 			defer waitGroup.Done()
-			processString(ctx, in, output)
+			processChannel(ctx, in, output)
 		}(input)
 	}
 
@@ -94,12 +94,12 @@ func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan stri
 func processChannel(ctx context.Context, input <-chan string, output chan<- string) {
 	for {
 		select {
-		case <-gCtx.Done():
-			return gCtx.Err()
+		case <-ctx.Done():
+			return ctx.Err()
 
-		case value, ok := <-channel:
+		case value, ok := <-input:
 			if !ok {
-				return nil
+				return
 			}
 
 			if strings.Contains(value, "no nultiplexer") {
@@ -109,8 +109,8 @@ func processChannel(ctx context.Context, input <-chan string, output chan<- stri
 			select {
 			case output <- value:
 
-			case <-gCtx.Done():
-				return gCtx.Err()
+			case <-ctx.Done():
+				return ctx.Err()
 			}
 		}
 	}
