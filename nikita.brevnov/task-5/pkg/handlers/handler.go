@@ -46,7 +46,7 @@ func Distribute(ctx context.Context, input chan string, outs []chan string) erro
 		return ErrNoOutputs
 	}
 
-	idx := 0
+	index := 0
 
 	for {
 		select {
@@ -57,9 +57,8 @@ func Distribute(ctx context.Context, input chan string, outs []chan string) erro
 				return nil
 			}
 
-			outs[idx%len(outs)] <- data
-			idx++
-
+			outs[index%len(outs)] <- data
+			index++
 		}
 	}
 }
