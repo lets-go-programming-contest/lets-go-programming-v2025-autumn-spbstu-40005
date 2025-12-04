@@ -64,3 +64,48 @@ func SeparatorFunc(ctx context.Context, input chan string, outputs []chan string
 		}
 	}
 }
+
+func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan string) error {
+
+	if len(inputs) == 0 {
+		return nil
+	}
+
+	openChannels := len(inputs)
+
+	for openChannels > 0 {
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+
+		default:
+			for i, ch := range inputs {
+				select {
+				case <-ctx.Done():
+					return ctx.Err()
+
+				case v, ok := <-ch:
+					if !ok {
+						inputs[i] = nil
+						openChannels--
+						continue
+					}
+
+					if strings.Contains(v, "no multiplexer") {
+						continue
+					}
+
+					select {
+					case <-ctx.Done():
+						return ctx.Err()
+					case output <- v:
+					}
+
+				default:
+				}
+			}
+		}
+	}
+
+	return nil
+}
