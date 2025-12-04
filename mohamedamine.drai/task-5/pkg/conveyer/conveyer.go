@@ -137,6 +137,7 @@ func (p *Pipeline) Run(ctx context.Context) error {
 	if err != nil {
 		return fmt.Errorf("conveyer run failed: %w", err)
 	}
+
 	return nil
 }
 
@@ -150,6 +151,7 @@ func (p *Pipeline) Send(inputName string, data string) error {
 	}
 
 	channel <- data
+
 	return nil
 }
 
