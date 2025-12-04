@@ -21,7 +21,7 @@ type testcase struct {
 	expectedError error
 }
 
-var tests = []testcase{
+var tests = []testcase{ //nolint:gochecknoglobals
 	{
 		testName: "success",
 		addrs:    []string{"00:11:22:33:44:55", "aa:bb:cc:dd:ee:ff"},

@@ -51,6 +51,8 @@ func helperListMock(t *testing.T, name string, values []string) *sqlmock.Rows {
 }
 
 func helperInitMock(t *testing.T) (*sql.DB, sqlmock.Sqlmock) { //nolint:ireturn
+	t.Helper()
+
 	db, mock, err := sqlmock.New()
 	require.NoError(
 		t, err,
@@ -63,8 +65,8 @@ func helperInitMock(t *testing.T) (*sql.DB, sqlmock.Sqlmock) { //nolint:ireturn
 func TestGetNames(t *testing.T) {
 	t.Parallel()
 
-	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) { //nolint:paralleltest
+	for _, test := range tests { //nolint:paralleltest
+		t.Run(test.name, func(t *testing.T) {
 			testGetNamesPredicted(t, &test)
 		})
 	}
@@ -142,7 +144,6 @@ func testGetNamesScanError(t *testing.T) {
 	names, err := service.GetNames()
 
 	require.Error(t, err)
-
 	require.Nil(t, names)
 
 	err = mock.ExpectationsWereMet()
