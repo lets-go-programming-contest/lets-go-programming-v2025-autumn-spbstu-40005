@@ -1,3 +1,3 @@
-module oleg.zholobov/task-2-1
+module oleg.zholobov/task-5
 
 go 1.22.7
