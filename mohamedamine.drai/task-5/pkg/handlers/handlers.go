@@ -8,37 +8,36 @@ import (
 )
 
 var (
-	ErrDecorateBlocked = errors.New("can't be decorated")
-	ErrNoTargets       = errors.New("no output channels provided")
+	ErrNoDecorator  = errors.New("she cant be decorated")
+	ErrEmptyOutputs = errors.New("outputs are empty")
 )
 
 const (
-	skipDecorateKey = "no decorator"
-	skipMuxKey      = "no multiplexer"
-	prefix          = "decorated: "
+	noDecorator     = "no decorator"
+	noMultiplexer   = "no multiplexer"
+	decoratedPrefix = "decorated: "
 )
 
-func DecoratePrefix(ctx context.Context, input chan string, output chan string) error {
+func PrefixDecoratorFunc(ctx context.Context, input, output chan string) error {
 	for {
 		select {
 		case <-ctx.Done():
 			return nil
-
-		case s, ok := <-input:
-			if !ok {
+		case str, status := <-input:
+			if !status {
 				return nil
 			}
 
-			if strings.Contains(s, skipDecorateKey) {
-				return ErrDecorateBlocked
+			if strings.Contains(str, noDecorator) {
+				return ErrNoDecorator
 			}
 
-			if !strings.HasPrefix(s, prefix) {
-				s = prefix + s
+			if !strings.HasPrefix(str, decoratedPrefix) {
+				str = decoratedPrefix + str
 			}
 
 			select {
-			case output <- s:
+			case output <- str:
 			case <-ctx.Done():
 				return nil
 			}
@@ -46,68 +45,66 @@ func DecoratePrefix(ctx context.Context, input chan string, output chan string) 
 	}
 }
 
-func MergeInputs(ctx context.Context, ins []chan string, out chan string) error {
-	var wg sync.WaitGroup
-	wg.Add(len(ins))
+func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan string) error {
+	var waitGroup sync.WaitGroup
 
-	for _, c := range ins {
-		ch := c
+	waitGroup.Add(len(inputs))
 
-		go func() {
-			defer wg.Done()
+	for _, channelInput := range inputs {
+		go func(channel chan string) {
+			defer waitGroup.Done()
 
 			for {
 				select {
 				case <-ctx.Done():
 					return
-
-				case v, ok := <-ch:
-					if !ok {
+				case str, status := <-channel:
+					if !status {
 						return
 					}
 
-					if strings.Contains(v, skipMuxKey) {
+					if strings.Contains(str, noMultiplexer) {
 						continue
 					}
 
 					select {
-					case out <- v:
+					case output <- str:
 					case <-ctx.Done():
 						return
 					}
 				}
 			}
-		}()
+		}(channelInput)
 	}
 
-	wg.Wait()
+	waitGroup.Wait()
+
 	return nil
 }
 
-func SplitStream(ctx context.Context, input chan string, outs []chan string) error {
-	if len(outs) == 0 {
-		return ErrNoTargets
+func SeparatorFunc(ctx context.Context, input chan string, outputs []chan string) error {
+	if len(outputs) == 0 {
+		return ErrEmptyOutputs
 	}
 
-	pos := 0
+	index := 0
 
 	for {
 		select {
 		case <-ctx.Done():
 			return nil
-
-		case v, ok := <-input:
+		case str, ok := <-input:
 			if !ok {
 				return nil
 			}
 
 			select {
-			case outs[pos] <- v:
+			case outputs[index] <- str:
 			case <-ctx.Done():
 				return nil
 			}
 
-			pos = (pos + 1) % len(outs)
+			index = (index + 1) % len(outputs)
 		}
 	}
 }

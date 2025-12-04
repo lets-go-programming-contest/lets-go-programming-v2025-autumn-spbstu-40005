@@ -9,159 +9,162 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
-var ErrChannelMissing = errors.New("we cant found chan")
+var ErrChanNotFound = errors.New("not found chan")
 
-const emptyValue = "undefined"
+const undefined = "undefined"
 
-type Conveyor interface {
-	AddDecorator(
-		handler func(context.Context, chan string, chan string) error,
-		in string,
-		out string,
+type ConveyerInterface interface {
+	RegisterDecorator(
+		fn func(ctx context.Context, input chan string, output chan string) error,
+		input string,
+		output string,
 	)
-	AddMultiplexer(
-		handler func(context.Context, []chan string, chan string) error,
+	RegisterMultiplexer(
+		fn func(ctx context.Context, inputs []chan string, output chan string) error,
 		inputs []string,
 		output string,
 	)
-	AddSeparator(
-		handler func(context.Context, chan string, []chan string) error,
+	RegisterSeparator(
+		fn func(ctx context.Context, input chan string, outputs []chan string) error,
 		input string,
 		outputs []string,
 	)
 
-	Run(context.Context) error
-	Push(string, string) error
-	Pull(string) (string, error)
+	Run(ctx context.Context) error
+	Send(input string, data string) error
+	Recv(output string) (string, error)
 }
 
-type Flow struct {
-	bufSize  int
-	bus      map[string]chan string
-	tasks    []func(context.Context) error
-	busGuard sync.RWMutex
+type Pipeline struct {
+	size     int
+	channels map[string]chan string
+	handlers []func(ctx context.Context) error
+	mu       sync.RWMutex
 }
 
-func New(size int) *Flow {
-	return &Flow{
-		bufSize:  size,
-		bus:      make(map[string]chan string),
-		tasks:    make([]func(context.Context) error, 0),
-		busGuard: sync.RWMutex{},
+func New(size int) *Pipeline {
+	return &Pipeline{
+		size:     size,
+		channels: make(map[string]chan string),
+		handlers: []func(ctx context.Context) error{},
+		mu:       sync.RWMutex{},
 	}
 }
 
-func (f *Flow) ensure(name string) chan string {
-	f.busGuard.Lock()
-	defer f.busGuard.Unlock()
+func (pipe *Pipeline) getOrInitChannel(name string) chan string {
+	pipe.mu.Lock()
+	defer pipe.mu.Unlock()
 
-	if c, ok := f.bus[name]; ok {
-		return c
+	if channel, exists := pipe.channels[name]; exists {
+		return channel
 	}
 
-	ch := make(chan string, f.bufSize)
-	f.bus[name] = ch
-	return ch
+	channel := make(chan string, pipe.size)
+	pipe.channels[name] = channel
+
+	return channel
 }
 
-func (f *Flow) AddDecorator(
-	fn func(context.Context, chan string, chan string) error,
+func (pipe *Pipeline) RegisterDecorator(
+	function func(context.Context, chan string, chan string) error,
 	input string,
 	output string,
 ) {
-	inCh := f.ensure(input)
-	outCh := f.ensure(output)
+	channelIn := pipe.getOrInitChannel(input)
+	channelOut := pipe.getOrInitChannel(output)
 
-	f.tasks = append(f.tasks, func(ctx context.Context) error {
-		return fn(ctx, inCh, outCh)
+	pipe.handlers = append(pipe.handlers, func(ctx context.Context) error {
+		return function(ctx, channelIn, channelOut)
 	})
 }
 
-func (f *Flow) AddMultiplexer(
-	fn func(context.Context, []chan string, chan string) error,
+func (pipe *Pipeline) RegisterMultiplexer(
+	function func(context.Context, []chan string, chan string) error,
 	inputs []string,
 	output string,
 ) {
-	allIn := make([]chan string, len(inputs))
-	for i, n := range inputs {
-		allIn[i] = f.ensure(n)
+	inStrings := make([]chan string, len(inputs))
+	for i, name := range inputs {
+		inStrings[i] = pipe.getOrInitChannel(name)
 	}
 
-	out := f.ensure(output)
+	out := pipe.getOrInitChannel(output)
 
-	f.tasks = append(f.tasks, func(ctx context.Context) error {
-		return fn(ctx, allIn, out)
+	pipe.handlers = append(pipe.handlers, func(ctx context.Context) error {
+		return function(ctx, inStrings, out)
 	})
 }
 
-func (f *Flow) AddSeparator(
-	fn func(context.Context, chan string, []chan string) error,
+func (pipe *Pipeline) RegisterSeparator(
+	function func(context.Context, chan string, []chan string) error,
 	input string,
 	outputs []string,
 ) {
-	inp := f.ensure(input)
+	channelIn := pipe.getOrInitChannel(input)
+	outs := make([]chan string, len(outputs))
 
-	outList := make([]chan string, len(outputs))
-	for i, n := range outputs {
-		outList[i] = f.ensure(n)
+	for i, name := range outputs {
+		outs[i] = pipe.getOrInitChannel(name)
 	}
 
-	f.tasks = append(f.tasks, func(ctx context.Context) error {
-		return fn(ctx, inp, outList)
+	pipe.handlers = append(pipe.handlers, func(ctx context.Context) error {
+		return function(ctx, channelIn, outs)
 	})
 }
 
-func (f *Flow) Run(ctx context.Context) error {
-	group, gctx := errgroup.WithContext(ctx)
+func (pipe *Pipeline) Run(ctx context.Context) error {
+	group, groupCtx := errgroup.WithContext(ctx)
 
-	for _, t := range f.tasks {
-		fn := t
+	for _, h := range pipe.handlers {
+		handler := h
 
 		group.Go(func() error {
-			return fn(gctx)
+			return handler(groupCtx)
 		})
 	}
 
 	err := group.Wait()
 
-	f.busGuard.Lock()
-	for _, c := range f.bus {
-		close(c)
+	pipe.mu.Lock()
+	for _, channel := range pipe.channels {
+		close(channel)
 	}
-	f.busGuard.Unlock()
+	pipe.mu.Unlock()
 
 	if err != nil {
-		return fmt.Errorf("pipeline stopped: %w", err)
+		return fmt.Errorf("run failed: %w", err)
 	}
+
 	return nil
 }
 
-func (f *Flow) Push(chName string, data string) error {
-	f.busGuard.RLock()
-	ch, ok := f.bus[chName]
-	f.busGuard.RUnlock()
+func (pipe *Pipeline) Send(input string, data string) error {
+	pipe.mu.RLock()
+	channel, exists := pipe.channels[input]
+	pipe.mu.RUnlock()
 
-	if !ok {
-		return ErrChannelMissing
+	if !exists {
+		return ErrChanNotFound
 	}
 
-	ch <- data
+	channel <- data
+
 	return nil
 }
 
-func (f *Flow) Pull(name string) (string, error) {
-	f.busGuard.RLock()
-	ch, ok := f.bus[name]
-	f.busGuard.RUnlock()
+func (pipe *Pipeline) Recv(output string) (string, error) {
+	pipe.mu.RLock()
+	channel, exists := pipe.channels[output]
+	pipe.mu.RUnlock()
 
-	if !ok {
-		return "", ErrChannelMissing
+	if !exists {
+		return "", ErrChanNotFound
 	}
 
-	v, ok := <-ch
-	if !ok {
-		return emptyValue, nil
+	data, status := <-channel
+	if !status {
+		return undefined, nil
 	}
 
-	return v, nil
+	return data, nil
 }
