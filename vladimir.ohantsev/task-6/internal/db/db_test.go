@@ -23,7 +23,7 @@ type testcase struct {
 	expectedError error
 }
 
-var tests = []testcase{
+var tests = []testcase{ //nolint:gochecknoglobals
 	{
 		name:   "success case",
 		values: []string{"Ivan", "Gena228"},
@@ -50,7 +50,7 @@ func helperListMock(t *testing.T, name string, values []string) *sqlmock.Rows {
 	return rows
 }
 
-func helperInitMock(t *testing.T) (*sql.DB, sqlmock.Sqlmock) {
+func helperInitMock(t *testing.T) (*sql.DB, sqlmock.Sqlmock) { //nolint:ireturn
 	db, mock, err := sqlmock.New()
 	require.NoError(
 		t, err,
@@ -61,23 +61,25 @@ func helperInitMock(t *testing.T) (*sql.DB, sqlmock.Sqlmock) {
 }
 
 func TestGetNames(t *testing.T) {
+	t.Parallel()
+
 	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) {
+		t.Run(test.name, func(t *testing.T) { //nolint:paralleltest
 			testGetNamesPredicted(t, &test)
 		})
 	}
 
-	t.Run("special case: scan error", testGetNamesScanError)
-	t.Run("special case: row error", testGetNamesRowsError)
+	t.Run("special case: scan error", testGetNamesScanError) //nolint:paralleltest
+	t.Run("special case: row error", testGetNamesRowsError)  //nolint:paralleltest
 }
 
-func testGetNamesPredicted(t *testing.T, test *testcase) {
+func testGetNamesPredicted(t *testing.T, test *testcase) { //nolint:thelper
 	t.Parallel()
 
 	db, mock := helperInitMock(t)
 	defer db.Close()
 
-	service := database.DBService{db}
+	service := database.New(db)
 
 	mock.ExpectQuery(queryGetNames).
 		WillReturnRows(helperListMock(t, "name", test.values)).
@@ -103,7 +105,7 @@ func testGetNamesRowsError(t *testing.T) {
 	db, mock := helperInitMock(t)
 	defer db.Close()
 
-	service := database.DBService{db}
+	service := database.New(db)
 
 	mock.ExpectQuery(queryGetNames).
 		WillReturnRows(
@@ -128,19 +130,19 @@ func testGetNamesScanError(t *testing.T) {
 	db, mock := helperInitMock(t)
 	defer db.Close()
 
-	service := database.DBService{db}
+	service := database.New(db)
 
 	mock.ExpectQuery(queryGetNames).
 		WillReturnRows(
 			sqlmock.
 				NewRows([]string{"name"}).
-				AddRow(nil).
-				RowError(0, ErrSome),
+				AddRow(nil),
 		)
 
 	names, err := service.GetNames()
 
-	require.ErrorIs(t, err, ErrSome)
+	require.Error(t, err)
+
 	require.Nil(t, names)
 
 	err = mock.ExpectationsWereMet()
@@ -148,23 +150,23 @@ func testGetNamesScanError(t *testing.T) {
 }
 
 func TestGetUniqueNames(t *testing.T) {
-	for _, test := range tests {
+	for _, test := range tests { //nolint:paralleltest
 		t.Run(test.name, func(t *testing.T) {
 			testGetUniqueNamesPredicted(t, &test)
 		})
 	}
 
-	t.Run("special case: scan error", testGetUniqueNamesScanError)
-	t.Run("special case: row error", testGetUniqueNamesRowsError)
+	t.Run("special case: scan error", testGetUniqueNamesScanError) //nolint:paralleltest
+	t.Run("special case: row error", testGetUniqueNamesRowsError)  //nolint:paralleltest
 }
 
-func testGetUniqueNamesPredicted(t *testing.T, test *testcase) {
+func testGetUniqueNamesPredicted(t *testing.T, test *testcase) { //nolint:thelper
 	t.Parallel()
 
 	db, mock := helperInitMock(t)
 	defer db.Close()
 
-	service := database.DBService{db}
+	service := database.New(db)
 
 	mock.ExpectQuery(queryGetUniqueNames).
 		WillReturnRows(helperListMock(t, "name", test.values)).
@@ -190,7 +192,7 @@ func testGetUniqueNamesRowsError(t *testing.T) {
 	db, mock := helperInitMock(t)
 	defer db.Close()
 
-	service := database.DBService{db}
+	service := database.New(db)
 
 	mock.ExpectQuery(queryGetUniqueNames).
 		WillReturnRows(
@@ -215,19 +217,18 @@ func testGetUniqueNamesScanError(t *testing.T) {
 	db, mock := helperInitMock(t)
 	defer db.Close()
 
-	service := database.DBService{db}
+	service := database.New(db)
 
 	mock.ExpectQuery(queryGetUniqueNames).
 		WillReturnRows(
 			sqlmock.
 				NewRows([]string{"name"}).
-				AddRow(nil).
-				RowError(0, ErrSome),
+				AddRow(nil),
 		)
 
 	names, err := service.GetUniqueNames()
 
-	require.ErrorIs(t, err, ErrSome)
+	require.Error(t, err)
 	require.Nil(t, names)
 
 	err = mock.ExpectationsWereMet()
