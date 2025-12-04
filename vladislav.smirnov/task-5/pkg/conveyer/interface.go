@@ -23,3 +23,9 @@ type conveyer interface {
 	Send(input string, data string) error
 	Recv(output string) (string, error)
 }
+
+type (
+	DecoratorHandlerFunc   func(context.Context, chan string, chan string) error
+	MultiplexerHandlerFunc func(context.Context, []chan string, chan string) error
+	SeparatorHandlerFunc   func(context.Context, chan string, []chan string) error
+)
