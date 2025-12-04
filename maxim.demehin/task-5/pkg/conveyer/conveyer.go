@@ -113,16 +113,20 @@ func (c *ConveyerType) closeChannels() {
 	}
 }
 
-func (c *ConveyerType) Run(ctx context.Context) error {
-	c.mutex.RLock()
-
-	group, ctx := errgroup.WithContext(ctx)
-
+func (c *ConveyerType) runTasksInGroup(group *errgroup.Group, ctx context.Context) {
 	for _, task := range c.tasks {
 		group.Go(func() error {
 			return task(ctx)
 		})
 	}
+}
+
+func (c *ConveyerType) Run(ctx context.Context) error {
+	c.mutex.RLock()
+
+	group, ctx := errgroup.WithContext(ctx)
+
+	c.runTasksInGroup(group, ctx)
 
 	err := group.Wait()
 
