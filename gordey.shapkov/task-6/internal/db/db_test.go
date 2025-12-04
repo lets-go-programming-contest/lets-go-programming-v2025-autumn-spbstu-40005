@@ -20,15 +20,7 @@ type rowTestDB struct {
 func TestGetNames(t *testing.T) {
 	t.Parallel()
 
-	testTable := []rowTestDB{
-		{
-			names: []string{"Ivan", "Gena228"},
-		},
-		{
-			names:       nil,
-			errExpected: ErrExpected,
-		},
-	}
+	testTable := getTestCases()
 
 	mockDB, mock, err := sqlmock.New()
 	if err != nil {
@@ -76,15 +68,7 @@ func TestGetNames(t *testing.T) {
 func TestGetUniqueNames(t *testing.T) {
 	t.Parallel()
 
-	testTable := []rowTestDB{
-		{
-			names: []string{"Ivan", "Gena228"},
-		},
-		{
-			names:       nil,
-			errExpected: ErrExpected,
-		},
-	}
+	testTable := getTestCases()
 
 	mockDB, mock, err := sqlmock.New()
 	if err != nil {
@@ -152,4 +136,16 @@ func TestNew(t *testing.T) {
 	service := db.New(mockDB)
 
 	require.Equal(t, mockDB, service.DB)
+}
+
+func getTestCases() []rowTestDB {
+	return []rowTestDB{
+		{
+			names: []string{"Ivan", "Gena228"},
+		},
+		{
+			names:       nil,
+			errExpected: ErrExpected,
+		},
+	}
 }
