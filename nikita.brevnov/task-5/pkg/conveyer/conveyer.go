@@ -9,8 +9,6 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
-const undefinedValue = "undefined"
-
 var ErrChannelNotFound = errors.New("channel not found")
 
 type conveyer struct {
