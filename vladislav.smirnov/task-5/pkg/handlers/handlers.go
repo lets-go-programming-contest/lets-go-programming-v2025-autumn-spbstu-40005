@@ -102,7 +102,7 @@ func processChannel(ctx context.Context, input <-chan string, output chan<- stri
 				return
 			}
 
-			if strings.Contains(value, "no nultiplexer") {
+			if strings.Contains(value, "no multiplexer") {
 				continue
 			}
 
