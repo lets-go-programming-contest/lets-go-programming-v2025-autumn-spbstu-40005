@@ -7,8 +7,6 @@ import (
 )
 
 var (
-	ErrInvalidN       = errors.New("invalid number")
-	ErrInvalidElement = errors.New("invalid element")
 	ErrInvalidK       = errors.New("invalid k value")
 	ErrEmptyArray     = errors.New("array is empty")
 	ErrKTooLarge      = errors.New("k is too large")
