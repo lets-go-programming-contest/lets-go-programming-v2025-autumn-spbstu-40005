@@ -7,10 +7,10 @@ import (
 )
 
 var (
-	ErrInvalidK       = errors.New("invalid k value")
-	ErrEmptyArray     = errors.New("array is empty")
-	ErrKTooLarge      = errors.New("k is too large")
-	ErrKthNotFound    = errors.New("k-th element not found")
+	ErrInvalidK    = errors.New("invalid k value")
+	ErrEmptyArray  = errors.New("array is empty")
+	ErrKTooLarge   = errors.New("k is too large")
+	ErrKthNotFound = errors.New("k-th element not found")
 )
 
 func readInput() ([]int, int, error) {
