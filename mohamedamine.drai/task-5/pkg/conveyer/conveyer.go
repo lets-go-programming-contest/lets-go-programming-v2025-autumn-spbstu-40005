@@ -49,6 +49,7 @@ func New(size int) *Pipeline {
 		size:     size,
 		channels: make(map[string]chan string),
 		workers:  make([]func(context.Context) error, 0),
+		mu:       sync.RWMutex{},
 	}
 }
 
@@ -56,14 +57,15 @@ func (p *Pipeline) getOrCreateChannel(name string) chan string {
 	p.mu.Lock()
 	defer p.mu.Unlock()
 
-	channel, exists := p.channels[name]
+	existing, exists := p.channels[name]
 	if exists {
-		return channel
+		return existing
 	}
 
-	c := make(chan string, p.size)
-	p.channels[name] = c
-	return c
+	ch := make(chan string, p.size)
+	p.channels[name] = ch
+
+	return ch
 }
 
 func (p *Pipeline) RegisterDecorator(
@@ -84,16 +86,15 @@ func (p *Pipeline) RegisterMultiplexer(
 	inputs []string,
 	output string,
 ) {
-	inChannels := make([]chan string, len(inputs))
-
+	inChList := make([]chan string, len(inputs))
 	for i, name := range inputs {
-		inChannels[i] = p.getOrCreateChannel(name)
+		inChList[i] = p.getOrCreateChannel(name)
 	}
 
 	outCh := p.getOrCreateChannel(output)
 
 	p.workers = append(p.workers, func(ctx context.Context) error {
-		return handler(ctx, inChannels, outCh)
+		return handler(ctx, inChList, outCh)
 	})
 }
 
@@ -103,24 +104,25 @@ func (p *Pipeline) RegisterSeparator(
 	outputs []string,
 ) {
 	inCh := p.getOrCreateChannel(input)
-	outChList := make([]chan string, len(outputs))
 
+	outList := make([]chan string, len(outputs))
 	for i, name := range outputs {
-		outChList[i] = p.getOrCreateChannel(name)
+		outList[i] = p.getOrCreateChannel(name)
 	}
 
 	p.workers = append(p.workers, func(ctx context.Context) error {
-		return handler(ctx, inCh, outChList)
+		return handler(ctx, inCh, outList)
 	})
 }
 
 func (p *Pipeline) Run(ctx context.Context) error {
 	group, derivedCtx := errgroup.WithContext(ctx)
 
-	for _, worker := range p.workers {
-		w := worker
+	for _, job := range p.workers {
+		task := job
+
 		group.Go(func() error {
-			return w(derivedCtx)
+			return task(derivedCtx)
 		})
 	}
 
