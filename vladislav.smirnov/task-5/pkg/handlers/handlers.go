@@ -84,33 +84,35 @@ func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan stri
 
 	for _, channel := range inputs {
 		waitGroup.Add(1)
-		errGroup.Go(func() error {
+		errGroup.Go(func(c chan string) func() error {
 			defer waitGroup.Done()
-
-			for {
-				select {
-				case <-gCtx.Done():
-					return gCtx.Err()
-
-				case value, ok := <-channel:
-					if !ok {
-						return nil
-					}
-
-					if strings.Contains(value, "no multiplexer") {
-						continue
-					}
-
+			return func() error {
+				for {
 					select {
-					case output <- value:
-
 					case <-gCtx.Done():
 						return gCtx.Err()
+
+					case value, ok := <-channel:
+						if !ok {
+							return nil
+						}
+
+						if strings.Contains(value, "no multiplexer") {
+							continue
+						}
+
+						select {
+						case output <- value:
+
+						case <-gCtx.Done():
+							return gCtx.Err()
+						}
 					}
 				}
 			}
-		})
+		}(channel))
 	}
+
 	err := errGroup.Wait()
 
 	if err != nil && errors.Is(err, context.Canceled) {
