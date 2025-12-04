@@ -8,36 +8,37 @@ import (
 )
 
 var (
-	ErrNoDecorator  = errors.New("she cant be decorated")
-	ErrEmptyOutputs = errors.New("outputs are empty")
+	ErrNoDecorator  = errors.New("can't be decorated")
+	ErrEmptyOutputs = errors.New("empty outputs")
 )
 
 const (
-	noDecorator     = "no decorator"
-	noMultiplexer   = "no multiplexer"
-	decoratedPrefix = "decorated: "
+	prefixValue      = "decorated: "
+	skipDecoratorKey = "no decorator"
+	skipMuxKey       = "no multiplexer"
 )
 
-func PrefixDecoratorFunc(ctx context.Context, input, output chan string) error {
+func PrefixDecoratorFunc(ctx context.Context, input chan string, output chan string) error {
 	for {
 		select {
 		case <-ctx.Done():
 			return nil
-		case str, status := <-input:
-			if !status {
+
+		case value, open := <-input:
+			if !open {
 				return nil
 			}
 
-			if strings.Contains(str, noDecorator) {
+			if strings.Contains(value, skipDecoratorKey) {
 				return ErrNoDecorator
 			}
 
-			if !strings.HasPrefix(str, decoratedPrefix) {
-				str = decoratedPrefix + str
+			if !strings.HasPrefix(value, prefixValue) {
+				value = prefixValue + value
 			}
 
 			select {
-			case output <- str:
+			case output <- value:
 			case <-ctx.Done():
 				return nil
 			}
@@ -46,38 +47,41 @@ func PrefixDecoratorFunc(ctx context.Context, input, output chan string) error {
 }
 
 func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan string) error {
-	var waitGroup sync.WaitGroup
+	var wg sync.WaitGroup
 
-	waitGroup.Add(len(inputs))
+	wg.Add(len(inputs))
 
-	for _, channelInput := range inputs {
-		go func(channel chan string) {
-			defer waitGroup.Done()
+	for _, in := range inputs {
+		channel := in
+
+		go func() {
+			defer wg.Done()
 
 			for {
 				select {
 				case <-ctx.Done():
 					return
-				case str, status := <-channel:
-					if !status {
+
+				case value, ok := <-channel:
+					if !ok {
 						return
 					}
 
-					if strings.Contains(str, noMultiplexer) {
+					if strings.Contains(value, skipMuxKey) {
 						continue
 					}
 
 					select {
-					case output <- str:
+					case output <- value:
 					case <-ctx.Done():
 						return
 					}
 				}
 			}
-		}(channelInput)
+		}()
 	}
 
-	waitGroup.Wait()
+	wg.Wait()
 
 	return nil
 }
@@ -93,13 +97,14 @@ func SeparatorFunc(ctx context.Context, input chan string, outputs []chan string
 		select {
 		case <-ctx.Done():
 			return nil
-		case str, ok := <-input:
+
+		case value, ok := <-input:
 			if !ok {
 				return nil
 			}
 
 			select {
-			case outputs[index] <- str:
+			case outputs[index] <- value:
 			case <-ctx.Done():
 				return nil
 			}
