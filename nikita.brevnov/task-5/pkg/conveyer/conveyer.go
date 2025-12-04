@@ -23,6 +23,7 @@ func New(size int) *conveyer {
 		bufferSize: size,
 		channels:   make(map[string]chan string),
 		workers:    make([]func(ctx context.Context) error, 0),
+		mutex:      sync.RWMutex{},
 	}
 }
 
@@ -88,7 +89,6 @@ func (c *conveyer) Run(ctx context.Context) error {
 	errGroup, ctx := errgroup.WithContext(ctx)
 
 	for _, w := range c.workers {
-		w := w
 		errGroup.Go(func() error {
 			return w(ctx)
 		})
@@ -112,14 +112,15 @@ func (c *conveyer) closeAll() {
 
 func (c *conveyer) Send(name string, data string) error {
 	c.mutex.RLock()
-	ch, exists := c.channels[name]
+	channel, exists := c.channels[name]
 	c.mutex.RUnlock()
 
 	if !exists {
 		return ErrChannelNotFound
 	}
 
-	ch <- data
+	channel <- data
+
 	return nil
 }
 
@@ -130,5 +131,6 @@ func (c *conveyer) getChannelOrCreate(name string) chan string {
 
 	ch := make(chan string, c.bufferSize)
 	c.channels[name] = ch
+
 	return ch
 }

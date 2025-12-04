@@ -18,7 +18,7 @@ const (
 	skipMultiplexer = "no multiplexer"
 )
 
-func AddPrefix(ctx context.Context, in chan string, out chan string) error {
+func PrefixDecoratorFunc(ctx context.Context, in chan string, out chan string) error {
 	for {
 		select {
 		case <-ctx.Done():
@@ -41,7 +41,7 @@ func AddPrefix(ctx context.Context, in chan string, out chan string) error {
 	}
 }
 
-func Distribute(ctx context.Context, input chan string, outs []chan string) error {
+func SeparatorFunc(ctx context.Context, input chan string, outs []chan string) error {
 	if len(outs) == 0 {
 		return ErrNoOutputs
 	}
@@ -57,13 +57,14 @@ func Distribute(ctx context.Context, input chan string, outs []chan string) erro
 				return nil
 			}
 
-			outs[index%len(outs)] <- data
-			index++
+			current := index % len(outs)
+			outs[current] <- data
+			index = current + 1
 		}
 	}
 }
 
-func Merge(ctx context.Context, ins []chan string, out chan string) error {
+func MultiplexerFunc(ctx context.Context, ins []chan string, out chan string) error {
 	var waitGroup sync.WaitGroup
 
 	for _, inputChan := range ins {
