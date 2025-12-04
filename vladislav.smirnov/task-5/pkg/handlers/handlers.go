@@ -13,9 +13,9 @@ var (
 )
 
 const (
-	prefixStr = "decorated: "
-	noDecStr  = "no decorator"
-	noMultStr = "no multiplexer"
+	prefix        = "decorated: "
+	noDecorator   = "no decorator"
+	noMultiplexer = "no multiplexer"
 )
 
 func PrefixDecoratorFunc(ctx context.Context, input, output chan string) error {
@@ -29,11 +29,11 @@ func PrefixDecoratorFunc(ctx context.Context, input, output chan string) error {
 				return nil
 			}
 
-			if strings.Contains(value, noDecStr) {
+			if strings.Contains(value, noDecorator) {
 				return ErrCantDecorate
 			}
 
-			if !strings.HasPrefix(value, prefixStr) {
+			if !strings.HasPrefix(value, prefix) {
 				value = prefix + value
 			}
 
@@ -106,7 +106,7 @@ func processChannel(ctx context.Context, input <-chan string, output chan<- stri
 				return
 			}
 
-			if strings.Contains(value, noMultStr) {
+			if strings.Contains(value, noMultiplexer) {
 				continue
 			}
 
