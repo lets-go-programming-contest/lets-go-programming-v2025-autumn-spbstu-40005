@@ -108,6 +108,7 @@ func (c *Conveyer) Send(name, data string) error {
 
 func (c *Conveyer) Recv(name string) (string, error) {
 	channel, found := c.getChannel(name)
+
 	if !found {
 		return "", ErrChanNotFound
 	}
@@ -125,17 +126,20 @@ func (c *Conveyer) executeTask(ctx context.Context, item taskItem) error {
 	switch item.kind {
 	case "decorator":
 		decFn, ok := item.fn.(func(context.Context, chan string, chan string) error)
+
 		if !ok {
 			return ErrInvalidTaskFunc
 		}
 
 		inputChannel := c.createChannel(item.inputs[0])
+
 		outputChannel := c.createChannel(item.outputs[0])
 
 		return decFn(ctx, inputChannel, outputChannel)
 
 	case "multiplexer":
 		muxFn, ok := item.fn.(func(context.Context, []chan string, chan string) error)
+
 		if !ok {
 			return ErrInvalidTaskFunc
 		}
@@ -145,12 +149,14 @@ func (c *Conveyer) executeTask(ctx context.Context, item taskItem) error {
 		for index, name := range item.inputs {
 			ins[index] = c.createChannel(name)
 		}
+
 		outputChannel := c.createChannel(item.outputs[0])
 
 		return muxFn(ctx, ins, outputChannel)
 
 	case "separator":
 		sepFn, ok := item.fn.(func(context.Context, chan string, []chan string) error)
+
 		if !ok {
 			return ErrInvalidTaskFunc
 		}
@@ -160,6 +166,7 @@ func (c *Conveyer) executeTask(ctx context.Context, item taskItem) error {
 		for index, name := range item.outputs {
 			outs[index] = c.createChannel(name)
 		}
+
 		inputChannel := c.createChannel(item.inputs[0])
 
 		return sepFn(ctx, inputChannel, outs)
@@ -189,7 +196,6 @@ func (c *Conveyer) RegisterMultiplexer(
 	inputs []string,
 	output string,
 ) {
-
 	for _, name := range inputs {
 		c.createChannel(name)
 	}
