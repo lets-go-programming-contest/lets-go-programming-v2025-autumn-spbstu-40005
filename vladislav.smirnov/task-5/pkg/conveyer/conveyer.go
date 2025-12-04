@@ -90,6 +90,7 @@ func (c *Conveyer) Run(ctx context.Context) error {
 	tasksCopy := append([]taskItem(nil), c.tasks...)
 
 	c.mu.RUnlock()
+
 	for _, item := range tasksCopy {
 		it := item
 
