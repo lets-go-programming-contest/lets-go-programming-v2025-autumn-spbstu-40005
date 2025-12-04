@@ -21,24 +21,22 @@ type testcase struct {
 	expectedError error
 }
 
-func getTests() []testcase {
-	return []testcase{
-		{
-			testName: "success",
-			addrs:    []string{"00:11:22:33:44:55", "aa:bb:cc:dd:ee:ff"},
-			names:    []string{"eth1", "eth2"},
-		},
-		{
-			testName:      "error",
-			expectedError: ErrSome,
-		},
-	}
+var tests = []testcase{
+	{
+		testName: "success",
+		addrs:    []string{"00:11:22:33:44:55", "aa:bb:cc:dd:ee:ff"},
+		names:    []string{"eth1", "eth2"},
+	},
+	{
+		testName:      "error",
+		expectedError: ErrSome,
+	},
 }
 
 func TestGetAddresses(t *testing.T) {
 	t.Parallel()
 
-	for _, test := range getTests() {
+	for _, test := range tests {
 		t.Run(test.testName, func(t *testing.T) {
 			t.Parallel()
 
@@ -46,27 +44,18 @@ func TestGetAddresses(t *testing.T) {
 			wifiService := mywifi.WiFiService{WiFi: mockWifi}
 
 			mockWifi.On("Interfaces").Unset()
-			mockWifi.On("Interfaces").Return(mockIfaces(&test), test.expectedError)
+			mockWifi.On("Interfaces").Return(helperMockIfaces(t, &test), test.expectedError)
 
 			actualAddrs, err := wifiService.GetAddresses()
 
 			if test.expectedError != nil {
-				require.ErrorIs(
-					t, err, test.expectedError,
-					"expected: %s, actual: %s", test.expectedError, err,
-				)
+				require.ErrorIs(t, err, test.expectedError)
 
 				return
 			}
 
-			require.NoError(
-				t, err,
-				"error must be nil, %s", err,
-			)
-
-			require.Equal(t, parseMACs(test.addrs), actualAddrs,
-				"expected: %s, actual: %s", parseMACs(test.addrs), actualAddrs,
-			)
+			require.NoError(t, err)
+			require.Equal(t, helperParseMACs(t, test.addrs), actualAddrs)
 		})
 	}
 }
@@ -74,7 +63,7 @@ func TestGetAddresses(t *testing.T) {
 func TestGetNames(t *testing.T) {
 	t.Parallel()
 
-	for _, test := range getTests() {
+	for _, test := range tests {
 		t.Run(test.testName, func(t *testing.T) {
 			t.Parallel()
 
@@ -82,27 +71,18 @@ func TestGetNames(t *testing.T) {
 			wifiService := mywifi.WiFiService{WiFi: mockWifi}
 
 			mockWifi.On("Interfaces").Unset()
-			mockWifi.On("Interfaces").Return(mockIfaces(&test), test.expectedError)
+			mockWifi.On("Interfaces").Return(helperMockIfaces(t, &test), test.expectedError)
 
 			actualNames, err := wifiService.GetNames()
 
 			if test.expectedError != nil {
-				require.ErrorIs(
-					t, err, test.expectedError,
-					"expected: %s, actual: %s", test.expectedError, err,
-				)
+				require.ErrorIs(t, err, test.expectedError)
 
 				return
 			}
 
-			require.NoError(
-				t, err,
-				"error must be nil, %s", err,
-			)
-
-			require.Equal(t, test.names, actualNames,
-				"expected: %s, actual: %s", test.names, actualNames,
-			)
+			require.NoError(t, err)
+			require.Equal(t, test.names, actualNames)
 		})
 	}
 }
@@ -112,17 +92,19 @@ func TestNew(t *testing.T) {
 
 	mockWifi := NewWiFiHandle(t)
 	wifiService := mywifi.New(mockWifi)
-	require.Equal(
-		t, mockWifi, wifiService.WiFi,
-		"expected: %s, actual: %s", mockWifi, wifiService.WiFi,
-	)
+
+	require.Equal(t, mockWifi, wifiService.WiFi)
 }
 
-func mockIfaces(test *testcase) []*wifi.Interface {
+func helperMockIfaces(t *testing.T, test *testcase) []*wifi.Interface {
+	t.Helper()
+
+	require.Equal(t, len(test.addrs), len(test.names))
+
 	interfaces := make([]*wifi.Interface, 0, len(test.addrs))
 
 	for i, addr := range test.addrs {
-		hwAddr := parseMAC(addr)
+		hwAddr := helperParseMAC(t, addr)
 		if hwAddr == nil {
 			continue
 		}
@@ -142,21 +124,24 @@ func mockIfaces(test *testcase) []*wifi.Interface {
 	return interfaces
 }
 
-func parseMACs(macStr []string) []net.HardwareAddr {
+func helperParseMACs(t *testing.T, macStr []string) []net.HardwareAddr {
+	t.Helper()
+
 	addrs := make([]net.HardwareAddr, 0, len(macStr))
 
 	for _, addr := range macStr {
-		addrs = append(addrs, parseMAC(addr))
+		addrs = append(addrs, helperParseMAC(t, addr))
 	}
 
 	return addrs
 }
 
-func parseMAC(macStr string) net.HardwareAddr {
+func helperParseMAC(t *testing.T, macStr string) net.HardwareAddr {
+	t.Helper()
+
 	hwAddr, err := net.ParseMAC(macStr)
-	if err != nil {
-		return nil
-	}
+
+	require.NoError(t, err)
 
 	return hwAddr
 }
