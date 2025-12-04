@@ -43,7 +43,7 @@ func TestGetAddresses(t *testing.T) {
 
 	for _, row := range testTable {
 		mockWifi.On("Interfaces").Unset()
-		mockWifi.On("Interfaces").Return(mockIfaces(row.addrs), row.errExpected)
+		mockWifi.On("Interfaces").Return(helperMockIfaces(t, row.addrs), row.errExpected)
 
 		actualAddrs, err := wifiService.GetAddresses()
 
@@ -54,7 +54,7 @@ func TestGetAddresses(t *testing.T) {
 		}
 
 		require.NoError(t, err)
-		require.Equal(t, parseMACs(row.addrs), actualAddrs)
+		require.Equal(t, helperParseMACs(t, row.addrs), actualAddrs)
 	}
 }
 
@@ -81,7 +81,7 @@ func TestGetNames(t *testing.T) {
 
 	for _, row := range testTable {
 		mockWifi.On("Interfaces").Unset()
-		mockWifi.On("Interfaces").Return(mockIfaces(row.addrs), row.errExpected)
+		mockWifi.On("Interfaces").Return(helperMockIfaces(t, row.addrs), row.errExpected)
 
 		actualNames, err := wifiService.GetNames()
 
@@ -104,7 +104,9 @@ func TestNew(t *testing.T) {
 	require.Equal(t, mockWifi, wifiService.WiFi)
 }
 
-func mockIfaces(addrs []string) []*wifi.Interface {
+func helperMockIfaces(t *testing.T, addrs []string) []*wifi.Interface {
+	t.Helper()
+
 	interfaces := make([]*wifi.Interface, 0, len(addrs))
 
 	for i, addrStr := range addrs {
@@ -129,7 +131,9 @@ func mockIfaces(addrs []string) []*wifi.Interface {
 	return interfaces
 }
 
-func parseMACs(macStr []string) []net.HardwareAddr {
+func helperParseMACs(t *testing.T, macStr []string) []net.HardwareAddr {
+	t.Helper()
+
 	addrs := make([]net.HardwareAddr, 0, len(macStr))
 
 	for _, addr := range macStr {

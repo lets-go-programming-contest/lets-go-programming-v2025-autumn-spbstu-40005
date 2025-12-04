@@ -40,7 +40,7 @@ func TestGetNames(t *testing.T) {
 	dbService := db.DBService{DB: mockDB}
 
 	for _, row := range testTable {
-		mock.ExpectQuery("SELECT name FROM users").WillReturnRows(mockDBRows(row.names)).WillReturnError(row.errExpected)
+		mock.ExpectQuery("SELECT name FROM users").WillReturnRows(helperMockDBRows(t, row.names)).WillReturnError(row.errExpected)
 
 		names, err := dbService.GetNames()
 		if row.errExpected != nil {
@@ -96,7 +96,7 @@ func TestGetUniqueNames(t *testing.T) {
 	dbService := db.DBService{DB: mockDB}
 
 	for _, row := range testTable {
-		mock.ExpectQuery("SELECT DISTINCT name FROM users").WillReturnRows(mockDBRows(row.names)).
+		mock.ExpectQuery("SELECT DISTINCT name FROM users").WillReturnRows(helperMockDBRows(t, row.names)).
 			WillReturnError(row.errExpected)
 
 		names, err := dbService.GetUniqueNames()
@@ -130,7 +130,9 @@ func TestGetUniqueNames(t *testing.T) {
 	require.Nil(t, names)
 }
 
-func mockDBRows(names []string) *sqlmock.Rows {
+func helperMockDBRows(t *testing.T, names []string) *sqlmock.Rows {
+	t.Helper()
+
 	rows := sqlmock.NewRows([]string{"name"})
 
 	for _, name := range names {
