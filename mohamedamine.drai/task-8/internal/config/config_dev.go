@@ -3,8 +3,8 @@
 package config
 
 import (
+	"fmt"
 	_ "embed"
-
 	"gopkg.in/yaml.v3"
 )
 
@@ -13,9 +13,10 @@ var devYaml []byte
 
 func Load() (Config, error) {
 	var cfg Config
+
 	err := yaml.Unmarshal(devYaml, &cfg)
 	if err != nil {
-		return Config{}, err
+		return Config{}, fmt.Errorf("failed to unmarshal dev config: %w", err)
 	}
 
 	return cfg, nil
