@@ -39,6 +39,16 @@ func (pipe *Pipeline) register(ch string) chan string {
 	return pipe.channels[ch]
 }
 
+func (pipe *Pipeline) getChan(ch string) (channel chan string, exists bool) {
+	pipe.mutexChans.RLock()
+
+	channel, exists = pipe.channels[ch]
+
+	pipe.mutexChans.RUnlock()
+
+	return channel, exists
+}
+
 func (pipe *Pipeline) RegisterDecorator(
 	function func(
 		ctx context.Context,
@@ -134,11 +144,7 @@ func (pipe *Pipeline) Run(ctx context.Context) error {
 }
 
 func (pipe *Pipeline) Send(input string, data string) error {
-	pipe.mutexChans.RLock()
-
-	channel, exists := pipe.channels[input]
-
-	pipe.mutexChans.RUnlock()
+	channel, exists := pipe.getChan(input)
 
 	if !exists {
 		return ErrChanNotFound
@@ -150,11 +156,7 @@ func (pipe *Pipeline) Send(input string, data string) error {
 }
 
 func (pipe *Pipeline) Recv(output string) (string, error) {
-	pipe.mutexChans.RLock()
-
-	channel, exists := pipe.channels[output]
-
-	pipe.mutexChans.RUnlock()
+	channel, exists := pipe.getChan(output)
 
 	if !exists {
 		return "", ErrChanNotFound

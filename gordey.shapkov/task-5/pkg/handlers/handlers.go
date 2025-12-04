@@ -46,6 +46,12 @@ func PrefixDecoratorFunc(ctx context.Context, input, output chan string) error {
 }
 
 func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan string) error {
+	if len(inputs) == 0 {
+		<-ctx.Done()
+
+		return nil
+	}
+
 	var wgroup sync.WaitGroup
 
 	wgroup.Add(len(inputs))
