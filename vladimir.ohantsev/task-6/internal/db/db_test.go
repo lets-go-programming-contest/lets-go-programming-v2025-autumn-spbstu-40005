@@ -151,6 +151,8 @@ func testGetNamesScanError(t *testing.T) {
 }
 
 func TestGetUniqueNames(t *testing.T) {
+	t.Parallel()
+
 	for _, test := range tests { //nolint:paralleltest
 		t.Run(test.name, func(t *testing.T) {
 			testGetUniqueNamesPredicted(t, &test)
