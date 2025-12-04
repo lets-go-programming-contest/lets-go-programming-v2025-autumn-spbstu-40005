@@ -13,22 +13,22 @@ const undefinedValue = "undefined"
 
 var ErrChannelNotFound = errors.New("channel not found")
 
-type conveyor struct {
+type conveyer struct {
 	bufferSize int
 	channels   map[string]chan string
 	workers    []func(ctx context.Context) error
 	mutex      sync.RWMutex
 }
 
-func New(size int) *conveyor {
-	return &conveyor{
+func New(size int) *conveyer {
+	return &conveyer{
 		bufferSize: size,
 		channels:   make(map[string]chan string),
 		workers:    make([]func(ctx context.Context) error, 0),
 	}
 }
 
-func (c *conveyor) RegisterDecorator(
+func (c *conveyer) RegisterDecorator(
 	processor func(ctx context.Context, in chan string, out chan string) error,
 	inName,
 	outName string,
@@ -44,7 +44,7 @@ func (c *conveyor) RegisterDecorator(
 	})
 }
 
-func (c *conveyor) RegisterMultiplexer(
+func (c *conveyer) RegisterMultiplexer(
 	processor func(ctx context.Context, ins []chan string, out chan string) error,
 	inNames []string,
 	outName string,
@@ -64,7 +64,7 @@ func (c *conveyor) RegisterMultiplexer(
 	})
 }
 
-func (c *conveyor) RegisterSeparator(
+func (c *conveyer) RegisterSeparator(
 	processor func(ctx context.Context, in chan string, outs []chan string) error,
 	inName string,
 	outNames []string,
@@ -84,7 +84,7 @@ func (c *conveyor) RegisterSeparator(
 	})
 }
 
-func (c *conveyor) Run(ctx context.Context) error {
+func (c *conveyer) Run(ctx context.Context) error {
 	defer c.closeAll()
 
 	errGroup, ctx := errgroup.WithContext(ctx)
@@ -103,7 +103,7 @@ func (c *conveyor) Run(ctx context.Context) error {
 	return nil
 }
 
-func (c *conveyor) closeAll() {
+func (c *conveyer) closeAll() {
 	c.mutex.Lock()
 	defer c.mutex.Unlock()
 
@@ -112,7 +112,7 @@ func (c *conveyor) closeAll() {
 	}
 }
 
-func (c *conveyor) Send(name string, data string) error {
+func (c *conveyer) Send(name string, data string) error {
 	c.mutex.RLock()
 	ch, exists := c.channels[name]
 	c.mutex.RUnlock()
@@ -125,7 +125,7 @@ func (c *conveyor) Send(name string, data string) error {
 	return nil
 }
 
-func (c *conveyor) getChannelOrCreate(name string) chan string {
+func (c *conveyer) getChannelOrCreate(name string) chan string {
 	if ch, ok := c.channels[name]; ok {
 		return ch
 	}
