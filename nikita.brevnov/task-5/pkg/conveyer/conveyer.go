@@ -9,6 +9,8 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
+const undefinedValue = "undefined"
+
 var ErrChannelNotFound = errors.New("channel not found")
 
 type conveyer struct {
@@ -122,6 +124,23 @@ func (c *conveyer) Send(name string, data string) error {
 	channel <- data
 
 	return nil
+}
+
+func (c *conveyer) Recv(name string) (string, error) {
+	c.mutex.RLock()
+	channel, exists := c.channels[name]
+	c.mutex.RUnlock()
+
+	if !exists {
+		return "", ErrChannelNotFound
+	}
+
+	value, ok := <-channel
+	if !ok {
+		return undefinedValue, nil
+	}
+
+	return value, nil
 }
 
 func (c *conveyer) getChannelOrCreate(name string) chan string {
