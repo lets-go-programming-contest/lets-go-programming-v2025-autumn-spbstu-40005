@@ -2,9 +2,17 @@ package main
 
 import (
 	"fmt"
+	"os"
+
 	"github.com/aminedraii19/task-8/internal/config"
 )
 
 func main() {
-	fmt.Println(config.Cfg.Environment, config.Cfg.LogLevel)
+	cfg, err := config.Load()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "load config error: %v", err)
+		return
+	}
+
+	fmt.Print(cfg.Environment, " ", cfg.LogLevel)
 }
