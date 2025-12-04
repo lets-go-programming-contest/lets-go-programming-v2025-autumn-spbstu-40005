@@ -39,10 +39,10 @@ func (pipe *Pipeline) register(ch string) chan string {
 	return pipe.channels[ch]
 }
 
-func (pipe *Pipeline) getChan(ch string) (channel chan string, exists bool) {
+func (pipe *Pipeline) getChan(ch string) (chan string, bool) {
 	pipe.mutexChans.RLock()
 
-	channel, exists = pipe.channels[ch]
+	channel, exists := pipe.channels[ch]
 
 	pipe.mutexChans.RUnlock()
 
