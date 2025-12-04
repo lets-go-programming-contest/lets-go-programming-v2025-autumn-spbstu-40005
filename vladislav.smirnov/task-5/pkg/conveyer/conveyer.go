@@ -124,7 +124,7 @@ func (c *Conveyer) Recv(name string) (string, error) {
 func (c *Conveyer) executeTask(ctx context.Context, item taskItem) error {
 	switch item.kind {
 	case "decorator":
-		decFn, ok := item.fn.(func(context.Context, chan string, []chan string) error)
+		decFn, ok := item.fn.(func(context.Context, chan string, chan string) error)
 		if !ok {
 			return ErrInvalidTaskFunc
 		}
@@ -135,7 +135,7 @@ func (c *Conveyer) executeTask(ctx context.Context, item taskItem) error {
 		return decFn(ctx, inputChannel, outputChannel)
 
 	case "multiplexer":
-		muxFn, ok := item.fn.(func(context.Context, chan string, []chan string) error)
+		muxFn, ok := item.fn.(func(context.Context, []chan string, chan string) error)
 		if !ok {
 			return ErrInvalidTaskFunc
 		}
@@ -185,7 +185,7 @@ func (c *Conveyer) RegisterDecorator(
 }
 
 func (c *Conveyer) RegisterMultiplexer(
-	decFunc func(context.Context, chan string, chan string) error,
+	decFunc func(context.Context, []chan string, chan string) error,
 	inputs []string,
 	output string,
 ) {
@@ -205,7 +205,7 @@ func (c *Conveyer) RegisterMultiplexer(
 }
 
 func (c *Conveyer) RegisterSeparator(
-	decFunc func(context.Context, chan string, chan string) error,
+	decFunc func(context.Context, chan string, []chan string) error,
 	input string,
 	outputs []string,
 ) {
