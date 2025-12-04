@@ -95,7 +95,7 @@ func processChannel(ctx context.Context, input <-chan string, output chan<- stri
 	for {
 		select {
 		case <-ctx.Done():
-			return ctx.Err()
+			return
 
 		case value, ok := <-input:
 			if !ok {
@@ -110,7 +110,6 @@ func processChannel(ctx context.Context, input <-chan string, output chan<- stri
 			case output <- value:
 
 			case <-ctx.Done():
-				return ctx.Err()
 			}
 		}
 	}
