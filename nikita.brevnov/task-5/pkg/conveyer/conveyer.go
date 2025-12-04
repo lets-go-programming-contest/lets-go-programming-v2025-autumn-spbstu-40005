@@ -11,7 +11,7 @@ import (
 
 const undefinedValue = "undefined"
 
-var ErrChannelNotFound = errors.New("channel not found")
+var ErrChannelNotFound = errors.New("chan not found")
 
 type conveyer struct {
 	bufferSize int
