@@ -1,1 +1,136 @@
 package conveyor
+
+import (
+	"context"
+	"errors"
+	"fmt"
+	"sync"
+
+	"golang.org/x/sync/errgroup"
+)
+
+const undefinedValue = "undefined"
+
+var ErrChannelNotFound = errors.New("channel not found")
+
+type conveyor struct {
+	bufferSize int
+	channels   map[string]chan string
+	workers    []func(ctx context.Context) error
+	mutex      sync.RWMutex
+}
+
+func New(size int) *conveyor {
+	return &conveyor{
+		bufferSize: size,
+		channels:   make(map[string]chan string),
+		workers:    make([]func(ctx context.Context) error, 0),
+	}
+}
+
+func (c *conveyor) RegisterDecorator(
+	processor func(ctx context.Context, in chan string, out chan string) error,
+	inName,
+	outName string,
+) {
+	c.mutex.Lock()
+	defer c.mutex.Unlock()
+
+	inChan := c.getChannelOrCreate(inName)
+	outChan := c.getChannelOrCreate(outName)
+
+	c.workers = append(c.workers, func(ctx context.Context) error {
+		return processor(ctx, inChan, outChan)
+	})
+}
+
+func (c *conveyor) RegisterMultiplexer(
+	processor func(ctx context.Context, ins []chan string, out chan string) error,
+	inNames []string,
+	outName string,
+) {
+	c.mutex.Lock()
+	defer c.mutex.Unlock()
+
+	outChan := c.getChannelOrCreate(outName)
+	inChans := make([]chan string, len(inNames))
+
+	for i, name := range inNames {
+		inChans[i] = c.getChannelOrCreate(name)
+	}
+
+	c.workers = append(c.workers, func(ctx context.Context) error {
+		return processor(ctx, inChans, outChan)
+	})
+}
+
+func (c *conveyor) RegisterSeparator(
+	processor func(ctx context.Context, in chan string, outs []chan string) error,
+	inName string,
+	outNames []string,
+) {
+	c.mutex.Lock()
+	defer c.mutex.Unlock()
+
+	inChan := c.getChannelOrCreate(inName)
+	outChans := make([]chan string, len(outNames))
+
+	for i, name := range outNames {
+		outChans[i] = c.getChannelOrCreate(name)
+	}
+
+	c.workers = append(c.workers, func(ctx context.Context) error {
+		return processor(ctx, inChan, outChans)
+	})
+}
+
+func (c *conveyor) Run(ctx context.Context) error {
+	defer c.closeAll()
+
+	errGroup, ctx := errgroup.WithContext(ctx)
+
+	for _, w := range c.workers {
+		w := w
+		errGroup.Go(func() error {
+			return w(ctx)
+		})
+	}
+
+	if err := errGroup.Wait(); err != nil {
+		return fmt.Errorf("execution failed: %w", err)
+	}
+
+	return nil
+}
+
+func (c *conveyor) closeAll() {
+	c.mutex.Lock()
+	defer c.mutex.Unlock()
+
+	for _, ch := range c.channels {
+		close(ch)
+	}
+}
+
+func (c *conveyor) Send(name string, data string) error {
+	c.mutex.RLock()
+	ch, exists := c.channels[name]
+	c.mutex.RUnlock()
+
+	if !exists {
+		return ErrChannelNotFound
+	}
+
+	ch <- data
+	return nil
+}
+
+func (c *conveyor) getChannelOrCreate(name string) chan string {
+	if ch, ok := c.channels[name]; ok {
+		return ch
+	}
+
+	ch := make(chan string, c.bufferSize)
+	c.channels[name] = ch
+	return ch
+}
