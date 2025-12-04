@@ -41,7 +41,7 @@ func New(size int) *Conveyer {
 	}
 }
 
-func (c *Conveyer) getChannel(name string) (chan string, bool) {
+func (c *Conveyer) getChannel(name string) (chan string, error) {
 	c.mu.RLock()
 
 	channel, found := c.channels[name]
@@ -76,7 +76,7 @@ func (c *Conveyer) closeAllChannels() {
 	defer c.mu.Unlock()
 
 	for _, channel := range c.channels {
-		close(channle)
+		close(channel)
 	}
 }
 
@@ -109,9 +109,8 @@ func (c *Conveyer) Run(ctx context.Context) error {
 }
 
 func (c *Conveyer) Send(name, data string) error {
-	channel, found := c.getChannel(name)
-
-	if !found {
+	channel, err := c.getChannel(name)
+	if err != nil {
 		return ErrChanNotFound
 	}
 
@@ -124,9 +123,8 @@ func (c *Conveyer) Send(name, data string) error {
 }
 
 func (c *Conveyer) Recv(name string) (string, error) {
-	channel, found := c.getChannel(name)
-
-	if !found {
+	channel, err := c.getChannel(name)
+	if err != nil {
 		return "", ErrChanNotFound
 	}
 
