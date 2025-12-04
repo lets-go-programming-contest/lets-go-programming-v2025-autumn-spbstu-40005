@@ -58,6 +58,7 @@ func SeparatorFunc(ctx context.Context, input chan string, outs []chan string) e
 			}
 
 			outs[index%len(outs)] <- data
+
 			index++
 		}
 	}
