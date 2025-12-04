@@ -15,13 +15,14 @@ var (
 	ErrEmptyChannel = errors.New("empty channel")
 )
 
-func DecoratorFunc(ctx context.Context, input, output chan string) error {
+func PrefixDecoratorFunc(ctx context.Context, input, output chan string) error {
 	const prefix = "decorated: "
 
 	for {
 		select {
 		case <-ctx.Done():
 			return nil
+
 		case value, ok := <-input:
 			if !ok {
 				return nil
@@ -30,6 +31,7 @@ func DecoratorFunc(ctx context.Context, input, output chan string) error {
 			if strings.Contains(value, "no decorator") {
 				return ErrCantDecorate
 			}
+
 			if !strings.HasPrefix(value, prefix) {
 				value = prefix + value
 			}
@@ -54,13 +56,16 @@ func SeparatorFunc(ctx context.Context, input chan string, outputs []chan string
 		select {
 		case <-ctx.Done():
 			return nil
+
 		case value, ok := <-input:
 			if !ok {
 				return nil
 			}
+
 			select {
 			case outputs[index] <- value:
 				index = (index + 1) % len(outputs)
+
 			case <-ctx.Done():
 				return nil
 			}
@@ -74,10 +79,10 @@ func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan stri
 	}
 
 	var waitGroup sync.WaitGroup
+
 	errGroup, gCtx := errgroup.WithContext(ctx)
 
 	for _, channel := range inputs {
-		channel := channel
 		waitGroup.Add(1)
 		errGroup.Go(func() error {
 			defer waitGroup.Done()
@@ -86,6 +91,7 @@ func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan stri
 				select {
 				case <-gCtx.Done():
 					return gCtx.Err()
+
 				case value, ok := <-channel:
 					if !ok {
 						return nil
@@ -97,6 +103,7 @@ func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan stri
 
 					select {
 					case output <- value:
+
 					case <-gCtx.Done():
 						return gCtx.Err()
 					}
