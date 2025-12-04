@@ -41,7 +41,7 @@ func AddPrefix(ctx context.Context, in chan string, out chan string) error {
 	}
 }
 
-func Distribute(ctx context.Context, in chan string, outs []chan string) error {
+func Distribute(ctx context.Context, input chan string, outs []chan string) error {
 	if len(outs) == 0 {
 		return ErrNoOutputs
 	}
@@ -52,25 +52,26 @@ func Distribute(ctx context.Context, in chan string, outs []chan string) error {
 		select {
 		case <-ctx.Done():
 			return nil
-		case data, isOpen := <-in:
+		case data, isOpen := <-input:
 			if !isOpen {
 				return nil
 			}
 
 			outs[idx%len(outs)] <- data
 			idx++
+
 		}
 	}
 }
 
 func Merge(ctx context.Context, ins []chan string, out chan string) error {
-	var wg sync.WaitGroup
+	var waitGroup sync.WaitGroup
 
-	for _, ch := range ins {
-		wg.Add(1)
+	for _, inputChan := range ins {
+		waitGroup.Add(1)
 
 		go func(inputCh chan string) {
-			defer wg.Done()
+			defer waitGroup.Done()
 
 			for {
 				select {
@@ -88,9 +89,10 @@ func Merge(ctx context.Context, ins []chan string, out chan string) error {
 					out <- data
 				}
 			}
-		}(ch)
+		}(inputChan)
 	}
 
-	wg.Wait()
+	waitGroup.Wait()
+
 	return nil
 }
