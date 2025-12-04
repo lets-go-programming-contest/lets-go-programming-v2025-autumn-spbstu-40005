@@ -46,6 +46,7 @@ func (c *Conveyer) getChannel(name string) (chan string, bool) {
 	defer c.mu.RUnlock()
 
 	channel, found := c.channels[name]
+
 	return channel, found
 }
 
@@ -54,6 +55,7 @@ func (c *Conveyer) createChannel(name string) chan string {
 	defer c.mu.Unlock()
 
 	channel, found := c.channels[name]
+
 	if found {
 		return channel
 	}
@@ -74,8 +76,8 @@ func (c *Conveyer) Run(ctx context.Context) error {
 	}()
 
 	errGroup, gCtx := errgroup.WithContext(ctx)
+
 	for _, item := range c.tasks {
-		item := item
 		errGroup.Go(func() error {
 			return c.executeTask(gCtx, item)
 		})
@@ -91,17 +93,17 @@ func (c *Conveyer) Run(ctx context.Context) error {
 
 func (c *Conveyer) Send(name, data string) error {
 	channel, found := c.getChannel(name)
+
 	if !found {
 		return ErrChanNotFound
 	}
 
-	if len(channel) == cap(channel) {
+	select {
+	case channel <- data:
+		return nil
+	default:
 		return ErrChannelFull
 	}
-
-	channel <- data
-
-	return nil
 }
 
 func (c *Conveyer) Recv(name string) (string, error) {
@@ -111,6 +113,7 @@ func (c *Conveyer) Recv(name string) (string, error) {
 	}
 
 	val, ok := <-channel
+
 	if !ok {
 		return undefined, nil
 	}
@@ -138,6 +141,7 @@ func (c *Conveyer) executeTask(ctx context.Context, item taskItem) error {
 		}
 
 		ins := make([]chan string, len(item.inputs))
+
 		for index, name := range item.inputs {
 			ins[index] = c.createChannel(name)
 		}
@@ -152,6 +156,7 @@ func (c *Conveyer) executeTask(ctx context.Context, item taskItem) error {
 		}
 
 		outs := make([]chan string, len(item.outputs))
+
 		for index, name := range item.outputs {
 			outs[index] = c.createChannel(name)
 		}
@@ -159,6 +164,7 @@ func (c *Conveyer) executeTask(ctx context.Context, item taskItem) error {
 
 		return sepFn(ctx, inputChannel, outs)
 	}
+
 	return ErrUnknownTask
 }
 
@@ -183,6 +189,7 @@ func (c *Conveyer) RegisterMultiplexer(
 	inputs []string,
 	output string,
 ) {
+
 	for _, name := range inputs {
 		c.createChannel(name)
 	}

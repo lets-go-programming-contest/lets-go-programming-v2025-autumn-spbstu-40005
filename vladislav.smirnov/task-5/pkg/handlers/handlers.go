@@ -3,6 +3,7 @@ package handlers
 import (
 	"context"
 	"errors"
+	"fmt"
 	"strings"
 	"sync"
 
@@ -16,6 +17,7 @@ var (
 
 func DecoratorFunc(ctx context.Context, input, output chan string) error {
 	const prefix = "decorated: "
+
 	for {
 		select {
 		case <-ctx.Done():
@@ -47,6 +49,7 @@ func SeparatorFunc(ctx context.Context, input chan string, outputs []chan string
 	}
 
 	index := 0
+
 	for {
 		select {
 		case <-ctx.Done():
@@ -70,14 +73,15 @@ func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan stri
 		return ErrEmptyChannel
 	}
 
-	var wg sync.WaitGroup
+	var waitGroup sync.WaitGroup
 	errGroup, gCtx := errgroup.WithContext(ctx)
 
 	for _, channel := range inputs {
 		channel := channel
-		wg.Add(1)
+		waitGroup.Add(1)
 		errGroup.Go(func() error {
 			defer wg.Done()
+
 			for {
 				select {
 				case <-gCtx.Done():
@@ -106,5 +110,5 @@ func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan stri
 		return nil
 	}
 
-	return err
+	return fmt.Errorf("multiplexer failed: %w", err)
 }
