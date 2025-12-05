@@ -7,6 +7,17 @@ import (
 	"sync"
 )
 
+const (
+	valDecoratedPrefix = "decorated: "
+	valNoDecorator     = "no decorator"
+	valNoMultiplexer   = "no multiplexer"
+)
+
+var (
+	errCantDecorate = errors.New("can't be decorated")
+	errEmptyOutputs = errors.New("outputs cannot be empty")
+)
+
 func PrefixDecoratorFunc(ctx context.Context, input chan string, output chan string) error {
 
 	for {
@@ -19,12 +30,12 @@ func PrefixDecoratorFunc(ctx context.Context, input chan string, output chan str
 				return nil
 			}
 
-			if strings.Contains(v, "no decorator") {
-				return errors.New("can't be decorated")
+			if strings.Contains(v, valNoDecorator) {
+				return errCantDecorate
 			}
 
-			if !strings.HasPrefix(v, "decorated: ") {
-				v = "decorated: " + v
+			if !strings.HasPrefix(v, valDecoratedPrefix) {
+				v = valDecoratedPrefix + v
 			}
 
 			select {
@@ -39,7 +50,7 @@ func PrefixDecoratorFunc(ctx context.Context, input chan string, output chan str
 func SeparatorFunc(ctx context.Context, input chan string, outputs []chan string) error {
 
 	if len(outputs) == 0 {
-		return errors.New("outputs cannot be empty")
+		return errEmptyOutputs
 	}
 
 	curIndex := 0
@@ -88,7 +99,7 @@ func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan stri
 						return
 					}
 
-					if strings.Contains(str, "no multiplexer") {
+					if strings.Contains(str, valNoMultiplexer) {
 						continue
 					}
 
