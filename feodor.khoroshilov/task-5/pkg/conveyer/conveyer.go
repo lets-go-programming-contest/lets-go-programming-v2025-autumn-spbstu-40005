@@ -11,7 +11,10 @@ import (
 
 const undefinedValue = "undefined"
 
-var ErrChannelNotFound = errors.New("chan not found")
+var (
+	ErrChannelNotFound   = errors.New("chan not found")
+	ErrContextCannotBeNil = errors.New("context cannot be nil")
+)
 
 type conveyer struct {
 	bufferSize int
@@ -25,6 +28,7 @@ func New(size int) *conveyer {
 		bufferSize: size,
 		channels:   make(map[string]chan string),
 		workers:    make([]func(ctx context.Context) error, 0),
+		mutex:      sync.RWMutex{},
 	}
 }
 
@@ -32,7 +36,7 @@ func (c *conveyer) getChannelOrCreateLocked(name string) chan string {
 	if ch, ok := c.channels[name]; ok {
 		return ch
 	}
-	
+
 	ch := make(chan string, c.bufferSize)
 	c.channels[name] = ch
 	return ch
@@ -41,6 +45,7 @@ func (c *conveyer) getChannelOrCreateLocked(name string) chan string {
 func (c *conveyer) getChannel(name string) (chan string, bool) {
 	c.mutex.RLock()
 	defer c.mutex.RUnlock()
+
 	ch, ok := c.channels[name]
 	return ch, ok
 }
@@ -73,6 +78,7 @@ func (c *conveyer) RegisterMultiplexer(
 	for i, name := range inNames {
 		inChans[i] = c.getChannelOrCreateLocked(name)
 	}
+
 	outChan := c.getChannelOrCreateLocked(outName)
 
 	c.workers = append(c.workers, func(ctx context.Context) error {
@@ -101,7 +107,7 @@ func (c *conveyer) RegisterSeparator(
 
 func (c *conveyer) Run(ctx context.Context) error {
 	if ctx == nil {
-		return errors.New("context cannot be nil")
+		return ErrContextCannotBeNil
 	}
 
 	c.mutex.RLock()
@@ -112,7 +118,6 @@ func (c *conveyer) Run(ctx context.Context) error {
 	errGroup, ctx := errgroup.WithContext(ctx)
 
 	for _, w := range workers {
-		w := w
 		errGroup.Go(func() error {
 			return w(ctx)
 		})
@@ -121,7 +126,7 @@ func (c *conveyer) Run(ctx context.Context) error {
 	err := errGroup.Wait()
 
 	c.closeAll()
-	
+
 	if err != nil {
 		return fmt.Errorf("execution failed: %w", err)
 	}
