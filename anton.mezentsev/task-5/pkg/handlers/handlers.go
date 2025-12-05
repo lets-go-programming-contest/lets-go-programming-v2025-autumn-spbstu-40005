@@ -7,98 +7,127 @@ import (
 	"sync"
 )
 
-var (
-	ErrDecorator = errors.New("can't be decorated")
-	ErrNoOutputs = errors.New("outputs cannot be empty")
-)
-
 const (
-	skipDecorator   = "no decorator"
-	decoration      = "decorated: "
-	skipMultiplexer = "no multiplexer"
+	tagDecorated      = "decorated: "
+	stopDecorator     = "no decorator"
+	stopMultiplexer   = "no multiplexer"
+	msgCannotDecorate = "can't be decorated"
+	msgEmptyOutputs   = "empty outputs channels"
+	msgEmptyInputs    = "empty inputs channels"
+	msgInputClosed    = "input channel closed"
 )
 
-func PrefixDecoratorFunc(ctx context.Context, input chan string, output chan string) error {
+var (
+	ErrDecorationRefused  = errors.New(msgCannotDecorate)
+	ErrEmptyOutputs       = errors.New(msgEmptyOutputs)
+	ErrEmptyInputs        = errors.New(msgEmptyInputs)
+	ErrInputChannelClosed = errors.New(msgInputClosed)
+)
+
+func PrefixDecoratorFunc(
+	ctx context.Context,
+	input chan string,
+	output chan string,
+) error {
 	for {
 		select {
 		case <-ctx.Done():
 			return nil
-		case data, ok := <-input:
+		case message, ok := <-input:
 			if !ok {
 				return nil
 			}
 
-			if strings.Contains(data, skipDecorator) {
-				return ErrDecorator
+			if strings.Contains(message, stopDecorator) {
+				return ErrDecorationRefused
 			}
 
-			if !strings.HasPrefix(data, decoration) {
-				data = decoration + data
+			if !strings.HasPrefix(message, tagDecorated) {
+				message = tagDecorated + message
 			}
 
-			output <- data
-		}
-	}
-}
-
-func SeparatorFunc(ctx context.Context, input chan string, outputs []chan string) error {
-	if len(outputs) == 0 {
-		return ErrNoOutputs
-	}
-
-	roundRobinIndex := 0
-
-	for {
-		select {
-		case <-ctx.Done():
-			return nil
-		case data, ok := <-input:
-			if !ok {
+			select {
+			case output <- message:
+			case <-ctx.Done():
 				return nil
 			}
-
-			targetChannel := outputs[roundRobinIndex%len(outputs)]
-			roundRobinIndex++
-
-			targetChannel <- data
 		}
 	}
 }
 
-func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan string) error {
+func MultiplexerFunc(
+	ctx context.Context,
+	inputs []chan string,
+	output chan string,
+) error {
 	if len(inputs) == 0 {
-		// Защита от пустого списка входных каналов
-		return nil
+		return ErrEmptyInputs
 	}
 
-	var waitGroup sync.WaitGroup
+	var waitGrp sync.WaitGroup
 
-	for _, inputChannel := range inputs {
-		waitGroup.Add(1)
+	waitGrp.Add(len(inputs))
 
-		go func(channel chan string) {
-			defer waitGroup.Done()
+	for _, channel := range inputs {
+		go func(inputChannel chan string) {
+			defer waitGrp.Done()
 
 			for {
 				select {
 				case <-ctx.Done():
 					return
-				case data, ok := <-channel:
+				case message, ok := <-inputChannel:
 					if !ok {
 						return
 					}
 
-					if strings.Contains(data, skipMultiplexer) {
+					if strings.Contains(message, stopMultiplexer) {
 						continue
 					}
 
-					output <- data
+					select {
+					case output <- message:
+					case <-ctx.Done():
+						return
+					}
 				}
 			}
-		}(inputChannel)
+		}(channel)
 	}
 
-	waitGroup.Wait()
+	waitGrp.Wait()
 
 	return nil
+}
+
+func SeparatorFunc(
+	ctx context.Context,
+	input chan string,
+	outputs []chan string,
+) error {
+	if len(outputs) == 0 {
+		return ErrEmptyOutputs
+	}
+
+	var assignmentIndex int
+
+	for {
+		select {
+		case <-ctx.Done():
+			return nil
+		case message, ok := <-input:
+			if !ok {
+				return nil
+			}
+
+			targetChannel := outputs[assignmentIndex]
+			assignmentIndex = (assignmentIndex + 1) % len(outputs)
+
+			select {
+			case targetChannel <- message:
+			case <-ctx.Done():
+				return nil
+			}
+		}
+	}
 }
