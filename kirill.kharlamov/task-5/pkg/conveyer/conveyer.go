@@ -14,7 +14,7 @@ const (
 )
 
 var (
-	ErrChannelNotFound = errors.New("channel not found")
+	ErrChannelNotFound = errors.New("chan not found")
 )
 
 type Conveyer struct {
