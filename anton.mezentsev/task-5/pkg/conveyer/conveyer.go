@@ -44,8 +44,12 @@ func (p *Pipeline) Send(inputName string, data string) error {
 		return ErrChannelNotFound
 	}
 
-	channel <- data
-	return nil
+	select {
+	case channel <- data:
+		return nil
+	case <-context.Background().Done():
+		return context.Canceled
+	}
 }
 
 func (p *Pipeline) Recv(outputName string) (string, error) {
@@ -54,15 +58,21 @@ func (p *Pipeline) Recv(outputName string) (string, error) {
 		return "", ErrChannelNotFound
 	}
 
-	data, ok := <-channel
-	if !ok {
-		return undefinedResult, nil
+	select {
+	case data, ok := <-channel:
+		if !ok {
+			return undefinedResult, nil
+		}
+		return data, nil
+	case <-context.Background().Done():
+		return "", context.Canceled
 	}
-
-	return data, nil
 }
 
 func (p *Pipeline) getOrCreateChannel(name string) chan string {
+	p.mutex.Lock()
+	defer p.mutex.Unlock()
+
 	if channel, exists := p.channels[name]; exists {
 		return channel
 	}
