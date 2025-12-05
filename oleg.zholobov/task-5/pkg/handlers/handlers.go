@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"strings"
+	"sync"
 )
 
 func PrefixDecoratorFunc(ctx context.Context, input chan string, output chan string) error {
@@ -27,9 +28,9 @@ func PrefixDecoratorFunc(ctx context.Context, input chan string, output chan str
 			}
 
 			select {
-			case <-ctx.Done():
-				return ctx.Err()
 			case output <- v:
+			case <-ctx.Done():
+				return nil
 			}
 		}
 	}
@@ -38,7 +39,7 @@ func PrefixDecoratorFunc(ctx context.Context, input chan string, output chan str
 func SeparatorFunc(ctx context.Context, input chan string, outputs []chan string) error {
 
 	if len(outputs) == 0 {
-		return nil
+		return errors.New("outputs cannot be empty")
 	}
 
 	index := 0
@@ -53,13 +54,13 @@ func SeparatorFunc(ctx context.Context, input chan string, outputs []chan string
 				return nil
 			}
 
-			out := outputs[index]
+			idx := index
 			index = (index + 1) % len(outputs)
 
 			select {
+			case outputs[idx] <- v:
 			case <-ctx.Done():
-				return ctx.Err()
-			case out <- v:
+				return nil
 			}
 		}
 	}
@@ -71,41 +72,37 @@ func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan stri
 		return nil
 	}
 
-	openChannels := len(inputs)
+	var wg sync.WaitGroup
+	wg.Add(len(inputs))
 
-	for openChannels > 0 {
-		select {
-		case <-ctx.Done():
-			return ctx.Err()
+	for _, ch := range inputs {
+		go func(in chan string) {
+			defer wg.Done()
 
-		default:
-			for i, ch := range inputs {
+			for {
 				select {
 				case <-ctx.Done():
-					return ctx.Err()
-
-				case v, ok := <-ch:
+					return
+				case str, ok := <-in:
 					if !ok {
-						inputs[i] = nil
-						openChannels--
-						continue
+						return
 					}
 
-					if strings.Contains(v, "no multiplexer") {
+					if strings.Contains(str, "no multiplexer") {
 						continue
 					}
 
 					select {
+					case output <- str:
 					case <-ctx.Done():
-						return ctx.Err()
-					case output <- v:
+						return
 					}
-
-				default:
 				}
 			}
-		}
+		}(ch)
 	}
+
+	wg.Wait()
 
 	return nil
 }
