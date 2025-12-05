@@ -14,7 +14,7 @@ const (
 )
 
 var (
-	ErrChannelNotFound   = errors.New("channel not found")
+	ErrChannelNotFound   = errors.New("chan not found")
 	ErrChannelBufferFull = errors.New("channel buffer is full")
 	ErrNoDataAvailable   = errors.New("no data available")
 )
@@ -24,6 +24,8 @@ type Conveyer struct {
 	channels   map[string]chan string
 	tasks      []func(context.Context) error
 	mutex      sync.RWMutex
+	wg         sync.WaitGroup
+	cancel     context.CancelFunc
 }
 
 func New(size int) *Conveyer {
@@ -91,6 +93,10 @@ func (c *Conveyer) RegisterSeparator(
 }
 
 func (c *Conveyer) Run(ctx context.Context) error {
+	ctx, cancel := context.WithCancel(ctx)
+	c.cancel = cancel
+	defer cancel()
+
 	errGroup, ctx := errgroup.WithContext(ctx)
 
 	for _, task := range c.tasks {
@@ -172,7 +178,6 @@ func (c *Conveyer) ensureChannel(name string) chan string {
 	c.mutex.Lock()
 	defer c.mutex.Unlock()
 
-	// Двойная проверка под мьютексом
 	existingChannel, exists = c.channels[name]
 	if exists {
 		return existingChannel
@@ -182,4 +187,10 @@ func (c *Conveyer) ensureChannel(name string) chan string {
 	c.channels[name] = newChannel
 
 	return newChannel
+}
+
+func (c *Conveyer) Stop() {
+	if c.cancel != nil {
+		c.cancel()
+	}
 }
