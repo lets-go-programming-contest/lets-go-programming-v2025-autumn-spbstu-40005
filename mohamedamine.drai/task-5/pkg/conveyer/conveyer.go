@@ -37,10 +37,12 @@ type ConveyerInterface interface {
 	Recv(outputName string) (string, error)
 }
 
+type WorkerFunc func(context.Context) error
+
 type Pipeline struct {
 	size     int
 	channels map[string]chan string
-	workers  []func(context.Context) error
+	workers  []WorkerFunc
 	mu       sync.RWMutex
 }
 
@@ -48,7 +50,7 @@ func New(size int) *Pipeline {
 	return &Pipeline{
 		size:     size,
 		channels: make(map[string]chan string),
-		workers:  make([]func(context.Context) error, 0),
+		workers:  make([]WorkerFunc, 0),
 		mu:       sync.RWMutex{},
 	}
 }
@@ -141,29 +143,28 @@ func (p *Pipeline) Run(ctx context.Context) error {
 	return nil
 }
 
-func (p *Pipeline) Send(inputName string, data string) error {
+func (p *Pipeline) lookupChannel(name string) (chan string, bool) {
 	p.mu.RLock()
-	channel, exists := p.channels[inputName]
+	ch, ok := p.channels[name]
 	p.mu.RUnlock()
+	return ch, ok
+}
 
+func (p *Pipeline) Send(inputName string, data string) error {
+	channel, exists := p.lookupChannel(inputName)
 	if !exists {
 		return ErrChanNotFound
 	}
-
 	channel <- data
 
 	return nil
 }
 
 func (p *Pipeline) Recv(outputName string) (string, error) {
-	p.mu.RLock()
-	channel, exists := p.channels[outputName]
-	p.mu.RUnlock()
-
+	channel, exists := p.lookupChannel(outputName)
 	if !exists {
 		return "", ErrChanNotFound
 	}
-
 	value, open := <-channel
 	if !open {
 		return UndefinedValue, nil
