@@ -21,13 +21,15 @@ const (
 // PrefixDecoratorFunc добавляет префикс к данным, если его ещё нет.
 // Если данные содержат "no decorator", возвращает ошибку.
 func PrefixDecoratorFunc(ctx context.Context, input chan string, output chan string) error {
+	defer close(output) // Закрываем выходной канал при завершении
+
 	for {
 		select {
 		case <-ctx.Done():
 			return nil
 		case data, ok := <-input:
 			if !ok {
-				return nil
+				return nil // Входной канал закрыт
 			}
 
 			if strings.Contains(data, noDecorator) {
@@ -53,6 +55,13 @@ func SeparatorFunc(ctx context.Context, input chan string, outputs []chan string
 		return ErrOutputsEmpty
 	}
 
+	defer func() {
+		// Закрываем все выходные каналы
+		for _, out := range outputs {
+			close(out)
+		}
+	}()
+
 	index := 0
 	for {
 		select {
@@ -60,7 +69,7 @@ func SeparatorFunc(ctx context.Context, input chan string, outputs []chan string
 			return nil
 		case data, ok := <-input:
 			if !ok {
-				return nil
+				return nil // Входной канал закрыт
 			}
 
 			outChannel := outputs[index%len(outputs)]
@@ -79,6 +88,7 @@ func SeparatorFunc(ctx context.Context, input chan string, outputs []chan string
 // Данные с пометкой "no multiplexer" пропускаются.
 func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan string) error {
 	if len(inputs) == 0 {
+		close(output)
 		return nil
 	}
 
@@ -88,10 +98,17 @@ func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan stri
 	var wg sync.WaitGroup
 	wg.Add(len(inputs))
 
+	// Горутина для закрытия выходного канала после завершения всех обработчиков
+	go func() {
+		wg.Wait()
+		close(output)
+	}()
+
 	for _, ch := range inputs {
 		inputCh := ch // захват для горутины
 		go func() {
 			defer wg.Done()
+
 			for {
 				select {
 				case <-ctx.Done():
@@ -104,7 +121,7 @@ func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan stri
 						continue
 					}
 					select {
-					case output <- data: // ✅ ИСПРАВЛЕНО: добавлено 'data'
+					case output <- data:
 					case <-ctx.Done():
 						return
 					}
@@ -113,6 +130,6 @@ func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan stri
 		}()
 	}
 
-	wg.Wait()
+	// Не ждем здесь, чтобы не блокировать
 	return nil
 }

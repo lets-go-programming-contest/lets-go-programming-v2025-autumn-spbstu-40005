@@ -18,6 +18,7 @@ type conveyerImpl struct {
 	channels map[string]chan string
 	handlers []func(ctx context.Context) error
 	mu       sync.RWMutex
+	wg       sync.WaitGroup // Добавляем WaitGroup для ожидания завершения
 }
 
 // New создаёт новый конвейер с указанным размером буфера каналов.
@@ -27,6 +28,7 @@ func New(size int) *conveyerImpl {
 		channels: make(map[string]chan string),
 		handlers: make([]func(ctx context.Context) error, 0),
 		mu:       sync.RWMutex{},
+		wg:       sync.WaitGroup{},
 	}
 }
 
@@ -89,6 +91,7 @@ func (c *conveyerImpl) RegisterSeparator(
 }
 
 func (c *conveyerImpl) Run(ctx context.Context) error {
+	// Закрываем каналы после завершения всех обработчиков
 	defer c.closeAllChannels()
 
 	errGroup, ctx := errgroup.WithContext(ctx)
@@ -101,6 +104,7 @@ func (c *conveyerImpl) Run(ctx context.Context) error {
 		})
 	}
 
+	// Ожидаем завершения всех обработчиков
 	if err := errGroup.Wait(); err != nil {
 		return fmt.Errorf("conveyer run failed: %w", err)
 	}
@@ -113,8 +117,19 @@ func (c *conveyerImpl) closeAllChannels() {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
-	for _, channel := range c.channels {
+	for name, channel := range c.channels {
+		// Проверяем, не закрыт ли уже канал
+		select {
+		case _, ok := <-channel:
+			if !ok {
+				continue // Канал уже закрыт
+			}
+		default:
+		}
+
+		// Закрываем канал
 		close(channel)
+		delete(c.channels, name)
 	}
 }
 
@@ -127,9 +142,12 @@ func (c *conveyerImpl) Send(input string, data string) error {
 		return fmt.Errorf("conveyer send failed: %w", ErrChannelNotFound)
 	}
 
-	channel <- data
-
-	return nil
+	select {
+	case channel <- data:
+		return nil
+	default:
+		return fmt.Errorf("channel %s is full or closed", input)
+	}
 }
 
 // Recv получает данные из канала с указанным идентификатором.
@@ -155,7 +173,6 @@ func (c *conveyerImpl) getOrCreateChannel(name string) chan string {
 	c.mu.RLock()
 	if channel, exists := c.channels[name]; exists {
 		c.mu.RUnlock()
-
 		return channel
 	}
 	c.mu.RUnlock()
@@ -163,6 +180,7 @@ func (c *conveyerImpl) getOrCreateChannel(name string) chan string {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
+	// Двойная проверка
 	if channel, exists := c.channels[name]; exists {
 		return channel
 	}
