@@ -19,27 +19,25 @@ var (
 )
 
 func PrefixDecoratorFunc(ctx context.Context, input chan string, output chan string) error {
-
 	for {
 		select {
 		case <-ctx.Done():
 			return nil
-
-		case v, ok := <-input:
+		case value, ok := <-input:
 			if !ok {
 				return nil
 			}
 
-			if strings.Contains(v, valNoDecorator) {
+			if strings.Contains(value, valNoDecorator) {
 				return errCantDecorate
 			}
 
-			if !strings.HasPrefix(v, valDecoratedPrefix) {
-				v = valDecoratedPrefix + v
+			if !strings.HasPrefix(value, valDecoratedPrefix) {
+				value = valDecoratedPrefix + value
 			}
 
 			select {
-			case output <- v:
+			case output <- value:
 			case <-ctx.Done():
 				return nil
 			}
@@ -59,8 +57,7 @@ func SeparatorFunc(ctx context.Context, input chan string, outputs []chan string
 		select {
 		case <-ctx.Done():
 			return nil
-
-		case v, ok := <-input:
+		case value, ok := <-input:
 			if !ok {
 				return nil
 			}
@@ -69,7 +66,7 @@ func SeparatorFunc(ctx context.Context, input chan string, outputs []chan string
 			curIndex = (curIndex + 1) % len(outputs)
 
 			select {
-			case outputs[idx] <- v:
+			case outputs[idx] <- value:
 			case <-ctx.Done():
 				return nil
 			}
@@ -83,18 +80,18 @@ func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan stri
 		return nil
 	}
 
-	wg := sync.WaitGroup{}
-	wg.Add(len(inputs))
+	waitGroup := sync.WaitGroup{}
+	waitGroup.Add(len(inputs))
 
 	for index := range inputs {
-		go func(in chan string) {
-			defer wg.Done()
+		go func(inputChannel chan string) {
+			defer waitGroup.Done()
 
 			for {
 				select {
 				case <-ctx.Done():
 					return
-				case str, ok := <-in:
+				case str, ok := <-inputChannel:
 					if !ok {
 						return
 					}
@@ -113,7 +110,7 @@ func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan stri
 		}(inputs[index])
 	}
 
-	wg.Wait()
+	waitGroup.Wait()
 
 	return nil
 }
