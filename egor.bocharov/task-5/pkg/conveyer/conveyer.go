@@ -32,7 +32,7 @@ func New(size int) *conveyerImpl {
 
 // RegisterDecorator регистрирует обработчик-модификатор данных.
 func (c *conveyerImpl) RegisterDecorator(
-	decoratorFunc func(ctx context.Context, input chan string, output chan string) error,
+	fn func(ctx context.Context, input chan string, output chan string) error,
 	input, output string,
 ) {
 	c.mu.Lock()
@@ -42,13 +42,13 @@ func (c *conveyerImpl) RegisterDecorator(
 	outputCh := c.getOrCreateChannel(output)
 
 	c.handlers = append(c.handlers, func(ctx context.Context) error {
-		return decoratorFunc(ctx, inputCh, outputCh)
+		return fn(ctx, inputCh, outputCh)
 	})
 }
 
 // RegisterMultiplexer регистрирует мультиплексор.
 func (c *conveyerImpl) RegisterMultiplexer(
-	multiplexerFunc func(ctx context.Context, inputs []chan string, output chan string) error,
+	fn func(ctx context.Context, inputs []chan string, output chan string) error,
 	inputs []string,
 	output string,
 ) {
@@ -56,20 +56,20 @@ func (c *conveyerImpl) RegisterMultiplexer(
 	defer c.mu.Unlock()
 
 	outputCh := c.getOrCreateChannel(output)
-	inputChannels := make([]chan string, len(inputs))
+	inputChs := make([]chan string, len(inputs))
 
 	for i, name := range inputs {
-		inputChannels[i] = c.getOrCreateChannel(name)
+		inputChs[i] = c.getOrCreateChannel(name)
 	}
 
 	c.handlers = append(c.handlers, func(ctx context.Context) error {
-		return multiplexerFunc(ctx, inputChannels, outputCh)
+		return fn(ctx, inputChs, outputCh)
 	})
 }
 
 // RegisterSeparator регистрирует сепаратор.
 func (c *conveyerImpl) RegisterSeparator(
-	separatorFunc func(ctx context.Context, input chan string, outputs []chan string) error,
+	fn func(ctx context.Context, input chan string, outputs []chan string) error,
 	input string,
 	outputs []string,
 ) {
@@ -77,14 +77,14 @@ func (c *conveyerImpl) RegisterSeparator(
 	defer c.mu.Unlock()
 
 	inputCh := c.getOrCreateChannel(input)
-	outputChannels := make([]chan string, len(outputs))
+	outputChs := make([]chan string, len(outputs))
 
 	for i, name := range outputs {
-		outputChannels[i] = c.getOrCreateChannel(name)
+		outputChs[i] = c.getOrCreateChannel(name)
 	}
 
 	c.handlers = append(c.handlers, func(ctx context.Context) error {
-		return separatorFunc(ctx, inputCh, outputChannels)
+		return fn(ctx, inputCh, outputChs)
 	})
 }
 
@@ -96,7 +96,7 @@ func (c *conveyerImpl) Run(ctx context.Context) error {
 	errgr, ctx := errgroup.WithContext(ctx)
 
 	for _, h := range c.handlers {
-		handler := h // capture loop variable
+		handler := h
 		handlerFunc := func() error {
 			return handler(ctx)
 		}
@@ -115,15 +115,15 @@ func (c *conveyerImpl) closeAllChannels() {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
-	for _, channel := range c.channels {
-		close(channel)
+	for _, ch := range c.channels {
+		close(ch)
 	}
 }
 
 // Send отправляет данные в канал с указанным идентификатором.
 func (c *conveyerImpl) Send(ctx context.Context, input string, data string) error {
 	c.mu.RLock()
-	channel, exists := c.channels[input]
+	ch, exists := c.channels[input]
 	c.mu.RUnlock()
 
 	if !exists {
@@ -131,7 +131,7 @@ func (c *conveyerImpl) Send(ctx context.Context, input string, data string) erro
 	}
 
 	select {
-	case channel <- data:
+	case ch <- data:
 		return nil
 	case <-ctx.Done():
 		return fmt.Errorf("conveyer send failed: %w", ctx.Err())
@@ -141,7 +141,7 @@ func (c *conveyerImpl) Send(ctx context.Context, input string, data string) erro
 // Recv получает данные из канала с указанным идентификатором.
 func (c *conveyerImpl) Recv(ctx context.Context, output string) (string, error) {
 	c.mu.RLock()
-	channel, exists := c.channels[output]
+	ch, exists := c.channels[output]
 	c.mu.RUnlock()
 
 	if !exists {
@@ -149,7 +149,7 @@ func (c *conveyerImpl) Recv(ctx context.Context, output string) (string, error) 
 	}
 
 	select {
-	case val, ok := <-channel:
+	case val, ok := <-ch:
 		if !ok {
 			return undefined, nil
 		}
@@ -163,22 +163,22 @@ func (c *conveyerImpl) Recv(ctx context.Context, output string) (string, error) 
 // getOrCreateChannel возвращает существующий канал или создает новый.
 func (c *conveyerImpl) getOrCreateChannel(name string) chan string {
 	c.mu.RLock()
-	if channel, exists := c.channels[name]; exists {
+	if ch, exists := c.channels[name]; exists {
 		c.mu.RUnlock()
 
-		return channel
+		return ch
 	}
 	c.mu.RUnlock()
 
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
-	if channel, exists := c.channels[name]; exists {
-		return channel
+	if ch, exists := c.channels[name]; exists {
+		return ch
 	}
 
-	channel := make(chan string, c.size)
-	c.channels[name] = channel
+	ch := make(chan string, c.size)
+	c.channels[name] = ch
 
-	return channel
+	return ch
 }
