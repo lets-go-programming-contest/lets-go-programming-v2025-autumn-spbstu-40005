@@ -76,31 +76,34 @@ func SeparatorFunc(ctx context.Context, inputChannel chan string, outputChannels
 func MultiplexerFunc(ctx context.Context, inputChannels []chan string, outputChannel chan string) error {
 	var waitGroup sync.WaitGroup
 
-	for _, inputChan := range inputChannels {
-		waitGroup.Add(1)
-		go func(channel chan string) {
-			defer waitGroup.Done()
-			for {
+	worker := func(channel chan string) {
+		defer waitGroup.Done()
+
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case data, ok := <-channel:
+				if !ok {
+					return
+				}
+
+				if strings.Contains(data, noMultiplexer) {
+					continue
+				}
+
 				select {
+				case outputChannel <- data:
 				case <-ctx.Done():
 					return
-				case data, ok := <-channel:
-					if !ok {
-						return
-					}
-
-					if strings.Contains(data, noMultiplexer) {
-						continue
-					}
-
-					select {
-					case outputChannel <- data:
-					case <-ctx.Done():
-						return
-					}
 				}
 			}
-		}(inputChan)
+		}
+	}
+
+	for _, inputChan := range inputChannels {
+		waitGroup.Add(1)
+		go worker(inputChan)
 	}
 
 	waitGroup.Wait()

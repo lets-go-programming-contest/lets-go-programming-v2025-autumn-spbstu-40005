@@ -90,16 +90,18 @@ func (c *Conveyer) Run(ctx context.Context) error {
 	errGroup, ctx := errgroup.WithContext(ctx)
 
 	for _, task := range c.tasks {
+		task := task
 		errGroup.Go(func() error {
 			return task(ctx)
 		})
 	}
 
-	if err := errGroup.Wait(); err != nil {
+	err := errGroup.Wait()
+	c.closeAllChannels()
+
+	if err != nil {
 		return fmt.Errorf("conveyer execution failed: %w", err)
 	}
-
-	c.closeAllChannels()
 
 	return nil
 }
@@ -108,8 +110,9 @@ func (c *Conveyer) closeAllChannels() {
 	c.mutex.Lock()
 	defer c.mutex.Unlock()
 
-	for _, channel := range c.channels {
+	for name, channel := range c.channels {
 		close(channel)
+		delete(c.channels, name)
 	}
 }
 
@@ -125,8 +128,8 @@ func (c *Conveyer) Send(channelName string, data string) error {
 	select {
 	case channel <- data:
 		return nil
-	case <-context.TODO().Done():
-		return context.Canceled
+	default:
+		return errors.New("channel buffer is full")
 	}
 }
 
@@ -144,9 +147,10 @@ func (c *Conveyer) Recv(channelName string) (string, error) {
 		if !ok {
 			return emptyValue, nil
 		}
+
 		return val, nil
-	case <-context.TODO().Done():
-		return "", context.Canceled
+	default:
+		return "", errors.New("no data available")
 	}
 }
 
@@ -167,5 +171,6 @@ func (c *Conveyer) ensureChannel(name string) chan string {
 
 	ch := make(chan string, c.bufferSize)
 	c.channels[name] = ch
+
 	return ch
 }
