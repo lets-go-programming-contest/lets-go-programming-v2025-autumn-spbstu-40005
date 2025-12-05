@@ -45,6 +45,7 @@ func (p *Pipeline) Send(inputName string, data string) error {
 	}
 
 	channel <- data
+
 	return nil
 }
 
