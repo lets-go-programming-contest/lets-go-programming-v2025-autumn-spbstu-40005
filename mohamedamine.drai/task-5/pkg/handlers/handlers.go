@@ -68,7 +68,6 @@ func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan stri
 					return
 
 				case value, ok := <-input:
-
 					if !ok {
 						return
 					}
