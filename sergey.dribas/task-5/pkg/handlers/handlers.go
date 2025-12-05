@@ -2,9 +2,12 @@ package handlers
 
 import (
 	"context"
+	"errors"
 	"strings"
 	"sync"
 )
+
+var ErrNoDecorated = errors.New("can't be decorated")
 
 func PrefixDecoratorFunc(ctx context.Context, input chan string, output chan string) error {
 	defer close(output)
@@ -17,7 +20,7 @@ func PrefixDecoratorFunc(ctx context.Context, input chan string, output chan str
 			}
 
 			if strings.Contains(data, "no decorator") {
-				return nil
+				return ErrNoDecorated
 			}
 
 			if !strings.HasPrefix(data, "decorated: ") {
