@@ -46,7 +46,6 @@ func PrefixDecoratorFunc(ctx context.Context, input chan string, output chan str
 }
 
 func SeparatorFunc(ctx context.Context, input chan string, outputs []chan string) error {
-
 	if len(outputs) == 0 {
 		return errEmptyOutputs
 	}
@@ -75,7 +74,6 @@ func SeparatorFunc(ctx context.Context, input chan string, outputs []chan string
 }
 
 func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan string) error {
-
 	if len(inputs) == 0 {
 		return nil
 	}
