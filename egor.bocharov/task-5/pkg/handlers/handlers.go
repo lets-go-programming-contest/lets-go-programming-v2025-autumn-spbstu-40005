@@ -109,10 +109,16 @@ func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan stri
 		}
 	}
 
-	for _, inputCh := range inputs {
+	// Создаем слайс для хранения воркеров
+	workers := make([]func(chan string), len(inputs))
+	for i := range workers {
+		workers[i] = workerFunc
+	}
+
+	// Запускаем всех воркеров
+	for i, inputCh := range inputs {
 		waitGroup.Add(1)
-		worker := workerFunc
-		go worker(inputCh)
+		go workers[i](inputCh)
 	}
 
 	waitGroup.Wait()
