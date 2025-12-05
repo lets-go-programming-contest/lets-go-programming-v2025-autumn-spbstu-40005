@@ -172,6 +172,7 @@ func (c *Conveyer) ensureChannel(name string) chan string {
 	defer c.mutex.Unlock()
 
 	if existingChannel, exists := c.channels[name]; exists {
+
 		return existingChannel
 	}
 
