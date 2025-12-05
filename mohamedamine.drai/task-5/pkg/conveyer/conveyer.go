@@ -147,6 +147,7 @@ func (p *Pipeline) lookupChannel(name string) (chan string, bool) {
 	p.mu.RLock()
 	ch, ok := p.channels[name]
 	p.mu.RUnlock()
+
 	return ch, ok
 }
 
