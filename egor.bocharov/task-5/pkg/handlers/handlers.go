@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"strings"
+	"sync"
 )
 
 var (
@@ -53,7 +54,6 @@ func SeparatorFunc(ctx context.Context, input chan string, outputs []chan string
 	}
 
 	index := 0
-
 	for {
 		select {
 		case <-ctx.Done():
@@ -78,38 +78,41 @@ func SeparatorFunc(ctx context.Context, input chan string, outputs []chan string
 // MultiplexerFunc объединяет данные из нескольких входных каналов в один выходной.
 // Данные с пометкой "no multiplexer" пропускаются.
 func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan string) error {
-	for {
-		select {
-		case <-ctx.Done():
-			return nil
-		default:
-			allClosed := true
+	if len(inputs) == 0 {
+		return nil
+	}
 
-			for _, inputChannel := range inputs {
+	ctx, cancel := context.WithCancel(ctx)
+	defer cancel()
+
+	var wg sync.WaitGroup
+	wg.Add(len(inputs))
+
+	for _, ch := range inputs {
+		inputCh := ch // захват для горутины
+		go func() {
+			defer wg.Done()
+			for {
 				select {
-				case data, ok := <-inputChannel:
+				case <-ctx.Done():
+					return
+				case data, ok := <-inputCh:
 					if !ok {
-						continue
+						return // канал закрыт
 					}
-
-					allClosed = false
-
 					if strings.Contains(data, noMultiplexer) {
 						continue
 					}
-
 					select {
-					case output <- data:
+					case output <- data: // ✅ ИСПРАВЛЕНО: добавлено 'data'
 					case <-ctx.Done():
-						return nil
+						return
 					}
-				default:
 				}
 			}
-
-			if allClosed {
-				return nil
-			}
-		}
+		}()
 	}
+
+	wg.Wait()
+	return nil
 }
