@@ -13,6 +13,9 @@ const undefined = "undefined"
 
 var ErrChannelNotFound = errors.New("chan not found")
 
+// 1. Добавляем новую статическую ошибку вместо динамической
+var ErrChannelFullOrClosed = errors.New("channel is full or closed")
+
 type conveyerImpl struct {
 	size     int
 	channels map[string]chan string
@@ -134,7 +137,8 @@ func (c *conveyerImpl) Send(input string, data string) error {
 	case channel <- data:
 		return nil
 	default:
-		return fmt.Errorf("channel %s is full or closed", input)
+		// 2. Используем статическую ошибку с дополнительной информацией
+		return fmt.Errorf("conveyer send failed: %w: channel %s", ErrChannelFullOrClosed, input)
 	}
 }
 
