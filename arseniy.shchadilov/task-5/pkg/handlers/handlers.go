@@ -58,19 +58,20 @@ func MultiplexerFunc(
 		return ErrNoInputChannels
 	}
 
-	var wg sync.WaitGroup
-	wg.Add(len(inputs))
+	var waitGroup sync.WaitGroup
+
+	waitGroup.Add(len(inputs))
 
 	for _, inputChan := range inputs {
 		currentChan := inputChan
 		go func(in chan string) {
-			defer wg.Done()
+			defer waitGroup.Done()
 
 			for {
 				select {
 				case <-ctx.Done():
 					return
-				case data, ok := <-in:
+				case data, ok := <-inputChan:
 					if !ok {
 						return
 					}
@@ -89,7 +90,7 @@ func MultiplexerFunc(
 		}(currentChan)
 	}
 
-	wg.Wait()
+	waitGroup.Wait()
 	return nil
 }
 
