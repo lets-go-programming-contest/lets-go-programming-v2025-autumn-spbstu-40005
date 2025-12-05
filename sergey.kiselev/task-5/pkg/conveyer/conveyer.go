@@ -155,5 +155,6 @@ func (c *conveyerImpl) getChannelForRead(name string) (chan string, bool) {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
 	ch, ok := c.channels[name]
+
 	return ch, ok
 }

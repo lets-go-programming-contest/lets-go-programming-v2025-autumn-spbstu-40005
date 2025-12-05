@@ -78,12 +78,12 @@ func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan stri
 	if len(inputs) == 0 {
 		return ErrInputsEmpty
 	}
+
 	var waitgrr sync.WaitGroup
 
 	waitgrr.Add(len(inputs))
 
 	for _, inputCh := range inputs {
-
 		go func(channel chan string) {
 			defer waitgrr.Done()
 
