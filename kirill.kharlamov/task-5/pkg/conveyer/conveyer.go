@@ -24,7 +24,6 @@ type Conveyer struct {
 	channels   map[string]chan string
 	tasks      []func(context.Context) error
 	mutex      sync.RWMutex
-	wg         sync.WaitGroup
 	cancel     context.CancelFunc
 }
 
@@ -34,6 +33,7 @@ func New(size int) *Conveyer {
 		channels:   make(map[string]chan string),
 		tasks:      make([]func(context.Context) error, 0),
 		mutex:      sync.RWMutex{},
+		cancel:     nil,
 	}
 }
 
