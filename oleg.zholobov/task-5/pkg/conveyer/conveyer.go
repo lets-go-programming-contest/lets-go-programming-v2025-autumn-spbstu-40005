@@ -11,7 +11,7 @@ import (
 
 const undefinedValue = "undefined"
 
-var ErrChannelNotFound = errors.New("chan not found")
+var errMsgChannelNotFound = errors.New("chan not found")
 
 type Conveyer struct {
 	size     int
@@ -129,7 +129,7 @@ func (c *Conveyer) Send(name string, data string) error {
 	c.mutex.RUnlock()
 
 	if !exists {
-		return ErrChannelNotFound
+		return errMsgChannelNotFound
 	}
 
 	channel <- data
@@ -143,7 +143,7 @@ func (c *Conveyer) Recv(name string) (string, error) {
 	c.mutex.RUnlock()
 
 	if !exists {
-		return "", ErrChannelNotFound
+		return "", errMsgChannelNotFound
 	}
 
 	value, ok := <-channel
