@@ -98,7 +98,7 @@ func (c *conveyerImpl) Run(ctx context.Context) error {
 
 	err := errgr.Wait()
 	if err != nil {
-		return fmt.Errorf("%w", err)
+		return fmt.Errorf("conveyor execution failed: %w", err)
 	}
 
 	return nil
