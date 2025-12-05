@@ -166,6 +166,9 @@ func (c *Conveyer) RegisterSeparator(
 }
 
 func (c *Conveyer) Run(ctx context.Context) error {
+	c.mu.RLock()
+	defer c.mu.RUnlock()
+
 	workerGroup, ctx := errgroup.WithContext(ctx)
 
 	for _, task := range c.tasks {
@@ -177,11 +180,22 @@ func (c *Conveyer) Run(ctx context.Context) error {
 	}
 
 	err := workerGroup.Wait()
+
+	c.closeAllChannels()
+
 	if err != nil {
 		return fmt.Errorf("conveyer run failed: %w", err)
 	}
 
 	return nil
+}
+
+func (c *Conveyer) closeAllChannels() {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	for _, ch := range c.storage.channels {
+		close(ch)
+    }
 }
 
 func (c *Conveyer) Send(channelName string, data string) error {

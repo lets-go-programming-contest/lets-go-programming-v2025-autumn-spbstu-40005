@@ -20,8 +20,6 @@ var (
 )
 
 func PrefixDecoratorFunc(ctx context.Context, source chan string, destination chan string) error {
-	defer close(destination)
-
 	for {
 		select {
 		case <-ctx.Done():
@@ -49,12 +47,6 @@ func PrefixDecoratorFunc(ctx context.Context, source chan string, destination ch
 }
 
 func SeparatorFunc(ctx context.Context, source chan string, destinations []chan string) error {
-	defer func() {
-		for _, dest := range destinations {
-			close(dest)
-		}
-	}()
-
 	if len(destinations) == 0 {
 		return errNoDestinationsProvided
 	}
@@ -83,8 +75,6 @@ func SeparatorFunc(ctx context.Context, source chan string, destinations []chan 
 }
 
 func MultiplexerFunc(ctx context.Context, sources []chan string, destination chan string) error {
-	defer close(destination)
-
 	if len(sources) == 0 {
 		return errNoSourcesProvided
 	}
