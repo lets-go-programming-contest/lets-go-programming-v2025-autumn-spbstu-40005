@@ -78,7 +78,6 @@ func SeparatorFunc(ctx context.Context, input chan string, outputs []chan string
 // MultiplexerFunc объединяет данные из нескольких входных каналов в один выходной.
 // Данные с пометкой "no multiplexer" пропускаются.
 func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan string) error {
-	// Используем один цикл без горутин
 	for {
 		select {
 		case <-ctx.Done():
@@ -86,7 +85,6 @@ func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan stri
 		default:
 			allClosed := true
 
-			// Проверяем все входные каналы
 			for _, inputCh := range inputs {
 				select {
 				case data, ok := <-inputCh:
@@ -106,11 +104,10 @@ func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan stri
 						return nil
 					}
 				default:
-					// Если в канале нет данных, продолжаем
+					// continue
 				}
 			}
 
-			// Если все каналы закрыты, завершаем работу
 			if allClosed {
 				return nil
 			}
