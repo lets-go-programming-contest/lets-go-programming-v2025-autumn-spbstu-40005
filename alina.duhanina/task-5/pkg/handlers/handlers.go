@@ -13,17 +13,19 @@ const (
 	noMultiplexerMarker = "no multiplexer"
 )
 
-var errDecorationRejected = errors.New("can't be decorated")
+var (
+	errDecorationRejected     = errors.New("can't be decorated")
+	errNoSourcesProvided      = errors.New("no source channels provided")
+	errNoDestinationsProvided = errors.New("no destination channels provided")
+)
 
 func PrefixDecoratorFunc(ctx context.Context, source chan string, destination chan string) error {
-	defer close(destination)
-
 	for {
 		select {
 		case <-ctx.Done():
 			return nil
-		case content, active := <-source:
-			if !active {
+		case content, ok := <-source:
+			if !ok {
 				return nil
 			}
 
@@ -52,7 +54,7 @@ func SeparatorFunc(ctx context.Context, source chan string, destinations []chan 
 	}()
 
 	if len(destinations) == 0 {
-		return nil
+		return errNoDestinationsProvided
 	}
 
 	distributionIndex := 0
@@ -61,8 +63,8 @@ func SeparatorFunc(ctx context.Context, source chan string, destinations []chan 
 		select {
 		case <-ctx.Done():
 			return nil
-		case item, active := <-source:
-			if !active {
+		case item, ok := <-source:
+			if !ok {
 				return nil
 			}
 
@@ -79,18 +81,14 @@ func SeparatorFunc(ctx context.Context, source chan string, destinations []chan 
 }
 
 func MultiplexerFunc(ctx context.Context, sources []chan string, destination chan string) error {
-	defer close(destination)
-
 	if len(sources) == 0 {
-		return nil
+		return errNoSourcesProvided
 	}
 
 	var workerGroup sync.WaitGroup
 
 	for _, src := range sources {
 		workerGroup.Add(1)
-
-		input := src
 
 		go func() {
 			defer workerGroup.Done()
@@ -99,8 +97,8 @@ func MultiplexerFunc(ctx context.Context, sources []chan string, destination cha
 				select {
 				case <-ctx.Done():
 					return
-				case data, active := <-input:
-					if !active {
+				case data, ok := <-src:
+					if !ok {
 						return
 					}
 
@@ -115,7 +113,7 @@ func MultiplexerFunc(ctx context.Context, sources []chan string, destination cha
 					}
 				}
 			}
-		}()
+		}(src)
 	}
 
 	workerGroup.Wait()
