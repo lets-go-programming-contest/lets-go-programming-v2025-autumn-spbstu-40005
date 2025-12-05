@@ -164,6 +164,7 @@ func (c *conveyerImpl) getOrCreateChannel(name string) chan string {
 	c.mu.RLock()
 	if channel, exists := c.channels[name]; exists {
 		c.mu.RUnlock()
+
 		return channel
 	}
 	c.mu.RUnlock()
@@ -177,5 +178,6 @@ func (c *conveyerImpl) getOrCreateChannel(name string) chan string {
 
 	channel := make(chan string, c.size)
 	c.channels[name] = channel
+
 	return channel
 }

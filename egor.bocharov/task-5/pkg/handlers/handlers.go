@@ -30,11 +30,13 @@ func PrefixDecoratorFunc(ctx context.Context, input chan string, output chan str
 				return nil
 			}
 
-			if strings.Contains(data, noDecorator) {
+			containsNoDecorator := strings.Contains(data, noDecorator)
+			if containsNoDecorator {
 				return ErrDecorator
 			}
 
-			if !strings.HasPrefix(data, prefix) {
+			hasPrefix := strings.HasPrefix(data, prefix)
+			if !hasPrefix {
 				data = prefix + data
 			}
 
@@ -81,31 +83,38 @@ func SeparatorFunc(ctx context.Context, input chan string, outputs []chan string
 func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan string) error {
 	var waitGroup sync.WaitGroup
 
-	for _, inputCh := range inputs {
-		waitGroup.Add(1)
-		go func(inputChannel chan string) {
-			defer waitGroup.Done()
-			for {
+	workerFunc := func(inputChannel chan string) {
+		defer waitGroup.Done()
+
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case data, ok := <-inputChannel:
+				if !ok {
+					return
+				}
+
+				containsNoMultiplexer := strings.Contains(data, noMultiplexer)
+				if containsNoMultiplexer {
+					continue
+				}
+
 				select {
+				case output <- data:
 				case <-ctx.Done():
 					return
-				case data, ok := <-inputChannel:
-					if !ok {
-						return
-					}
-					if strings.Contains(data, noMultiplexer) {
-						continue
-					}
-					select {
-					case output <- data:
-					case <-ctx.Done():
-						return
-					}
 				}
 			}
-		}(inputCh)
+		}
+	}
+
+	for _, inputCh := range inputs {
+		waitGroup.Add(1)
+		go workerFunc(inputCh)
 	}
 
 	waitGroup.Wait()
+
 	return nil
 }
