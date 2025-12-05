@@ -79,17 +79,17 @@ func SeparatorFunc(ctx context.Context, input chan string, outputs []chan string
 // MultiplexerFunc объединяет данные из нескольких входных каналов в один выходной.
 // Данные с пометкой "no multiplexer" пропускаются.
 func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan string) error {
-	var wg sync.WaitGroup
+	var waitGroup sync.WaitGroup
 
 	for _, inputCh := range inputs {
-		wg.Add(1)
-		go func(ch chan string) {
-			defer wg.Done()
+		waitGroup.Add(1)
+		go func(inputChannel chan string) {
+			defer waitGroup.Done()
 			for {
 				select {
 				case <-ctx.Done():
 					return
-				case data, ok := <-ch:
+				case data, ok := <-inputChannel:
 					if !ok {
 						return
 					}
@@ -106,6 +106,6 @@ func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan stri
 		}(inputCh)
 	}
 
-	wg.Wait()
+	waitGroup.Wait()
 	return nil
 }
