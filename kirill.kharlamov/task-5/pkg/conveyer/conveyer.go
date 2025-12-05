@@ -14,9 +14,7 @@ const (
 )
 
 var (
-	ErrChannelNotFound   = errors.New("chan not found")
-	ErrChannelBufferFull = errors.New("channel buffer is full")
-	ErrNoDataAvailable   = errors.New("no data available")
+	ErrChannelNotFound = errors.New("chan not found")
 )
 
 type Conveyer struct {
@@ -24,7 +22,6 @@ type Conveyer struct {
 	channels   map[string]chan string
 	tasks      []func(context.Context) error
 	mutex      sync.RWMutex
-	cancel     context.CancelFunc
 }
 
 func New(size int) *Conveyer {
@@ -33,7 +30,6 @@ func New(size int) *Conveyer {
 		channels:   make(map[string]chan string),
 		tasks:      make([]func(context.Context) error, 0),
 		mutex:      sync.RWMutex{},
-		cancel:     nil,
 	}
 }
 
@@ -93,10 +89,6 @@ func (c *Conveyer) RegisterSeparator(
 }
 
 func (c *Conveyer) Run(ctx context.Context) error {
-	ctx, cancel := context.WithCancel(ctx)
-	c.cancel = cancel
-	defer cancel()
-
 	errGroup, ctx := errgroup.WithContext(ctx)
 
 	for _, task := range c.tasks {
@@ -137,12 +129,8 @@ func (c *Conveyer) Send(channelName string, data string) error {
 		return ErrChannelNotFound
 	}
 
-	select {
-	case channel <- data:
-		return nil
-	default:
-		return ErrChannelBufferFull
-	}
+	channel <- data
+	return nil
 }
 
 func (c *Conveyer) Recv(channelName string) (string, error) {
@@ -162,7 +150,7 @@ func (c *Conveyer) Recv(channelName string) (string, error) {
 
 		return value, nil
 	default:
-		return "", ErrNoDataAvailable
+		return "", nil
 	}
 }
 
@@ -187,10 +175,4 @@ func (c *Conveyer) ensureChannel(name string) chan string {
 	c.channels[name] = newChannel
 
 	return newChannel
-}
-
-func (c *Conveyer) Stop() {
-	if c.cancel != nil {
-		c.cancel()
-	}
 }

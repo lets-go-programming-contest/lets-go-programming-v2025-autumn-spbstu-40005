@@ -3,7 +3,6 @@ package handlers
 import (
 	"context"
 	"errors"
-	"fmt"
 	"strings"
 	"sync"
 )
@@ -23,7 +22,7 @@ func PrefixDecoratorFunc(ctx context.Context, inputChannel, outputChannel chan s
 	for {
 		select {
 		case <-ctx.Done():
-			return fmt.Errorf("prefix decorator: %w", ctx.Err())
+			return nil
 		case data, ok := <-inputChannel:
 			if !ok {
 				return nil
@@ -40,7 +39,7 @@ func PrefixDecoratorFunc(ctx context.Context, inputChannel, outputChannel chan s
 			select {
 			case outputChannel <- data:
 			case <-ctx.Done():
-				return fmt.Errorf("prefix decorator: %w", ctx.Err())
+				return nil
 			}
 		}
 	}
@@ -56,7 +55,7 @@ func SeparatorFunc(ctx context.Context, inputChannel chan string, outputChannels
 	for {
 		select {
 		case <-ctx.Done():
-			return fmt.Errorf("separator: %w", ctx.Err())
+			return nil
 		case data, ok := <-inputChannel:
 			if !ok {
 				return nil
@@ -68,7 +67,7 @@ func SeparatorFunc(ctx context.Context, inputChannel chan string, outputChannels
 			select {
 			case selectedOutputChannel <- data:
 			case <-ctx.Done():
-				return fmt.Errorf("separator: %w", ctx.Err())
+				return nil
 			}
 		}
 	}
@@ -105,20 +104,15 @@ func MultiplexerFunc(ctx context.Context, inputChannels []chan string, outputCha
 	for _, inputChan := range inputChannels {
 		waitGroup.Add(1)
 
-		currentInputChan := inputChan
+		currentInputChannel := inputChan
 		workerFunc := worker
 
 		go func() {
-			workerFunc(currentInputChan)
+			workerFunc(currentInputChannel)
 		}()
 	}
 
 	waitGroup.Wait()
 
-	select {
-	case <-ctx.Done():
-		return fmt.Errorf("multiplexer: %w", ctx.Err())
-	default:
-		return nil
-	}
+	return nil
 }
