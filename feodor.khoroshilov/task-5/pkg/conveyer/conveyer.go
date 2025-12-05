@@ -12,7 +12,7 @@ import (
 const undefinedValue = "undefined"
 
 var (
-	ErrChannelNotFound   = errors.New("chan not found")
+	ErrChannelNotFound    = errors.New("chan not found")
 	ErrContextCannotBeNil = errors.New("context cannot be nil")
 )
 
@@ -39,6 +39,7 @@ func (c *conveyer) getChannelOrCreateLocked(name string) chan string {
 
 	ch := make(chan string, c.bufferSize)
 	c.channels[name] = ch
+
 	return ch
 }
 
@@ -47,6 +48,7 @@ func (c *conveyer) getChannel(name string) (chan string, bool) {
 	defer c.mutex.RUnlock()
 
 	ch, ok := c.channels[name]
+
 	return ch, ok
 }
 
@@ -95,6 +97,7 @@ func (c *conveyer) RegisterSeparator(
 	defer c.mutex.Unlock()
 
 	inChan := c.getChannelOrCreateLocked(inName)
+
 	outChans := make([]chan string, len(outNames))
 	for i, name := range outNames {
 		outChans[i] = c.getChannelOrCreateLocked(name)
@@ -150,6 +153,7 @@ func (c *conveyer) Send(name string, data string) error {
 	}
 
 	ch <- data
+
 	return nil
 }
 
