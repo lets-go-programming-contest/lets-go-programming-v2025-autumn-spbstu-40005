@@ -164,7 +164,7 @@ func (c *Conveyer) RegisterSeparator(
 
 	c.tasks = append(c.tasks, task)
 }
-
+/*
 func (c *Conveyer) Run(ctx context.Context) error {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
@@ -197,7 +197,52 @@ func (c *Conveyer) closeAllChannels() {
 		close(ch)
     }
 }
+*/
 
+func (c *Conveyer) Run(ctx context.Context) error {
+    c.mu.RLock()
+    defer c.mu.RUnlock()
+    
+    // Создаем канал для отслеживания завершения всех обработчиков
+    allDone := make(chan struct{})
+    
+    workerGroup, ctx := errgroup.WithContext(ctx)
+
+    for _, task := range c.tasks {
+        currentTask := task
+        workerGroup.Go(func() error {
+            return currentTask.Process(ctx)
+        })
+    }
+
+    // Запускаем ожидание в отдельной горутине
+    go func() {
+        workerGroup.Wait()
+        close(allDone)
+    }()
+
+    // Ждем либо завершения, либо отмены контекста
+    select {
+    case <-ctx.Done():
+        // Контекст отменен - ждем graceful shutdown
+        <-allDone
+    case <-allDone:
+        // Все обработчики завершились нормально
+    }
+
+    // ТЕПЕРЬ закрываем все каналы
+    c.closeAllChannels()
+    
+    return workerGroup.Wait()
+}
+
+func (c *Conveyer) closeAllChannels() {
+    c.mu.Lock()
+    defer c.mu.Unlock()
+    for _, ch := range c.storage.channels {
+        close(ch)
+    }
+}
 func (c *Conveyer) Send(channelName string, data string) error {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
