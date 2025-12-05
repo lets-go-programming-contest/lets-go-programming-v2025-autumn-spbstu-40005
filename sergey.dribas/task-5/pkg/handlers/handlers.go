@@ -1,0 +1,112 @@
+package handlers
+
+import (
+	"context"
+	"errors"
+	"fmt"
+	"strings"
+	"sync"
+)
+
+var ErrNoDecorated = errors.New("can't be decorated")
+
+func PrefixDecoratorFunc(ctx context.Context, input chan string, output chan string) error {
+	for {
+		select {
+		case data, ok := <-input:
+			if !ok {
+				return nil
+			}
+
+			if strings.Contains(data, "no decorator") {
+				return ErrNoDecorated
+			}
+
+			if !strings.HasPrefix(data, "decorated: ") {
+				data = "decorated: " + data
+			}
+			select {
+			case output <- data:
+			case <-ctx.Done():
+				return fmt.Errorf("context cancelled during send: %w", ctx.Err())
+			}
+		case <-ctx.Done():
+			return fmt.Errorf("context cancelled during receive: %w", ctx.Err())
+		}
+	}
+}
+
+func SeparatorFunc(ctx context.Context, input chan string, outputs []chan string) error {
+	counter := 0
+
+	for {
+		select {
+		case data, ok := <-input:
+			if !ok {
+				return nil
+			}
+
+			idx := counter % len(outputs)
+			select {
+			case outputs[idx] <- data:
+				counter++
+			case <-ctx.Done():
+				return fmt.Errorf("separator context cancelled: %w", ctx.Err())
+			}
+		case <-ctx.Done():
+			return fmt.Errorf("separator receive cancelled: %w", ctx.Err())
+		}
+	}
+}
+
+func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan string) error {
+	if len(inputs) == 0 {
+		<-ctx.Done()
+
+		return fmt.Errorf("%w", ctx.Err())
+	}
+
+	var wait sync.WaitGroup
+
+	wait.Add(len(inputs))
+
+	for _, input := range inputs {
+		reader := func() {
+			defer wait.Done()
+
+			for {
+				select {
+				case data, ok := <-input:
+					if !ok {
+						return
+					}
+
+					if strings.Contains(data, "no multiplexer") {
+						continue
+					}
+					select {
+					case output <- data:
+					case <-ctx.Done():
+						return
+					}
+				case <-ctx.Done():
+					return
+				}
+			}
+		}
+
+		go reader()
+	}
+
+	done := make(chan struct{})
+	go func() {
+		wait.Wait()
+		close(done)
+	}()
+	select {
+	case <-done:
+		return nil
+	case <-ctx.Done():
+		return fmt.Errorf("multiplexer context cancelled: %w", ctx.Err())
+	}
+}
