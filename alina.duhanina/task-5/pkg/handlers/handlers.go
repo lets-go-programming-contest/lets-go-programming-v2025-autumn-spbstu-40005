@@ -94,16 +94,14 @@ func MultiplexerFunc(ctx context.Context, sources []chan string, destination cha
 	for _, src := range sources {
 		workerGroup.Add(1)
 
-		input := src
-
-		go func(){
+		go func(src chan string) {
 			defer workerGroup.Done()
 
 			for {
 				select {
 				case <-ctx.Done():
 					return
-				case data, ok := <-input:
+				case data, ok := <-src:
 					if !ok {
 						return
 					}
@@ -119,7 +117,7 @@ func MultiplexerFunc(ctx context.Context, sources []chan string, destination cha
 					}
 				}
 			}
-		}()
+		}(src)
 	}
 
 	workerGroup.Wait()
