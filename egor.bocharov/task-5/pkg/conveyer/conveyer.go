@@ -13,6 +13,8 @@ const undefined = "undefined"
 
 var ErrChannelNotFound = errors.New("chan not found")
 
+var ErrChannelFullOrClosed = errors.New("channel is full or closed")
+
 type conveyerImpl struct {
 	size     int
 	channels map[string]chan string
@@ -128,7 +130,8 @@ func (c *conveyerImpl) Send(input string, data string) error {
 	case channel <- data:
 		return nil
 	default:
-		return fmt.Errorf("channel %s is full or closed", input)
+
+		return fmt.Errorf("conveyer send failed: %w: channel %s", ErrChannelFullOrClosed, input)
 	}
 }
 
