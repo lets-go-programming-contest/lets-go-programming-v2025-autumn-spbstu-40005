@@ -13,7 +13,11 @@ const (
 	emptyValue = "undefined"
 )
 
-var ErrChannelNotFound = errors.New("channel not found")
+var (
+	ErrChannelNotFound   = errors.New("channel not found")
+	ErrChannelBufferFull = errors.New("channel buffer is full")
+	ErrNoDataAvailable   = errors.New("no data available")
+)
 
 type Conveyer struct {
 	bufferSize int
@@ -90,13 +94,15 @@ func (c *Conveyer) Run(ctx context.Context) error {
 	errGroup, ctx := errgroup.WithContext(ctx)
 
 	for _, task := range c.tasks {
-		task := task
+		taskFunc := task
+
 		errGroup.Go(func() error {
-			return task(ctx)
+			return taskFunc(ctx)
 		})
 	}
 
 	err := errGroup.Wait()
+
 	c.closeAllChannels()
 
 	if err != nil {
@@ -110,9 +116,9 @@ func (c *Conveyer) closeAllChannels() {
 	c.mutex.Lock()
 	defer c.mutex.Unlock()
 
-	for name, channel := range c.channels {
+	for channelName, channel := range c.channels {
 		close(channel)
-		delete(c.channels, name)
+		delete(c.channels, channelName)
 	}
 }
 
@@ -129,7 +135,7 @@ func (c *Conveyer) Send(channelName string, data string) error {
 	case channel <- data:
 		return nil
 	default:
-		return errors.New("channel buffer is full")
+		return ErrChannelBufferFull
 	}
 }
 
@@ -143,34 +149,34 @@ func (c *Conveyer) Recv(channelName string) (string, error) {
 	}
 
 	select {
-	case val, ok := <-channel:
+	case value, ok := <-channel:
 		if !ok {
 			return emptyValue, nil
 		}
 
-		return val, nil
+		return value, nil
 	default:
-		return "", errors.New("no data available")
+		return "", ErrNoDataAvailable
 	}
 }
 
 func (c *Conveyer) ensureChannel(name string) chan string {
 	c.mutex.RLock()
-	if ch, exists := c.channels[name]; exists {
+	if existingChannel, exists := c.channels[name]; exists {
 		c.mutex.RUnlock()
-		return ch
+		return existingChannel
 	}
 	c.mutex.RUnlock()
 
 	c.mutex.Lock()
 	defer c.mutex.Unlock()
 
-	if ch, exists := c.channels[name]; exists {
-		return ch
+	if existingChannel, exists := c.channels[name]; exists {
+		return existingChannel
 	}
 
-	ch := make(chan string, c.bufferSize)
-	c.channels[name] = ch
+	newChannel := make(chan string, c.bufferSize)
+	c.channels[name] = newChannel
 
-	return ch
+	return newChannel
 }
