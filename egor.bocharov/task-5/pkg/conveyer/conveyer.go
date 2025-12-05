@@ -88,8 +88,6 @@ func (c *conveyerImpl) RegisterSeparator(
 	})
 }
 
-// Run запускает все зарегистрированные обработчики в отдельных горутинах.
-// Блокируется до завершения всех обработчиков или отмены контекста.
 func (c *conveyerImpl) Run(ctx context.Context) error {
 	defer c.closeAllChannels()
 
@@ -97,6 +95,7 @@ func (c *conveyerImpl) Run(ctx context.Context) error {
 
 	for _, handler := range c.handlers {
 		currentHandler := handler
+
 		errGroup.Go(func() error {
 			return currentHandler(ctx)
 		})
@@ -152,13 +151,13 @@ func (c *conveyerImpl) Recv(ctx context.Context, output string) (string, error) 
 		if !ok {
 			return undefined, nil
 		}
+
 		return val, nil
 	case <-ctx.Done():
 		return "", fmt.Errorf("conveyer recv failed: %w", ctx.Err())
 	}
 }
 
-// getOrCreateChannel возвращает существующий канал или создаёт новый.
 func (c *conveyerImpl) getOrCreateChannel(name string) chan string {
 	c.mu.RLock()
 	if channel, exists := c.channels[name]; exists {
