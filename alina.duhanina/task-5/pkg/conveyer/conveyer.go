@@ -3,8 +3,8 @@ package conveyer
 import (
 	"context"
 	"errors"
-	"sync"
 	"fmt"
+	"sync"
 
 	"golang.org/x/sync/errgroup"
 )
@@ -179,7 +179,6 @@ func (c *Conveyer) Run(ctx context.Context) error {
 	}
 
 	err := workerGroup.Wait()
-
 	if err != nil {
 		return fmt.Errorf("conveyer run failed: %w", err)
 	}
@@ -190,9 +189,10 @@ func (c *Conveyer) Run(ctx context.Context) error {
 func (c *Conveyer) closeAllChannels() {
 	c.mu.Lock()
 	defer c.mu.Unlock()
+
 	for _, ch := range c.storage.channels {
 		close(ch)
-    }
+	}
 }
 
 func (c *Conveyer) Send(channelName string, data string) error {
