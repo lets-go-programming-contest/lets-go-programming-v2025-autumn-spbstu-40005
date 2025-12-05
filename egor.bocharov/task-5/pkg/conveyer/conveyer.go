@@ -128,6 +128,7 @@ func (c *conveyerImpl) Send(input string, data string) error {
 	}
 
 	channel <- data
+
 	return nil
 }
 
@@ -146,6 +147,7 @@ func (c *conveyerImpl) Recv(output string) (string, error) {
 	if !ok {
 		return undefined, nil
 	}
+
 	return val, nil
 }
 
