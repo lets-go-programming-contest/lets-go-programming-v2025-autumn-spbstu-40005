@@ -17,7 +17,7 @@ const (
 	noMultiplexer = "no multiplexer"
 )
 
-// PrefixDecoratorFunc добавляет префикс к данным, если его еще нет.
+// PrefixDecoratorFunc добавляет префикс к данным, если его ещё нет.
 // Если данные содержат "no decorator", возвращает ошибку.
 func PrefixDecoratorFunc(ctx context.Context, input chan string, output chan string) error {
 	for {
@@ -63,11 +63,11 @@ func SeparatorFunc(ctx context.Context, input chan string, outputs []chan string
 				return nil
 			}
 
-			outCh := outputs[index%len(outputs)]
+			outChannel := outputs[index%len(outputs)]
 			index++
 
 			select {
-			case outCh <- data:
+			case outChannel <- data:
 			case <-ctx.Done():
 				return nil
 			}
@@ -85,9 +85,9 @@ func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan stri
 		default:
 			allClosed := true
 
-			for _, inputCh := range inputs {
+			for _, inputChannel := range inputs {
 				select {
-				case data, ok := <-inputCh:
+				case data, ok := <-inputChannel:
 					if !ok {
 						continue
 					}
@@ -104,7 +104,6 @@ func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan stri
 						return nil
 					}
 				default:
-					// continue
 				}
 			}
 
