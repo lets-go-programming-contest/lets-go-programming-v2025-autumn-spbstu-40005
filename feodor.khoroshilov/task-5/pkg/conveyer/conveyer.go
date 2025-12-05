@@ -25,8 +25,24 @@ func New(size int) *conveyer {
 		bufferSize: size,
 		channels:   make(map[string]chan string),
 		workers:    make([]func(ctx context.Context) error, 0),
-		mutex:      sync.RWMutex{},
 	}
+}
+
+func (c *conveyer) getChannelOrCreateLocked(name string) chan string {
+	if ch, ok := c.channels[name]; ok {
+		return ch
+	}
+	
+	ch := make(chan string, c.bufferSize)
+	c.channels[name] = ch
+	return ch
+}
+
+func (c *conveyer) getChannel(name string) (chan string, bool) {
+	c.mutex.RLock()
+	defer c.mutex.RUnlock()
+	ch, ok := c.channels[name]
+	return ch, ok
 }
 
 func (c *conveyer) RegisterDecorator(
@@ -72,7 +88,6 @@ func (c *conveyer) RegisterSeparator(
 	c.mutex.Lock()
 	defer c.mutex.Unlock()
 
-
 	inChan := c.getChannelOrCreateLocked(inName)
 	outChans := make([]chan string, len(outNames))
 	for i, name := range outNames {
@@ -84,36 +99,17 @@ func (c *conveyer) RegisterSeparator(
 	})
 }
 
-func (c *conveyer) getChannelOrCreateLocked(name string) chan string {
-	if ch, ok := c.channels[name]; ok {
-		return ch
-	}
-	
-	ch := make(chan string, c.bufferSize)
-	c.channels[name] = ch
-	return ch
-}
-
-func (c *conveyer) getChannel(name string) (chan string, bool) {
-	c.mutex.RLock()
-	defer c.mutex.RUnlock()
-	ch, ok := c.channels[name]
-	return ch, ok
-}
-
 func (c *conveyer) Run(ctx context.Context) error {
 	if ctx == nil {
 		return errors.New("context cannot be nil")
 	}
-	
-	defer c.closeAll()
-
-	errGroup, ctx := errgroup.WithContext(ctx)
 
 	c.mutex.RLock()
 	workers := make([]func(ctx context.Context) error, len(c.workers))
 	copy(workers, c.workers)
 	c.mutex.RUnlock()
+
+	errGroup, ctx := errgroup.WithContext(ctx)
 
 	for _, w := range workers {
 		w := w
@@ -122,7 +118,11 @@ func (c *conveyer) Run(ctx context.Context) error {
 		})
 	}
 
-	if err := errGroup.Wait(); err != nil {
+	err := errGroup.Wait()
+
+	c.closeAll()
+	
+	if err != nil {
 		return fmt.Errorf("execution failed: %w", err)
 	}
 
@@ -133,9 +133,8 @@ func (c *conveyer) closeAll() {
 	c.mutex.Lock()
 	defer c.mutex.Unlock()
 
-	for name, ch := range c.channels {
+	for _, ch := range c.channels {
 		close(ch)
-		delete(c.channels, name)
 	}
 }
 
