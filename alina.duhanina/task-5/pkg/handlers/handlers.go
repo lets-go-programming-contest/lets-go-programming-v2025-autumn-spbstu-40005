@@ -90,7 +90,7 @@ func MultiplexerFunc(ctx context.Context, sources []chan string, destination cha
 	for _, src := range sources {
 		workerGroup.Add(1)
 
-		go func() {
+		go func(src chan string){
 			defer workerGroup.Done()
 
 			for {
