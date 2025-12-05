@@ -130,7 +130,6 @@ func (c *conveyerImpl) Send(input string, data string) error {
 	case channel <- data:
 		return nil
 	default:
-
 		return fmt.Errorf("conveyer send failed: %w: channel %s", ErrChannelFullOrClosed, input)
 	}
 }
