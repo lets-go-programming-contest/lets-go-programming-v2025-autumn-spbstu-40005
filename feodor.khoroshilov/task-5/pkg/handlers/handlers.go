@@ -26,15 +26,15 @@ func PrefixDecoratorFunc(ctx context.Context, input chan string, output chan str
 			if !ok {
 				return nil
 			}
-			
+
 			if strings.Contains(data, skipDecorator) {
 				return ErrCantBeDecorated
 			}
-			
+
 			if !strings.HasPrefix(data, decoration) {
 				data = decoration + data
 			}
-			
+
 			select {
 			case <-ctx.Done():
 				return nil
@@ -48,9 +48,9 @@ func SeparatorFunc(ctx context.Context, input chan string, outputs []chan string
 	if len(outputs) == 0 {
 		return nil
 	}
-	
+
 	counter := 0
-	
+
 	for {
 		select {
 		case <-ctx.Done():
@@ -59,10 +59,10 @@ func SeparatorFunc(ctx context.Context, input chan string, outputs []chan string
 			if !ok {
 				return nil
 			}
-			
+
 			outputIndex := counter % len(outputs)
 			counter++
-			
+
 			select {
 			case <-ctx.Done():
 				return nil
