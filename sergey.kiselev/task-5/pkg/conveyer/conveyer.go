@@ -114,9 +114,7 @@ func (c *conveyerImpl) closeAllChannels() {
 }
 
 func (c *conveyerImpl) Send(input string, data string) error {
-	c.mu.RLock()
-	channel, exists := c.channels[input]
-	c.mu.RUnlock()
+	channel, exists := c.getChannelForRead(input)
 
 	if !exists {
 		return ErrFoundOfChannel
@@ -128,9 +126,7 @@ func (c *conveyerImpl) Send(input string, data string) error {
 }
 
 func (c *conveyerImpl) Recv(output string) (string, error) {
-	c.mu.RLock()
-	channel, exists := c.channels[output]
-	c.mu.RUnlock()
+	channel, exists := c.getChannelForRead(output)
 
 	if !exists {
 		return "", ErrFoundOfChannel
@@ -153,4 +149,11 @@ func (c *conveyerImpl) getOrCreateChannel(name string) chan string {
 	c.channels[name] = channel
 
 	return channel
+}
+
+func (c *conveyerImpl) getChannelForRead(name string) (chan string, bool) {
+	c.mu.RLock()
+	defer c.mu.RUnlock()
+	ch, ok := c.channels[name]
+	return ch, ok
 }

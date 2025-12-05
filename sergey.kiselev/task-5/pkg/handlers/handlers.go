@@ -9,7 +9,8 @@ import (
 
 var (
 	ErrDecorator    = errors.New("can't be decorated")
-	ErrOutpustEmpty = errors.New("outputs must not be empty")
+	ErrOutputsEmpty = errors.New("outputs must not be empty")
+	ErrInputsEmpty  = errors.New("inputs must not be empty")
 )
 
 const (
@@ -47,7 +48,7 @@ func PrefixDecoratorFunc(ctx context.Context, input chan string, output chan str
 
 func SeparatorFunc(ctx context.Context, input chan string, outputs []chan string) error {
 	if len(outputs) == 0 {
-		return ErrOutpustEmpty
+		return ErrOutputsEmpty
 	}
 
 	index := 0
@@ -74,10 +75,14 @@ func SeparatorFunc(ctx context.Context, input chan string, outputs []chan string
 }
 
 func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan string) error {
+	if len(inputs) == 0 {
+		return ErrInputsEmpty
+	}
 	var waitgrr sync.WaitGroup
 
+	waitgrr.Add(len(inputs))
+
 	for _, inputCh := range inputs {
-		waitgrr.Add(1)
 
 		go func(channel chan string) {
 			defer waitgrr.Done()
