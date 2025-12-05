@@ -120,16 +120,6 @@ func (conv *conveyerImpl) Run(ctx context.Context) error {
 		}(handl)
 	}
 
-	go func() {
-		waitg.Wait()
-		conv.mu.Lock()
-		defer conv.mu.Unlock()
-
-		for _, ch := range conv.channels {
-			close(ch)
-		}
-	}()
-
 	select {
 	case err := <-errorCh:
 		if err != nil {
@@ -150,12 +140,9 @@ func (conv *conveyerImpl) Send(input string, data string) error {
 	if !exists {
 		return ErrChanNotFound
 	}
-	select {
-	case chank <- data:
-		return nil
-	default:
-		return ErrSendFailed
-	}
+	chank <- data
+
+	return nil
 }
 
 func (conv *conveyerImpl) Recv(output string) (string, error) {
@@ -166,16 +153,13 @@ func (conv *conveyerImpl) Recv(output string) (string, error) {
 	if !exists {
 		return "", ErrChanNotFound
 	}
-	select {
-	case data, ok := <-channel:
-		if !ok {
-			return "undefined", nil
-		}
 
-		return data, nil
-	default:
-		return "", ErrNoData
+	data, ok := <-channel
+	if !ok {
+		return "undefined", nil
 	}
+
+	return data, nil
 }
 
 func (conv *conveyerImpl) getOrCreateChannel(name string) chan string {
