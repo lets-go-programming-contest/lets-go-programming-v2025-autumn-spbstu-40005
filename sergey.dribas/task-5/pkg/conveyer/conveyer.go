@@ -3,7 +3,6 @@ package conveyer
 import (
 	"context"
 	"errors"
-	"fmt"
 	"sync"
 )
 
@@ -112,16 +111,21 @@ func (conv *conveyerImpl) Run(ctx context.Context) error {
 		}(handl)
 	}
 
+	go func() {
+		waitg.Wait()
+		close(errorCh)
+	}()
+
 	select {
-	case err := <-errorCh:
-		if err != nil {
+	case err, ok := <-errorCh:
+		if ok && err != nil {
 			return err
 		}
-	case <-ctx.Done():
-		return fmt.Errorf("%w", ctx.Err())
-	}
 
-	return nil
+		return nil
+	case <-ctx.Done():
+		return nil
+	}
 }
 
 func (conv *conveyerImpl) Send(input string, data string) error {
