@@ -6,6 +6,16 @@ import (
 	"sync"
 )
 
+var (
+	ErrChanNotFound     = errors.New("chan not found")
+	ErrSendFailed       = errors.New("send failed")
+	ErrNoData           = errors.New("no data")
+	ErrNoDecrator       = errors.New("invalid process function for decorator")
+	ErrInvalidMultiplex = errors.New("invalid process function for multiplexer")
+	ErrInvalidSeparator = errors.New("invalid process function for separator")
+	ErrUnknowType       = errors.New("unknown handler type")
+)
+
 type conveyerImpl struct {
 	channels map[string]chan string
 	handlers []handler
@@ -23,12 +33,14 @@ type handler struct {
 func New(size int) *conveyerImpl {
 	return &conveyerImpl{
 		channels: make(map[string]chan string),
+		handlers: make([]handler, 0),
+		mu:       sync.Mutex{},
 		size:     size,
 	}
 }
 
 func (conv *conveyerImpl) RegisterDecorator(
-	fn func(ctx context.Context, input chan string, output chan string) error,
+	handlerFunc func(ctx context.Context, input chan string, output chan string) error,
 	input string, output string,
 ) {
 	conv.mu.Lock()
@@ -37,43 +49,47 @@ func (conv *conveyerImpl) RegisterDecorator(
 	conv.getOrCreateChannel(output)
 	conv.handlers = append(conv.handlers, handler{
 		handlerType: "decorator",
-		process:     fn,
+		process:     handlerFunc,
 		inputs:      []string{input},
 		outputs:     []string{output},
 	})
 }
 
 func (conv *conveyerImpl) RegisterMultipleser(
-	fn func(ctx context.Context, inputs []chan string, output chan string) error,
+	handlerFunc func(ctx context.Context, inputs []chan string, output chan string) error,
 	inputs []string, output string,
 ) {
 	conv.mu.Lock()
 	defer conv.mu.Unlock()
+
 	for _, in := range inputs {
 		conv.getOrCreateChannel(in)
 	}
+
 	conv.getOrCreateChannel(output)
 	conv.handlers = append(conv.handlers, handler{
 		handlerType: "multiplexer",
-		process:     fn,
+		process:     handlerFunc,
 		inputs:      inputs,
 		outputs:     []string{output},
 	})
 }
 
 func (conv *conveyerImpl) RegisterSeparator(
-	fn func(ctx context.Context, input chan string, outputs []chan string) error,
+	handlerFunc func(ctx context.Context, input chan string, outputs []chan string) error,
 	input string, outputs []string,
 ) {
 	conv.mu.Lock()
 	defer conv.mu.Unlock()
 	conv.getOrCreateChannel(input)
+
 	for _, out := range outputs {
 		conv.getOrCreateChannel(out)
 	}
+
 	conv.handlers = append(conv.handlers, handler{
 		handlerType: "separator",
-		process:     fn,
+		process:     handlerFunc,
 		inputs:      []string{input},
 		outputs:     outputs,
 	})
@@ -83,13 +99,16 @@ func (conv *conveyerImpl) Run(ctx context.Context) error {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 
-	var wg sync.WaitGroup
+	var wait sync.WaitGroup
+
 	errorCh := make(chan error, len(conv.handlers))
 
-	for _, h := range conv.handlers {
-		wg.Add(1)
+	for _, hand := range conv.handlers {
+		wait.Add(1)
+
 		go func(h handler) {
-			defer wg.Done()
+			defer wait.Done()
+
 			if err := conv.runHandler(ctx, h); err != nil {
 				select {
 				case errorCh <- err:
@@ -97,10 +116,10 @@ func (conv *conveyerImpl) Run(ctx context.Context) error {
 				}
 				cancel()
 			}
-		}(h)
+		}(hand)
 	}
 
-	wg.Wait()
+	wait.Wait()
 	close(errorCh)
 
 	for err := range errorCh {
@@ -108,39 +127,43 @@ func (conv *conveyerImpl) Run(ctx context.Context) error {
 			return err
 		}
 	}
+
 	return nil
 }
 
 func (conv *conveyerImpl) Send(input string, data string) error {
 	conv.mu.Lock()
-	ch, exists := conv.channels[input]
+	chank, exists := conv.channels[input]
 	conv.mu.Unlock()
+
 	if !exists {
-		return errors.New("chan not found")
+		return ErrChanNotFound
 	}
 	select {
-	case ch <- data:
+	case chank <- data:
 		return nil
 	default:
-		return errors.New("send failed")
+		return ErrSendFailed
 	}
 }
 
 func (conv *conveyerImpl) Recv(output string) (string, error) {
 	conv.mu.Lock()
-	ch, exists := conv.channels[output]
+	channel, exists := conv.channels[output]
 	conv.mu.Unlock()
+
 	if !exists {
-		return "", errors.New("chan not found")
+		return "", ErrChanNotFound
 	}
 	select {
-	case data, ok := <-ch:
+	case data, ok := <-channel:
 		if !ok {
 			return "undefined", nil
 		}
+
 		return data, nil
 	default:
-		return "", errors.New("no data")
+		return "", ErrNoData
 	}
 }
 
@@ -148,30 +171,50 @@ func (conv *conveyerImpl) getOrCreateChannel(name string) chan string {
 	if ch, exists := conv.channels[name]; exists {
 		return ch
 	}
-	ch := make(chan string, conv.size)
-	conv.channels[name] = ch
-	return ch
+
+	channel := make(chan string, conv.size)
+	conv.channels[name] = channel
+
+	return channel
 }
 
-func (conv *conveyerImpl) runHandler(ctx context.Context, h handler) error {
-	switch h.handlerType {
+func (conv *conveyerImpl) runHandler(ctx context.Context, hand handler) error {
+	switch hand.handlerType {
 	case "decorator":
-		fn := h.process.(func(ctx context.Context, input chan string, output chan string) error)
-		return fn(ctx, conv.channels[h.inputs[0]], conv.channels[h.outputs[0]])
+		funct, ok := hand.process.(func(ctx context.Context, input chan string, output chan string) error)
+		if !ok {
+			return ErrNoDecrator
+		}
+
+		return funct(ctx, conv.channels[hand.inputs[0]], conv.channels[hand.outputs[0]])
+
 	case "multiplexer":
-		fn := h.process.(func(ctx context.Context, inputs []chan string, output chan string) error)
-		inputs := make([]chan string, len(h.inputs))
-		for i, in := range h.inputs {
+		funct, ok := hand.process.(func(ctx context.Context, inputs []chan string, output chan string) error)
+		if !ok {
+			return ErrInvalidMultiplex
+		}
+
+		inputs := make([]chan string, len(hand.inputs))
+		for i, in := range hand.inputs {
 			inputs[i] = conv.channels[in]
 		}
-		return fn(ctx, inputs, conv.channels[h.outputs[0]])
+
+		return funct(ctx, inputs, conv.channels[hand.outputs[0]])
+
 	case "separator":
-		fn := h.process.(func(ctx context.Context, input chan string, outputs []chan string) error)
-		outputs := make([]chan string, len(h.outputs))
-		for i, out := range h.outputs {
+		funct, ok := hand.process.(func(ctx context.Context, input chan string, outputs []chan string) error)
+		if !ok {
+			return ErrInvalidSeparator
+		}
+
+		outputs := make([]chan string, len(hand.outputs))
+		for i, out := range hand.outputs {
 			outputs[i] = conv.channels[out]
 		}
-		return fn(ctx, conv.channels[h.inputs[0]], outputs)
+
+		return funct(ctx, conv.channels[hand.inputs[0]], outputs)
+
+	default:
+		return ErrUnknowType
 	}
-	return nil
 }
