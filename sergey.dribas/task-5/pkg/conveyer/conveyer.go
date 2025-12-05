@@ -2,9 +2,12 @@ package conveyer
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"sync"
 )
+
+var ErrChanNotFound = errors.New("chan not found")
 
 type conveyerImpl struct {
 	channels map[string]chan string
@@ -127,7 +130,7 @@ func (conv *conveyerImpl) Send(input string, data string) error {
 	conv.mu.Unlock()
 
 	if !exists {
-		return nil
+		return ErrChanNotFound
 	}
 	chank <- data
 
@@ -140,7 +143,7 @@ func (conv *conveyerImpl) Recv(output string) (string, error) {
 	conv.mu.Unlock()
 
 	if !exists {
-		return "", nil
+		return "", ErrChanNotFound
 	}
 
 	data, ok := <-channel
