@@ -23,8 +23,8 @@ func PrefixDecoratorFunc(ctx context.Context, in chan string, out chan string) e
 		select {
 		case <-ctx.Done():
 			return nil
-		case data, isOpen := <-in:
-			if !isOpen {
+		case data, ok := <-in:
+			if !ok {
 				return nil
 			}
 
@@ -52,8 +52,8 @@ func SeparatorFunc(ctx context.Context, input chan string, outs []chan string) e
 		select {
 		case <-ctx.Done():
 			return nil
-		case data, isOpen := <-input:
-			if !isOpen {
+		case data, ok := <-input:
+			if !ok {
 				return nil
 			}
 
@@ -77,8 +77,8 @@ func MultiplexerFunc(ctx context.Context, ins []chan string, out chan string) er
 				select {
 				case <-ctx.Done():
 					return
-				case data, isOpen := <-inputCh:
-					if !isOpen {
+				case data, ok := <-inputCh:
+					if !ok {
 						return
 					}
 
