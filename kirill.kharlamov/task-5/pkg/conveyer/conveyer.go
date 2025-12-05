@@ -14,7 +14,7 @@ const (
 )
 
 var (
-	ErrChannelNotFound   = errors.New("chan not found") // Оставляем как было
+	ErrChannelNotFound   = errors.New("chan not found")
 	ErrChannelBufferFull = errors.New("channel buffer is full")
 	ErrNoDataAvailable   = errors.New("no data available")
 )
@@ -42,8 +42,8 @@ func (c *Conveyer) RegisterDecorator(
 	c.mutex.Lock()
 	defer c.mutex.Unlock()
 
-	inputChannel := c.ensureChannel(inputName)
-	outputChannel := c.ensureChannel(outputName)
+	inputChannel := c.getOrCreateChannel(inputName)
+	outputChannel := c.getOrCreateChannel(outputName)
 
 	c.tasks = append(c.tasks, func(ctx context.Context) error {
 		return decoratorFunc(ctx, inputChannel, outputChannel)
@@ -58,11 +58,11 @@ func (c *Conveyer) RegisterMultiplexer(
 	c.mutex.Lock()
 	defer c.mutex.Unlock()
 
-	outputChannel := c.ensureChannel(outputName)
+	outputChannel := c.getOrCreateChannel(outputName)
 	inputChannels := make([]chan string, len(inputNames))
 
 	for i, name := range inputNames {
-		inputChannels[i] = c.ensureChannel(name)
+		inputChannels[i] = c.getOrCreateChannel(name)
 	}
 
 	c.tasks = append(c.tasks, func(ctx context.Context) error {
@@ -78,11 +78,11 @@ func (c *Conveyer) RegisterSeparator(
 	c.mutex.Lock()
 	defer c.mutex.Unlock()
 
-	inputChannel := c.ensureChannel(inputName)
+	inputChannel := c.getOrCreateChannel(inputName)
 	outputChannels := make([]chan string, len(outputNames))
 
 	for i, name := range outputNames {
-		outputChannels[i] = c.ensureChannel(name)
+		outputChannels[i] = c.getOrCreateChannel(name)
 	}
 
 	c.tasks = append(c.tasks, func(ctx context.Context) error {
@@ -161,6 +161,27 @@ func (c *Conveyer) Recv(channelName string) (string, error) {
 }
 
 func (c *Conveyer) ensureChannel(name string) chan string {
+	if channel, exists := c.channels[name]; exists {
+		return channel
+	}
+
+	newChannel := make(chan string, c.bufferSize)
+	c.channels[name] = newChannel
+
+	return newChannel
+}
+
+func (c *Conveyer) getOrCreateChannel(name string) chan string {
+	c.mutex.RLock()
+	if channel, exists := c.channels[name]; exists {
+		c.mutex.RUnlock()
+		return channel
+	}
+	c.mutex.RUnlock()
+
+	c.mutex.Lock()
+	defer c.mutex.Unlock()
+
 	if channel, exists := c.channels[name]; exists {
 		return channel
 	}
