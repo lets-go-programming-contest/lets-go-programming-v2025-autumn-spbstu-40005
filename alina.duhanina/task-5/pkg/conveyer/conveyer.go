@@ -180,8 +180,6 @@ func (c *Conveyer) Run(ctx context.Context) error {
 
 	err := workerGroup.Wait()
 
-	c.closeAllChannels()
-
 	if err != nil {
 		return fmt.Errorf("conveyer run failed: %w", err)
 	}
