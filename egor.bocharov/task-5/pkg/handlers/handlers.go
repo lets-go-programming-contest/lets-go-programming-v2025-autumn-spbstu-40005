@@ -111,7 +111,8 @@ func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan stri
 
 	for _, inputCh := range inputs {
 		waitGroup.Add(1)
-		go workerFunc(inputCh)
+		worker := workerFunc
+		go worker(inputCh)
 	}
 
 	waitGroup.Wait()
