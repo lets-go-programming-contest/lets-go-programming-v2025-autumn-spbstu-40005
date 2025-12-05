@@ -14,7 +14,7 @@ const (
 )
 
 var (
-	ErrChannelNotFound   = errors.New("chan not found")
+	ErrChannelNotFound   = errors.New("chan not found") // Оставляем как было
 	ErrChannelBufferFull = errors.New("channel buffer is full")
 	ErrNoDataAvailable   = errors.New("no data available")
 )
