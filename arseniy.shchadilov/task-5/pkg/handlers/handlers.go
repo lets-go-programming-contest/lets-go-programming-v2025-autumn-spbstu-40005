@@ -8,8 +8,8 @@ import (
 )
 
 var (
-	ErrCannotDecorate   = errors.New("can't be decorated")
-	ErrNoInputChannels  = errors.New("no input channels provided")
+	ErrCannotDecorate  = errors.New("can't be decorated")
+	ErrNoInputChannels = errors.New("no input channels provided")
 )
 
 const (
@@ -62,6 +62,7 @@ func MultiplexerFunc(
 	wg.Add(len(inputs))
 
 	for _, inputChan := range inputs {
+		currentChan := inputChan
 		go func(in chan string) {
 			defer wg.Done()
 
@@ -85,7 +86,7 @@ func MultiplexerFunc(
 					}
 				}
 			}
-		}(inputChan)
+		}(currentChan)
 	}
 
 	wg.Wait()

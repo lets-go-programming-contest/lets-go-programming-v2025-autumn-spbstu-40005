@@ -45,6 +45,7 @@ type conveyerImpl struct {
 	channels      map[string]chan string
 	tasks         []func(context.Context) error
 	channelBuffer int
+	closed        bool
 }
 
 func New(size int) Conveyer {
@@ -53,6 +54,7 @@ func New(size int) Conveyer {
 		channels:      make(map[string]chan string),
 		tasks:         make([]func(context.Context) error, 0),
 		channelBuffer: size,
+		closed:        false,
 	}
 }
 
@@ -82,6 +84,13 @@ func (c *conveyerImpl) Send(input string, data string) error {
 	if !exists {
 		return fmt.Errorf("send failed: %w", ErrChanNotFound)
 	}
+
+	c.mu.RLock()
+	if c.closed {
+		c.mu.RUnlock()
+		return ErrSendFailed
+	}
+	c.mu.RUnlock()
 
 	select {
 	case ch <- data:
@@ -118,8 +127,8 @@ func (c *conveyerImpl) RegisterDecorator(
 	}
 
 	c.mu.Lock()
+	defer c.mu.Unlock()
 	c.tasks = append(c.tasks, task)
-	c.mu.Unlock()
 }
 
 func (c *conveyerImpl) RegisterMultiplexer(
@@ -139,8 +148,8 @@ func (c *conveyerImpl) RegisterMultiplexer(
 	}
 
 	c.mu.Lock()
+	defer c.mu.Unlock()
 	c.tasks = append(c.tasks, task)
-	c.mu.Unlock()
 }
 
 func (c *conveyerImpl) RegisterSeparator(
@@ -160,18 +169,22 @@ func (c *conveyerImpl) RegisterSeparator(
 	}
 
 	c.mu.Lock()
+	defer c.mu.Unlock()
 	c.tasks = append(c.tasks, task)
-	c.mu.Unlock()
 }
 
 func (c *conveyerImpl) closeAllChannels() {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
-	for name, ch := range c.channels {
+	if c.closed {
+		return
+	}
+
+	c.closed = true
+	for _, ch := range c.channels {
 		if ch != nil {
 			close(ch)
-			c.channels[name] = nil
 		}
 	}
 }
