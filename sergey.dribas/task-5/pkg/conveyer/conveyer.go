@@ -2,19 +2,8 @@ package conveyer
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"sync"
-)
-
-var (
-	ErrChanNotFound     = errors.New("chan not found")
-	ErrSendFailed       = errors.New("send failed")
-	ErrNoData           = errors.New("no data")
-	ErrNoDecrator       = errors.New("invalid process function for decorator")
-	ErrInvalidMultiplex = errors.New("invalid process function for multiplexer")
-	ErrInvalidSeparator = errors.New("invalid process function for separator")
-	ErrUnknowType       = errors.New("unknown handler type")
 )
 
 type conveyerImpl struct {
@@ -138,7 +127,7 @@ func (conv *conveyerImpl) Send(input string, data string) error {
 	conv.mu.Unlock()
 
 	if !exists {
-		return ErrChanNotFound
+		return nil
 	}
 	chank <- data
 
@@ -151,7 +140,7 @@ func (conv *conveyerImpl) Recv(output string) (string, error) {
 	conv.mu.Unlock()
 
 	if !exists {
-		return "", ErrChanNotFound
+		return "", nil
 	}
 
 	data, ok := <-channel
@@ -178,7 +167,7 @@ func (conv *conveyerImpl) runHandler(ctx context.Context, hand handler) error {
 	case "decorator":
 		funct, ok := hand.process.(func(ctx context.Context, input chan string, output chan string) error)
 		if !ok {
-			return ErrNoDecrator
+			return nil
 		}
 
 		return funct(ctx, conv.channels[hand.inputs[0]], conv.channels[hand.outputs[0]])
@@ -186,7 +175,7 @@ func (conv *conveyerImpl) runHandler(ctx context.Context, hand handler) error {
 	case "multiplexer":
 		funct, ok := hand.process.(func(ctx context.Context, inputs []chan string, output chan string) error)
 		if !ok {
-			return ErrInvalidMultiplex
+			return nil
 		}
 
 		inputs := make([]chan string, len(hand.inputs))
@@ -199,7 +188,7 @@ func (conv *conveyerImpl) runHandler(ctx context.Context, hand handler) error {
 	case "separator":
 		funct, ok := hand.process.(func(ctx context.Context, input chan string, outputs []chan string) error)
 		if !ok {
-			return ErrInvalidSeparator
+			return nil
 		}
 
 		outputs := make([]chan string, len(hand.outputs))
@@ -210,6 +199,6 @@ func (conv *conveyerImpl) runHandler(ctx context.Context, hand handler) error {
 		return funct(ctx, conv.channels[hand.inputs[0]], outputs)
 
 	default:
-		return ErrUnknowType
+		return nil
 	}
 }
