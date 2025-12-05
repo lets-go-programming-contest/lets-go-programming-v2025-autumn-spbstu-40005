@@ -166,6 +166,7 @@ func (c *Conveyer) ensureChannel(name string) chan string {
 	c.mutex.RLock()
 	if channel, exists := c.channels[name]; exists {
 		c.mutex.RUnlock()
+
 		return channel
 	}
 	c.mutex.RUnlock()
