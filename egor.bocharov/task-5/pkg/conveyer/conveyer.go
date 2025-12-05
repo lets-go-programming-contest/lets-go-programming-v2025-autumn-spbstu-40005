@@ -18,17 +18,21 @@ type conveyerImpl struct {
 	channels map[string]chan string
 	handlers []func(ctx context.Context) error
 	mu       sync.RWMutex
-	wg       sync.WaitGroup // Добавляем WaitGroup для ожидания завершения
+	// Добавляем контекст для управления завершением
+	ctx    context.Context
+	cancel context.CancelFunc
 }
 
 // New создаёт новый конвейер с указанным размером буфера каналов.
 func New(size int) *conveyerImpl {
+	ctx, cancel := context.WithCancel(context.Background())
 	return &conveyerImpl{
 		size:     size,
 		channels: make(map[string]chan string),
 		handlers: make([]func(ctx context.Context) error, 0),
 		mu:       sync.RWMutex{},
-		wg:       sync.WaitGroup{},
+		ctx:      ctx,
+		cancel:   cancel,
 	}
 }
 
@@ -91,25 +95,32 @@ func (c *conveyerImpl) RegisterSeparator(
 }
 
 func (c *conveyerImpl) Run(ctx context.Context) error {
-	// Закрываем каналы после завершения всех обработчиков
-	defer c.closeAllChannels()
-
 	errGroup, ctx := errgroup.WithContext(ctx)
 
 	for _, handler := range c.handlers {
 		currentHandler := handler
-
 		errGroup.Go(func() error {
 			return currentHandler(ctx)
 		})
 	}
 
-	// Ожидаем завершения всех обработчиков
-	if err := errGroup.Wait(); err != nil {
-		return fmt.Errorf("conveyer run failed: %w", err)
-	}
+	// Ждем завершения контекста теста
+	<-ctx.Done()
 
-	return nil
+	// Отменяем внутренний контекст
+	c.cancel()
+
+	// Закрываем все каналы
+	c.closeAllChannels()
+
+	// Ждем завершения всех обработчиков
+	return errGroup.Wait()
+}
+
+// Close закрывает все каналы конвейера.
+func (c *conveyerImpl) Close() {
+	c.cancel()
+	c.closeAllChannels()
 }
 
 // closeAllChannels закрывает все каналы конвейера.
@@ -118,17 +129,15 @@ func (c *conveyerImpl) closeAllChannels() {
 	defer c.mu.Unlock()
 
 	for name, channel := range c.channels {
-		// Проверяем, не закрыт ли уже канал
 		select {
 		case _, ok := <-channel:
-			if !ok {
-				continue // Канал уже закрыт
+			if ok {
+				// Канал не закрыт, пытаемся закрыть
+				close(channel)
 			}
 		default:
+			close(channel)
 		}
-
-		// Закрываем канал
-		close(channel)
 		delete(c.channels, name)
 	}
 }
@@ -145,13 +154,12 @@ func (c *conveyerImpl) Send(input string, data string) error {
 	select {
 	case channel <- data:
 		return nil
-	default:
-		return fmt.Errorf("channel %s is full or closed", input)
+	case <-c.ctx.Done():
+		return fmt.Errorf("conveyer is closed")
 	}
 }
 
 // Recv получает данные из канала с указанным идентификатором.
-// Блокируется, пока данные не поступят или канал не закроется.
 func (c *conveyerImpl) Recv(output string) (string, error) {
 	c.mu.RLock()
 	channel, exists := c.channels[output]
@@ -161,12 +169,15 @@ func (c *conveyerImpl) Recv(output string) (string, error) {
 		return "", fmt.Errorf("conveyer recv failed: %w", ErrChannelNotFound)
 	}
 
-	val, ok := <-channel
-	if !ok {
+	select {
+	case val, ok := <-channel:
+		if !ok {
+			return undefined, nil
+		}
+		return val, nil
+	case <-c.ctx.Done():
 		return undefined, nil
 	}
-
-	return val, nil
 }
 
 func (c *conveyerImpl) getOrCreateChannel(name string) chan string {
