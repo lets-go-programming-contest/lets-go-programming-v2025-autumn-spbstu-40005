@@ -13,18 +13,14 @@ const undefined = "undefined"
 
 var ErrChannelNotFound = errors.New("chan not found")
 
-// 1. Добавляем новую статическую ошибку вместо динамической
-var ErrChannelFullOrClosed = errors.New("channel is full or closed")
-
 type conveyerImpl struct {
 	size     int
 	channels map[string]chan string
 	handlers []func(ctx context.Context) error
 	mu       sync.RWMutex
-	wg       sync.WaitGroup // Добавляем WaitGroup для ожидания завершения
+	wg       sync.WaitGroup
 }
 
-// New создаёт новый конвейер с указанным размером буфера каналов.
 func New(size int) *conveyerImpl {
 	return &conveyerImpl{
 		size:     size,
@@ -35,7 +31,6 @@ func New(size int) *conveyerImpl {
 	}
 }
 
-// RegisterDecorator регистрирует обработчик-модификатор данных.
 func (c *conveyerImpl) RegisterDecorator(
 	decoratorFunc func(ctx context.Context, input chan string, output chan string) error,
 	input, output string,
@@ -51,7 +46,6 @@ func (c *conveyerImpl) RegisterDecorator(
 	})
 }
 
-// RegisterMultiplexer регистрирует мультиплексор.
 func (c *conveyerImpl) RegisterMultiplexer(
 	multiplexerFunc func(ctx context.Context, inputs []chan string, output chan string) error,
 	inputs []string,
@@ -72,7 +66,6 @@ func (c *conveyerImpl) RegisterMultiplexer(
 	})
 }
 
-// RegisterSeparator регистрирует сепаратор.
 func (c *conveyerImpl) RegisterSeparator(
 	separatorFunc func(ctx context.Context, input chan string, outputs []chan string) error,
 	input string,
@@ -94,7 +87,6 @@ func (c *conveyerImpl) RegisterSeparator(
 }
 
 func (c *conveyerImpl) Run(ctx context.Context) error {
-	// Закрываем каналы после завершения всех обработчиков
 	defer c.closeAllChannels()
 
 	errGroup, ctx := errgroup.WithContext(ctx)
@@ -107,7 +99,6 @@ func (c *conveyerImpl) Run(ctx context.Context) error {
 		})
 	}
 
-	// Ожидаем завершения всех обработчиков
 	if err := errGroup.Wait(); err != nil {
 		return fmt.Errorf("conveyer run failed: %w", err)
 	}
@@ -137,8 +128,7 @@ func (c *conveyerImpl) Send(input string, data string) error {
 	case channel <- data:
 		return nil
 	default:
-		// 2. Используем статическую ошибку с дополнительной информацией
-		return fmt.Errorf("conveyer send failed: %w: channel %s", ErrChannelFullOrClosed, input)
+		return fmt.Errorf("channel %s is full or closed", input)
 	}
 }
 
