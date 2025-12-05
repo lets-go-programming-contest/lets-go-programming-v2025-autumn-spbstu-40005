@@ -16,7 +16,6 @@ var (
 	ErrEmptyOutputs    = errors.New("outputs must not be empty")
 )
 
-// ChannelStore управляет каналами по имени.
 type ChannelStore struct {
 	size int
 	mu   sync.RWMutex
@@ -44,8 +43,6 @@ func (cs *ChannelStore) MustGet(name string) (chan string, error) {
 	return nil, ErrChannelNotFound
 }
 
-// GetOrCreate создаёт или возвращает существующий канал.
-// Потокобезопасен.
 func (cs *ChannelStore) GetOrCreate(name string) chan string {
 	if ch, ok := cs.Get(name); ok {
 		return ch
@@ -54,7 +51,6 @@ func (cs *ChannelStore) GetOrCreate(name string) chan string {
 	cs.mu.Lock()
 	defer cs.mu.Unlock()
 
-	// Проверка второй раз под блокировкой (double-check idiom)
 	if ch, ok := cs.chs[name]; ok {
 		return ch
 	}
@@ -72,7 +68,6 @@ func (cs *ChannelStore) CloseAll() {
 	}
 }
 
-// Handler — любая функция, реализующая логику обработки данных в конвейере.
 type Handler func(ctx context.Context) error
 
 // Conveyer управляет жизненным циклом конвейера.
