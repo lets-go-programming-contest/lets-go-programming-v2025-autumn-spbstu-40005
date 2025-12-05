@@ -7,9 +7,7 @@ import (
 	"sync"
 )
 
-var (
-	ErrCantBeDecorated = errors.New("can't be decorated")
-)
+var ErrCantBeDecorated = errors.New("can't be decorated")
 
 const (
 	skipDecorator   = "no decorator"
