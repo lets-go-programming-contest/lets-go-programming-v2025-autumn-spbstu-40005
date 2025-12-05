@@ -55,7 +55,7 @@ func (conv *conveyerImpl) RegisterDecorator(
 	})
 }
 
-func (conv *conveyerImpl) RegisterMultipleser(
+func (conv *conveyerImpl) RegisterMultiplexer(
 	handlerFunc func(ctx context.Context, inputs []chan string, output chan string) error,
 	inputs []string, output string,
 ) {
