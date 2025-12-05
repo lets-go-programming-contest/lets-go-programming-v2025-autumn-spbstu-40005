@@ -23,8 +23,8 @@ func PrefixDecoratorFunc(ctx context.Context, input chan string, output chan str
 		select {
 		case <-ctx.Done():
 			return nil
-		case data, isOpen := <-input:
-			if !isOpen {
+		case data, ok := <-input:
+			if !ok {
 				return nil
 			}
 
@@ -52,8 +52,8 @@ func SeparatorFunc(ctx context.Context, input chan string, outputs []chan string
 		select {
 		case <-ctx.Done():
 			return nil
-		case data, isOpen := <-input:
-			if !isOpen {
+		case data, ok := <-input:
+			if !ok {
 				return nil
 			}
 
@@ -66,6 +66,11 @@ func SeparatorFunc(ctx context.Context, input chan string, outputs []chan string
 }
 
 func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan string) error {
+	if len(inputs) == 0 {
+		// Защита от пустого списка входных каналов
+		return nil
+	}
+
 	var waitGroup sync.WaitGroup
 
 	for _, inputChannel := range inputs {
@@ -78,8 +83,8 @@ func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan stri
 				select {
 				case <-ctx.Done():
 					return
-				case data, isOpen := <-channel:
-					if !isOpen {
+				case data, ok := <-channel:
+					if !ok {
 						return
 					}
 

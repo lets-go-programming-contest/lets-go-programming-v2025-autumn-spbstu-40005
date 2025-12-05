@@ -13,10 +13,13 @@ const undefinedValue = "undefined"
 
 var ErrChannelNotFound = errors.New("chan not found")
 
+// Task представляет собой функцию-обработчик, которая будет выполняться в конвейере
+type Task func(ctx context.Context) error
+
 type conveyor struct {
 	bufferSize int
 	channels   map[string]chan string
-	workers    []func(ctx context.Context) error
+	workers    []Task
 	mutex      sync.RWMutex
 }
 
@@ -24,7 +27,7 @@ func New(size int) *conveyor {
 	return &conveyor{
 		bufferSize: size,
 		channels:   make(map[string]chan string),
-		workers:    []func(ctx context.Context) error{},
+		workers:    []Task{},
 		mutex:      sync.RWMutex{},
 	}
 }
@@ -52,6 +55,11 @@ func (c *conveyor) RegisterMultiplexer(
 ) {
 	c.mutex.Lock()
 	defer c.mutex.Unlock()
+
+	if len(inputNames) == 0 {
+		// Это предотвращает создание мультиплексора без входных каналов
+		return
+	}
 
 	outputChannel := c.getChannelOrCreate(outputName)
 	inputChannels := make([]chan string, len(inputNames))
@@ -86,8 +94,6 @@ func (c *conveyor) RegisterSeparator(
 }
 
 func (c *conveyor) Run(ctx context.Context) error {
-	defer c.closeAll()
-
 	errGr, ctx := errgroup.WithContext(ctx)
 
 	for _, worker := range c.workers {
@@ -100,6 +106,9 @@ func (c *conveyor) Run(ctx context.Context) error {
 	if err != nil {
 		return fmt.Errorf("execution failed: %w", err)
 	}
+
+	// Закрываем каналы после завершения работы
+	c.closeAll()
 
 	return nil
 }
@@ -145,6 +154,9 @@ func (c *conveyor) Recv(name string) (string, error) {
 }
 
 func (c *conveyor) getChannelOrCreate(name string) chan string {
+	c.mutex.Lock()
+	defer c.mutex.Unlock()
+
 	if channel, ok := c.channels[name]; ok {
 		return channel
 	}
