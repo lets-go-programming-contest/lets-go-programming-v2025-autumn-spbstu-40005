@@ -73,64 +73,34 @@ func SeparatorFunc(ctx context.Context, input chan string, outputs []chan string
 }
 
 func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan string) error {
-	var wg sync.WaitGroup
-	var once sync.Once
-	wg.Add(len(inputs))
-	
-	errCh := make(chan error, 1)
-	
-	defer func() {
-		once.Do(func() {
-		})
-	}()
-	
-	for _, input := range inputs {
-		go func(in chan string) {
-			defer wg.Done()
-			
+	var waitGroup sync.WaitGroup
+
+	for _, inputChan := range ins {
+		waitGroup.Add(1)
+
+		go func(inputCh chan string) {
+			defer waitGroup.Done()
+
 			for {
 				select {
 				case <-ctx.Done():
 					return
-				case data, ok := <-in:
+				case data, ok := <-inputCh:
 					if !ok {
 						return
 					}
-					
+
 					if strings.Contains(data, skipMultiplexer) {
 						continue
 					}
-					
-					select {
-					case <-ctx.Done():
-						return
-					default:
-						select {
-						case <-ctx.Done():
-							return
-						case output <- data:
-						default:
-							select {
-							case <-ctx.Done():
-								return
-							case output <- data:
-							}
-						}
-					}
+
+					out <- data
 				}
 			}
-		}(input)
+		}(inputChan)
 	}
-	
-	go func() {
-		wg.Wait()
-		done <- struct{}{}
-	}()
-	
-	select {
-	case <-ctx.Done():
-		return ctx.Err()
-	case <-done:
-		return nil
-	}
+
+	waitGroup.Wait()
+
+	return nil
 }
