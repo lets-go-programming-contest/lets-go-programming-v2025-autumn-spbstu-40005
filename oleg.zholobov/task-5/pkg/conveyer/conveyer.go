@@ -4,6 +4,8 @@ import (
 	"context"
 	"errors"
 	"sync"
+
+	"golang.org/x/sync/errgroup"
 )
 
 type decoratorConfig struct {
@@ -111,39 +113,22 @@ func (c *Conveyer) RegisterSeparator(
 }
 
 func (c *Conveyer) Run(ctx context.Context) error {
-	var wg sync.WaitGroup
-
-	errCh := make(chan error, 1)
+	g, ctx := errgroup.WithContext(ctx)
 
 	runners := c.buildRunners()
 
-	for _, r := range runners {
-		wg.Add(1)
-		go func(run runFunc) {
-			defer wg.Done()
-			if err := run(ctx); err != nil {
-				select {
-				case errCh <- err:
-				default:
-				}
-			}
-		}(r)
+	for _, runner := range runners {
+		runner := runner
+		g.Go(func() error {
+			return runner(ctx)
+		})
 	}
 
-	var finalErr error
-
-	select {
-	case <-ctx.Done():
-		finalErr = ctx.Err()
-	case err := <-errCh:
-		finalErr = err
-	}
-
-	wg.Wait()
+	err := g.Wait()
 
 	c.closeAllChannels()
 
-	return finalErr
+	return err
 }
 
 func (c *Conveyer) buildRunners() []runFunc {
