@@ -118,8 +118,7 @@ func (c *conveyerImpl) closeAllChannels() {
 	}
 }
 
-// Send отправляет данные в канал с указанным идентификатором.
-func (c *conveyerImpl) Send(ctx context.Context, input string, data string) error {
+func (c *conveyerImpl) Send(input string, data string) error {
 	c.mu.RLock()
 	channel, exists := c.channels[input]
 	c.mu.RUnlock()
@@ -128,16 +127,13 @@ func (c *conveyerImpl) Send(ctx context.Context, input string, data string) erro
 		return fmt.Errorf("conveyer send failed: %w", ErrChannelNotFound)
 	}
 
-	select {
-	case channel <- data:
-		return nil
-	case <-ctx.Done():
-		return fmt.Errorf("conveyer send failed: %w", ctx.Err())
-	}
+	channel <- data
+	return nil
 }
 
 // Recv получает данные из канала с указанным идентификатором.
-func (c *conveyerImpl) Recv(ctx context.Context, output string) (string, error) {
+// Блокируется, пока данные не поступят или канал не закроется.
+func (c *conveyerImpl) Recv(output string) (string, error) {
 	c.mu.RLock()
 	channel, exists := c.channels[output]
 	c.mu.RUnlock()
@@ -146,16 +142,11 @@ func (c *conveyerImpl) Recv(ctx context.Context, output string) (string, error) 
 		return "", fmt.Errorf("conveyer recv failed: %w", ErrChannelNotFound)
 	}
 
-	select {
-	case val, ok := <-channel:
-		if !ok {
-			return undefined, nil
-		}
-
-		return val, nil
-	case <-ctx.Done():
-		return "", fmt.Errorf("conveyer recv failed: %w", ctx.Err())
+	val, ok := <-channel
+	if !ok {
+		return undefined, nil
 	}
+	return val, nil
 }
 
 func (c *conveyerImpl) getOrCreateChannel(name string) chan string {
