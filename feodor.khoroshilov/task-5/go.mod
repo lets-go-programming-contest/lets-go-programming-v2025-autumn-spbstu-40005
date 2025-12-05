@@ -1,6 +1,6 @@
 module feodor.khoroshilov/task-5
 
-go 1.24.0
+go 1.22.7
 
 toolchain go1.24.11
 
