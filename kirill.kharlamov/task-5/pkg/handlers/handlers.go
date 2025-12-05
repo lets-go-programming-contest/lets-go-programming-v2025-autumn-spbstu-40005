@@ -8,7 +8,7 @@ import (
 )
 
 var (
-	ErrDecorator    = errors.New("can't be decorated") // ИЗМЕНЕНО
+	ErrDecorator    = errors.New("can't be decorated")
 	ErrOutputsEmpty = errors.New("outputs slice must not be empty")
 )
 
