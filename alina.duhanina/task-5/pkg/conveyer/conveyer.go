@@ -232,7 +232,9 @@ func (c *Conveyer) Run(ctx context.Context) error {
 
     // ТЕПЕРЬ закрываем все каналы
     c.closeAllChannels()
-    
+    if err != nil {
+        return fmt.Errorf("conveyer run failed: %w", err)
+    }
     return workerGroup.Wait()
 }
 
