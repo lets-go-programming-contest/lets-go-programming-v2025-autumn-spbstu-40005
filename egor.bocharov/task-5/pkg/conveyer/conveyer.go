@@ -97,9 +97,10 @@ func (c *conveyerImpl) Run(ctx context.Context) error {
 
 	for _, h := range c.handlers {
 		handler := h // capture loop variable
-		errgr.Go(func() error {
+		handlerFunc := func() error {
 			return handler(ctx)
-		})
+		}
+		errgr.Go(handlerFunc)
 	}
 
 	if err := errgr.Wait(); err != nil {
