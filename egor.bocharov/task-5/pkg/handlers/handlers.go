@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"strings"
-	"sync"
 )
 
 var (
@@ -30,13 +29,11 @@ func PrefixDecoratorFunc(ctx context.Context, input chan string, output chan str
 				return nil
 			}
 
-			containsNoDecorator := strings.Contains(data, noDecorator)
-			if containsNoDecorator {
+			if strings.Contains(data, noDecorator) {
 				return ErrDecorator
 			}
 
-			hasPrefix := strings.HasPrefix(data, prefix)
-			if !hasPrefix {
+			if !strings.HasPrefix(data, prefix) {
 				data = prefix + data
 			}
 
@@ -81,48 +78,42 @@ func SeparatorFunc(ctx context.Context, input chan string, outputs []chan string
 // MultiplexerFunc объединяет данные из нескольких входных каналов в один выходной.
 // Данные с пометкой "no multiplexer" пропускаются.
 func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan string) error {
-	var waitGroup sync.WaitGroup
+	// Используем один цикл без горутин
+	for {
+		select {
+		case <-ctx.Done():
+			return nil
+		default:
+			allClosed := true
 
-	workerFunc := func(inputChannel chan string) {
-		defer waitGroup.Done()
-
-		for {
-			select {
-			case <-ctx.Done():
-				return
-			case data, ok := <-inputChannel:
-				if !ok {
-					return
-				}
-
-				containsNoMultiplexer := strings.Contains(data, noMultiplexer)
-				if containsNoMultiplexer {
-					continue
-				}
-
+			// Проверяем все входные каналы
+			for _, inputCh := range inputs {
 				select {
-				case output <- data:
-				case <-ctx.Done():
-					return
+				case data, ok := <-inputCh:
+					if !ok {
+						continue
+					}
+
+					allClosed = false
+
+					if strings.Contains(data, noMultiplexer) {
+						continue
+					}
+
+					select {
+					case output <- data:
+					case <-ctx.Done():
+						return nil
+					}
+				default:
+					// Если в канале нет данных, продолжаем
 				}
+			}
+
+			// Если все каналы закрыты, завершаем работу
+			if allClosed {
+				return nil
 			}
 		}
 	}
-
-	// Создаем слайс для хранения воркеров
-	workers := make([]func(chan string), len(inputs))
-	for i := range workers {
-		workers[i] = workerFunc
-	}
-
-	// Запускаем всех воркеров
-	for i, inputCh := range inputs {
-		waitGroup.Add(1)
-		worker := workers[i]
-		go worker(inputCh)
-	}
-
-	waitGroup.Wait()
-
-	return nil
 }
