@@ -14,7 +14,7 @@ const (
 )
 
 var (
-	ErrChannelNotFound = errors.New("chan not found")
+	ErrChannelNotFound = errors.New("channel not found")
 )
 
 type Conveyer struct {
@@ -130,6 +130,7 @@ func (c *Conveyer) Send(channelName string, data string) error {
 	}
 
 	channel <- data
+
 	return nil
 }
 
