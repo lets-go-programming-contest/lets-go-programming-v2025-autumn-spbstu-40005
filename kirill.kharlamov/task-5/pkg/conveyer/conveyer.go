@@ -90,7 +90,6 @@ func (c *Conveyer) Run(ctx context.Context) error {
 	errGroup, ctx := errgroup.WithContext(ctx)
 
 	for _, task := range c.tasks {
-		// Убрано: task := task — линтер считает это избыточным
 		errGroup.Go(func() error {
 			return task(ctx)
 		})
