@@ -1,8 +1,8 @@
-	//go:build prod
+//go:build !dev
 
-	package config
+package config
 
-	import _ "embed"
+import _ "embed"
 
-	//go:embed prod.yaml
-	var configFile []byte
+//go:embed prod.yaml
+var configFile []byte
