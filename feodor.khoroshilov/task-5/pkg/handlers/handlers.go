@@ -72,7 +72,7 @@ func SeparatorFunc(ctx context.Context, input chan string, outputs []chan string
 	}
 }
 
-func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan string) error {
+func MultiplexerFunc(ctx context.Context, ins []chan string, out chan string) error {
 	var waitGroup sync.WaitGroup
 
 	for _, inputChan := range ins {
@@ -94,13 +94,16 @@ func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan stri
 						continue
 					}
 
-					out <- data
+					select {
+					case <-ctx.Done():
+						return
+					case out <- data:
+					}
 				}
 			}
 		}(inputChan)
 	}
 
 	waitGroup.Wait()
-
 	return nil
 }
