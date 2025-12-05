@@ -8,8 +8,8 @@ import (
 )
 
 var (
-	ErrDecorator    = errors.New("can't be decorated")
-	ErrOutputsEmpty = errors.New("outputs must not be empty")
+	ErrDecorator    = errors.New("data cannot be decorated")
+	ErrOutputsEmpty = errors.New("outputs slice must not be empty")
 )
 
 const (

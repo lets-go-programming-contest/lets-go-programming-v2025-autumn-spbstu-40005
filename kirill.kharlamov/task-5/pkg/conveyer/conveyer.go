@@ -14,7 +14,9 @@ const (
 )
 
 var (
-	ErrChannelNotFound = errors.New("chan not found")
+	ErrChannelNotFound   = errors.New("channel not found")
+	ErrChannelBufferFull = errors.New("channel buffer is full")
+	ErrNoDataAvailable   = errors.New("no data available")
 )
 
 type Conveyer struct {
@@ -129,9 +131,12 @@ func (c *Conveyer) Send(channelName string, data string) error {
 		return ErrChannelNotFound
 	}
 
-	channel <- data
-
-	return nil
+	select {
+	case channel <- data:
+		return nil
+	default:
+		return ErrChannelBufferFull
+	}
 }
 
 func (c *Conveyer) Recv(channelName string) (string, error) {
@@ -151,7 +156,7 @@ func (c *Conveyer) Recv(channelName string) (string, error) {
 
 		return value, nil
 	default:
-		return "", nil
+		return "", ErrNoDataAvailable
 	}
 }
 
