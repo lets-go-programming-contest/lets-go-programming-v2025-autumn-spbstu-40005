@@ -2,15 +2,13 @@ package handlers
 
 import (
 	"context"
-	"errors"
-	"fmt"
 	"strings"
 	"sync"
 )
 
-var ErrNoDecorated = errors.New("can't be decorated")
-
 func PrefixDecoratorFunc(ctx context.Context, input chan string, output chan string) error {
+	defer close(output)
+
 	for {
 		select {
 		case data, ok := <-input:
@@ -19,7 +17,7 @@ func PrefixDecoratorFunc(ctx context.Context, input chan string, output chan str
 			}
 
 			if strings.Contains(data, "no decorator") {
-				return ErrNoDecorated
+				return nil
 			}
 
 			if !strings.HasPrefix(data, "decorated: ") {
@@ -28,15 +26,21 @@ func PrefixDecoratorFunc(ctx context.Context, input chan string, output chan str
 			select {
 			case output <- data:
 			case <-ctx.Done():
-				return fmt.Errorf("context cancelled during send: %w", ctx.Err())
+				return nil
 			}
 		case <-ctx.Done():
-			return fmt.Errorf("context cancelled during receive: %w", ctx.Err())
+			return nil
 		}
 	}
 }
 
 func SeparatorFunc(ctx context.Context, input chan string, outputs []chan string) error {
+	defer func() {
+		for _, ch := range outputs {
+			close(ch)
+		}
+	}()
+
 	counter := 0
 
 	for {
@@ -51,19 +55,21 @@ func SeparatorFunc(ctx context.Context, input chan string, outputs []chan string
 			case outputs[idx] <- data:
 				counter++
 			case <-ctx.Done():
-				return fmt.Errorf("separator context cancelled: %w", ctx.Err())
+				return nil
 			}
 		case <-ctx.Done():
-			return fmt.Errorf("separator receive cancelled: %w", ctx.Err())
+			return nil
 		}
 	}
 }
 
 func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan string) error {
+	defer close(output)
+
 	if len(inputs) == 0 {
 		<-ctx.Done()
 
-		return fmt.Errorf("%w", ctx.Err())
+		return nil
 	}
 
 	var wait sync.WaitGroup
@@ -107,6 +113,6 @@ func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan stri
 	case <-done:
 		return nil
 	case <-ctx.Done():
-		return fmt.Errorf("multiplexer context cancelled: %w", ctx.Err())
+		return nil
 	}
 }
