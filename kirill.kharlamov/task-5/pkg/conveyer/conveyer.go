@@ -14,7 +14,7 @@ const (
 )
 
 var (
-	ErrChannelNotFound   = errors.New("channel not found")
+	ErrChannelNotFound   = errors.New("chan not found")
 	ErrChannelBufferFull = errors.New("channel buffer is full")
 	ErrNoDataAvailable   = errors.New("no data available")
 )
@@ -161,20 +161,8 @@ func (c *Conveyer) Recv(channelName string) (string, error) {
 }
 
 func (c *Conveyer) ensureChannel(name string) chan string {
-	c.mutex.RLock()
-	existingChannel, exists := c.channels[name]
-	c.mutex.RUnlock()
-
-	if exists {
-		return existingChannel
-	}
-
-	c.mutex.Lock()
-	defer c.mutex.Unlock()
-
-	existingChannel, exists = c.channels[name]
-	if exists {
-		return existingChannel
+	if channel, exists := c.channels[name]; exists {
+		return channel
 	}
 
 	newChannel := make(chan string, c.bufferSize)
