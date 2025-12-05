@@ -118,7 +118,7 @@ func (c *conveyerImpl) Recv(output string) (string, error) {
 }
 
 func (c *conveyerImpl) RegisterDecorator(
-	fn func(ctx context.Context, input chan string, output chan string) error,
+	decoratorFunc func(ctx context.Context, input chan string, output chan string) error,
 	input string,
 	output string,
 ) {
@@ -126,7 +126,7 @@ func (c *conveyerImpl) RegisterDecorator(
 	dstChan := c.getOrCreateChannel(output)
 
 	task := func(ctx context.Context) error {
-		return fn(ctx, srcChan, dstChan)
+		return decoratorFunc(ctx, srcChan, dstChan)
 	}
 
 	c.mu.Lock()
@@ -135,7 +135,7 @@ func (c *conveyerImpl) RegisterDecorator(
 }
 
 func (c *conveyerImpl) RegisterMultiplexer(
-	fn func(ctx context.Context, inputs []chan string, output chan string) error,
+	multiplexerFunc func(ctx context.Context, inputs []chan string, output chan string) error,
 	inputs []string,
 	output string,
 ) {
@@ -147,7 +147,7 @@ func (c *conveyerImpl) RegisterMultiplexer(
 	dstChan := c.getOrCreateChannel(output)
 
 	task := func(ctx context.Context) error {
-		return fn(ctx, srcChans, dstChan)
+		return multiplexerFunc(ctx, srcChans, dstChan)
 	}
 
 	c.mu.Lock()
@@ -156,7 +156,7 @@ func (c *conveyerImpl) RegisterMultiplexer(
 }
 
 func (c *conveyerImpl) RegisterSeparator(
-	fn func(ctx context.Context, input chan string, outputs []chan string) error,
+	separatorFunc func(ctx context.Context, input chan string, outputs []chan string) error,
 	input string,
 	outputs []string,
 ) {
@@ -168,7 +168,7 @@ func (c *conveyerImpl) RegisterSeparator(
 	}
 
 	task := func(ctx context.Context) error {
-		return fn(ctx, srcChan, dstChans)
+		return separatorFunc(ctx, srcChan, dstChans)
 	}
 
 	c.mu.Lock()

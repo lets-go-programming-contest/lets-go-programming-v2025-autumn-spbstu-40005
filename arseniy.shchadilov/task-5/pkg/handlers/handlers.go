@@ -64,14 +64,14 @@ func MultiplexerFunc(
 
 	for _, inputChan := range inputs {
 		currentChan := inputChan
-		go func(in chan string) {
+		go func(input chan string) {
 			defer waitGroup.Done()
 
 			for {
 				select {
 				case <-ctx.Done():
 					return
-				case data, ok := <-inputChan:
+				case data, ok := <-input:
 					if !ok {
 						return
 					}
@@ -91,6 +91,7 @@ func MultiplexerFunc(
 	}
 
 	waitGroup.Wait()
+
 	return nil
 }
 
