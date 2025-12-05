@@ -17,7 +17,7 @@ const (
 
 var ErrSome = errors.New("some error")
 
-var casesGetNames = []struct {
+var casesGetNames = []struct { //nolint:gochecknoglobals
 	names []string
 }{
 	{
@@ -28,10 +28,10 @@ var casesGetNames = []struct {
 	},
 }
 
-func helperListMock(t *testing.T, name string, values []string) *sqlmock.Rows {
+func helperListMock(t *testing.T, values []string) *sqlmock.Rows {
 	t.Helper()
 
-	rows := sqlmock.NewRows([]string{name})
+	rows := sqlmock.NewRows([]string{"name"})
 	for _, name := range values {
 		rows = rows.AddRow(name)
 	}
@@ -58,7 +58,7 @@ func TestGetNames_Success(t *testing.T) {
 		service := database.New(db)
 
 		mock.ExpectQuery(queryGetNames).
-			WillReturnRows(helperListMock(t, "name", test.names))
+			WillReturnRows(helperListMock(t, test.names))
 
 		names, err := service.GetNames()
 
@@ -77,7 +77,7 @@ func TestGetNames_DBError(t *testing.T) {
 	service := database.New(db)
 
 	mock.ExpectQuery(queryGetNames).
-		WillReturnRows(helperListMock(t, "name", []string{"a", "b"})).
+		WillReturnRows(helperListMock(t, []string{"a", "b"})).
 		WillReturnError(ErrSome)
 
 	names, err := service.GetNames()
@@ -145,7 +145,7 @@ func TestGetUniqueNames_Success(t *testing.T) {
 		service := database.New(db)
 
 		mock.ExpectQuery(queryGetUniqueNames).
-			WillReturnRows(helperListMock(t, "name", test.names))
+			WillReturnRows(helperListMock(t, test.names))
 
 		names, err := service.GetUniqueNames()
 
@@ -164,7 +164,7 @@ func TestGetUniqueNames_DBError(t *testing.T) {
 	service := database.New(db)
 
 	mock.ExpectQuery(queryGetUniqueNames).
-		WillReturnRows(helperListMock(t, "name", []string{"a", "b"})).
+		WillReturnRows(helperListMock(t, []string{"a", "b"})).
 		WillReturnError(ErrSome)
 
 	names, err := service.GetUniqueNames()
