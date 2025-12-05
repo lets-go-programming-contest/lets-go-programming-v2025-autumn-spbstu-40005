@@ -15,85 +15,75 @@ import (
 var ErrSome = errors.New("some error")
 
 type testcase struct {
-	testName      string
-	names         []string
-	addrs         []string
-	expectedError error
+	names  []string
+	addrs  []string
+	errMsg string
 }
 
-var tests = []testcase{ //nolint:gochecknoglobals
+var casesWiFi = []testcase{ //nolint:gochecknoglobals
 	{
-		testName: "success",
-		addrs:    []string{"00:11:22:33:44:55", "aa:bb:cc:dd:ee:ff"},
-		names:    []string{"eth1", "eth2"},
+		addrs: []string{"00:11:22:33:44:55", "aa:bb:cc:dd:ee:ff"},
+		names: []string{"eth1", "eth2"},
 	},
 	{
-		testName:      "error",
-		expectedError: ErrSome,
+		errMsg: "getting interfaces",
 	},
 }
 
 func TestGetAddresses(t *testing.T) {
 	t.Parallel()
 
-	for _, test := range tests {
-		t.Run(test.testName, func(t *testing.T) {
-			t.Parallel()
+	for _, test := range casesWiFi {
+		mockWifi := NewWiFiHandle(t)
+		wifiService := mywifi.New(mockWifi)
 
-			mockWifi := NewWiFiHandle(t)
-			wifiService := mywifi.WiFiService{WiFi: mockWifi}
+		err := error(nil)
+		if test.errMsg != "" {
+			err = ErrSome
+		}
 
-			mockWifi.On("Interfaces").Unset()
-			mockWifi.On("Interfaces").Return(helperMockIfaces(t, &test), test.expectedError)
+		mockWifi.On("Interfaces").Return(helperMockIfaces(t, &test), err)
 
-			actualAddrs, err := wifiService.GetAddresses()
+		actualAddrs, err := wifiService.GetAddresses()
 
-			if test.expectedError != nil {
-				require.ErrorIs(t, err, test.expectedError)
+		if test.errMsg != "" {
+			require.ErrorIs(t, err, ErrSome)
+			require.ErrorContains(t, err, test.errMsg)
 
-				return
-			}
+			return
+		}
 
-			require.NoError(t, err)
-			require.Equal(t, helperParseMACs(t, test.addrs), actualAddrs)
-		})
+		require.NoError(t, err)
+		require.Equal(t, helperParseMACs(t, test.addrs), actualAddrs)
 	}
 }
 
 func TestGetNames(t *testing.T) {
 	t.Parallel()
 
-	for _, test := range tests {
-		t.Run(test.testName, func(t *testing.T) {
-			t.Parallel()
+	for _, test := range casesWiFi {
+		mockWifi := NewWiFiHandle(t)
+		wifiService := mywifi.New(mockWifi)
 
-			mockWifi := NewWiFiHandle(t)
-			wifiService := mywifi.WiFiService{WiFi: mockWifi}
+		err := error(nil)
+		if test.errMsg != "" {
+			err = ErrSome
+		}
 
-			mockWifi.On("Interfaces").Unset()
-			mockWifi.On("Interfaces").Return(helperMockIfaces(t, &test), test.expectedError)
+		mockWifi.On("Interfaces").Return(helperMockIfaces(t, &test), err)
 
-			actualNames, err := wifiService.GetNames()
+		actualNames, err := wifiService.GetNames()
 
-			if test.expectedError != nil {
-				require.ErrorIs(t, err, test.expectedError)
+		if test.errMsg != "" {
+			require.ErrorIs(t, err, ErrSome)
+			require.ErrorContains(t, err, test.errMsg)
 
-				return
-			}
+			return
+		}
 
-			require.NoError(t, err)
-			require.Equal(t, test.names, actualNames)
-		})
+		require.NoError(t, err)
+		require.Equal(t, test.names, actualNames)
 	}
-}
-
-func TestNew(t *testing.T) {
-	t.Parallel()
-
-	mockWifi := NewWiFiHandle(t)
-	wifiService := mywifi.New(mockWifi)
-
-	require.Equal(t, mockWifi, wifiService.WiFi)
 }
 
 func helperMockIfaces(t *testing.T, test *testcase) []*wifi.Interface {
