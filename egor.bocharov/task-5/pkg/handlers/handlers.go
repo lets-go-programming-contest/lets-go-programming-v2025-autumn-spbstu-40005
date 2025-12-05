@@ -4,11 +4,13 @@ import (
 	"context"
 	"errors"
 	"strings"
+	"sync"
 )
 
 var (
 	ErrDecorator    = errors.New("can't be decorated")
 	ErrOutputsEmpty = errors.New("outputs must not be empty")
+	ErrInputsEmpty  = errors.New("inputs must not be empty")
 )
 
 const (
@@ -17,17 +19,7 @@ const (
 	noMultiplexer = "no multiplexer"
 )
 
-// PrefixDecoratorFunc добавляет префикс к данным, если его ещё нет.
 func PrefixDecoratorFunc(ctx context.Context, input chan string, output chan string) error {
-	defer func() {
-		// Пытаемся закрыть выходной канал
-		select {
-		case <-output:
-		default:
-			close(output)
-		}
-	}()
-
 	for {
 		select {
 		case <-ctx.Done():
@@ -54,24 +46,13 @@ func PrefixDecoratorFunc(ctx context.Context, input chan string, output chan str
 	}
 }
 
-// SeparatorFunc распределяет данные по выходным каналам по кругу.
 func SeparatorFunc(ctx context.Context, input chan string, outputs []chan string) error {
 	if len(outputs) == 0 {
 		return ErrOutputsEmpty
 	}
 
-	defer func() {
-		// Закрываем все выходные каналы
-		for _, out := range outputs {
-			select {
-			case <-out:
-			default:
-				close(out)
-			}
-		}
-	}()
-
 	index := 0
+
 	for {
 		select {
 		case <-ctx.Done():
@@ -81,11 +62,11 @@ func SeparatorFunc(ctx context.Context, input chan string, outputs []chan string
 				return nil
 			}
 
-			outChannel := outputs[index%len(outputs)]
+			outCh := outputs[index%len(outputs)]
 			index++
 
 			select {
-			case outChannel <- data:
+			case outCh <- data:
 			case <-ctx.Done():
 				return nil
 			}
@@ -93,70 +74,43 @@ func SeparatorFunc(ctx context.Context, input chan string, outputs []chan string
 	}
 }
 
-// MultiplexerFunc объединяет данные из нескольких входных каналов в один выходной.
 func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan string) error {
 	if len(inputs) == 0 {
-		select {
-		case <-output:
-		default:
-			close(output)
-		}
-		return nil
+		return ErrInputsEmpty
 	}
 
-	// Создаем отдельный контекст для этой функции
-	ctx, cancel := context.WithCancel(ctx)
-	defer cancel()
+	var waitgrr sync.WaitGroup
 
-	// Создаем канал для данных
-	dataChan := make(chan string, len(inputs))
+	waitgrr.Add(len(inputs))
 
-	// Запускаем горутины для чтения из всех входных каналов
-	for _, in := range inputs {
-		go func(inputChan chan string) {
+	for _, inputCh := range inputs {
+		go func(channel chan string) {
+			defer waitgrr.Done()
+
 			for {
 				select {
 				case <-ctx.Done():
 					return
-				case data, ok := <-inputChan:
+				case data, ok := <-channel:
 					if !ok {
 						return
 					}
+
 					if strings.Contains(data, noMultiplexer) {
 						continue
 					}
+
 					select {
-					case dataChan <- data:
+					case output <- data:
 					case <-ctx.Done():
 						return
 					}
 				}
 			}
-		}(in)
+		}(inputCh)
 	}
 
-	// Главная горутина записывает в выходной канал
-	defer func() {
-		select {
-		case <-output:
-		default:
-			close(output)
-		}
-	}()
+	waitgrr.Wait()
 
-	for {
-		select {
-		case <-ctx.Done():
-			return nil
-		case data, ok := <-dataChan:
-			if !ok {
-				return nil
-			}
-			select {
-			case output <- data:
-			case <-ctx.Done():
-				return nil
-			}
-		}
-	}
+	return nil
 }
