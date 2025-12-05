@@ -3,6 +3,7 @@ package conveyer
 import (
 	"context"
 	"errors"
+	"fmt"
 	"sync"
 )
 
@@ -99,15 +100,15 @@ func (conv *conveyerImpl) Run(ctx context.Context) error {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 
-	var wait sync.WaitGroup
+	var waitg sync.WaitGroup
 
-	errorCh := make(chan error, len(conv.handlers))
+	errorCh := make(chan error, 1)
 
-	for _, hand := range conv.handlers {
-		wait.Add(1)
+	for _, handl := range conv.handlers {
+		waitg.Add(1)
 
 		go func(h handler) {
-			defer wait.Done()
+			defer waitg.Done()
 
 			if err := conv.runHandler(ctx, h); err != nil {
 				select {
@@ -116,16 +117,26 @@ func (conv *conveyerImpl) Run(ctx context.Context) error {
 				}
 				cancel()
 			}
-		}(hand)
+		}(handl)
 	}
 
-	wait.Wait()
-	close(errorCh)
+	go func() {
+		waitg.Wait()
+		conv.mu.Lock()
+		defer conv.mu.Unlock()
 
-	for err := range errorCh {
+		for _, ch := range conv.channels {
+			close(ch)
+		}
+	}()
+
+	select {
+	case err := <-errorCh:
 		if err != nil {
 			return err
 		}
+	case <-ctx.Done():
+		return fmt.Errorf("%w", ctx.Err())
 	}
 
 	return nil
