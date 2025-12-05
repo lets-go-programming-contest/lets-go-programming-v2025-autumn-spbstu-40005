@@ -166,6 +166,9 @@ func (c *Conveyer) RegisterSeparator(
 }
 
 func (c *Conveyer) Run(ctx context.Context) error {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
 	workerGroup, ctx := errgroup.WithContext(ctx)
 
 	for _, task := range c.tasks {
