@@ -29,36 +29,16 @@ func New(size int) *conveyer {
 	}
 }
 
-func (c *conveyer) getChannel(name string) (chan string, bool) {
-	c.mutex.RLock()
-	defer c.mutex.RUnlock()
-	ch, ok := c.channels[name]
-	return ch, ok
-}
-
-func (c *conveyer) getChannelOrCreate(name string) chan string {
-	c.mutex.Lock()
-	defer c.mutex.Unlock()
-	
-	if ch, ok := c.channels[name]; ok {
-		return ch
-	}
-	
-	ch := make(chan string, c.bufferSize)
-	c.channels[name] = ch
-	return ch
-}
-
 func (c *conveyer) RegisterDecorator(
 	processor func(ctx context.Context, in chan string, out chan string) error,
 	inName,
 	outName string,
 ) {
-	inChan := c.getChannelOrCreate(inName)
-	outChan := c.getChannelOrCreate(outName)
-
 	c.mutex.Lock()
 	defer c.mutex.Unlock()
+
+	inChan := c.getChannelOrCreateLocked(inName)
+	outChan := c.getChannelOrCreateLocked(outName)
 
 	c.workers = append(c.workers, func(ctx context.Context) error {
 		return processor(ctx, inChan, outChan)
@@ -70,14 +50,14 @@ func (c *conveyer) RegisterMultiplexer(
 	inNames []string,
 	outName string,
 ) {
-	inChans := make([]chan string, len(inNames))
-	for i, name := range inNames {
-		inChans[i] = c.getChannelOrCreate(name)
-	}
-	outChan := c.getChannelOrCreate(outName)
-
 	c.mutex.Lock()
 	defer c.mutex.Unlock()
+
+	inChans := make([]chan string, len(inNames))
+	for i, name := range inNames {
+		inChans[i] = c.getChannelOrCreateLocked(name)
+	}
+	outChan := c.getChannelOrCreateLocked(outName)
 
 	c.workers = append(c.workers, func(ctx context.Context) error {
 		return processor(ctx, inChans, outChan)
@@ -89,18 +69,36 @@ func (c *conveyer) RegisterSeparator(
 	inName string,
 	outNames []string,
 ) {
-	inChan := c.getChannelOrCreate(inName)
-	outChans := make([]chan string, len(outNames))
-	for i, name := range outNames {
-		outChans[i] = c.getChannelOrCreate(name)
-	}
-
 	c.mutex.Lock()
 	defer c.mutex.Unlock()
+
+
+	inChan := c.getChannelOrCreateLocked(inName)
+	outChans := make([]chan string, len(outNames))
+	for i, name := range outNames {
+		outChans[i] = c.getChannelOrCreateLocked(name)
+	}
 
 	c.workers = append(c.workers, func(ctx context.Context) error {
 		return processor(ctx, inChan, outChans)
 	})
+}
+
+func (c *conveyer) getChannelOrCreateLocked(name string) chan string {
+	if ch, ok := c.channels[name]; ok {
+		return ch
+	}
+	
+	ch := make(chan string, c.bufferSize)
+	c.channels[name] = ch
+	return ch
+}
+
+func (c *conveyer) getChannel(name string) (chan string, bool) {
+	c.mutex.RLock()
+	defer c.mutex.RUnlock()
+	ch, ok := c.channels[name]
+	return ch, ok
 }
 
 func (c *conveyer) Run(ctx context.Context) error {
@@ -112,7 +110,12 @@ func (c *conveyer) Run(ctx context.Context) error {
 
 	errGroup, ctx := errgroup.WithContext(ctx)
 
-	for _, w := range c.workers {
+	c.mutex.RLock()
+	workers := make([]func(ctx context.Context) error, len(c.workers))
+	copy(workers, c.workers)
+	c.mutex.RUnlock()
+
+	for _, w := range workers {
 		w := w
 		errGroup.Go(func() error {
 			return w(ctx)
