@@ -13,7 +13,7 @@ var (
 
 const (
 	skipDecorator   = "no decorator"
-	decoration      = "decorated:"
+	decoration      = "decorated: "
 	skipMultiplexer = "no multiplexer"
 )
 
