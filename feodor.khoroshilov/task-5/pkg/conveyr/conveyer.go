@@ -10,7 +10,7 @@ import (
 
 const undefined = "undefined"
 
-var ErrChannelNotFound = errors.New("chan not found")
+var ErrChannelNotFound = errors.New("channel not found")
 
 type conveyer struct {
 	mu         sync.RWMutex
