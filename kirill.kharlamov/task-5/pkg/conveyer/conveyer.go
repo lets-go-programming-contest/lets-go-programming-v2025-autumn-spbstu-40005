@@ -162,17 +162,19 @@ func (c *Conveyer) Recv(channelName string) (string, error) {
 
 func (c *Conveyer) ensureChannel(name string) chan string {
 	c.mutex.RLock()
-	if existingChannel, exists := c.channels[name]; exists {
-		c.mutex.RUnlock()
+	existingChannel, exists := c.channels[name]
+	c.mutex.RUnlock()
+
+	if exists {
 		return existingChannel
 	}
-	c.mutex.RUnlock()
 
 	c.mutex.Lock()
 	defer c.mutex.Unlock()
 
-	if existingChannel, exists := c.channels[name]; exists {
-
+	// Двойная проверка под мьютексом
+	existingChannel, exists = c.channels[name]
+	if exists {
 		return existingChannel
 	}
 
