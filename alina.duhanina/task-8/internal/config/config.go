@@ -1,7 +1,7 @@
 package config
 
 import (
-	_ "embed"
+	"fmt"
 	"gopkg.in/yaml.v3"
 )
 
@@ -14,11 +14,7 @@ func parseConfig(data []byte) (*Config, error) {
 	var config Config
 	err := yaml.Unmarshal(data, &config)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error while parsing config: %w", err)
 	}
 	return &config, nil
-}
-
-func GetConfig() (*Config, error) {
-	return parseConfig(prodConfigData)
 }
