@@ -14,4 +14,4 @@ func main() {
 	}
 
 	cfg.PrintConfig()
-}}
+}
