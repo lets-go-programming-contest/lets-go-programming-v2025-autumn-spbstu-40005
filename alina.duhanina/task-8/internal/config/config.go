@@ -14,7 +14,7 @@ func parseConfig(data []byte) (*Config, error) {
 	var config Config
 	err := yaml.Unmarshal(data, &config)
 	if err != nil {
-		return nil, fmt.Errorf("error while parsing config: %w", err)
+		return nil, fmt.Errorf("parsing: %w", err)
 	}
 	return &config, nil
 }
