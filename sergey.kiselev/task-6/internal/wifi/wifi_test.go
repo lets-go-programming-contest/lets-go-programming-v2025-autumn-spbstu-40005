@@ -15,6 +15,8 @@ import (
 var ErrExpected = errors.New("expected error")
 
 func TestGetAddresses_Success(t *testing.T) {
+	t.Parallel()
+
 	mockWiFi := NewWiFiHandle(t)
 	service := myWifi.New(mockWiFi)
 
@@ -33,6 +35,8 @@ func TestGetAddresses_Success(t *testing.T) {
 }
 
 func TestGetAddresses_Error(t *testing.T) {
+	t.Parallel()
+
 	mockWiFi := NewWiFiHandle(t)
 	service := myWifi.New(mockWiFi)
 
@@ -41,11 +45,13 @@ func TestGetAddresses_Error(t *testing.T) {
 	addrs, err := service.GetAddresses()
 	require.Error(t, err)
 	require.Contains(t, err.Error(), "getting interfaces")
-	require.True(t, errors.Is(err, ErrExpected))
+	require.ErrorIs(t, err, ErrExpected)
 	require.Nil(t, addrs)
 }
 
 func TestGetNames_Success(t *testing.T) {
+	t.Parallel()
+
 	mockWiFi := NewWiFiHandle(t)
 	service := myWifi.New(mockWiFi)
 
@@ -61,6 +67,8 @@ func TestGetNames_Success(t *testing.T) {
 }
 
 func TestGetNames_Error(t *testing.T) {
+	t.Parallel()
+
 	mockWiFi := NewWiFiHandle(t)
 	service := myWifi.New(mockWiFi)
 
@@ -69,7 +77,7 @@ func TestGetNames_Error(t *testing.T) {
 	names, err := service.GetNames()
 	require.Error(t, err)
 	require.Contains(t, err.Error(), "getting interfaces")
-	require.True(t, errors.Is(err, ErrExpected))
+	require.ErrorIs(t, err, ErrExpected)
 	require.Nil(t, names)
 }
 
@@ -78,5 +86,6 @@ func parseMAC(s string) net.HardwareAddr {
 	if err != nil {
 		return nil
 	}
+
 	return hwAddr
 }
