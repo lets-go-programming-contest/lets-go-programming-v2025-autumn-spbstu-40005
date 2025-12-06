@@ -11,5 +11,5 @@ func main() {
 		fmt.Println("failed loading: %w", err)
 	}
 
-	fmt.Printf("%s %s\n", cfg.Environment, cfg.LogLevel)
+	fmt.Print(cfg.Environment + " " + cfg.LogLevel)
 }
