@@ -6,12 +6,12 @@ import (
 )
 
 func main() {
-	cfg, err := config.GetConfig()
+	cfg, err := config.Load()
 	if err != nil {
-		fmt.Println("failed loading: %w", err)
+		fmt.Println("failed config loading: %w", err)
 
 		return
 	}
 
-	fmt.Print(cfg.Environment + " " + cfg.LogLevel)
-}
+	cfg.PrintConfig()
+}}
