@@ -7,6 +7,6 @@ import _ "embed"
 //go:embed prod.yaml
 var configData []byte
 
-func Load() (*Config, error) {
-    return parseConfig(configData)
+func GetConfig() (*Config, error) {
+	return parseConfig(configData)
 }
