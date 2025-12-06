@@ -16,7 +16,7 @@ var devConfigData []byte
 //go:embed prod.yaml
 var prodConfigData []byte
 
-func loadConfig(data []byte) (*Config, error) {
+func parseConfig(data []byte) (*Config, error) {
 	var config Config
 	err := yaml.Unmarshal(data, &config)
 	if err != nil {
@@ -26,5 +26,5 @@ func loadConfig(data []byte) (*Config, error) {
 }
 
 func GetConfig() (*Config, error) {
-	return loadConfig(prodConfigData)
+	return parseConfig(prodConfigData)
 }
