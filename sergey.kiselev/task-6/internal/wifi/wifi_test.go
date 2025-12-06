@@ -2,7 +2,6 @@ package wifi_test
 
 import (
 	"errors"
-	"fmt"
 	"net"
 	"testing"
 
@@ -77,7 +76,7 @@ func TestGetNames_Error(t *testing.T) {
 func parseMAC(s string) net.HardwareAddr {
 	hwAddr, err := net.ParseMAC(s)
 	if err != nil {
-		panic(fmt.Sprintf("invalid MAC: %s", s))
+		return nil
 	}
 	return hwAddr
 }
