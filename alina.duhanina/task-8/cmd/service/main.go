@@ -1,8 +1,9 @@
 package main
 
 import (
-	"alina.duhanina/task-8/internal/config"
 	"fmt"
+
+	"alina.duhanina/task-8/internal/config"
 )
 
 func main() {
