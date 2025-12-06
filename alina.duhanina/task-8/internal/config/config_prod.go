@@ -1,8 +1,12 @@
 //go:build prod
-// +build prod
 
 package config
 
-func GetConfig() (*Config, error) {
-	return parseConfig(prodConfigData)
+import _ "embed"
+
+//go:embed prod.yaml
+var configData []byte
+
+func Load() (*Config, error) {
+    return parseConfig(configData)
 }
