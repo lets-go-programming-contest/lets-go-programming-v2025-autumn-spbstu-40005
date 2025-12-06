@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"your-project/config"
+	"alina.duhanina/task-8/internal/config"
 )
 
 func main() {
