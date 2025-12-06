@@ -12,6 +12,10 @@ type Config struct {
 }
 
 func parseConfig(data []byte) (*Config, error) {
+	if len(data) == 0 {
+		return nil, fmt.Errorf("empty config data")
+	}
+
 	var config Config
 
 	err := yaml.Unmarshal(data, &config)
