@@ -1,18 +1,15 @@
 package main
 
 import (
-	"fmt"
-
 	"alina.duhanina/task-8/internal/config"
+	"fmt"
 )
 
 func main() {
-	cfg, err := config.Load()
+	cfg, err := config.GetConfig()
 	if err != nil {
-		fmt.Println("failed config loading: %w", err)
-
+		fmt.Println("error loading: %w", err)
 		return
 	}
-
-	cfg.PrintConfig()
+	fmt.Print(cfg.Environment, " ", cfg.LogLevel)
 }
