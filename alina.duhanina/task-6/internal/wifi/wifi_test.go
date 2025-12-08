@@ -8,6 +8,8 @@ import (
 	"github.com/mdlayher/wifi"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"alina.duhanina/task-6/internal/wifi"
 )
 
 func TestWiFiService_GetAddresses_Success(t *testing.T) {
