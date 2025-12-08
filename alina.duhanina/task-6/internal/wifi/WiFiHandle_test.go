@@ -14,13 +14,18 @@ type MockWiFiHandle struct {
 func (m *MockWiFiHandle) Interfaces() ([]*wifi.Interface, error) {
 	args := m.Called()
 
+	var err error
+	if args.Error(1) != nil {
+		err = fmt.Errorf("mock error: %w", args.Error(1))
+	}
+
 	if args.Get(0) == nil {
-		return nil, fmt.Errorf("mock error: %w", args.Error(1))
+		return nil, err
 	}
 
 	if ifaces, ok := args.Get(0).([]*wifi.Interface); ok {
-		return ifaces, fmt.Errorf("mock error: %w", args.Error(1))
+		return ifaces, err
 	}
 
-	return nil, fmt.Errorf("mock error: %w", args.Error(1))
+	return nil, err
 }
