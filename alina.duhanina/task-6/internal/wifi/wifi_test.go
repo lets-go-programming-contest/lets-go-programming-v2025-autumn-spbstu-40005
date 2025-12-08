@@ -11,6 +11,8 @@ import (
 )
 
 func TestWiFiService_GetAddresses_Success(t *testing.T) {
+	t.Parallel()
+
 	mockWiFi := new(MockWiFiHandle)
 
 	hwAddr1, _ := net.ParseMAC("00:11:22:33:44:55")
@@ -35,6 +37,8 @@ func TestWiFiService_GetAddresses_Success(t *testing.T) {
 }
 
 func TestWiFiService_GetAddresses_Empty(t *testing.T) {
+	t.Parallel()
+
 	mockWiFi := new(MockWiFiHandle)
 	interfaces := []*wifi.Interface{}
 
@@ -50,6 +54,8 @@ func TestWiFiService_GetAddresses_Empty(t *testing.T) {
 }
 
 func TestWiFiService_GetAddresses_Error(t *testing.T) {
+	t.Parallel()
+
 	mockWiFi := new(MockWiFiHandle)
 	mockWiFi.On("Interfaces").Return([]*wifi.Interface{}, fmt.Errorf("mock error"))
 
@@ -64,6 +70,8 @@ func TestWiFiService_GetAddresses_Error(t *testing.T) {
 }
 
 func TestWiFiService_GetNames_Success(t *testing.T) {
+	t.Parallel()
+
 	mockWiFi := new(MockWiFiHandle)
 
 	hwAddr, _ := net.ParseMAC("00:11:22:33:44:55")
@@ -86,6 +94,8 @@ func TestWiFiService_GetNames_Success(t *testing.T) {
 }
 
 func TestWiFiService_GetNames_Empty(t *testing.T) {
+	t.Parallel()
+
 	mockWiFi := new(MockWiFiHandle)
 	interfaces := []*wifi.Interface{}
 
@@ -101,6 +111,8 @@ func TestWiFiService_GetNames_Empty(t *testing.T) {
 }
 
 func TestWiFiService_GetNames_Error(t *testing.T) {
+	t.Parallel()
+
 	mockWiFi := new(MockWiFiHandle)
 	mockWiFi.On("Interfaces").Return([]*wifi.Interface{}, fmt.Errorf("mock error"))
 
@@ -115,6 +127,8 @@ func TestWiFiService_GetNames_Error(t *testing.T) {
 }
 
 func TestNew(t *testing.T) {
+	t.Parallel()
+
 	mockWiFi := new(MockWiFiHandle)
 	service := New(mockWiFi)
 	assert.NotNil(t, service)

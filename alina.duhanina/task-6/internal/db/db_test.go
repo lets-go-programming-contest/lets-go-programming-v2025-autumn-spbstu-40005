@@ -16,6 +16,8 @@ const (
 )
 
 func TestDBService_GetNames_Success(t *testing.T) {
+	t.Parallel()
+
 	db, mock, err := sqlmock.New()
 	require.NoError(t, err)
 	defer db.Close()
@@ -38,6 +40,8 @@ func TestDBService_GetNames_Success(t *testing.T) {
 }
 
 func TestDBService_GetNames_Empty(t *testing.T) {
+	t.Parallel()
+
 	db, mock, err := sqlmock.New()
 	require.NoError(t, err)
 	defer db.Close()
@@ -55,6 +59,8 @@ func TestDBService_GetNames_Empty(t *testing.T) {
 }
 
 func TestDBService_GetNames_QueryError(t *testing.T) {
+	t.Parallel()
+
 	db, mock, err := sqlmock.New()
 	require.NoError(t, err)
 	defer db.Close()
@@ -72,6 +78,8 @@ func TestDBService_GetNames_QueryError(t *testing.T) {
 }
 
 func TestDBService_GetNames_ScanError(t *testing.T) {
+	t.Parallel()
+
 	db, mock, err := sqlmock.New()
 	require.NoError(t, err)
 	defer db.Close()
@@ -93,6 +101,8 @@ func TestDBService_GetNames_ScanError(t *testing.T) {
 }
 
 func TestDBService_GetNames_RowsError(t *testing.T) {
+	t.Parallel()
+
 	db, mock, err := sqlmock.New()
 	require.NoError(t, err)
 	defer db.Close()
@@ -114,6 +124,8 @@ func TestDBService_GetNames_RowsError(t *testing.T) {
 }
 
 func TestDBService_GetUniqueNames_Success(t *testing.T) {
+	t.Parallel()
+
 	db, mock, err := sqlmock.New()
 	require.NoError(t, err)
 	defer db.Close()
@@ -136,6 +148,8 @@ func TestDBService_GetUniqueNames_Success(t *testing.T) {
 }
 
 func TestDBService_GetUniqueNames_Empty(t *testing.T) {
+	t.Parallel()
+
 	db, mock, err := sqlmock.New()
 	require.NoError(t, err)
 	defer db.Close()
@@ -153,6 +167,8 @@ func TestDBService_GetUniqueNames_Empty(t *testing.T) {
 }
 
 func TestDBService_GetUniqueNames_QueryError(t *testing.T) {
+	t.Parallel()
+
 	db, mock, err := sqlmock.New()
 	require.NoError(t, err)
 	defer db.Close()
@@ -170,6 +186,8 @@ func TestDBService_GetUniqueNames_QueryError(t *testing.T) {
 }
 
 func TestNew(t *testing.T) {
+	t.Parallel()
+
 	db, _, err := sqlmock.New()
 	require.NoError(t, err)
 	defer db.Close()
@@ -181,6 +199,8 @@ func TestNew(t *testing.T) {
 }
 
 func TestDBService_GetNames_WithCloseError(t *testing.T) {
+	t.Parallel()
+
 	db, mock, err := sqlmock.New()
 	require.NoError(t, err)
 	defer db.Close()
@@ -200,6 +220,8 @@ func TestDBService_GetNames_WithCloseError(t *testing.T) {
 }
 
 func TestDBService_GetNames_CloseError(t *testing.T) {
+	t.Parallel()
+
 	db, mock, err := sqlmock.New()
 	require.NoError(t, err)
 	defer db.Close()
@@ -219,6 +241,8 @@ func TestDBService_GetNames_CloseError(t *testing.T) {
 }
 
 func TestDBService_GetUniqueNames_ScanError(t *testing.T) {
+	t.Parallel()
+
 	db, mock, err := sqlmock.New()
 	require.NoError(t, err)
 	defer db.Close()
@@ -240,6 +264,8 @@ func TestDBService_GetUniqueNames_ScanError(t *testing.T) {
 }
 
 func TestDBService_GetUniqueNames_RowsError(t *testing.T) {
+	t.Parallel()
+
 	db, mock, err := sqlmock.New()
 	require.NoError(t, err)
 	defer db.Close()
