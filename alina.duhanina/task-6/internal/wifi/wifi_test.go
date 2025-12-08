@@ -5,11 +5,10 @@ import (
 	"net"
 	"testing"
 
+	myWifi "alina.duhanina/task-6/internal/wifi"
 	"github.com/mdlayher/wifi"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-
-        myWifi "alina.duhanina/task-6/internal/wifi"
 )
 
 var ErrExpected = errors.New("expected error")

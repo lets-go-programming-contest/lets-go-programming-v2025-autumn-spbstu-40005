@@ -5,10 +5,9 @@ import (
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
+	"alina.duhanina/task-6/internal/db"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-
-        "alina.duhanina/task-6/internal/db"
 )
 
 func TestDBService_GetNames_Success(t *testing.T) {
