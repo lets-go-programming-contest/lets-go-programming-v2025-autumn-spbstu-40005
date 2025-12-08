@@ -2,6 +2,7 @@ package db
 
 import (
 	"database/sql"
+	"errors"
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
@@ -196,4 +197,65 @@ func TestDBService_GetNames_WithCloseError(t *testing.T) {
 	assert.Equal(t, []string{"Alice"}, names)
 
 	db.Close()
+}
+
+func TestDBService_GetNames_CloseError(t *testing.T) {
+	db, mock, err := sqlmock.New()
+	require.NoError(t, err)
+	defer db.Close()
+
+	rows := sqlmock.NewRows([]string{"name"}).AddRow("Alice")
+	rows = rows.CloseError(errors.New("close error"))
+
+	mock.ExpectQuery(selectNamesQuery).WillReturnRows(rows)
+
+	service := New(db)
+	names, err := service.GetNames()
+
+	require.NoError(t, err)
+	assert.Equal(t, []string{"Alice"}, names)
+
+	require.NoError(t, mock.ExpectationsWereMet())
+}
+
+func TestDBService_GetUniqueNames_ScanError(t *testing.T) {
+	db, mock, err := sqlmock.New()
+	require.NoError(t, err)
+	defer db.Close()
+
+	rows := sqlmock.NewRows([]string{"name"}).
+		AddRow("Alice").
+		AddRow(nil)
+
+	mock.ExpectQuery(selectUniqueNamesQuery).WillReturnRows(rows)
+
+	service := New(db)
+	names, err := service.GetUniqueNames()
+
+	assert.Error(t, err)
+	assert.Nil(t, names)
+	assert.Contains(t, err.Error(), "rows scanning")
+
+	require.NoError(t, mock.ExpectationsWereMet())
+}
+
+func TestDBService_GetUniqueNames_RowsError(t *testing.T) {
+	db, mock, err := sqlmock.New()
+	require.NoError(t, err)
+	defer db.Close()
+
+	rows := sqlmock.NewRows([]string{"name"}).
+		AddRow("Alice").
+		RowError(0, sql.ErrTxDone)
+
+	mock.ExpectQuery(selectUniqueNamesQuery).WillReturnRows(rows)
+
+	service := New(db)
+	names, err := service.GetUniqueNames()
+
+	assert.Error(t, err)
+	assert.Nil(t, names)
+	assert.Contains(t, err.Error(), "rows error")
+
+	require.NoError(t, mock.ExpectationsWereMet())
 }
