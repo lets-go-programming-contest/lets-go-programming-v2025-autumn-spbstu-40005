@@ -117,7 +117,6 @@ func (c *conveyerImpl) closeAllChannels() {
 
 func (c *conveyerImpl) Send(input string, data string) error {
 	channel, err := c.getChannelForRead(input)
-
 	if err != nil {
 		return err
 	}
