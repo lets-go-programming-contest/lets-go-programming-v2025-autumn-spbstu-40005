@@ -13,10 +13,12 @@ const undefined = "undefined"
 
 var ErrFoundOfChannel = errors.New("chan not found")
 
+type handler func(ctx context.Context) error
+
 type conveyerImpl struct {
 	size     int
 	channels map[string]chan string
-	handlers []func(ctx context.Context) error
+	handlers []handler
 	mu       sync.RWMutex
 }
 
@@ -24,7 +26,7 @@ func New(size int) *conveyerImpl {
 	return &conveyerImpl{
 		size:     size,
 		channels: make(map[string]chan string),
-		handlers: []func(ctx context.Context) error{},
+		handlers: []handler{},
 		mu:       sync.RWMutex{},
 	}
 }
@@ -114,10 +116,10 @@ func (c *conveyerImpl) closeAllChannels() {
 }
 
 func (c *conveyerImpl) Send(input string, data string) error {
-	channel, exists := c.getChannelForRead(input)
+	channel, err := c.getChannelForRead(input)
 
-	if !exists {
-		return ErrFoundOfChannel
+	if err != nil {
+		return err
 	}
 
 	channel <- data
@@ -126,10 +128,10 @@ func (c *conveyerImpl) Send(input string, data string) error {
 }
 
 func (c *conveyerImpl) Recv(output string) (string, error) {
-	channel, exists := c.getChannelForRead(output)
+	channel, err := c.getChannelForRead(output)
 
-	if !exists {
-		return "", ErrFoundOfChannel
+	if err != nil {
+		return "", err
 	}
 
 	val, ok := <-channel
@@ -151,10 +153,13 @@ func (c *conveyerImpl) getOrCreateChannel(name string) chan string {
 	return channel
 }
 
-func (c *conveyerImpl) getChannelForRead(name string) (chan string, bool) {
+func (c *conveyerImpl) getChannelForRead(name string) (chan string, error) {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
 	ch, ok := c.channels[name]
+	if !ok {
+		return nil, ErrFoundOfChannel
+	}
 
-	return ch, ok
+	return ch, nil
 }
