@@ -10,6 +10,7 @@ import (
 var (
 	ErrNoDecorator  = errors.New("can't be decorated")
 	ErrEmptyOutputs = errors.New("empty outputs")
+	ErrEmptyInputs  = errors.New("empty inputs")
 )
 
 const (
@@ -47,9 +48,7 @@ func PrefixDecoratorFunc(ctx context.Context, input, output chan string) error {
 
 func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan string) error {
 	if len(inputs) == 0 {
-		<-ctx.Done()
-
-		return nil
+		return ErrEmptyInputs
 	}
 
 	var wgroup sync.WaitGroup

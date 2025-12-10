@@ -151,7 +151,6 @@ func (pipe *Pipeline) Run(ctx context.Context) error {
 
 func (pipe *Pipeline) Send(input string, data string) error {
 	channel, err := pipe.getChan(input)
-
 	if err != nil {
 		return err
 	}
@@ -163,7 +162,6 @@ func (pipe *Pipeline) Send(input string, data string) error {
 
 func (pipe *Pipeline) Recv(output string) (string, error) {
 	channel, err := pipe.getChan(output)
-
 	if err != nil {
 		return "", err
 	}
