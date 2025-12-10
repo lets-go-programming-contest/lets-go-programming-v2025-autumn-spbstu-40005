@@ -129,7 +129,6 @@ func (c *conveyerImpl) Send(input string, data string) error {
 
 func (c *conveyerImpl) Recv(output string) (string, error) {
 	channel, err := c.getChannelForRead(output)
-
 	if err != nil {
 		return "", err
 	}
@@ -156,6 +155,7 @@ func (c *conveyerImpl) getOrCreateChannel(name string) chan string {
 func (c *conveyerImpl) getChannelForRead(name string) (chan string, error) {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
+
 	ch, ok := c.channels[name]
 	if !ok {
 		return nil, ErrFoundOfChannel
