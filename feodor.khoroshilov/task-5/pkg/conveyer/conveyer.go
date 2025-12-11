@@ -29,7 +29,7 @@ func New(size int) *conveyer {
 	return &conveyer{
 		bufferSize: size,
 		channels:   make(map[string]chan string),
-		workers:    make([]func(ctx context.Context) error, 0),
+		workers:    make([]WorkerFunc, 0),
 		mutex:      sync.RWMutex{},
 	}
 }
@@ -119,7 +119,7 @@ func (c *conveyer) Run(ctx context.Context) error {
 	}
 
 	c.mutex.RLock()
-	workers := make([]func(ctx context.Context) error, len(c.workers))
+	workers := make([]WorkerFunc, len(c.workers))
 	copy(workers, c.workers)
 	c.mutex.RUnlock()
 
