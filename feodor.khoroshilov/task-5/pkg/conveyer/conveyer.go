@@ -152,7 +152,7 @@ func (c *conveyer) closeAll() {
 }
 
 func (c *conveyer) Send(name string, data string) error {
-	ch, exists := c.getChannel(name)
+	ch, err := c.getChannel(name)
 	if !exists {
 		return ErrChannelNotFound
 	}
@@ -163,7 +163,7 @@ func (c *conveyer) Send(name string, data string) error {
 }
 
 func (c *conveyer) Recv(name string) (string, error) {
-	ch, exists := c.getChannel(name)
+	ch, err := c.getChannel(name)
 	if !exists {
 		return "", ErrChannelNotFound
 	}
