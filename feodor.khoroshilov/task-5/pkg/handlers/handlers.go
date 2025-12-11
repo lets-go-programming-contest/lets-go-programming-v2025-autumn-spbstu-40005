@@ -76,7 +76,7 @@ func MultiplexerFunc(ctx context.Context, ins []chan string, out chan string) er
 	}
 
 	var waitGroup sync.WaitGroup
-	WaitGroup.Add(len(ins))
+	waitGroup.Add(len(ins))
 
 	for _, inputChan := range ins {
 		go func(inputCh chan string) {
