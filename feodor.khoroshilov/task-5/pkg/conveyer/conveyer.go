@@ -51,7 +51,7 @@ func (c *conveyer) getChannel(name string) (chan string, error) {
 
 	ch, ok := c.channels[name]
 	if !ok {
-		return nil , ErrChannelNotFound
+		return nil, ErrChannelNotFound
 	}
 
 	return ch, nil
