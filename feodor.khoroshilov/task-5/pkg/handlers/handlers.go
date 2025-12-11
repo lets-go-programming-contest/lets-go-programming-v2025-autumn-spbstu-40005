@@ -7,7 +7,9 @@ import (
 	"sync"
 )
 
-var ErrCantBeDecorated = errors.New("can't be decorated")
+var (
+	ErrCantBeDecorated = errors.New("can't be decorated")
+)
 
 const (
 	skipDecorator   = "no decorator"
@@ -76,7 +78,7 @@ func MultiplexerFunc(ctx context.Context, ins []chan string, out chan string) er
 	}
 
 	var waitGroup sync.WaitGroup
-	
+
 	waitGroup.Add(len(ins))
 
 	for _, inputChan := range ins {
