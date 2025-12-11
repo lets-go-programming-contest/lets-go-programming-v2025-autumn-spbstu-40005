@@ -73,7 +73,6 @@ func SeparatorFunc(ctx context.Context, input chan string, outputs []chan string
 func MultiplexerFunc(ctx context.Context, ins []chan string, out chan string) error {
 	if len(ins) == 0 {
 		return nil
-
 	}
 
 	var waitGroup sync.WaitGroup
