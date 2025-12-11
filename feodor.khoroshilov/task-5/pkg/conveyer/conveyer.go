@@ -16,10 +16,12 @@ var (
 	ErrContextCannotBeNil = errors.New("context cannot be nil")
 )
 
+type WorkerFunc func(ctx context.Context) error
+
 type conveyer struct {
 	bufferSize int
 	channels   map[string]chan string
-	workers    []func(ctx context.Context) error
+	workers    []WorkerFunc
 	mutex      sync.RWMutex
 }
 
@@ -48,8 +50,11 @@ func (c *conveyer) getChannel(name string) (chan string, bool) {
 	defer c.mutex.RUnlock()
 
 	ch, ok := c.channels[name]
+	if !ok {
+		return nil , ErrChannelNotFound
+	}
 
-	return ch, ok
+	return ch, nil
 }
 
 func (c *conveyer) RegisterDecorator(
