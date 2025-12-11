@@ -45,7 +45,7 @@ func (c *conveyer) getChannelOrCreateLocked(name string) chan string {
 	return ch
 }
 
-func (c *conveyer) getChannel(name string) (chan string, bool) {
+func (c *conveyer) getChannel(name string) (chan string, error) {
 	c.mutex.RLock()
 	defer c.mutex.RUnlock()
 
