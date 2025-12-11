@@ -13,10 +13,14 @@ const undefinedResult = "undefined"
 
 var ErrChannelNotFound = errors.New("chan not found")
 
+type Task struct {
+	execute func(context.Context) error
+}
+
 type Pipeline struct {
 	mutex         sync.RWMutex
 	channels      map[string]chan string
-	tasks         []func(context.Context) error
+	tasks         []Task
 	channelBuffer int
 }
 
@@ -24,24 +28,27 @@ func New(size int) *Pipeline {
 	return &Pipeline{
 		mutex:         sync.RWMutex{},
 		channels:      make(map[string]chan string),
-		tasks:         make([]func(context.Context) error, 0),
+		tasks:         make([]Task, 0),
 		channelBuffer: size,
 	}
 }
 
-func (p *Pipeline) getChannel(name string) (chan string, bool) {
+func (p *Pipeline) getChannel(name string) (chan string, error) {
 	p.mutex.RLock()
 	defer p.mutex.RUnlock()
 
 	channel, exists := p.channels[name]
+	if !exists {
+		return nil, ErrChannelNotFound
+	}
 
-	return channel, exists
+	return channel, nil
 }
 
 func (p *Pipeline) Send(inputName string, data string) error {
-	channel, exists := p.getChannel(inputName)
-	if !exists {
-		return ErrChannelNotFound
+	channel, err := p.getChannel(inputName)
+	if err != nil {
+		return err
 	}
 
 	channel <- data
@@ -50,9 +57,9 @@ func (p *Pipeline) Send(inputName string, data string) error {
 }
 
 func (p *Pipeline) Recv(outputName string) (string, error) {
-	channel, exists := p.getChannel(outputName)
-	if !exists {
-		return "", ErrChannelNotFound
+	channel, err := p.getChannel(outputName)
+	if err != nil {
+		return "", err
 	}
 
 	data, ok := <-channel
@@ -85,8 +92,10 @@ func (p *Pipeline) RegisterDecorator(
 	sourceChannel := p.getOrCreateChannel(sourceName)
 	destChannel := p.getOrCreateChannel(destName)
 
-	task := func(ctx context.Context) error {
-		return workerFunc(ctx, sourceChannel, destChannel)
+	task := Task{
+		execute: func(ctx context.Context) error {
+			return workerFunc(ctx, sourceChannel, destChannel)
+		},
 	}
 
 	p.tasks = append(p.tasks, task)
@@ -111,8 +120,10 @@ func (p *Pipeline) RegisterMultiplexer(
 
 	destChannel := p.getOrCreateChannel(destName)
 
-	task := func(ctx context.Context) error {
-		return workerFunc(ctx, sources, destChannel)
+	task := Task{
+		execute: func(ctx context.Context) error {
+			return workerFunc(ctx, sources, destChannel)
+		},
 	}
 
 	p.tasks = append(p.tasks, task)
@@ -133,8 +144,10 @@ func (p *Pipeline) RegisterSeparator(
 		destinations[i] = p.getOrCreateChannel(name)
 	}
 
-	task := func(ctx context.Context) error {
-		return workerFunc(ctx, sourceChannel, destinations)
+	task := Task{
+		execute: func(ctx context.Context) error {
+			return workerFunc(ctx, sourceChannel, destinations)
+		},
 	}
 
 	p.tasks = append(p.tasks, task)
@@ -160,7 +173,7 @@ func (p *Pipeline) Run(ctx context.Context) error {
 		currentTask := task
 
 		group.Go(func() error {
-			return currentTask(groupCtx)
+			return currentTask.execute(groupCtx)
 		})
 	}
 
