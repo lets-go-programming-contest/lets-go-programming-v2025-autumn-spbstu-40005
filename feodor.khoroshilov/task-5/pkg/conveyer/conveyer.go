@@ -153,8 +153,8 @@ func (c *conveyer) closeAll() {
 
 func (c *conveyer) Send(name string, data string) error {
 	ch, err := c.getChannel(name)
-	if !exists {
-		return ErrChannelNotFound
+	if err != nil {
+		return err
 	}
 
 	ch <- data
@@ -164,8 +164,8 @@ func (c *conveyer) Send(name string, data string) error {
 
 func (c *conveyer) Recv(name string) (string, error) {
 	ch, err := c.getChannel(name)
-	if !exists {
-		return "", ErrChannelNotFound
+	if err != nil {
+		return "", err
 	}
 
 	value, ok := <-ch
