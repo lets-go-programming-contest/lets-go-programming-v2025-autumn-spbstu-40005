@@ -119,6 +119,7 @@ func (c *conveyer) getChannel(name string) (chan string, bool) {
 	defer c.mutex.RUnlock()
 
 	ch, ok := c.channels[name]
+
 	return ch, ok
 }
 
@@ -129,6 +130,7 @@ func (c *conveyer) Send(name string, data string) error {
 	}
 
 	ch <- data
+
 	return nil
 }
 
