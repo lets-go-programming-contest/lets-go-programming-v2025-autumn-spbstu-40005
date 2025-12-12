@@ -17,7 +17,7 @@ const (
 
 var ErrSome = errors.New("some error")
 
-var casesGetNames = []struct {
+var casesGetNames = []struct { //nolint:gochecknoglobals
 	names []string
 }{
 	{

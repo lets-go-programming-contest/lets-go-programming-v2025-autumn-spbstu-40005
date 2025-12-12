@@ -20,7 +20,7 @@ type testcase struct {
 	errMsg string
 }
 
-var casesWiFi = []testcase{
+var casesWiFi = []testcase{ //nolint:gochecknoglobals
 	{
 		addrs: []string{"00:11:22:33:44:55", "aa:bb:cc:dd:ee:ff"},
 		names: []string{"eth1", "eth2"},
