@@ -145,14 +145,14 @@ func (p *Pipeline) Run(ctx context.Context) error {
 
 func (p *Pipeline) lookupChannel(name string) (chan string, error) {
 	p.mu.RLock()
-	ch, ok := p.channels[name]
+	channel, ok := p.channels[name]
 	p.mu.RUnlock()
 
 	if !ok {
 		return nil, ErrChanNotFound
 	}
 
-	return ch, nil
+	return channel, nil
 }
 
 func (p *Pipeline) Send(inputName string, data string) error {
