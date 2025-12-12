@@ -14,9 +14,7 @@ const (
 	queryUniqueNames = "SELECT DISTINCT name FROM users"
 )
 
-var (
-	errExpected = errors.New("expected error")
-)
+var errExpected = errors.New("expected error")
 
 type testCase struct {
 	name          string

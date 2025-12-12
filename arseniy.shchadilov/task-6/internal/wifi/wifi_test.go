@@ -12,9 +12,7 @@ import (
 
 //go:generate mockery --all --testonly --quiet --outpkg wifi_test --output .
 
-var (
-	errExpected = errors.New("expected error")
-)
+var errExpected = errors.New("expected error")
 
 type wifiTestCase struct {
 	name           string
@@ -30,6 +28,7 @@ func parseMAC(s string) net.HardwareAddr {
 	if err != nil {
 		return nil
 	}
+
 	return hwAddr
 }
 
