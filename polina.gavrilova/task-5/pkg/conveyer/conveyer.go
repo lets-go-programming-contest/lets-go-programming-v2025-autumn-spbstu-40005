@@ -22,10 +22,12 @@ type conveyer interface {
 
 var _ conveyer = (*pipeline)(nil)
 
+type workerFunc func(context.Context) error
+
 type pipeline struct {
 	bufferSize int
 	channels   map[string]chan string
-	workers    []func(context.Context) error
+	workers    []workerFunc
 	mutex      sync.RWMutex
 	workersMu  sync.RWMutex
 }
@@ -34,7 +36,7 @@ func New(size int) *pipeline {
 	return &pipeline{
 		bufferSize: size,
 		channels:   make(map[string]chan string),
-		workers:    make([]func(context.Context) error, 0),
+		workers:    make([]workerFunc, 0),
 		mutex:      sync.RWMutex{},
 		workersMu:  sync.RWMutex{},
 	}
@@ -161,7 +163,7 @@ func (p *pipeline) Run(ctx context.Context) error {
 	group, ctx := errgroup.WithContext(ctx)
 
 	p.workersMu.RLock()
-	workersCopy := make([]func(context.Context) error, len(p.workers))
+	workersCopy := make([]workerFunc, len(p.workers))
 	copy(workersCopy, p.workers)
 	p.workersMu.RUnlock()
 
