@@ -13,10 +13,12 @@ const undefinedValue = "undefined"
 
 var ErrChannelNotFound = errors.New("chan not found")
 
+type workerFunc func(ctx context.Context) error
+
 type conveyer struct {
 	bufferSize int
 	channels   map[string]chan string
-	workers    []func(ctx context.Context) error
+	workers    []workerFunc
 	mutex      sync.RWMutex
 }
 
@@ -24,7 +26,7 @@ func New(size int) *conveyer {
 	return &conveyer{
 		bufferSize: size,
 		channels:   make(map[string]chan string),
-		workers:    make([]func(ctx context.Context) error, 0),
+		workers:    make([]workerFunc, 0),
 		mutex:      sync.RWMutex{},
 	}
 }
