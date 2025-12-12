@@ -9,7 +9,6 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	wifipkg "github.com/aminedraii19/task-6/internal/wifi"
 )
 
 var (
