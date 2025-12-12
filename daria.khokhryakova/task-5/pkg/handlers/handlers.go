@@ -80,9 +80,9 @@ func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan stri
 
 	var waitgr sync.WaitGroup
 
-	for _, input := range inputs {
-		waitgr.Add(1)
+	waitgr.Add(len(inputs))
 
+	for _, input := range inputs {
 		go func(channel chan string) {
 			defer waitgr.Done()
 
