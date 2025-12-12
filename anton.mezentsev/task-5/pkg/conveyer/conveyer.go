@@ -11,7 +11,11 @@ import (
 
 const undefinedResult = "undefined"
 
-var ErrChannelNotFound = errors.New("chan not found")
+var (
+	ErrChannelNotFound  = errors.New("chan not found")
+	ErrSourceNamesEmpty = errors.New("sourceNames cannot be empty")
+	ErrDestNamesEmpty   = errors.New("destNames cannot be empty")
+)
 
 type Task struct {
 	execute func(context.Context) error
@@ -110,7 +114,7 @@ func (p *Pipeline) RegisterMultiplexer(
 	defer p.mutex.Unlock()
 
 	if len(sourceNames) == 0 {
-		return errors.New("sourceNames cannot be empty")
+		return ErrSourceNamesEmpty
 	}
 
 	sources := make([]chan string, len(sourceNames))
@@ -140,7 +144,7 @@ func (p *Pipeline) RegisterSeparator(
 	defer p.mutex.Unlock()
 
 	if len(destNames) == 0 {
-		return errors.New("destNames cannot be empty")
+		return ErrDestNamesEmpty
 	}
 
 	sourceChannel := p.getOrCreateChannel(sourceName)
