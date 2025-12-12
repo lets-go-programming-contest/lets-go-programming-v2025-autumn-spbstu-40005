@@ -21,14 +21,14 @@ type mockDatabase struct {
 }
 
 func (m *mockDatabase) Query(query string, args ...any) (*sql.Rows, error) {
-	argsList := m.Called(query)
+	argsList := m.Called(query, args)
 	return argsList.Get(0).(*sql.Rows), argsList.Error(1)
 }
 
 func TestDBService_GetNames_Success(t *testing.T) {
 	t.Parallel()
 
-	dbConn, mockDB, err := sqlmock.New()
+	dbConn, sqlMock, err := sqlmock.New()
 	require.NoError(t, err)
 	defer dbConn.Close()
 
@@ -38,62 +38,62 @@ func TestDBService_GetNames_Success(t *testing.T) {
 		AddRow("Gerald").
 		AddRow("Michael")
 
-	mockDB.ExpectQuery(selectNamesQuery).WillReturnRows(rows)
+	sqlMock.ExpectQuery(selectNamesQuery).WillReturnRows(rows)
 
-	mock := &mockDatabase{}
-	mock.On("Query", selectNamesQuery).Return(rows, nil)
+	mockDB := &mockDatabase{}
+	mockDB.On("Query", selectNamesQuery, []any{}).Return(rows, nil)
 
-	service := db.New(mock)
+	service := db.New(mockDB)
 	result, err := service.GetNames()
 
 	require.NoError(t, err)
 	assert.Equal(t, []string{"John", "Gerald", "Michael"}, result)
-	mock.AssertExpectations(t)
+	mockDB.AssertExpectations(t)
 }
 
 func TestDBService_GetNames_DBError(t *testing.T) {
 	t.Parallel()
 
-	mock := &mockDatabase{}
-	mock.On("Query", selectNamesQuery).Return((*sql.Rows)(nil), assert.AnError)
+	mockDB := &mockDatabase{}
+	mockDB.On("Query", selectNamesQuery, []any{}).Return((*sql.Rows)(nil), assert.AnError)
 
-	service := db.New(mock)
+	service := db.New(mockDB)
 	result, err := service.GetNames()
 
 	require.Error(t, err)
 	assert.Contains(t, err.Error(), "db query:")
 	assert.Nil(t, result)
-	mock.AssertExpectations(t)
+	mockDB.AssertExpectations(t)
 }
 
 func TestDBService_GetNames_ScanFailure(t *testing.T) {
 	t.Parallel()
 
-	dbConn, mockDB, err := sqlmock.New()
+	dbConn, sqlMock, err := sqlmock.New()
 	require.NoError(t, err)
 	defer dbConn.Close()
 
 	columns := []string{"name"}
 	rows := sqlmock.NewRows(columns).AddRow(123)
 
-	mockDB.ExpectQuery(selectNamesQuery).WillReturnRows(rows)
+	sqlMock.ExpectQuery(selectNamesQuery).WillReturnRows(rows)
 
-	mock := &mockDatabase{}
-	mock.On("Query", selectNamesQuery).Return(rows, nil)
+	mockDB := &mockDatabase{}
+	mockDB.On("Query", selectNamesQuery, []any{}).Return(rows, nil)
 
-	service := db.New(mock)
+	service := db.New(mockDB)
 	result, err := service.GetNames()
 
 	require.Error(t, err)
 	assert.Contains(t, err.Error(), "rows scanning:")
 	assert.Nil(t, result)
-	mock.AssertExpectations(t)
+	mockDB.AssertExpectations(t)
 }
 
 func TestDBService_GetNames_RowIterationError(t *testing.T) {
 	t.Parallel()
 
-	dbConn, mockDB, err := sqlmock.New()
+	dbConn, sqlMock, err := sqlmock.New()
 	require.NoError(t, err)
 	defer dbConn.Close()
 
@@ -102,47 +102,47 @@ func TestDBService_GetNames_RowIterationError(t *testing.T) {
 		AddRow("John").
 		RowError(0, assert.AnError)
 
-	mockDB.ExpectQuery(selectNamesQuery).WillReturnRows(rows)
+	sqlMock.ExpectQuery(selectNamesQuery).WillReturnRows(rows)
 
-	mock := &mockDatabase{}
-	mock.On("Query", selectNamesQuery).Return(rows, nil)
+	mockDB := &mockDatabase{}
+	mockDB.On("Query", selectNamesQuery, []any{}).Return(rows, nil)
 
-	service := db.New(mock)
+	service := db.New(mockDB)
 	result, err := service.GetNames()
 
 	require.Error(t, err)
 	assert.Contains(t, err.Error(), "rows error:")
 	assert.Nil(t, result)
-	mock.AssertExpectations(t)
+	mockDB.AssertExpectations(t)
 }
 
 func TestDBService_GetNames_NoData(t *testing.T) {
 	t.Parallel()
 
-	dbConn, mockDB, err := sqlmock.New()
+	dbConn, sqlMock, err := sqlmock.New()
 	require.NoError(t, err)
 	defer dbConn.Close()
 
 	columns := []string{"name"}
 	rows := sqlmock.NewRows(columns)
 
-	mockDB.ExpectQuery(selectNamesQuery).WillReturnRows(rows)
+	sqlMock.ExpectQuery(selectNamesQuery).WillReturnRows(rows)
 
-	mock := &mockDatabase{}
-	mock.On("Query", selectNamesQuery).Return(rows, nil)
+	mockDB := &mockDatabase{}
+	mockDB.On("Query", selectNamesQuery, []any{}).Return(rows, nil)
 
-	service := db.New(mock)
+	service := db.New(mockDB)
 	result, err := service.GetNames()
 
 	require.NoError(t, err)
 	assert.Equal(t, []string{}, result)
-	mock.AssertExpectations(t)
+	mockDB.AssertExpectations(t)
 }
 
 func TestDBService_GetUniqueNames_Success(t *testing.T) {
 	t.Parallel()
 
-	dbConn, mockDB, err := sqlmock.New()
+	dbConn, sqlMock, err := sqlmock.New()
 	require.NoError(t, err)
 	defer dbConn.Close()
 
@@ -154,62 +154,62 @@ func TestDBService_GetUniqueNames_Success(t *testing.T) {
 		AddRow("Michael").
 		AddRow("Gerald")
 
-	mockDB.ExpectQuery(selectUniqueNamesQuery).WillReturnRows(rows)
+	sqlMock.ExpectQuery(selectUniqueNamesQuery).WillReturnRows(rows)
 
-	mock := &mockDatabase{}
-	mock.On("Query", selectUniqueNamesQuery).Return(rows, nil)
+	mockDB := &mockDatabase{}
+	mockDB.On("Query", selectUniqueNamesQuery, []any{}).Return(rows, nil)
 
-	service := db.New(mock)
+	service := db.New(mockDB)
 	result, err := service.GetUniqueNames()
 
 	require.NoError(t, err)
 	assert.Equal(t, []string{"John", "Gerald", "John", "Michael", "Gerald"}, result)
-	mock.AssertExpectations(t)
+	mockDB.AssertExpectations(t)
 }
 
 func TestDBService_GetUniqueNames_DBError(t *testing.T) {
 	t.Parallel()
 
-	mock := &mockDatabase{}
-	mock.On("Query", selectUniqueNamesQuery).Return((*sql.Rows)(nil), assert.AnError)
+	mockDB := &mockDatabase{}
+	mockDB.On("Query", selectUniqueNamesQuery, []any{}).Return((*sql.Rows)(nil), assert.AnError)
 
-	service := db.New(mock)
+	service := db.New(mockDB)
 	result, err := service.GetUniqueNames()
 
 	require.Error(t, err)
 	assert.Contains(t, err.Error(), "db query:")
 	assert.Nil(t, result)
-	mock.AssertExpectations(t)
+	mockDB.AssertExpectations(t)
 }
 
 func TestDBService_GetUniqueNames_ScanFailure(t *testing.T) {
 	t.Parallel()
 
-	dbConn, mockDB, err := sqlmock.New()
+	dbConn, sqlMock, err := sqlmock.New()
 	require.NoError(t, err)
 	defer dbConn.Close()
 
 	columns := []string{"name"}
 	rows := sqlmock.NewRows(columns).AddRow(123)
 
-	mockDB.ExpectQuery(selectUniqueNamesQuery).WillReturnRows(rows)
+	sqlMock.ExpectQuery(selectUniqueNamesQuery).WillReturnRows(rows)
 
-	mock := &mockDatabase{}
-	mock.On("Query", selectUniqueNamesQuery).Return(rows, nil)
+	mockDB := &mockDatabase{}
+	mockDB.On("Query", selectUniqueNamesQuery, []any{}).Return(rows, nil)
 
-	service := db.New(mock)
+	service := db.New(mockDB)
 	result, err := service.GetUniqueNames()
 
 	require.Error(t, err)
 	assert.Contains(t, err.Error(), "rows scanning:")
 	assert.Nil(t, result)
-	mock.AssertExpectations(t)
+	mockDB.AssertExpectations(t)
 }
 
 func TestDBService_GetUniqueNames_RowIterationError(t *testing.T) {
 	t.Parallel()
 
-	dbConn, mockDB, err := sqlmock.New()
+	dbConn, sqlMock, err := sqlmock.New()
 	require.NoError(t, err)
 	defer dbConn.Close()
 
@@ -218,49 +218,49 @@ func TestDBService_GetUniqueNames_RowIterationError(t *testing.T) {
 		AddRow("John").
 		RowError(0, assert.AnError)
 
-	mockDB.ExpectQuery(selectUniqueNamesQuery).WillReturnRows(rows)
+	sqlMock.ExpectQuery(selectUniqueNamesQuery).WillReturnRows(rows)
 
-	mock := &mockDatabase{}
-	mock.On("Query", selectUniqueNamesQuery).Return(rows, nil)
+	mockDB := &mockDatabase{}
+	mockDB.On("Query", selectUniqueNamesQuery, []any{}).Return(rows, nil)
 
-	service := db.New(mock)
+	service := db.New(mockDB)
 	result, err := service.GetUniqueNames()
 
 	require.Error(t, err)
 	assert.Contains(t, err.Error(), "rows error:")
 	assert.Nil(t, result)
-	mock.AssertExpectations(t)
+	mockDB.AssertExpectations(t)
 }
 
 func TestDBService_GetUniqueNames_NoData(t *testing.T) {
 	t.Parallel()
 
-	dbConn, mockDB, err := sqlmock.New()
+	dbConn, sqlMock, err := sqlmock.New()
 	require.NoError(t, err)
 	defer dbConn.Close()
 
 	columns := []string{"name"}
 	rows := sqlmock.NewRows(columns)
 
-	mockDB.ExpectQuery(selectUniqueNamesQuery).WillReturnRows(rows)
+	sqlMock.ExpectQuery(selectUniqueNamesQuery).WillReturnRows(rows)
 
-	mock := &mockDatabase{}
-	mock.On("Query", selectUniqueNamesQuery).Return(rows, nil)
+	mockDB := &mockDatabase{}
+	mockDB.On("Query", selectUniqueNamesQuery, []any{}).Return(rows, nil)
 
-	service := db.New(mock)
+	service := db.New(mockDB)
 	result, err := service.GetUniqueNames()
 
 	require.NoError(t, err)
 	assert.Equal(t, []string{}, result)
-	mock.AssertExpectations(t)
+	mockDB.AssertExpectations(t)
 }
 
 func TestDBService_Initialization(t *testing.T) {
 	t.Parallel()
 
-	mock := &mockDatabase{}
-	service := db.New(mock)
+	mockDB := &mockDatabase{}
+	service := db.New(mockDB)
 
 	assert.NotNil(t, service)
-	assert.Equal(t, mock, service.DB)
+	assert.Equal(t, mockDB, service.DB)
 }
