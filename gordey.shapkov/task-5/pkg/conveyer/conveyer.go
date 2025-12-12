@@ -41,10 +41,9 @@ func (pipe *Pipeline) register(ch string) chan string {
 
 func (pipe *Pipeline) getChan(ch string) (chan string, error) {
 	pipe.mutexChans.RLock()
+	defer pipe.mutexChans.RUnlock()
 
 	channel, exists := pipe.channels[ch]
-
-	pipe.mutexChans.RUnlock()
 
 	if !exists {
 		return nil, ErrChanNotFound
