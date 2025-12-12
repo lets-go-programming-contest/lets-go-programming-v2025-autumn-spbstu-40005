@@ -11,19 +11,33 @@ import (
 	myWifi "gordey.shapkov/task-6/internal/wifi"
 )
 
+var testTable = []struct { //nolint:gochecknoglobals
+	addrs       []string
+	names       []string
+	errWrap     string
+	errExpected error
+}{
+	{
+		addrs: []string{"00:11:22:33:44:55", "aa:bb:cc:dd:ee:ff"},
+		names: []string{"eth1", "eth2"},
+	},
+	{
+		addrs:       nil,
+		errWrap:     "getting interfaces: ",
+		errExpected: ErrExpected,
+	},
+	{
+		addrs: []string{},
+		names: []string{},
+	},
+}
+
 var ErrExpected = errors.New("expected error")
 
 //go:generate mockery --all --testonly --quiet --outpkg wifi_test --output .
-type rowTestSysInfo struct {
-	addrs       []string
-	names       []string
-	errExpected error
-}
 
 func TestGetAddresses(t *testing.T) {
 	t.Parallel()
-
-	testTable := getTestCases()
 
 	mockWifi := NewWiFiHandle(t)
 	wifiService := myWifi.WiFiService{WiFi: mockWifi}
@@ -35,7 +49,7 @@ func TestGetAddresses(t *testing.T) {
 		actualAddrs, err := wifiService.GetAddresses()
 
 		if row.errExpected != nil {
-			require.ErrorIs(t, err, row.errExpected)
+			require.ErrorContains(t, err, row.errWrap)
 
 			continue
 		}
@@ -48,8 +62,6 @@ func TestGetAddresses(t *testing.T) {
 func TestGetNames(t *testing.T) {
 	t.Parallel()
 
-	testTable := getTestCases()
-
 	mockWifi := NewWiFiHandle(t)
 	wifiService := myWifi.WiFiService{WiFi: mockWifi}
 
@@ -60,7 +72,7 @@ func TestGetNames(t *testing.T) {
 		actualNames, err := wifiService.GetNames()
 
 		if row.errExpected != nil {
-			require.ErrorIs(t, err, row.errExpected)
+			require.ErrorContains(t, err, row.errWrap)
 
 			continue
 		}
@@ -124,21 +136,4 @@ func parseMAC(macStr string) net.HardwareAddr {
 	}
 
 	return hwAddr
-}
-
-func getTestCases() []rowTestSysInfo {
-	return []rowTestSysInfo{
-		{
-			addrs: []string{"00:11:22:33:44:55", "aa:bb:cc:dd:ee:ff"},
-			names: []string{"eth1", "eth2"},
-		},
-		{
-			addrs:       nil,
-			errExpected: ErrExpected,
-		},
-		{
-			addrs: []string{},
-			names: []string{},
-		},
-	}
 }

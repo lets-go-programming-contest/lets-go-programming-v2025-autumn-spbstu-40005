@@ -10,17 +10,25 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-var ErrExpected = errors.New("expected error")
-
-type rowTestDB struct {
+var testTable = []struct { //nolint:gochecknoglobals
 	names       []string
+	errWrap     string
 	errExpected error
+}{
+	{
+		names: []string{"Ivan", "Gena228"},
+	},
+	{
+		names:       nil,
+		errWrap:     "db query: ",
+		errExpected: ErrExpected,
+	},
 }
+
+var ErrExpected = errors.New("expected error")
 
 func TestGetNames(t *testing.T) {
 	t.Parallel()
-
-	testTable := getTestCases()
 
 	mockDB, mock, err := sqlmock.New()
 	if err != nil {
@@ -32,12 +40,11 @@ func TestGetNames(t *testing.T) {
 	dbService := db.DBService{DB: mockDB}
 
 	for _, row := range testTable {
-		mock.ExpectQuery("SELECT name FROM users").WillReturnRows(helperMockDBRows(t, row.names)).
-			WillReturnError(row.errExpected)
+		mock.ExpectQuery("SELECT name FROM users").WillReturnRows(helperMockDBRows(t, row.names)).WillReturnError(row.errExpected)
 
 		names, err := dbService.GetNames()
 		if row.errExpected != nil {
-			require.ErrorIs(t, err, row.errExpected)
+			require.ErrorContains(t, err, row.errWrap)
 			require.Nil(t, names)
 
 			continue
@@ -51,8 +58,7 @@ func TestGetNames(t *testing.T) {
 		WillReturnRows(sqlmock.NewRows([]string{"name"}).AddRow(nil))
 
 	names, err := dbService.GetNames()
-	require.Error(t, err)
-	require.Contains(t, err.Error(), "rows scanning")
+	require.ErrorContains(t, err, "rows scanning")
 	require.Nil(t, names)
 
 	rows := sqlmock.NewRows([]string{"name"}).
@@ -61,15 +67,12 @@ func TestGetNames(t *testing.T) {
 	mock.ExpectQuery("SELECT name FROM users").WillReturnRows(rows)
 
 	names, err = dbService.GetNames()
-	require.Error(t, err)
-	require.Contains(t, err.Error(), "rows error")
+	require.ErrorContains(t, err, "rows error")
 	require.Nil(t, names)
 }
 
 func TestGetUniqueNames(t *testing.T) {
 	t.Parallel()
-
-	testTable := getTestCases()
 
 	mockDB, mock, err := sqlmock.New()
 	if err != nil {
@@ -81,12 +84,11 @@ func TestGetUniqueNames(t *testing.T) {
 	dbService := db.DBService{DB: mockDB}
 
 	for _, row := range testTable {
-		mock.ExpectQuery("SELECT DISTINCT name FROM users").WillReturnRows(helperMockDBRows(t, row.names)).
-			WillReturnError(row.errExpected)
+		mock.ExpectQuery("SELECT DISTINCT name FROM users").WillReturnRows(helperMockDBRows(t, row.names)).WillReturnError(row.errExpected)
 
 		names, err := dbService.GetUniqueNames()
 		if row.errExpected != nil {
-			require.ErrorIs(t, err, row.errExpected)
+			require.ErrorContains(t, err, row.errWrap)
 			require.Nil(t, names)
 
 			continue
@@ -100,8 +102,7 @@ func TestGetUniqueNames(t *testing.T) {
 		WillReturnRows(sqlmock.NewRows([]string{"name"}).AddRow(nil))
 
 	names, err := dbService.GetUniqueNames()
-	require.Error(t, err)
-	require.Contains(t, err.Error(), "rows scanning")
+	require.ErrorContains(t, err, "rows scanning")
 	require.Nil(t, names)
 
 	rows := sqlmock.NewRows([]string{"name"}).
@@ -110,8 +111,7 @@ func TestGetUniqueNames(t *testing.T) {
 	mock.ExpectQuery("SELECT DISTINCT name FROM users").WillReturnRows(rows)
 
 	names, err = dbService.GetUniqueNames()
-	require.Error(t, err)
-	require.Contains(t, err.Error(), "rows error")
+	require.ErrorContains(t, err, "rows error")
 	require.Nil(t, names)
 }
 
@@ -137,16 +137,4 @@ func TestNew(t *testing.T) {
 	service := db.New(mockDB)
 
 	require.Equal(t, mockDB, service.DB)
-}
-
-func getTestCases() []rowTestDB {
-	return []rowTestDB{
-		{
-			names: []string{"Ivan", "Gena228"},
-		},
-		{
-			names:       nil,
-			errExpected: ErrExpected,
-		},
-	}
 }
