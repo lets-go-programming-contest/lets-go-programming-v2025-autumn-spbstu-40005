@@ -122,6 +122,7 @@ func (pipe *Pipeline) RegisterSeparator(
 func (pipe *Pipeline) Run(ctx context.Context) error {
 	pipe.mutexChans.RLock()
 	defer pipe.mutexChans.RUnlock()
+
 	errgr, ctx := errgroup.WithContext(ctx)
 
 	for _, handler := range pipe.handlers {
