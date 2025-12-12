@@ -70,6 +70,7 @@ func TestGetNames(t *testing.T) {
 			setupMock: func(mock sqlmock.Sqlmock) *sqlmock.Rows {
 				rows := sqlmock.NewRows([]string{"name"}).AddRow(nil)
 				mock.ExpectQuery(queryNames).WillReturnRows(rows)
+
 				return rows
 			},
 			expectedNames: nil,
@@ -83,6 +84,7 @@ func TestGetNames(t *testing.T) {
 					AddRow("Alice").
 					RowError(0, errExpected)
 				mock.ExpectQuery(queryNames).WillReturnRows(rows)
+
 				return rows
 			},
 			expectedNames: nil,
@@ -92,7 +94,6 @@ func TestGetNames(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -142,6 +143,7 @@ func TestGetUniqueNames(t *testing.T) {
 					AddRow("John").
 					AddRow("Ivan")
 				mock.ExpectQuery(queryUniqueNames).WillReturnRows(rows)
+
 				return rows
 			},
 			expectedNames: []string{"Ivan", "John", "Ivan"},
