@@ -105,12 +105,12 @@ func (p *Pipeline) RegisterMultiplexer(
 	workerFunc func(context.Context, []chan string, chan string) error,
 	sourceNames []string,
 	destName string,
-) {
+) error {
 	p.mutex.Lock()
 	defer p.mutex.Unlock()
 
 	if len(sourceNames) == 0 {
-		return
+		return errors.New("sourceNames cannot be empty")
 	}
 
 	sources := make([]chan string, len(sourceNames))
@@ -127,15 +127,21 @@ func (p *Pipeline) RegisterMultiplexer(
 	}
 
 	p.tasks = append(p.tasks, task)
+
+	return nil
 }
 
 func (p *Pipeline) RegisterSeparator(
 	workerFunc func(context.Context, chan string, []chan string) error,
 	sourceName string,
 	destNames []string,
-) {
+) error {
 	p.mutex.Lock()
 	defer p.mutex.Unlock()
+
+	if len(destNames) == 0 {
+		return errors.New("destNames cannot be empty")
+	}
 
 	sourceChannel := p.getOrCreateChannel(sourceName)
 
@@ -151,6 +157,8 @@ func (p *Pipeline) RegisterSeparator(
 	}
 
 	p.tasks = append(p.tasks, task)
+
+	return nil
 }
 
 func (p *Pipeline) closeChannels() {

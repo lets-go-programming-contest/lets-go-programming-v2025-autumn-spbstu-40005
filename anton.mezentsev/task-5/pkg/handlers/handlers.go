@@ -8,20 +8,16 @@ import (
 )
 
 const (
-	tagDecorated      = "decorated: "
-	stopDecorator     = "no decorator"
-	stopMultiplexer   = "no multiplexer"
-	msgCannotDecorate = "can't be decorated"
-	msgEmptyOutputs   = "empty outputs channels"
-	msgEmptyInputs    = "empty inputs channels"
-	msgInputClosed    = "input channel closed"
+	tagDecorated    = "decorated: "
+	stopDecorator   = "no decorator"
+	stopMultiplexer = "no multiplexer"
 )
 
 var (
-	ErrDecorationRefused  = errors.New(msgCannotDecorate)
-	ErrEmptyOutputs       = errors.New(msgEmptyOutputs)
-	ErrEmptyInputs        = errors.New(msgEmptyInputs)
-	ErrInputChannelClosed = errors.New(msgInputClosed)
+	ErrDecorationRefused  = errors.New("can't be decorated")
+	ErrEmptyOutputs       = errors.New("empty outputs channels")
+	ErrEmptyInputs        = errors.New("empty inputs channels")
+	ErrInputChannelClosed = errors.New("input channel closed")
 )
 
 func PrefixDecoratorFunc(
