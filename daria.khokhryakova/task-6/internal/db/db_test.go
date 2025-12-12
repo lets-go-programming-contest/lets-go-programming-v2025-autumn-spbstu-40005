@@ -60,7 +60,7 @@ func TestDBService_GetNames_ScanFailure(t *testing.T) {
 	require.NoError(t, err)
 	defer mockDB.Close()
 
-	rows := sqlmock.NewRows([]string{"name"}).AddRow(123)
+	rows := sqlmock.NewRows([]string{"name"}).AddRow(nil)
 
 	mock.ExpectQuery(selectNamesQuery).WillReturnRows(rows)
 
@@ -107,7 +107,7 @@ func TestDBService_GetNames_NoData(t *testing.T) {
 	result, err := service.GetNames()
 
 	require.NoError(t, err)
-	assert.Equal(t, []string{}, result)
+	assert.Nil(t, result)
 }
 
 func TestDBService_GetUniqueNames_Success(t *testing.T) {
@@ -204,7 +204,7 @@ func TestDBService_GetUniqueNames_NoData(t *testing.T) {
 	result, err := service.GetUniqueNames()
 
 	require.NoError(t, err)
-	assert.Equal(t, []string{}, result)
+	assert.Nil(t, result)
 }
 
 func TestDBService_Initialization(t *testing.T) {
