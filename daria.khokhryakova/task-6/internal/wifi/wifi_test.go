@@ -19,13 +19,15 @@ func (m *wifiHandleMock) Interfaces() ([]*wifi.Interface, error) {
 	args := m.Called()
 
 	var result []*wifi.Interface
-	if args.Get(0) != nil {
+	value := args.Get(0)
+	if value != nil {
 		if ifaces, ok := args.Get(0).([]*wifi.Interface); ok {
 			result = ifaces
 		}
 	}
 
-	if err := args.Error(1); err != nil {
+	err := args.Error(1)
+	if err != nil {
 		return result, err
 	}
 
