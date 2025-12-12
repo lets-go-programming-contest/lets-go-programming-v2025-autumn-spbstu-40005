@@ -46,13 +46,11 @@ func (pipe *Pipeline) getChan(ch string) (chan string, error) {
 
 	pipe.mutexChans.RUnlock()
 
-	var err error = nil
-
 	if !exists {
-		err = ErrChanNotFound
+		return nil, ErrChanNotFound
 	}
 
-	return channel, err
+	return channel, nil
 }
 
 func (pipe *Pipeline) RegisterDecorator(
@@ -65,14 +63,13 @@ func (pipe *Pipeline) RegisterDecorator(
 	output string,
 ) {
 	pipe.mutexChans.Lock()
+	defer pipe.mutexChans.Unlock()
 
 	in := pipe.register(input)
 	out := pipe.register(output)
 	pipe.handlers = append(pipe.handlers, handler(func(ctx context.Context) error {
 		return function(ctx, in, out)
 	}))
-
-	pipe.mutexChans.Unlock()
 }
 
 func (pipe *Pipeline) RegisterMultiplexer(
@@ -85,6 +82,7 @@ func (pipe *Pipeline) RegisterMultiplexer(
 	output string,
 ) {
 	pipe.mutexChans.Lock()
+	defer pipe.mutexChans.Unlock()
 
 	ins := make([]chan string, len(inputs))
 	for i, ch := range inputs {
@@ -95,8 +93,6 @@ func (pipe *Pipeline) RegisterMultiplexer(
 	pipe.handlers = append(pipe.handlers, handler(func(ctx context.Context) error {
 		return function(ctx, ins, out)
 	}))
-
-	pipe.mutexChans.Unlock()
 }
 
 func (pipe *Pipeline) RegisterSeparator(
@@ -109,6 +105,7 @@ func (pipe *Pipeline) RegisterSeparator(
 	outputs []string,
 ) {
 	pipe.mutexChans.Lock()
+	defer pipe.mutexChans.Unlock()
 
 	inChan := pipe.register(input)
 	outs := make([]chan string, len(outputs))
@@ -120,12 +117,11 @@ func (pipe *Pipeline) RegisterSeparator(
 	pipe.handlers = append(pipe.handlers, handler(func(ctx context.Context) error {
 		return function(ctx, inChan, outs)
 	}))
-
-	pipe.mutexChans.Unlock()
 }
 
 func (pipe *Pipeline) Run(ctx context.Context) error {
 	pipe.mutexChans.RLock()
+	defer pipe.mutexChans.RUnlock()
 	errgr, ctx := errgroup.WithContext(ctx)
 
 	for _, handler := range pipe.handlers {
@@ -139,8 +135,6 @@ func (pipe *Pipeline) Run(ctx context.Context) error {
 	for _, ch := range pipe.channels {
 		close(ch)
 	}
-
-	pipe.mutexChans.RUnlock()
 
 	if err != nil {
 		return fmt.Errorf("pipeline failed: %w", err)
