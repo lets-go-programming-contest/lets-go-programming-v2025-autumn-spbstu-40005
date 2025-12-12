@@ -32,6 +32,7 @@ func New(size int) *Conveyer {
 		bufferSize: size,
 		channels:   make(map[string]chan string),
 		tasks:      make([]taskFunc, 0),
+		mutex:      sync.RWMutex{},
 	}
 }
 
@@ -91,15 +92,19 @@ func (c *Conveyer) Run(ctx context.Context) error {
 	errGroup, ctx := errgroup.WithContext(ctx)
 
 	c.mutex.RLock()
+
 	for _, task := range c.tasks {
 		taskFunc := task
+
 		errGroup.Go(func() error {
 			return taskFunc(ctx)
 		})
 	}
+
 	c.mutex.RUnlock()
 
 	err := errGroup.Wait()
+
 	c.closeAllChannels()
 
 	if err != nil {
@@ -123,6 +128,7 @@ func (c *Conveyer) getChannel(name string) (chan string, bool) {
 	defer c.mutex.RUnlock()
 
 	channel, exists := c.channels[name]
+
 	return channel, exists
 }
 
