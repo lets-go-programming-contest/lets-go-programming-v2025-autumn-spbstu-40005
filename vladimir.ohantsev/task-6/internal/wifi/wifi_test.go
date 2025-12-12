@@ -20,7 +20,7 @@ type testcase struct {
 	errMsg string
 }
 
-var casesWiFi = []testcase{ //nolint:gochecknoglobals
+var casesWiFi = []testcase{
 	{
 		addrs: []string{"00:11:22:33:44:55", "aa:bb:cc:dd:ee:ff"},
 		names: []string{"eth1", "eth2"},
@@ -37,12 +37,11 @@ func TestGetAddresses(t *testing.T) {
 		mockWifi := NewWiFiHandle(t)
 		wifiService := mywifi.New(mockWifi)
 
-		err := error(nil)
 		if test.errMsg != "" {
-			err = ErrSome
+			mockWifi.On("Interfaces").Return(helperMockIfaces(t, &test), ErrSome)
+		} else {
+			mockWifi.On("Interfaces").Return(helperMockIfaces(t, &test), nil)
 		}
-
-		mockWifi.On("Interfaces").Return(helperMockIfaces(t, &test), err)
 
 		actualAddrs, err := wifiService.GetAddresses()
 
