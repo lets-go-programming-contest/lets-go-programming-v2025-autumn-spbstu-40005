@@ -110,6 +110,7 @@ func TestGetNames(t *testing.T) {
 			if tc.expectedErr != nil {
 				require.Error(t, err)
 				require.ErrorIs(t, err, tc.expectedErr)
+
 				if tc.errContains != "" {
 					require.ErrorContains(t, err, tc.errContains)
 				}
@@ -154,6 +155,7 @@ func TestGetUniqueNames(t *testing.T) {
 			setupMock: func(mock sqlmock.Sqlmock) *sqlmock.Rows {
 				rows := sqlmock.NewRows([]string{"name"})
 				mock.ExpectQuery(queryUniqueNames).WillReturnRows(rows)
+
 				return rows
 			},
 			expectedNames: []string{},
@@ -163,6 +165,7 @@ func TestGetUniqueNames(t *testing.T) {
 			name: "query error",
 			setupMock: func(mock sqlmock.Sqlmock) *sqlmock.Rows {
 				mock.ExpectQuery(queryUniqueNames).WillReturnError(errExpected)
+
 				return nil
 			},
 			expectedNames: nil,
@@ -174,6 +177,7 @@ func TestGetUniqueNames(t *testing.T) {
 			setupMock: func(mock sqlmock.Sqlmock) *sqlmock.Rows {
 				rows := sqlmock.NewRows([]string{"name"}).AddRow(nil)
 				mock.ExpectQuery(queryUniqueNames).WillReturnRows(rows)
+
 				return rows
 			},
 			expectedNames: nil,
@@ -187,6 +191,7 @@ func TestGetUniqueNames(t *testing.T) {
 					AddRow("Bob").
 					RowError(0, errExpected)
 				mock.ExpectQuery(queryUniqueNames).WillReturnRows(rows)
+
 				return rows
 			},
 			expectedNames: nil,
@@ -212,6 +217,7 @@ func TestGetUniqueNames(t *testing.T) {
 			if tc.expectedErr != nil {
 				require.Error(t, err)
 				require.ErrorIs(t, err, tc.expectedErr)
+
 				if tc.errContains != "" {
 					require.ErrorContains(t, err, tc.errContains)
 				}
