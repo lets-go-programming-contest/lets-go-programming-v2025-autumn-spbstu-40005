@@ -66,6 +66,7 @@ func SeparatorFunc(ctx context.Context, input chan string, outs []chan string) e
 
 func MultiplexerFunc(ctx context.Context, ins []chan string, out chan string) error {
 	if len(ins) == 0 {
+
 		return errors.New("multiplexer: input channels slice is empty")
 	}
 
