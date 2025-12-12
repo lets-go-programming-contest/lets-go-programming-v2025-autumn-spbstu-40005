@@ -37,6 +37,7 @@ func TestGetNames(t *testing.T) {
 					AddRow("Ivan").
 					AddRow("John")
 				mock.ExpectQuery(queryNames).WillReturnRows(rows)
+
 				return rows
 			},
 			expectedNames: []string{"Ivan", "John"},
@@ -47,6 +48,7 @@ func TestGetNames(t *testing.T) {
 			setupMock: func(mock sqlmock.Sqlmock) *sqlmock.Rows {
 				rows := sqlmock.NewRows([]string{"name"})
 				mock.ExpectQuery(queryNames).WillReturnRows(rows)
+
 				return rows
 			},
 			expectedNames: []string{},
@@ -56,6 +58,7 @@ func TestGetNames(t *testing.T) {
 			name: "query error",
 			setupMock: func(mock sqlmock.Sqlmock) *sqlmock.Rows {
 				mock.ExpectQuery(queryNames).WillReturnError(errExpected)
+
 				return nil
 			},
 			expectedNames: nil,
@@ -89,7 +92,7 @@ func TestGetNames(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		tc := tc
+
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -109,6 +112,7 @@ func TestGetNames(t *testing.T) {
 				if tc.errContains != "" {
 					require.ErrorContains(t, err, tc.errContains)
 				}
+
 				require.Nil(t, names)
 			} else {
 				if tc.errContains != "" {
@@ -190,7 +194,6 @@ func TestGetUniqueNames(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -210,6 +213,7 @@ func TestGetUniqueNames(t *testing.T) {
 				if tc.errContains != "" {
 					require.ErrorContains(t, err, tc.errContains)
 				}
+
 				require.Nil(t, names)
 			} else {
 				if tc.errContains != "" {
