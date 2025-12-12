@@ -64,12 +64,11 @@ func TestGetNames(t *testing.T) {
 		mockWifi := NewWiFiHandle(t)
 		wifiService := mywifi.New(mockWifi)
 
-		err := error(nil)
 		if test.errMsg != "" {
-			err = ErrSome
+			mockWifi.On("Interfaces").Return(helperMockIfaces(t, &test), ErrSome)
+		} else {
+			mockWifi.On("Interfaces").Return(helperMockIfaces(t, &test), nil)
 		}
-
-		mockWifi.On("Interfaces").Return(helperMockIfaces(t, &test), err)
 
 		actualNames, err := wifiService.GetNames()
 
