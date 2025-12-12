@@ -7,7 +7,16 @@ import (
 	"sync"
 )
 
-var ErrNoDecorated = errors.New("can't be decorated")
+const (
+	noFoundDecorator string = "no decorator"
+	decorate         string = "decorated: "
+	noFoundMultiplex string = "no multiplexer"
+)
+
+var (
+	ErrNoDecorated   = errors.New("can't be decorated")
+	ErrNoInputChanel = errors.New("no input channels provided")
+)
 
 func PrefixDecoratorFunc(ctx context.Context, input chan string, output chan string) error {
 	defer close(output)
@@ -19,12 +28,12 @@ func PrefixDecoratorFunc(ctx context.Context, input chan string, output chan str
 				return nil
 			}
 
-			if strings.Contains(data, "no decorator") {
+			if strings.Contains(data, noFoundDecorator) {
 				return ErrNoDecorated
 			}
 
-			if !strings.HasPrefix(data, "decorated: ") {
-				data = "decorated: " + data
+			if !strings.HasPrefix(data, decorate) {
+				data = decorate + data
 			}
 			select {
 			case output <- data:
@@ -43,6 +52,10 @@ func SeparatorFunc(ctx context.Context, input chan string, outputs []chan string
 			close(ch)
 		}
 	}()
+
+	if len(outputs) == 0 {
+		return nil
+	}
 
 	counter := 0
 
@@ -72,7 +85,7 @@ func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan stri
 	if len(inputs) == 0 {
 		<-ctx.Done()
 
-		return nil
+		return ErrNoInputChanel
 	}
 
 	var wait sync.WaitGroup
@@ -90,7 +103,7 @@ func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan stri
 						return
 					}
 
-					if strings.Contains(data, "no multiplexer") {
+					if strings.Contains(data, noFoundMultiplex) {
 						continue
 					}
 					select {
