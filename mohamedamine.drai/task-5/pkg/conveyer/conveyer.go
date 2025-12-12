@@ -167,9 +167,9 @@ func (p *Pipeline) Recv(outputName string) (string, error) {
 		return "", ErrChanNotFound
 	}
 
-	value, open := <-channel
+	value, ok := <-channel
 
-	if !open {
+	if !ok {
 		return UndefinedValue, nil
 	}
 
