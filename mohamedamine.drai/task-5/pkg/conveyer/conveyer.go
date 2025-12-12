@@ -143,32 +143,36 @@ func (p *Pipeline) Run(ctx context.Context) error {
 	return nil
 }
 
-func (p *Pipeline) lookupChannel(name string) (chan string, bool) {
+func (p *Pipeline) lookupChannel(name string) (chan string, error) {
 	p.mu.RLock()
 	ch, ok := p.channels[name]
 	p.mu.RUnlock()
 
-	return ch, ok
+	if !ok {
+		return nil, ErrChanNotFound
+	}
+
+	return ch, nil
 }
 
 func (p *Pipeline) Send(inputName string, data string) error {
-	channel, exists := p.lookupChannel(inputName)
-	if !exists {
-		return ErrChanNotFound
+	channel, err := p.lookupChannel(inputName)
+	if err != nil {
+		return err
 	}
+
 	channel <- data
 
 	return nil
 }
 
 func (p *Pipeline) Recv(outputName string) (string, error) {
-	channel, exists := p.lookupChannel(outputName)
-	if !exists {
-		return "", ErrChanNotFound
+	channel, err := p.lookupChannel(outputName)
+	if err != nil {
+		return "", err
 	}
 
 	value, ok := <-channel
-
 	if !ok {
 		return UndefinedValue, nil
 	}
