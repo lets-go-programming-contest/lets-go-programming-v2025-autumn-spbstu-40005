@@ -20,14 +20,21 @@ func (m *wifiHandleMock) Interfaces() ([]*wifi.Interface, error) {
 
 	var result []*wifi.Interface
 	if args.Get(0) != nil {
-		result = args.Get(0).([]*wifi.Interface)
+		if ifaces, ok := args.Get(0).([]*wifi.Interface); ok {
+			result = ifaces
+		}
 	}
 
-	return result, args.Error(1)
+	if err := args.Error(1); err != nil {
+		return result, err
+	}
+
+	return result, nil
 }
 
 func createTestInterface(name string, addr string) *wifi.Interface {
 	hwAddr, _ := net.ParseMAC(addr)
+
 	return &wifi.Interface{
 		Name:         name,
 		HardwareAddr: hwAddr,
