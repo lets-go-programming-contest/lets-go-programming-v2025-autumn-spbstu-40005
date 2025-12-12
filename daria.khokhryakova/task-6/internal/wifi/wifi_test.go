@@ -11,11 +11,11 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-type testWiFiHandle struct {
+type wifiHandleMock struct {
 	mock.Mock
 }
 
-func (m *testWiFiHandle) Interfaces() ([]*wifi.Interface, error) {
+func (m *wifiHandleMock) Interfaces() ([]*wifi.Interface, error) {
 	args := m.Called()
 
 	var result []*wifi.Interface
@@ -37,7 +37,7 @@ func createTestInterface(name string, addr string) *wifi.Interface {
 func TestWiFiService_GetAddresses_Success(t *testing.T) {
 	t.Parallel()
 
-	mock := &testWiFiHandle{}
+	mock := &wifiHandleMock{}
 	interfaces := []*wifi.Interface{
 		createTestInterface("wlan0", "00:11:22:33:44:55"),
 		createTestInterface("wlan1", "aa:bb:cc:dd:ee:ff"),
@@ -57,7 +57,7 @@ func TestWiFiService_GetAddresses_Success(t *testing.T) {
 func TestWiFiService_GetAddresses_InterfaceFetchError(t *testing.T) {
 	t.Parallel()
 
-	mock := &testWiFiHandle{}
+	mock := &wifiHandleMock{}
 	mock.On("Interfaces").Return(([]*wifi.Interface)(nil), assert.AnError)
 
 	service := myWifi.New(mock)
@@ -72,7 +72,7 @@ func TestWiFiService_GetAddresses_InterfaceFetchError(t *testing.T) {
 func TestWiFiService_GetAddresses_EmptyList(t *testing.T) {
 	t.Parallel()
 
-	mock := &testWiFiHandle{}
+	mock := &wifiHandleMock{}
 	mock.On("Interfaces").Return([]*wifi.Interface{}, nil)
 
 	service := myWifi.New(mock)
@@ -86,7 +86,7 @@ func TestWiFiService_GetAddresses_EmptyList(t *testing.T) {
 func TestWiFiService_GetAddresses_NullMACAddress(t *testing.T) {
 	t.Parallel()
 
-	mock := &testWiFiHandle{}
+	mock := &wifiHandleMock{}
 	interfaces := []*wifi.Interface{
 		{
 			Name:         "wlan0",
@@ -107,7 +107,7 @@ func TestWiFiService_GetAddresses_NullMACAddress(t *testing.T) {
 func TestWiFiService_GetNames_Success(t *testing.T) {
 	t.Parallel()
 
-	mock := &testWiFiHandle{}
+	mock := &wifiHandleMock{}
 	interfaces := []*wifi.Interface{
 		createTestInterface("wlan0", "00:11:22:33:44:55"),
 		createTestInterface("eth1", "11:22:33:44:55:66"),
@@ -126,7 +126,7 @@ func TestWiFiService_GetNames_Success(t *testing.T) {
 func TestWiFiService_GetNames_InterfaceFetchError(t *testing.T) {
 	t.Parallel()
 
-	mock := &testWiFiHandle{}
+	mock := &wifiHandleMock{}
 	mock.On("Interfaces").Return(([]*wifi.Interface)(nil), assert.AnError)
 
 	service := myWifi.New(mock)
@@ -141,7 +141,7 @@ func TestWiFiService_GetNames_InterfaceFetchError(t *testing.T) {
 func TestWiFiService_GetNames_EmptyList(t *testing.T) {
 	t.Parallel()
 
-	mock := &testWiFiHandle{}
+	mock := &wifiHandleMock{}
 	mock.On("Interfaces").Return([]*wifi.Interface{}, nil)
 
 	service := myWifi.New(mock)
@@ -155,7 +155,7 @@ func TestWiFiService_GetNames_EmptyList(t *testing.T) {
 func TestWiFiService_GetNames_BlankInterfaceName(t *testing.T) {
 	t.Parallel()
 
-	mock := &testWiFiHandle{}
+	mock := &wifiHandleMock{}
 	interfaces := []*wifi.Interface{
 		{
 			Name:         "",
@@ -175,7 +175,7 @@ func TestWiFiService_GetNames_BlankInterfaceName(t *testing.T) {
 func TestWiFiService_Initialization(t *testing.T) {
 	t.Parallel()
 
-	mock := &testWiFiHandle{}
+	mock := &wifiHandleMock{}
 	service := myWifi.New(mock)
 
 	assert.NotNil(t, service)
