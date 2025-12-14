@@ -7,11 +7,19 @@ import (
 	"sync"
 )
 
-var ErrCannotBeDecorated = errors.New("can't be decorated")
+var (
+	ErrCannotBeDecorated = errors.New("can't be decorated")
+	ErrInput = errors.New("no input channels provided")
+	ErrOutput = errors.New("no output channels provided")
+)
+
+const (
+	noDecoratorPrefix   = "no decorator"
+	decoratedPrefix     = "decorated: "
+	noMultiplexerString = "no multiplexer"
+)
 
 func PrefixDecoratorFunc(ctx context.Context, input chan string, output chan string) error {
-	defer close(output)
-
 	for {
 		select {
 		case <-ctx.Done():
@@ -21,12 +29,12 @@ func PrefixDecoratorFunc(ctx context.Context, input chan string, output chan str
 				return nil
 			}
 
-			if strings.Contains(data, "no decorator") {
+			if strings.Contains(data, noDecoratorPrefix) {
 				return ErrCannotBeDecorated
 			}
 
-			if !strings.HasPrefix(data, "decorated: ") {
-				data = "decorated: " + data
+			if !strings.HasPrefix(data, decoratedPrefix) {
+				data = decoratedPrefix + data
 			}
 
 			select {
@@ -39,14 +47,8 @@ func PrefixDecoratorFunc(ctx context.Context, input chan string, output chan str
 }
 
 func SeparatorFunc(ctx context.Context, input chan string, outputs []chan string) error {
-	defer func() {
-		for _, outputChannel := range outputs {
-			close(outputChannel)
-		}
-	}()
-
 	if len(outputs) == 0 {
-		return nil
+		return ErrOutput
 	}
 
 	counter := 0
@@ -74,10 +76,8 @@ func SeparatorFunc(ctx context.Context, input chan string, outputs []chan string
 }
 
 func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan string) error {
-	defer close(output)
-
 	if len(inputs) == 0 {
-		return nil
+		return ErrInput
 	}
 
 	waitGroup := sync.WaitGroup{}
@@ -98,7 +98,7 @@ func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan stri
 						return
 					}
 
-					if strings.Contains(data, "no multiplexer") {
+					if strings.Contains(data, noMultiplexerString) {
 						continue
 					}
 
@@ -115,6 +115,5 @@ func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan stri
 	}
 
 	waitGroup.Wait()
-
 	return nil
 }
