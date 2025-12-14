@@ -18,7 +18,6 @@ func TestNew(t *testing.T) {
 	service := New(mockWiFi)
 
 	require.Equal(t, mockWiFi, service.WiFi, "Expected WiFi to be set")
-
 	mockWiFi.AssertExpectations(t)
 }
 
