@@ -10,21 +10,28 @@ var ErrChanNotFound = errors.New("chan not found")
 
 const undefined = "undefined"
 
+type TaskFunc func(ctx context.Context) error
+
 type Conveyer struct {
+	mu       sync.RWMutex
 	channels map[string]chan string
 	size     int
-	tasks    []func(ctx context.Context) error
+	tasks    []TaskFunc
 }
 
 func New(size int) *Conveyer {
 	return &Conveyer{
+		mu:       sync.RWMutex{},
 		channels: make(map[string]chan string),
 		size:     size,
-		tasks:    []func(ctx context.Context) error{},
+		tasks:    []TaskFunc{},
 	}
 }
 
 func (c *Conveyer) getOrCreateChannel(name string) chan string {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
 	if channel, exists := c.channels[name]; exists {
 		return channel
 	}
@@ -86,9 +93,9 @@ func (c *Conveyer) Run(ctx context.Context) error {
 	waitGroup := sync.WaitGroup{}
 	errorChannel := make(chan error, len(c.tasks))
 
-	for _, currentTask := range c.tasks {
-		waitGroup.Add(1)
+	waitGroup.Add(len(c.tasks))
 
+	for _, currentTask := range c.tasks {
 		taskCopy := currentTask
 		taskFunc := func() {
 			defer waitGroup.Done()
@@ -118,18 +125,23 @@ func (c *Conveyer) Run(ctx context.Context) error {
 }
 
 func (c *Conveyer) Send(input string, data string) error {
+	c.mu.RLock()
 	channel, exists := c.channels[input]
+	c.mu.RUnlock()
+
 	if !exists {
 		return ErrChanNotFound
 	}
 
 	channel <- data
-
 	return nil
 }
 
 func (c *Conveyer) Recv(output string) (string, error) {
+	c.mu.RLock()
 	channel, exists := c.channels[output]
+	c.mu.RUnlock()
+
 	if !exists {
 		return "", ErrChanNotFound
 	}
