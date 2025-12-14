@@ -107,6 +107,7 @@ func TestDBService_GetNames_QueryError(t *testing.T) {
 	names, err := service.GetNames()
 	require.Error(t, err, "Expected error")
 	require.Nil(t, names, "Expected nil result on error")
+	require.Contains(t, err.Error(), "db query", "Error should contain 'db query'")
 
 	require.NoError(t, mock.ExpectationsWereMet(), "Unfulfilled expectations")
 }
@@ -127,6 +128,7 @@ func TestDBService_GetNames_ScanError(t *testing.T) {
 	names, err := service.GetNames()
 	require.Error(t, err, "Expected error")
 	require.Nil(t, names, "Expected nil result on error")
+	require.Contains(t, err.Error(), "rows scanning", "Error should contain 'rows scanning'")
 
 	require.NoError(t, mock.ExpectationsWereMet(), "Unfulfilled expectations")
 }
@@ -148,6 +150,7 @@ func TestDBService_GetNames_RowsError(t *testing.T) {
 	names, err := service.GetNames()
 	require.Error(t, err, "Expected error")
 	require.Nil(t, names, "Expected nil result on error")
+	require.Contains(t, err.Error(), "rows error", "Error should contain 'rows error'")
 
 	require.NoError(t, mock.ExpectationsWereMet(), "Unfulfilled expectations")
 }
@@ -239,6 +242,7 @@ func TestDBService_GetUniqueNames_QueryError(t *testing.T) {
 	names, err := service.GetUniqueNames()
 	require.Error(t, err, "Expected error")
 	require.Nil(t, names, "Expected nil result on error")
+	require.Contains(t, err.Error(), "db query", "Error should contain 'db query'")
 
 	require.NoError(t, mock.ExpectationsWereMet(), "Unfulfilled expectations")
 }
@@ -259,6 +263,7 @@ func TestDBService_GetUniqueNames_ScanError(t *testing.T) {
 	names, err := service.GetUniqueNames()
 	require.Error(t, err, "Expected error")
 	require.Nil(t, names, "Expected nil result on error")
+	require.Contains(t, err.Error(), "rows scanning", "Error should contain 'rows scanning'")
 
 	require.NoError(t, mock.ExpectationsWereMet(), "Unfulfilled expectations")
 }
@@ -280,6 +285,84 @@ func TestDBService_GetUniqueNames_RowsError(t *testing.T) {
 	names, err := service.GetUniqueNames()
 	require.Error(t, err, "Expected error")
 	require.Nil(t, names, "Expected nil result on error")
+	require.Contains(t, err.Error(), "rows error", "Error should contain 'rows error'")
 
 	require.NoError(t, mock.ExpectationsWereMet(), "Unfulfilled expectations")
+}
+
+func TestDBService_GetNames_ErrorClosesRows(t *testing.T) {
+	t.Parallel()
+
+	db, mock, err := sqlmock.New()
+	require.NoError(t, err)
+	defer db.Close()
+
+	mock.ExpectQuery("SELECT name FROM users").
+		WillReturnError(errors.New("database error"))
+
+	service := New(db)
+	names, err := service.GetNames()
+	require.Error(t, err)
+	require.Nil(t, names)
+
+	require.NoError(t, mock.ExpectationsWereMet())
+}
+
+func TestDBService_GetNames_SuccessClosesRows(t *testing.T) {
+	t.Parallel()
+
+	db, mock, err := sqlmock.New()
+	require.NoError(t, err)
+	defer db.Close()
+
+	rows := sqlmock.NewRows([]string{"name"}).
+		AddRow("Ivan").
+		AddRow("Maria")
+	mock.ExpectQuery("SELECT name FROM users").WillReturnRows(rows)
+
+	service := New(db)
+	names, err := service.GetNames()
+	require.NoError(t, err)
+	require.Len(t, names, 2)
+
+	require.NoError(t, mock.ExpectationsWereMet())
+}
+
+func TestDBService_GetNames_DeferClose(t *testing.T) {
+	t.Parallel()
+
+	db, mock, err := sqlmock.New()
+	require.NoError(t, err)
+	defer db.Close()
+
+	rows := sqlmock.NewRows([]string{"name"}).
+		AddRow("Ivan")
+	mock.ExpectQuery("SELECT name FROM users").WillReturnRows(rows)
+
+	service := New(db)
+	names, err := service.GetNames()
+	require.NoError(t, err)
+	require.Len(t, names, 1)
+
+	require.NoError(t, mock.ExpectationsWereMet())
+}
+
+func TestDatabaseInterface(t *testing.T) {
+	t.Parallel()
+
+	db, mock, err := sqlmock.New()
+	require.NoError(t, err)
+	defer db.Close()
+
+	var _ Database = db
+
+	rows := sqlmock.NewRows([]string{"name"}).AddRow("Ivan")
+	mock.ExpectQuery("SELECT name FROM users").WillReturnRows(rows)
+
+	service := New(db)
+	names, err := service.GetNames()
+	require.NoError(t, err)
+	require.Len(t, names, 1)
+
+	require.NoError(t, mock.ExpectationsWereMet())
 }

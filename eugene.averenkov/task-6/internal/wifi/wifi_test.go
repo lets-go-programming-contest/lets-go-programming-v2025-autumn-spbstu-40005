@@ -76,6 +76,7 @@ func TestWiFiService_GetAddresses_Error(t *testing.T) {
 	addresses, err := service.GetAddresses()
 	require.Error(t, err, "Expected error")
 	require.Nil(t, addresses, "Expected nil result on error")
+	require.Contains(t, err.Error(), "getting interfaces", "Error should contain 'getting interfaces'")
 }
 
 func TestWiFiService_GetNames_Success(t *testing.T) {
@@ -131,6 +132,7 @@ func TestWiFiService_GetNames_Error(t *testing.T) {
 	names, err := service.GetNames()
 	require.Error(t, err, "Expected error")
 	require.Nil(t, names, "Expected nil result on error")
+	require.Contains(t, err.Error(), "getting interfaces", "Error should contain 'getting interfaces'")
 }
 
 func TestWiFiService_BothMethodsSameData(t *testing.T) {
@@ -208,4 +210,68 @@ func TestWiFiService_InterfaceWithEmptyName(t *testing.T) {
 	require.Len(t, names, 2, "Expected 2 names")
 	require.Equal(t, "", names[0], "Expected empty name")
 	require.Equal(t, "wlan1", names[1], "Expected wlan1 name")
+}
+
+func TestWiFiService_MakeWithCapacity(t *testing.T) {
+	t.Parallel()
+
+	mockHandle := &mockWiFiHandle{
+		interfacesFunc: func() ([]*wifi.Interface, error) {
+			return []*wifi.Interface{
+				createMockInterface("wlan0", "00:11:22:33:44:55"),
+				createMockInterface("wlan1", "aa:bb:cc:dd:ee:ff"),
+			}, nil
+		},
+	}
+
+	service := New(mockHandle)
+
+	addresses, err := service.GetAddresses()
+	require.NoError(t, err)
+	require.Len(t, addresses, 2)
+
+	names, err := service.GetNames()
+	require.NoError(t, err)
+	require.Len(t, names, 2)
+}
+
+func TestWiFiService_AppendInLoop(t *testing.T) {
+	t.Parallel()
+
+	mockHandle := &mockWiFiHandle{
+		interfacesFunc: func() ([]*wifi.Interface, error) {
+			return []*wifi.Interface{
+				createMockInterface("eth0", "11:22:33:44:55:66"),
+				createMockInterface("eth1", "22:33:44:55:66:77"),
+				createMockInterface("eth2", "33:44:55:66:77:88"),
+			}, nil
+		},
+	}
+
+	service := New(mockHandle)
+
+	addresses, err := service.GetAddresses()
+	require.NoError(t, err)
+	require.Len(t, addresses, 3)
+
+	names, err := service.GetNames()
+	require.NoError(t, err)
+	require.Len(t, names, 3)
+}
+
+func TestWiFiHandleInterface(t *testing.T) {
+	t.Parallel()
+
+	mockHandle := &mockWiFiHandle{
+		interfacesFunc: func() ([]*wifi.Interface, error) {
+			return []*wifi.Interface{
+				createMockInterface("wlan0", "00:11:22:33:44:55"),
+			}, nil
+		},
+	}
+
+	var _ WiFiHandle = mockHandle
+
+	service := New(mockHandle)
+	require.NotNil(t, service)
 }
