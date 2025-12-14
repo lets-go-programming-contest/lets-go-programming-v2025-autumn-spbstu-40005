@@ -12,7 +12,7 @@ import (
 
 //go:generate mockery --all --testonly --quiet --outpkg wifi_test --output .
 
-var TestErr = errors.New("test error")
+var ErrTest = errors.New("test error")
 
 func createMAC(s string) net.HardwareAddr {
 	addr, _ := net.ParseMAC(s)
@@ -46,12 +46,12 @@ func TestRetrieveMACs_Failed(t *testing.T) {
 	mockHandler := NewWiFiHandle(t)
 	service := myWifi.New(mockHandler)
 
-	mockHandler.On("Interfaces").Return(nil, TestErr)
+	mockHandler.On("Interfaces").Return(nil, ErrTest)
 
 	macs, err := service.GetAddresses()
 	require.Error(t, err)
 	require.Contains(t, err.Error(), "getting interfaces")
-	require.ErrorIs(t, err, TestErr)
+	require.ErrorIs(t, err, ErrTest)
 	require.Nil(t, macs)
 }
 
@@ -78,12 +78,12 @@ func TestRetrieveInterfaceNames_Failed(t *testing.T) {
 	mockHandler := NewWiFiHandle(t)
 	service := myWifi.New(mockHandler)
 
-	mockHandler.On("Interfaces").Return(nil, TestErr)
+	mockHandler.On("Interfaces").Return(nil, ErrTest)
 
 	names, err := service.GetNames()
 	require.Error(t, err)
 	require.Contains(t, err.Error(), "getting interfaces")
-	require.ErrorIs(t, err, TestErr)
+	require.ErrorIs(t, err, ErrTest)
 	require.Nil(t, names)
 }
 
