@@ -116,7 +116,7 @@ func (c *Conveyer) Run(ctx context.Context) error {
 		close(errorChannel)
 
 		c.mu.Lock()
-		for name, channel := range c.channels {
+		for _, channel := range c.channels {
 			close(channel)
 		}
 
