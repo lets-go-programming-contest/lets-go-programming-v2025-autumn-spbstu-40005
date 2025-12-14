@@ -118,8 +118,8 @@ func (c *Conveyer) Run(ctx context.Context) error {
 		c.mu.Lock()
 		for name, channel := range c.channels {
 			close(channel)
-			delete(c.channels, name)
 		}
+
 		c.mu.Unlock()
 	}()
 
