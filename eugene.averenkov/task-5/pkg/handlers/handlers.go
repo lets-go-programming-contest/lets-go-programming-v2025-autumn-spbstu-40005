@@ -9,8 +9,8 @@ import (
 
 var (
 	ErrCannotBeDecorated = errors.New("can't be decorated")
-	ErrInput = errors.New("no input channels provided")
-	ErrOutput = errors.New("no output channels provided")
+	ErrInput             = errors.New("no input channels provided")
+	ErrOutput            = errors.New("no output channels provided")
 )
 
 const (
@@ -115,5 +115,6 @@ func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan stri
 	}
 
 	waitGroup.Wait()
+
 	return nil
 }
