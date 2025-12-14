@@ -16,6 +16,7 @@ var TestErr = errors.New("test error")
 
 func createMAC(s string) net.HardwareAddr {
 	addr, _ := net.ParseMAC(s)
+
 	return addr
 }
 
