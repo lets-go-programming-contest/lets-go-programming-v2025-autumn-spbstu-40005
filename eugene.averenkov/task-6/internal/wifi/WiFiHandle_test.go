@@ -2,7 +2,6 @@ package wifi
 
 import (
 	"fmt"
-	"testing"
 
 	"github.com/mdlayher/wifi"
 	"github.com/stretchr/testify/mock"
