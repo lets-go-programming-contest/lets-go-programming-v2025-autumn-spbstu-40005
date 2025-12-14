@@ -114,6 +114,13 @@ func (c *Conveyer) Run(ctx context.Context) error {
 	go func() {
 		waitGroup.Wait()
 		close(errorChannel)
+
+		c.mu.Lock()
+		for name, channel := range c.channels {
+			close(channel)
+			delete(c.channels, name)
+		}
+		c.mu.Unlock()
 	}()
 
 	select {
