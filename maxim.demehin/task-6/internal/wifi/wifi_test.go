@@ -38,3 +38,63 @@ func TestRetrieveMACs_Successful(t *testing.T) {
 		createMAC("aa:bb:cc:dd:ee:ff"),
 	}, macs)
 }
+
+func TestRetrieveMACs_Failed(t *testing.T) {
+	t.Parallel()
+
+	mockHandler := NewWiFiHandle(t)
+	service := myWifi.New(mockHandler)
+
+	mockHandler.On("Interfaces").Return(nil, TestErr)
+
+	macs, err := service.GetAddresses()
+	require.Error(t, err)
+	require.Contains(t, err.Error(), "getting interfaces")
+	require.ErrorIs(t, err, TestErr)
+	require.Nil(t, macs)
+}
+
+func TestRetrieveInterfaceNames_Successful(t *testing.T) {
+	t.Parallel()
+
+	mockHandler := NewWiFiHandle(t)
+	service := myWifi.New(mockHandler)
+
+	networkIfaces := []*wifi.Interface{
+		{Name: "wireless0", HardwareAddr: createMAC("11:22:33:44:55:66")},
+		{Name: "ethernet1", HardwareAddr: createMAC("aa:bb:cc:dd:ee:ff")},
+	}
+	mockHandler.On("Interfaces").Return(networkIfaces, nil)
+
+	names, err := service.GetNames()
+	require.NoError(t, err)
+	require.Equal(t, []string{"wireless0", "ethernet1"}, names)
+}
+
+func TestRetrieveInterfaceNames_Failed(t *testing.T) {
+	t.Parallel()
+
+	mockHandler := NewWiFiHandle(t)
+	service := myWifi.New(mockHandler)
+
+	mockHandler.On("Interfaces").Return(nil, TestErr)
+
+	names, err := service.GetNames()
+	require.Error(t, err)
+	require.Contains(t, err.Error(), "getting interfaces")
+	require.ErrorIs(t, err, TestErr)
+	require.Nil(t, names)
+}
+
+func TestRetrieveMACs_EmptyResult(t *testing.T) {
+	t.Parallel()
+
+	mockHandler := NewWiFiHandle(t)
+	service := myWifi.New(mockHandler)
+
+	mockHandler.On("Interfaces").Return([]*wifi.Interface{}, nil)
+
+	macs, err := service.GetAddresses()
+	require.NoError(t, err)
+	require.Empty(t, macs)
+}
