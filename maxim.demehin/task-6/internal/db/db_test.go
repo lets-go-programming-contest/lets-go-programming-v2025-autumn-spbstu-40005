@@ -97,3 +97,74 @@ func TestGetUniqueNames_RowIssue(t *testing.T) {
 	require.Contains(t, err.Error(), "rows error")
 	require.Nil(t, names)
 }
+
+func TestGetNames_Successful(t *testing.T) {
+	t.Parallel()
+
+	mockDB, mock, err := sqlmock.New()
+	require.NoError(t, err)
+	defer mockDB.Close()
+
+	service := db.DBService{DB: mockDB}
+
+	rows := sqlmock.NewRows([]string{"name"}).AddRow("Alex").AddRow("Maria")
+	mock.ExpectQuery(selectAllNames).WillReturnRows(rows)
+
+	names, err := service.GetNames()
+	require.NoError(t, err)
+	require.Equal(t, []string{"Alex", "Maria"}, names)
+}
+
+func TestGetNames_FailedQuery(t *testing.T) {
+	t.Parallel()
+
+	mockDB, mock, err := sqlmock.New()
+	require.NoError(t, err)
+	defer mockDB.Close()
+
+	service := db.DBService{DB: mockDB}
+
+	mock.ExpectQuery(selectAllNames).WillReturnError(TestError)
+
+	names, err := service.GetNames()
+	require.Error(t, err)
+	require.Contains(t, err.Error(), "db query")
+	require.Nil(t, names)
+}
+
+func TestGetNames_BadScan(t *testing.T) {
+	t.Parallel()
+
+	mockDB, mock, err := sqlmock.New()
+	require.NoError(t, err)
+	defer mockDB.Close()
+
+	service := db.DBService{DB: mockDB}
+
+	rows := sqlmock.NewRows([]string{"name"}).AddRow(nil)
+	mock.ExpectQuery(selectAllNames).WillReturnRows(rows)
+
+	names, err := service.GetNames()
+	require.Error(t, err)
+	require.Contains(t, err.Error(), "rows scanning")
+	require.Nil(t, names)
+}
+
+func TestGetNames_ProblemRows(t *testing.T) {
+	t.Parallel()
+
+	mockDB, mock, err := sqlmock.New()
+	require.NoError(t, err)
+	defer mockDB.Close()
+
+	service := db.DBService{DB: mockDB}
+
+	rows := sqlmock.NewRows([]string{"name"}).AddRow("Peter")
+	rows.RowError(0, TestError)
+	mock.ExpectQuery(selectAllNames).WillReturnRows(rows)
+
+	names, err := service.GetNames()
+	require.Error(t, err)
+	require.Contains(t, err.Error(), "rows error")
+	require.Nil(t, names)
+}
