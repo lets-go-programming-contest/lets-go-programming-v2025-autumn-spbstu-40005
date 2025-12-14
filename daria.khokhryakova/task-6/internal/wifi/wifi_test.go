@@ -1,6 +1,7 @@
 package wifi_test
 
 import (
+	"fmt"
 	"net"
 	"testing"
 
@@ -18,8 +19,10 @@ type wifiHandleMock struct {
 func (m *wifiHandleMock) Interfaces() ([]*wifi.Interface, error) {
 	args := m.Called()
 
-	var result []*wifi.Interface
 	value := args.Get(0)
+
+	var result []*wifi.Interface
+
 	if value != nil {
 		if ifaces, ok := args.Get(0).([]*wifi.Interface); ok {
 			result = ifaces
@@ -28,7 +31,7 @@ func (m *wifiHandleMock) Interfaces() ([]*wifi.Interface, error) {
 
 	err := args.Error(1)
 	if err != nil {
-		return result, err
+		return result, fmt.Errorf("mock error: %w", err)
 	}
 
 	return result, nil
