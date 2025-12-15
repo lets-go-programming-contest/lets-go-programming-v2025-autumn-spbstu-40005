@@ -3,6 +3,7 @@ module github.com/KostyukovMichael/lets-go-programming-v2025-autumn-spbstu-40005
 go 1.22.7
 
 require (
+	github.com/DATA-DOG/go-sqlmock v1.5.2
 	github.com/mdlayher/wifi v0.3.0
 	github.com/stretchr/testify v1.11.1
 )
