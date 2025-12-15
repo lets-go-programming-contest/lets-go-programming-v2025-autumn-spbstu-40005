@@ -13,10 +13,12 @@ const undefinedValue = "undefined"
 
 var errMsgChannelNotFound = errors.New("chan not found")
 
+type WorkerFunc func(ctx context.Context) error
+
 type Conveyer struct {
 	size     int
 	channels map[string]chan string
-	workers  []func(ctx context.Context) error
+	workers  []WorkerFunc
 	mutex    sync.RWMutex
 }
 
@@ -24,7 +26,7 @@ func New(size int) *Conveyer {
 	return &Conveyer{
 		size:     size,
 		channels: make(map[string]chan string),
-		workers:  make([]func(ctx context.Context) error, 0),
+		workers:  make([]WorkerFunc, 0),
 		mutex:    sync.RWMutex{},
 	}
 }
@@ -38,6 +40,17 @@ func (c *Conveyer) getOrCreateChannel(name string) chan string {
 	c.channels[name] = ch
 
 	return ch
+}
+
+func (c *Conveyer) getChannel(name string) (chan string, error) {
+	c.mutex.RLock()
+	defer c.mutex.RUnlock()
+
+	channel, exists := c.channels[name]
+	if !exists {
+		return nil, errMsgChannelNotFound
+	}
+	return channel, nil
 }
 
 func (c *Conveyer) RegisterDecorator(
@@ -124,12 +137,9 @@ func (c *Conveyer) closeAll() {
 }
 
 func (c *Conveyer) Send(name string, data string) error {
-	c.mutex.RLock()
-	channel, exists := c.channels[name]
-	c.mutex.RUnlock()
-
-	if !exists {
-		return errMsgChannelNotFound
+	channel, err := c.getChannel(name)
+	if err != nil {
+		return err
 	}
 
 	channel <- data
@@ -138,12 +148,9 @@ func (c *Conveyer) Send(name string, data string) error {
 }
 
 func (c *Conveyer) Recv(name string) (string, error) {
-	c.mutex.RLock()
-	channel, exists := c.channels[name]
-	c.mutex.RUnlock()
-
-	if !exists {
-		return "", errMsgChannelNotFound
+	channel, err := c.getChannel(name)
+	if err != nil {
+		return "", err
 	}
 
 	value, ok := <-channel

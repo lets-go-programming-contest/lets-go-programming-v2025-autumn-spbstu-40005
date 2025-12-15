@@ -16,6 +16,7 @@ const (
 var (
 	errCantDecorate = errors.New("can't be decorated")
 	errEmptyOutputs = errors.New("outputs cannot be empty")
+	errNoInputs     = errors.New("no input channels")
 )
 
 func PrefixDecoratorFunc(ctx context.Context, input chan string, output chan string) error {
@@ -75,7 +76,7 @@ func SeparatorFunc(ctx context.Context, input chan string, outputs []chan string
 
 func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan string) error {
 	if len(inputs) == 0 {
-		return nil
+		return errNoInputs
 	}
 
 	waitGroup := sync.WaitGroup{}
