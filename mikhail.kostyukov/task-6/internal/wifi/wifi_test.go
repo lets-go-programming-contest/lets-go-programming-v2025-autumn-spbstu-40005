@@ -5,10 +5,9 @@ import (
 	"net"
 	"testing"
 
+	myWiFi "github.com/KostyukovMichael/lets-go-programming-v2025-autumn-spbstu-40005/task-6/internal/wifi"
 	"github.com/mdlayher/wifi"
 	"github.com/stretchr/testify/require"
-
-	myWiFi "github.com/KostyukovMichael/lets-go-programming-v2025-autumn-spbstu-40005/task-6/internal/wifi"
 )
 
 //go:generate mockery --all --testonly --quiet --outpkg wifi_test --output .
@@ -69,20 +68,23 @@ func TestGetAddresses(t *testing.T) {
 		},
 	}
 
-	for _, tc := range tests {
-		t.Run(tc.name, func(t *testing.T) {
+	for _, testCase := range tests {
+		t.Run(testCase.name, func(t *testing.T) {
+			t.Parallel()
+
 			mockWiFi := NewWiFiHandle(t)
 			service := myWiFi.New(mockWiFi)
 
-			mockWiFi.On("Interfaces").Return(tc.mockReturnInterfaces, tc.mockReturnError)
+			mockWiFi.On("Interfaces").Return(testCase.mockReturnInterfaces, testCase.mockReturnError)
+
 			addrs, err := service.GetAddresses()
 
-			if tc.expectError {
+			if testCase.expectError {
 				require.Error(t, err)
-				require.ErrorIs(t, err, tc.mockReturnError)
+				require.ErrorIs(t, err, testCase.mockReturnError)
 			} else {
 				require.NoError(t, err)
-				require.Equal(t, tc.expectedAddrs, addrs)
+				require.Equal(t, testCase.expectedAddrs, addrs)
 			}
 		})
 	}
@@ -123,20 +125,24 @@ func TestGetNames(t *testing.T) {
 			expectError:          false,
 		},
 	}
-	for _, tc := range tests {
-		t.Run(tc.name, func(t *testing.T) {
+
+	for _, testCase := range tests {
+		t.Run(testCase.name, func(t *testing.T) {
+			t.Parallel()
+
 			mockWiFi := NewWiFiHandle(t)
 			service := myWiFi.New(mockWiFi)
 
-			mockWiFi.On("Interfaces").Return(tc.mockReturnInterfaces, tc.mockReturnError)
+			mockWiFi.On("Interfaces").Return(testCase.mockReturnInterfaces, testCase.mockReturnError)
+
 			names, err := service.GetNames()
 
-			if tc.expectError {
+			if testCase.expectError {
 				require.Error(t, err)
-				require.ErrorIs(t, err, tc.mockReturnError)
+				require.ErrorIs(t, err, testCase.mockReturnError)
 			} else {
 				require.NoError(t, err)
-				require.Equal(t, tc.expectedNames, names)
+				require.Equal(t, testCase.expectedNames, names)
 			}
 		})
 	}
