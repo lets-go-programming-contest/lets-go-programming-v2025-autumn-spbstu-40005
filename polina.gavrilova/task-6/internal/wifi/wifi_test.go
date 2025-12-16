@@ -12,6 +12,11 @@ import (
 
 //go:generate mockery --all --testonly --quiet --outpkg wifi_test --output .
 
+var (
+	ErrPermissionDenied = errors.New("permission denied")
+	ErrDriverNotLoaded  = errors.New("driver not loaded")
+)
+
 func TestWiFiService_GetAddresses(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 		mockWiFi := &WiFiHandle{}
@@ -34,7 +39,7 @@ func TestWiFiService_GetAddresses(t *testing.T) {
 		mockWiFi := &WiFiHandle{}
 		service := myWifi.New(mockWiFi)
 
-		mockWiFi.On("Interfaces").Return(nil, errors.New("permission denied"))
+		mockWiFi.On("Interfaces").Return(nil, ErrPermissionDenied)
 
 		addrs, err := service.GetAddresses()
 		require.Error(t, err)
@@ -63,7 +68,7 @@ func TestWiFiService_GetNames(t *testing.T) {
 		mockWiFi := &WiFiHandle{}
 		service := myWifi.New(mockWiFi)
 
-		mockWiFi.On("Interfaces").Return(nil, errors.New("driver not loaded"))
+		mockWiFi.On("Interfaces").Return(nil, ErrDriverNotLoaded)
 
 		names, err := service.GetNames()
 		require.Error(t, err)
