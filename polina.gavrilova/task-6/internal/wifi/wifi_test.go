@@ -17,8 +17,8 @@ func TestWiFiService_GetAddresses(t *testing.T) {
 		mockWiFi := &WiFiHandle{}
 		service := myWifi.New(mockWiFi)
 
-		hw1, _ := net.ParseMAC("00:11:22:33:44:55")
-		hw2, _ := net.ParseMAC("aa:bb:cc:dd:ee:ff")
+		hw1, _ := net.ParseMAC("01:23:45:67:89:00")
+		hw2, _ := net.ParseMAC("ab:cd:ef:hg:ik:lm")
 
 		mockWiFi.On("Interfaces").Return([]*wifi.Interface{
 			{Name: "wlan0", HardwareAddr: hw1},
@@ -48,7 +48,7 @@ func TestWiFiService_GetNames(t *testing.T) {
 		mockWiFi := &WiFiHandle{}
 		service := myWifi.New(mockWiFi)
 
-		hw, _ := net.ParseMAC("00:11:22:33:44:55")
+		hw, _ := net.ParseMAC("ab:cd:ef:hg:ik:lm")
 		mockWiFi.On("Interfaces").Return([]*wifi.Interface{
 			{Name: "wlan0", HardwareAddr: hw},
 			{Name: "eth1", HardwareAddr: hw},
