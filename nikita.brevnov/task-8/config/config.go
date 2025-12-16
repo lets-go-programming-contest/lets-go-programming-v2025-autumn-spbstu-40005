@@ -9,7 +9,7 @@ type Config struct {
 	LogLevel    string `yaml:"log_level"`
 }
 
-func parseConfig(data []byte) (*Config, error) {
+func ParseConfig(data []byte) (*Config, error) {
 	var cfg Config
 	err := yaml.Unmarshal(data, &cfg)
 	if err != nil {
