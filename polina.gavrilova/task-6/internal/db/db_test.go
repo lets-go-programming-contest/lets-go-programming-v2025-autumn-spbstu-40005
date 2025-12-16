@@ -16,6 +16,8 @@ var (
 )
 
 func TestDBService_GetNames(t *testing.T) {
+	t.Parallel()
+
 	t.Run("success", func(t *testing.T) {
 		t.Parallel()
 
@@ -98,6 +100,8 @@ func TestDBService_GetNames(t *testing.T) {
 }
 
 func TestDBService_GetUniqueNames(t *testing.T) {
+	t.Parallel()
+
 	t.Run("success", func(t *testing.T) {
 		t.Parallel()
 

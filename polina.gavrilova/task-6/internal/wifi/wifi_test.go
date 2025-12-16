@@ -18,6 +18,8 @@ var (
 )
 
 func TestWiFiService_GetAddresses(t *testing.T) {
+	t.Parallel()
+	
 	t.Run("success", func(t *testing.T) {
 		t.Parallel()
 
@@ -53,6 +55,8 @@ func TestWiFiService_GetAddresses(t *testing.T) {
 }
 
 func TestWiFiService_GetNames(t *testing.T) {
+	t.Parallel()
+
 	t.Run("success", func(t *testing.T) {
 		t.Parallel()
 
