@@ -18,6 +18,7 @@ var (
 func TestDBService_GetNames(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 		t.Parallel()
+
 		mockDB, mock, err := sqlmock.New()
 		require.NoError(t, err)
 		defer mockDB.Close()
@@ -36,6 +37,7 @@ func TestDBService_GetNames(t *testing.T) {
 
 	t.Run("query error", func(t *testing.T) {
 		t.Parallel()
+
 		mockDB, mock, err := sqlmock.New()
 		require.NoError(t, err)
 		defer mockDB.Close()
@@ -55,6 +57,7 @@ func TestDBService_GetNames(t *testing.T) {
 
 	t.Run("rows.Err after scan", func(t *testing.T) {
 		t.Parallel()
+
 		mockDB, mock, err := sqlmock.New()
 		require.NoError(t, err)
 		defer mockDB.Close()
@@ -75,6 +78,7 @@ func TestDBService_GetNames(t *testing.T) {
 
 	t.Run("scan error - type mismatch", func(t *testing.T) {
 		t.Parallel()
+
 		mockDB, mock, err := sqlmock.New()
 		require.NoError(t, err)
 		defer mockDB.Close()
@@ -96,6 +100,7 @@ func TestDBService_GetNames(t *testing.T) {
 func TestDBService_GetUniqueNames(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 		t.Parallel()
+
 		mockDB, mock, err := sqlmock.New()
 		require.NoError(t, err)
 		defer mockDB.Close()
@@ -114,6 +119,7 @@ func TestDBService_GetUniqueNames(t *testing.T) {
 
 	t.Run("query error", func(t *testing.T) {
 		t.Parallel()
+
 		mockDB, mock, err := sqlmock.New()
 		require.NoError(t, err)
 		defer mockDB.Close()
@@ -133,6 +139,7 @@ func TestDBService_GetUniqueNames(t *testing.T) {
 
 	t.Run("rows.Err after scan", func(t *testing.T) {
 		t.Parallel()
+
 		mockDB, mock, err := sqlmock.New()
 		require.NoError(t, err)
 		defer mockDB.Close()
@@ -153,6 +160,7 @@ func TestDBService_GetUniqueNames(t *testing.T) {
 
 	t.Run("scan error - type mismatch", func(t *testing.T) {
 		t.Parallel()
+
 		mockDB, mock, err := sqlmock.New()
 		require.NoError(t, err)
 		defer mockDB.Close()

@@ -19,6 +19,8 @@ var (
 
 func TestWiFiService_GetAddresses(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
+		t.Parallel()
+
 		mockWiFi := &WiFiHandle{}
 		service := myWifi.New(mockWiFi)
 
@@ -36,6 +38,8 @@ func TestWiFiService_GetAddresses(t *testing.T) {
 	})
 
 	t.Run("error from Interfaces", func(t *testing.T) {
+		t.Parallel()
+
 		mockWiFi := &WiFiHandle{}
 		service := myWifi.New(mockWiFi)
 
@@ -50,6 +54,8 @@ func TestWiFiService_GetAddresses(t *testing.T) {
 
 func TestWiFiService_GetNames(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
+		t.Parallel()
+
 		mockWiFi := &WiFiHandle{}
 		service := myWifi.New(mockWiFi)
 
@@ -65,6 +71,8 @@ func TestWiFiService_GetNames(t *testing.T) {
 	})
 
 	t.Run("error from Interfaces", func(t *testing.T) {
+		t.Parallel()
+
 		mockWiFi := &WiFiHandle{}
 		service := myWifi.New(mockWiFi)
 
