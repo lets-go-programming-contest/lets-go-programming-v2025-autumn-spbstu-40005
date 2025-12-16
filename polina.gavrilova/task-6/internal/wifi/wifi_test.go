@@ -1,0 +1,73 @@
+package wifi_test
+
+import (
+	"errors"
+	"net"
+	"testing"
+
+	"github.com/mdlayher/wifi"
+	"github.com/stretchr/testify/require"
+	myWifi "polina.gavrilova/task-6/internal/wifi"
+)
+
+//go:generate mockery --all --testonly --quiet --outpkg wifi_test --output .
+
+func TestWiFiService_GetAddresses(t *testing.T) {
+	t.Run("success", func(t *testing.T) {
+		mockWiFi := &WiFiHandle{}
+		service := myWifi.New(mockWiFi)
+
+		hw1, _ := net.ParseMAC("00:11:22:33:44:55")
+		hw2, _ := net.ParseMAC("aa:bb:cc:dd:ee:ff")
+
+		mockWiFi.On("Interfaces").Return([]*wifi.Interface{
+			{Name: "wlan0", HardwareAddr: hw1},
+			{Name: "eth0", HardwareAddr: hw2},
+		}, nil)
+
+		addrs, err := service.GetAddresses()
+		require.NoError(t, err)
+		require.Equal(t, []net.HardwareAddr{hw1, hw2}, addrs)
+	})
+
+	t.Run("error from Interfaces", func(t *testing.T) {
+		mockWiFi := &WiFiHandle{}
+		service := myWifi.New(mockWiFi)
+
+		mockWiFi.On("Interfaces").Return(nil, errors.New("permission denied"))
+
+		addrs, err := service.GetAddresses()
+		require.Error(t, err)
+		require.Nil(t, addrs)
+		require.Contains(t, err.Error(), "getting interfaces:")
+	})
+}
+
+func TestWiFiService_GetNames(t *testing.T) {
+	t.Run("success", func(t *testing.T) {
+		mockWiFi := &WiFiHandle{}
+		service := myWifi.New(mockWiFi)
+
+		hw, _ := net.ParseMAC("00:11:22:33:44:55")
+		mockWiFi.On("Interfaces").Return([]*wifi.Interface{
+			{Name: "wlan0", HardwareAddr: hw},
+			{Name: "eth1", HardwareAddr: hw},
+		}, nil)
+
+		names, err := service.GetNames()
+		require.NoError(t, err)
+		require.Equal(t, []string{"wlan0", "eth1"}, names)
+	})
+
+	t.Run("error from Interfaces", func(t *testing.T) {
+		mockWiFi := &WiFiHandle{}
+		service := myWifi.New(mockWiFi)
+
+		mockWiFi.On("Interfaces").Return(nil, errors.New("driver not loaded"))
+
+		names, err := service.GetNames()
+		require.Error(t, err)
+		require.Nil(t, names)
+		require.Contains(t, err.Error(), "getting interfaces:")
+	})
+}
