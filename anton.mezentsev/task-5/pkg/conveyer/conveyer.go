@@ -154,6 +154,10 @@ func (p *Pipeline) RegisterSeparator(
 		destinations[i] = p.getOrCreateChannel(name)
 	}
 
+	if workerFunc == nil {
+		return errors.New("workerFunc cannot be nil")
+	}
+
 	task := Task{
 		execute: func(ctx context.Context) error {
 			return workerFunc(ctx, sourceChannel, destinations)
