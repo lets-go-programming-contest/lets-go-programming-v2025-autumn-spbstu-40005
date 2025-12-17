@@ -7,15 +7,15 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-func ParseYAMLFile[T any](configPath string) (*T, error) {
-	file, err := os.Open(configPath)
+func ParseYAMLFile[T any](filePath string) (*T, error) {
+	file, err := os.Open(filePath)
 	if err != nil {
-		return nil, fmt.Errorf("error opening config file: %w", err)
+		return nil, fmt.Errorf("error opening file: %w", err)
 	}
 
 	defer func() {
 		if err := file.Close(); err != nil {
-			panic("error closing config file")
+			panic("error closing file")
 		}
 	}()
 
