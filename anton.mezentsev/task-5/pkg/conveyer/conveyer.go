@@ -15,6 +15,7 @@ var (
 	ErrChannelNotFound  = errors.New("chan not found")
 	ErrSourceNamesEmpty = errors.New("sourceNames cannot be empty")
 	ErrDestNamesEmpty   = errors.New("destNames cannot be empty")
+	ErrWorkerFuncNil    = errors.New("workerFunc cannot be nil")
 )
 
 type Task struct {
@@ -89,9 +90,13 @@ func (p *Pipeline) RegisterDecorator(
 	workerFunc func(context.Context, chan string, chan string) error,
 	sourceName string,
 	destName string,
-) {
+) error {
 	p.mutex.Lock()
 	defer p.mutex.Unlock()
+
+	if workerFunc == nil {
+		return ErrWorkerFuncNil // Используем статическую ошибку
+	}
 
 	sourceChannel := p.getOrCreateChannel(sourceName)
 	destChannel := p.getOrCreateChannel(destName)
@@ -103,6 +108,7 @@ func (p *Pipeline) RegisterDecorator(
 	}
 
 	p.tasks = append(p.tasks, task)
+	return nil
 }
 
 func (p *Pipeline) RegisterMultiplexer(
@@ -115,6 +121,10 @@ func (p *Pipeline) RegisterMultiplexer(
 
 	if len(sourceNames) == 0 {
 		return ErrSourceNamesEmpty
+	}
+
+	if workerFunc == nil {
+		return ErrWorkerFuncNil // Используем статическую ошибку
 	}
 
 	sources := make([]chan string, len(sourceNames))
@@ -131,7 +141,6 @@ func (p *Pipeline) RegisterMultiplexer(
 	}
 
 	p.tasks = append(p.tasks, task)
-
 	return nil
 }
 
@@ -147,15 +156,15 @@ func (p *Pipeline) RegisterSeparator(
 		return ErrDestNamesEmpty
 	}
 
+	if workerFunc == nil {
+		return ErrWorkerFuncNil // Используем статическую ошибку
+	}
+
 	sourceChannel := p.getOrCreateChannel(sourceName)
 
 	destinations := make([]chan string, len(destNames))
 	for i, name := range destNames {
 		destinations[i] = p.getOrCreateChannel(name)
-	}
-
-	if workerFunc == nil {
-		return errors.New("workerFunc cannot be nil")
 	}
 
 	task := Task{
@@ -165,7 +174,6 @@ func (p *Pipeline) RegisterSeparator(
 	}
 
 	p.tasks = append(p.tasks, task)
-
 	return nil
 }
 
