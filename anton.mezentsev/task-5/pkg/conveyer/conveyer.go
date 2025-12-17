@@ -108,6 +108,7 @@ func (p *Pipeline) RegisterDecorator(
 	}
 
 	p.tasks = append(p.tasks, task)
+
 	return nil
 }
 
@@ -141,6 +142,7 @@ func (p *Pipeline) RegisterMultiplexer(
 	}
 
 	p.tasks = append(p.tasks, task)
+
 	return nil
 }
 
@@ -174,6 +176,7 @@ func (p *Pipeline) RegisterSeparator(
 	}
 
 	p.tasks = append(p.tasks, task)
+
 	return nil
 }
 
