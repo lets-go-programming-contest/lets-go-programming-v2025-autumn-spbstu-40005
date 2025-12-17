@@ -5,7 +5,7 @@ import (
 	"net"
 	"testing"
 
-	myWifi "eugene.averenkov/task-6/internal/wifi"
+	MWifi "eugene.averenkov/task-6/internal/wifi"
 	"github.com/mdlayher/wifi"
 	"github.com/stretchr/testify/require"
 )
@@ -16,7 +16,7 @@ func TestNew(t *testing.T) {
 	t.Parallel()
 
 	mockWiFi := new(MockWiFiHandle)
-	service := New(mockWiFi)
+	service := MWifi.New(mockWiFi)
 
 	require.Equal(t, mockWiFi, service.WiFi, "Expected WiFi to be set")
 	mockWiFi.AssertExpectations(t)
@@ -39,7 +39,7 @@ func TestWiFiService_GetAddresses_Success(t *testing.T) {
 
 	mockWiFi.On("Interfaces").Return(interfaces, nil).Once()
 
-	service := New(mockWiFi)
+	service := MWifi.New(mockWiFi)
 	addrs, err := service.GetAddresses()
 
 	require.NoError(t, err)
@@ -58,7 +58,7 @@ func TestWiFiService_GetAddresses_Empty(t *testing.T) {
 
 	mockWiFi.On("Interfaces").Return(interfaces, nil).Once()
 
-	service := New(mockWiFi)
+	service := MWifi.New(mockWiFi)
 	addrs, err := service.GetAddresses()
 
 	require.NoError(t, err)
@@ -73,7 +73,7 @@ func TestWiFiService_GetAddresses_Error(t *testing.T) {
 	mockWiFi := new(MockWiFiHandle)
 	mockWiFi.On("Interfaces").Return([]*wifi.Interface{}, ErrExpected).Once()
 
-	service := New(mockWiFi)
+	service := MWifi.New(mockWiFi)
 	addrs, err := service.GetAddresses()
 
 	require.Error(t, err)
@@ -99,7 +99,7 @@ func TestWiFiService_GetNames_Success(t *testing.T) {
 
 	mockWiFi.On("Interfaces").Return(interfaces, nil).Once()
 
-	service := New(mockWiFi)
+	service := MWifi.New(mockWiFi)
 	names, err := service.GetNames()
 
 	require.NoError(t, err)
@@ -117,7 +117,7 @@ func TestWiFiService_GetNames_Empty(t *testing.T) {
 
 	mockWiFi.On("Interfaces").Return(interfaces, nil).Once()
 
-	service := New(mockWiFi)
+	service := MWifi.New(mockWiFi)
 	names, err := service.GetNames()
 
 	require.NoError(t, err)
@@ -132,7 +132,7 @@ func TestWiFiService_GetNames_Error(t *testing.T) {
 	mockWiFi := new(MockWiFiHandle)
 	mockWiFi.On("Interfaces").Return([]*wifi.Interface{}, ErrExpected).Once()
 
-	service := New(mockWiFi)
+	service := MWifi.New(mockWiFi)
 	names, err := service.GetNames()
 
 	require.Error(t, err)
@@ -162,7 +162,7 @@ func TestWiFiService_BothMethodsSameData(t *testing.T) {
 
 	mockWiFi.On("Interfaces").Return(interfaces, nil).Twice()
 
-	service := New(mockWiFi)
+	service := MWifi.New(mockWiFi)
 
 	addresses, err := service.GetAddresses()
 	require.NoError(t, err, "GetAddresses error")
@@ -197,7 +197,7 @@ func TestWiFiService_NilHardwareAddr(t *testing.T) {
 
 	mockWiFi.On("Interfaces").Return(interfaces, nil).Once()
 
-	service := New(mockWiFi)
+	service := MWifi.New(mockWiFi)
 	addresses, err := service.GetAddresses()
 	require.NoError(t, err)
 	require.Len(t, addresses, 2, "Expected 2 addresses")
