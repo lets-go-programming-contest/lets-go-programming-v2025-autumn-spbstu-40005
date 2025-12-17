@@ -1,10 +1,11 @@
-package wifi
+package wifi-test
 
 import (
 	"errors"
 	"net"
 	"testing"
 
+	myWifi "eugene.averenkov/task-6/internal/wifi"
 	"github.com/mdlayher/wifi"
 	"github.com/stretchr/testify/require"
 )

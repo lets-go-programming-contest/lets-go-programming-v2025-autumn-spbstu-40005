@@ -1,9 +1,10 @@
-package db
+package db_test
 
 import (
 	"database/sql"
 	"testing"
 
+	"eugene.averenkov/task-6/internal/db"
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/stretchr/testify/require"
 )
