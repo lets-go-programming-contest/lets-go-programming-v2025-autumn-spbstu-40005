@@ -1,4 +1,4 @@
-package wifi-test
+package wifi_test
 
 import (
 	"errors"
