@@ -23,7 +23,7 @@ type Valute struct {
 	Value    string `xml:"Value"`
 }
 
-func ParseXML(path string, v interface{}) error {
+func ParseXML(path string, valu interface{}) error {
 	file, err := os.Open(path)
 	if err != nil {
 		return fmt.Errorf("open xml file: %w", err)
@@ -45,7 +45,7 @@ func ParseXML(path string, v interface{}) error {
 		}
 	}
 
-	if err := decoder.Decode(v); err != nil {
+	if err := decoder.Decode(valu); err != nil {
 		return fmt.Errorf("decode xml: %w", err)
 	}
 
