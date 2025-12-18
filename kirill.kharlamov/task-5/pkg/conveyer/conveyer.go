@@ -44,10 +44,11 @@ func (c *Conveyer) RegisterDecorator(
 	outputChannel := c.ensureChannel(outputName)
 
 	c.mutex.Lock()
+	defer c.mutex.Unlock()
+
 	c.tasks = append(c.tasks, func(ctx context.Context) error {
 		return decoratorFunc(ctx, inputChannel, outputChannel)
 	})
-	c.mutex.Unlock()
 }
 
 func (c *Conveyer) RegisterMultiplexer(
@@ -63,10 +64,11 @@ func (c *Conveyer) RegisterMultiplexer(
 	}
 
 	c.mutex.Lock()
+	defer c.mutex.Unlock()
+
 	c.tasks = append(c.tasks, func(ctx context.Context) error {
 		return multiplexerFunc(ctx, inputChannels, outputChannel)
 	})
-	c.mutex.Unlock()
 }
 
 func (c *Conveyer) RegisterSeparator(
@@ -82,17 +84,17 @@ func (c *Conveyer) RegisterSeparator(
 	}
 
 	c.mutex.Lock()
+	defer c.mutex.Unlock()
+
 	c.tasks = append(c.tasks, func(ctx context.Context) error {
 		return separatorFunc(ctx, inputChannel, outputChannels)
 	})
-	c.mutex.Unlock()
 }
 
 func (c *Conveyer) Run(ctx context.Context) error {
 	errGroup, ctx := errgroup.WithContext(ctx)
 
 	c.mutex.RLock()
-
 	for _, task := range c.tasks {
 		taskFunc := task
 
@@ -100,7 +102,6 @@ func (c *Conveyer) Run(ctx context.Context) error {
 			return taskFunc(ctx)
 		})
 	}
-
 	c.mutex.RUnlock()
 
 	err := errGroup.Wait()
