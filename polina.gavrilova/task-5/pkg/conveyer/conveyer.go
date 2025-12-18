@@ -11,6 +11,8 @@ import (
 
 var ErrChanNotFound = errors.New("chan not found")
 
+const undefinedValue = "undefined"
+
 type conveyer interface {
 	RegisterDecorator(handler func(context.Context, chan string, chan string) error, input, output string)
 	RegisterMultiplexer(handler func(context.Context, []chan string, chan string) error, inputs []string, output string)
@@ -28,8 +30,7 @@ type pipeline struct {
 	bufferSize int
 	channels   map[string]chan string
 	workers    []workerFunc
-	mutex      sync.RWMutex
-	workersMu  sync.RWMutex
+	rwMutex    sync.RWMutex
 }
 
 func New(size int) *pipeline {
@@ -37,14 +38,13 @@ func New(size int) *pipeline {
 		bufferSize: size,
 		channels:   make(map[string]chan string),
 		workers:    make([]workerFunc, 0),
-		mutex:      sync.RWMutex{},
-		workersMu:  sync.RWMutex{},
+		rwMutex:    sync.RWMutex{},
 	}
 }
 
 func (p *pipeline) getOrCreateChannel(name string) chan string {
-	p.mutex.Lock()
-	defer p.mutex.Unlock()
+	p.rwMutex.Lock()
+	defer p.rwMutex.Unlock()
 
 	if ch, ok := p.channels[name]; ok {
 		return ch
@@ -57,8 +57,8 @@ func (p *pipeline) getOrCreateChannel(name string) chan string {
 }
 
 func (p *pipeline) getChannel(name string) (chan string, error) {
-	p.mutex.RLock()
-	defer p.mutex.RUnlock()
+	p.rwMutex.RLock()
+	defer p.rwMutex.RUnlock()
 
 	if ch, ok := p.channels[name]; ok {
 		return ch, nil
@@ -78,8 +78,8 @@ func (p *pipeline) RegisterDecorator(
 		return handler(ctx, inChan, outChan)
 	}
 
-	p.workersMu.Lock()
-	defer p.workersMu.Unlock()
+	p.rwMutex.Lock()
+	defer p.rwMutex.Unlock()
 	p.workers = append(p.workers, worker)
 }
 
@@ -99,8 +99,8 @@ func (p *pipeline) RegisterMultiplexer(
 		return handler(ctx, inChans, outChan)
 	}
 
-	p.workersMu.Lock()
-	defer p.workersMu.Unlock()
+	p.rwMutex.Lock()
+	defer p.rwMutex.Unlock()
 	p.workers = append(p.workers, worker)
 }
 
@@ -120,8 +120,8 @@ func (p *pipeline) RegisterSeparator(
 		return handler(ctx, inChan, outChans)
 	}
 
-	p.workersMu.Lock()
-	defer p.workersMu.Unlock()
+	p.rwMutex.Lock()
+	defer p.rwMutex.Unlock()
 	p.workers = append(p.workers, worker)
 }
 
@@ -144,15 +144,15 @@ func (p *pipeline) Recv(output string) (string, error) {
 
 	data, ok := <-ch
 	if !ok {
-		return "undefined", nil
+		return undefinedValue, nil
 	}
 
 	return data, nil
 }
 
 func (p *pipeline) closeChannels() {
-	p.mutex.Lock()
-	defer p.mutex.Unlock()
+	p.rwMutex.Lock()
+	defer p.rwMutex.Unlock()
 
 	for _, ch := range p.channels {
 		close(ch)
@@ -162,10 +162,10 @@ func (p *pipeline) closeChannels() {
 func (p *pipeline) Run(ctx context.Context) error {
 	group, ctx := errgroup.WithContext(ctx)
 
-	p.workersMu.RLock()
+	p.rwMutex.RLock()
 	workersCopy := make([]workerFunc, len(p.workers))
 	copy(workersCopy, p.workers)
-	p.workersMu.RUnlock()
+	p.rwMutex.RUnlock()
 
 	for _, w := range workersCopy {
 		workerFunc := w
