@@ -16,10 +16,12 @@ var (
 	ErrChannelFullOrClosed = errors.New("channel is full or closed")
 )
 
+type HandlerFunc func(ctx context.Context) error
+
 type conveyerImpl struct {
 	size     int
 	channels map[string]chan string
-	handlers []func(ctx context.Context) error
+	handlers []HandlerFunc
 	mu       sync.RWMutex
 	wg       sync.WaitGroup
 }
@@ -28,7 +30,7 @@ func New(size int) *conveyerImpl {
 	return &conveyerImpl{
 		size:     size,
 		channels: make(map[string]chan string),
-		handlers: make([]func(ctx context.Context) error, 0),
+		handlers: make([]HandlerFunc, 0),
 		mu:       sync.RWMutex{},
 		wg:       sync.WaitGroup{},
 	}
@@ -44,9 +46,9 @@ func (c *conveyerImpl) RegisterDecorator(
 	inputChannel := c.getOrCreateChannel(input)
 	outputChannel := c.getOrCreateChannel(output)
 
-	c.handlers = append(c.handlers, func(ctx context.Context) error {
+	c.handlers = append(c.handlers, HandlerFunc(func(ctx context.Context) error {
 		return decoratorFunc(ctx, inputChannel, outputChannel)
-	})
+	}))
 }
 
 func (c *conveyerImpl) RegisterMultiplexer(
@@ -64,9 +66,9 @@ func (c *conveyerImpl) RegisterMultiplexer(
 		inputChannels[i] = c.getOrCreateChannel(name)
 	}
 
-	c.handlers = append(c.handlers, func(ctx context.Context) error {
+	c.handlers = append(c.handlers, HandlerFunc(func(ctx context.Context) error {
 		return multiplexerFunc(ctx, inputChannels, outputChannel)
-	})
+	}))
 }
 
 func (c *conveyerImpl) RegisterSeparator(
@@ -84,9 +86,9 @@ func (c *conveyerImpl) RegisterSeparator(
 		outputChannels[i] = c.getOrCreateChannel(name)
 	}
 
-	c.handlers = append(c.handlers, func(ctx context.Context) error {
+	c.handlers = append(c.handlers, HandlerFunc(func(ctx context.Context) error {
 		return separatorFunc(ctx, inputChannel, outputChannels)
-	})
+	}))
 }
 
 func (c *conveyerImpl) Run(ctx context.Context) error {
