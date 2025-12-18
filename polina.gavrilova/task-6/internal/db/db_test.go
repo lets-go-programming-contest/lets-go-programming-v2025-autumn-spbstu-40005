@@ -21,20 +21,20 @@ type nameTestCase struct {
 	wantErr     bool
 }
 
-var nameTestTable = []nameTestCase{
-	{
-		name:        "success",
-		returnNames: []string{"Polina", "Artemiy"},
-	},
-	{
-		name:      "query error",
-		returnErr: ErrDBConnectionFailed,
-		wantErr:   true,
-	},
-}
-
 func TestDBService_GetNames(t *testing.T) {
 	t.Parallel()
+
+	nameTestTable := []nameTestCase{
+		{
+			name:        "success",
+			returnNames: []string{"Polina", "Artemiy"},
+		},
+		{
+			name:      "query error",
+			returnErr: ErrDBConnectionFailed,
+			wantErr:   true,
+		},
+	}
 
 	for _, tt := range nameTestTable {
 		t.Run(tt.name, func(t *testing.T) {
@@ -53,6 +53,7 @@ func TestDBService_GetNames(t *testing.T) {
 				for _, name := range tt.returnNames {
 					rows = rows.AddRow(name)
 				}
+
 				mock.ExpectQuery("SELECT name FROM users").WillReturnRows(rows)
 			}
 
@@ -111,8 +112,19 @@ func TestDBService_GetNames(t *testing.T) {
 func TestDBService_GetUniqueNames(t *testing.T) {
 	t.Parallel()
 
+	nameTestTable := []nameTestCase{
+		{
+			name:        "success",
+			returnNames: []string{"Polina", "Artemiy"},
+		},
+		{
+			name:      "query error",
+			returnErr: ErrDBConnectionFailed,
+			wantErr:   true,
+		},
+	}
+
 	for _, tt := range nameTestTable {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -129,6 +141,7 @@ func TestDBService_GetUniqueNames(t *testing.T) {
 				for _, name := range tt.returnNames {
 					rows = rows.AddRow(name)
 				}
+
 				mock.ExpectQuery("SELECT DISTINCT name FROM users").WillReturnRows(rows)
 			}
 
