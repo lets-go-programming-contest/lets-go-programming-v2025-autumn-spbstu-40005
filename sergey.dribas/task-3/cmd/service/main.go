@@ -24,7 +24,9 @@ func main() {
 		panic(err)
 	}
 
-	valutes, err := valute.ValCursFromXML(config.InputFile)
+	valutes := &valute.ValCurs{}
+
+	err = valute.ParseXML(config.InputFile, valutes)
 	if err != nil {
 		panic(err)
 	}

@@ -23,27 +23,33 @@ type Valute struct {
 	Value    string `xml:"Value"`
 }
 
-func ValCursFromXML(path string) (*ValCurs, error) {
+func ParseXML(path string, v interface{}) error {
 	file, err := os.Open(path)
 	if err != nil {
-		return nil, fmt.Errorf("open xml file: %w", err)
+		return fmt.Errorf("open xml file: %w", err)
 	}
 
 	decoder := xml.NewDecoder(file)
 	decoder.CharsetReader = func(charset string, input io.Reader) (io.Reader, error) {
-		if strings.ToLower(charset) == "windows-1251" {
+		switch strings.ToLower(strings.TrimSpace(charset)) {
+		case "windows-1251":
 			return charmap.Windows1251.NewDecoder().Reader(input), nil
+		case "koi8-r":
+			return charmap.KOI8R.NewDecoder().Reader(input), nil
+		case "CodePage1047":
+			return charmap.CodePage1047.NewDecoder().Reader(input), nil
+		case "ISO8859_1":
+			return charmap.ISO8859_1.NewDecoder().Reader(input), nil
+		default:
+			return input, errUnsupportedCharset
 		}
-
-		return nil, fmt.Errorf("%w: %s", errUnsupportedCharset, charset)
 	}
 
-	var exch ValCurs
-	if err := decoder.Decode(&exch); err != nil {
-		return nil, fmt.Errorf("decode xml: %w", err)
+	if err := decoder.Decode(v); err != nil {
+		return fmt.Errorf("decode xml: %w", err)
 	}
 
-	return &exch, nil
+	return nil
 }
 
 func (v ValCurs) Len() int {
