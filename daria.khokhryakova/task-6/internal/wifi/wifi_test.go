@@ -39,7 +39,7 @@ func TestWiFiService_GetAddresses_InterfaceFetchError(t *testing.T) {
 	t.Parallel()
 
 	mockWiFi := NewWiFiHandle(t)
-	service := myWifi.New(mock)
+	service := myWifi.New(mockWiFi)
 
 	mockWiFi.On("Interfaces").Return(nil, ErrExpected)
 
@@ -55,7 +55,7 @@ func TestWiFiService_GetAddresses_EmptyList(t *testing.T) {
 	mockWiFi := NewWiFiHandle(t)
 	service := myWifi.New(mockWiFi)
 
-	mock.On("Interfaces").Return([]*wifi.Interface{}, nil)
+	mockWiFi.On("Interfaces").Return([]*wifi.Interface{}, nil)
 
 	addrs, err := service.GetAddresses()
 	require.NoError(t, err)
@@ -75,7 +75,7 @@ func TestWiFiService_GetAddresses_NullMACAddress(t *testing.T) {
 			HardwareAddr: nil,
 		},
 	}
-	mock.On("Interfaces").Return(interfaces, nil)
+	mockWiFi.On("Interfaces").Return(interfaces, nil)
 
 	addrs, err := service.GetAddresses()
 	require.NoError(t, err)
@@ -107,7 +107,7 @@ func TestWiFiService_GetNames_InterfaceFetchError(t *testing.T) {
 	t.Parallel()
 
 	mockWiFi := NewWiFiHandle(t)
-	service := myWifi.New(mock)
+	service := myWifi.New(mockWiFi)
 
 	mockWiFi.On("Interfaces").Return(nil, ErrExpected)
 
@@ -121,7 +121,7 @@ func TestWiFiService_GetNames_EmptyList(t *testing.T) {
 	t.Parallel()
 
 	mockWiFi := NewWiFiHandle(t)
-	service := myWifi.New(mock)
+	service := myWifi.New(mockWiFi)
 
 	mockWiFi.On("Interfaces").Return([]*wifi.Interface{}, nil)
 
