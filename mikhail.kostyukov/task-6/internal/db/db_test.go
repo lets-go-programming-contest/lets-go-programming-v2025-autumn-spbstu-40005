@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-var errExpected = errors.New("expected error")
+var ErrExpected = errors.New("expected error")
 
 type testCase struct {
 	name          string
@@ -62,7 +62,7 @@ func getTestCases(query string) []testCase {
 		{
 			name: "query error",
 			mockSetup: func(mock sqlmock.Sqlmock) {
-				mock.ExpectQuery(query).WillReturnError(errExpected)
+				mock.ExpectQuery(query).WillReturnError(ErrExpected)
 			},
 			expectedNames: nil,
 			expectError:   true,
@@ -81,7 +81,7 @@ func getTestCases(query string) []testCase {
 		{
 			name: "rows iteration error",
 			mockSetup: func(mock sqlmock.Sqlmock) {
-				rows := sqlmock.NewRows([]string{"name"}).AddRow("Misha").RowError(0, errExpected)
+				rows := sqlmock.NewRows([]string{"name"}).AddRow("Misha").RowError(0, ErrExpected)
 				mock.ExpectQuery(query).WillReturnRows(rows)
 			},
 			expectedNames: nil,
