@@ -44,7 +44,7 @@ func TestWiFiService_GetAddresses_InterfaceFetchError(t *testing.T) {
 	mockWiFi.On("Interfaces").Return(nil, ErrExpected)
 
 	addrs, err := service.GetAddresses()
-	assert.ErrorContains(t, err, "getting interfaces:")
+	require.ErrorContains(t, err, "getting interfaces:")
 	assert.Nil(t, addrs)
 	mockWiFi.AssertExpectations(t)
 }
@@ -112,7 +112,7 @@ func TestWiFiService_GetNames_InterfaceFetchError(t *testing.T) {
 	mockWiFi.On("Interfaces").Return(nil, ErrExpected)
 
 	names, err := service.GetNames()
-	assert.ErrorContains(t, err, "getting interfaces:")
+	require.ErrorContains(t, err, "getting interfaces:")
 	assert.Nil(t, names)
 	mockWiFi.AssertExpectations(t)
 }
