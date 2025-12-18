@@ -10,7 +10,7 @@ import (
 	myWifi "polina.gavrilova/task-6/internal/wifi"
 )
 
-//go:generate mockery --all --testonly --quiet --outpkg wifi_test --output .
+//go:generate mockery --name=WiFiHandle --output=. --outpkg=wifi_test --case=underscore
 
 var (
 	ErrPermissionDenied = errors.New("permission denied")
@@ -20,71 +20,106 @@ var (
 func TestWiFiService_GetAddresses(t *testing.T) {
 	t.Parallel()
 
-	t.Run("success", func(t *testing.T) {
-		t.Parallel()
+	tests := []struct {
+		name         string
+		returnErr    error
+		returnIfaces []*wifi.Interface
+		wantErr      bool
+		wantAddrs    []net.HardwareAddr
+	}{
+		{
+			name: "success",
+			returnIfaces: []*wifi.Interface{
+				{Name: "wlan0", HardwareAddr: mustParseMAC("01:23:45:67:89:00")},
+				{Name: "eth0", HardwareAddr: mustParseMAC("ab:cd:ef:01:23:45")},
+			},
+			wantAddrs: []net.HardwareAddr{
+				mustParseMAC("01:23:45:67:89:00"),
+				mustParseMAC("ab:cd:ef:01:23:45"),
+			},
+		},
+		{
+			name:      "error from Interfaces",
+			returnErr: ErrPermissionDenied,
+			wantErr:   true,
+		},
+	}
 
-		mockWiFi := &WiFiHandle{}
-		service := myWifi.New(mockWiFi)
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 
-		hw1, _ := net.ParseMAC("01:23:45:67:89:00")
-		hw2, _ := net.ParseMAC("ab:cd:ef:hg:ik:lm")
+			mockWiFi := &WiFiHandle{}
+			service := myWifi.New(mockWiFi)
 
-		mockWiFi.On("Interfaces").Return([]*wifi.Interface{
-			{Name: "wlan0", HardwareAddr: hw1},
-			{Name: "eth0", HardwareAddr: hw2},
-		}, nil)
+			mockWiFi.On("Interfaces").Return(tt.returnIfaces, tt.returnErr)
 
-		addrs, err := service.GetAddresses()
-		require.NoError(t, err)
-		require.Equal(t, []net.HardwareAddr{hw1, hw2}, addrs)
-	})
+			addrs, err := service.GetAddresses()
 
-	t.Run("error from Interfaces", func(t *testing.T) {
-		t.Parallel()
-
-		mockWiFi := &WiFiHandle{}
-		service := myWifi.New(mockWiFi)
-
-		mockWiFi.On("Interfaces").Return(nil, ErrPermissionDenied)
-
-		addrs, err := service.GetAddresses()
-		require.Error(t, err)
-		require.Nil(t, addrs)
-		require.Contains(t, err.Error(), "getting interfaces:")
-	})
+			if tt.wantErr {
+				require.ErrorContains(t, err, "getting interfaces:")
+				require.Nil(t, addrs)
+			} else {
+				require.NoError(t, err)
+				require.Equal(t, tt.wantAddrs, addrs)
+			}
+		})
+	}
 }
 
 func TestWiFiService_GetNames(t *testing.T) {
 	t.Parallel()
 
-	t.Run("success", func(t *testing.T) {
-		t.Parallel()
+	tests := []struct {
+		name         string
+		returnErr    error
+		returnIfaces []*wifi.Interface
+		wantErr      bool
+		wantNames    []string
+	}{
+		{
+			name: "success",
+			returnIfaces: []*wifi.Interface{
+				{Name: "wlan0", HardwareAddr: mustParseMAC("ab:cd:ef:01:23:45")},
+				{Name: "eth1", HardwareAddr: mustParseMAC("01:23:45:67:89:00")},
+			},
+			wantNames: []string{"wlan0", "eth1"},
+		},
+		{
+			name:      "error from Interfaces",
+			returnErr: ErrDriverNotLoaded,
+			wantErr:   true,
+		},
+	}
 
-		mockWiFi := &WiFiHandle{}
-		service := myWifi.New(mockWiFi)
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 
-		hw, _ := net.ParseMAC("ab:cd:ef:hg:ik:lm")
-		mockWiFi.On("Interfaces").Return([]*wifi.Interface{
-			{Name: "wlan0", HardwareAddr: hw},
-			{Name: "eth1", HardwareAddr: hw},
-		}, nil)
+			mockWiFi := &WiFiHandle{}
+			service := myWifi.New(mockWiFi)
 
-		names, err := service.GetNames()
-		require.NoError(t, err)
-		require.Equal(t, []string{"wlan0", "eth1"}, names)
-	})
+			mockWiFi.On("Interfaces").Return(tt.returnIfaces, tt.returnErr)
 
-	t.Run("error from Interfaces", func(t *testing.T) {
-		t.Parallel()
+			names, err := service.GetNames()
 
-		mockWiFi := &WiFiHandle{}
-		service := myWifi.New(mockWiFi)
+			if tt.wantErr {
+				require.ErrorContains(t, err, "getting interfaces:")
+				require.Nil(t, names)
+			} else {
+				require.NoError(t, err)
+				require.Equal(t, tt.wantNames, names)
+			}
+		})
+	}
+}
 
-		mockWiFi.On("Interfaces").Return(nil, ErrDriverNotLoaded)
-
-		names, err := service.GetNames()
-		require.Error(t, err)
-		require.Nil(t, names)
-		require.Contains(t, err.Error(), "getting interfaces:")
-	})
+func mustParseMAC(s string) net.HardwareAddr {
+	hw, err := net.ParseMAC(s)
+	if err != nil {
+		panic("invalid MAC in test: " + s)
+	}
+	return hw
 }
