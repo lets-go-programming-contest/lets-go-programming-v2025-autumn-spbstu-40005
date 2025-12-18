@@ -27,18 +27,18 @@ func New(size int) *ConveyerStruct {
 	}
 }
 
-func (c *ConveyerStruct) getChannel(name string) chan string {
+func (c *ConveyerStruct) getChannel(name string) (chan string, error) {
 	c.mute.Lock()
 	defer c.mute.Unlock()
 
-	if channel, ok := c.channels[name]; ok {
-		return channel
+	channel, ok := c.channels[name]
+	if !ok {
+		channel := make(chan string, c.sizeChan)
+		c.channels[name] = channel
+		return channel, ErrChanNotFound
 	}
 
-	channel := make(chan string, c.sizeChan)
-	c.channels[name] = channel
-
-	return channel
+	return channel, nil
 }
 
 func (c *ConveyerStruct) RegisterDecorator(
@@ -46,8 +46,8 @@ func (c *ConveyerStruct) RegisterDecorator(
 	input string,
 	output string,
 ) {
-	inChan := c.getChannel(input)
-	outChan := c.getChannel(output)
+	inChan, _ := c.getChannel(input)
+	outChan, _ := c.getChannel(output)
 
 	task := func(ctx context.Context) error {
 		return funct(ctx, inChan, outChan)
@@ -66,10 +66,11 @@ func (c *ConveyerStruct) RegisterMultiplexer(
 	inChans := make([]chan string, 0, len(inputs))
 
 	for _, name := range inputs {
-		inChans = append(inChans, c.getChannel(name))
+		itChan, _ := c.getChannel(name)
+		inChans = append(inChans, itChan)
 	}
 
-	outChan := c.getChannel(output)
+	outChan, _ := c.getChannel(output)
 
 	task := func(ctx context.Context) error {
 		return funct(ctx, inChans, outChan)
@@ -85,11 +86,12 @@ func (c *ConveyerStruct) RegisterSeparator(
 	input string,
 	outputs []string,
 ) {
-	inChan := c.getChannel(input)
+	inChan, _ := c.getChannel(input)
 	outChans := make([]chan string, 0, len(outputs))
 
 	for _, name := range outputs {
-		outChans = append(outChans, c.getChannel(name))
+		itChan, _ := c.getChannel(name)
+		outChans = append(outChans, itChan)
 	}
 
 	task := func(ctx context.Context) error {
