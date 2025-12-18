@@ -8,7 +8,7 @@ import (
 )
 
 var ErrCantBeDecorated = errors.New("can't be decorated")
-var ErrOutputsEmmpty = errors.New("Length is empty")
+var ErrOutputsEmmpty = errors.New("length is empty")
 
 const (
 	skipDecorator   = "no decorator"
