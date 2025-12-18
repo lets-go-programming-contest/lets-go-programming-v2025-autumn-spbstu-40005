@@ -55,6 +55,7 @@ func (service DBService) GetUniqueNames() ([]string, error) {
 		if err := rows.Scan(&name); err != nil {
 			return nil, fmt.Errorf("error scanning row: %w", err)
 		}
+
 		names = append(names, name)
 	}
 
