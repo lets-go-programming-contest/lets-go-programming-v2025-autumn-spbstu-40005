@@ -123,6 +123,7 @@ func (c *conveyerImpl) getChannel(name string) (chan string, bool) {
 	defer c.mu.RUnlock()
 
 	channel, exists := c.channels[name]
+
 	return channel, exists
 }
 
