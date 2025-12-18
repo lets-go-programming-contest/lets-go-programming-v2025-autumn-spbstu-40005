@@ -87,13 +87,11 @@ func (c *Conveyer) Run(ctx context.Context) error {
 
 	c.mu.RLock()
 
-	tasksCopy := append([]taskItem(nil), c.tasks...)
+	tasksCopy := make([]taskItem, len(c.tasks))
 
 	c.mu.RUnlock()
 
 	for _, item := range tasksCopy {
-		it := item
-
 		errGroup.Go(func() error {
 			return c.executeTask(gCtx, it)
 		})
@@ -110,7 +108,7 @@ func (c *Conveyer) Run(ctx context.Context) error {
 func (c *Conveyer) Send(name, data string) error {
 	channel, err := c.getChannel(name)
 	if err != nil {
-		return ErrChanNotFound
+		return err
 	}
 
 	select {
