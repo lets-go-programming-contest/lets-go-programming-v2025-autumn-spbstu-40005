@@ -120,12 +120,8 @@ func (p *Pipeline) RegisterMultiplexer(
 	p.mutex.Lock()
 	defer p.mutex.Unlock()
 
-	if len(sourceNames) == 0 {
-		return ErrSourceNamesEmpty
-	}
-
 	if workerFunc == nil {
-		return ErrWorkerFuncNil // Используем статическую ошибку
+		return ErrWorkerFuncNil
 	}
 
 	sources := make([]chan string, len(sourceNames))
@@ -154,12 +150,8 @@ func (p *Pipeline) RegisterSeparator(
 	p.mutex.Lock()
 	defer p.mutex.Unlock()
 
-	if len(destNames) == 0 {
-		return ErrDestNamesEmpty
-	}
-
 	if workerFunc == nil {
-		return ErrWorkerFuncNil // Используем статическую ошибку
+		return ErrWorkerFuncNil
 	}
 
 	sourceChannel := p.getOrCreateChannel(sourceName)
