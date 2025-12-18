@@ -87,13 +87,14 @@ func (c *Conveyer) Run(ctx context.Context) error {
 
 	c.mu.RLock()
 
-	tasksCopy := make([]taskItem, len(c.tasks))
+	tasks := make([]taskItem, len(c.tasks))
+	copy(tasks, c.tasks)
 
 	c.mu.RUnlock()
 
-	for _, item := range tasksCopy {
+	for _, item := range tasks {
 		errGroup.Go(func() error {
-			return c.executeTask(gCtx, it)
+			return c.executeTask(gCtx, item)
 		})
 	}
 
