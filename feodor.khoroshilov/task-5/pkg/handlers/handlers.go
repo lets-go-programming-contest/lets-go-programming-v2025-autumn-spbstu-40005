@@ -7,8 +7,10 @@ import (
 	"sync"
 )
 
-var ErrCantBeDecorated = errors.New("can't be decorated")
-var ErrOutputsEmmpty = errors.New("length is empty")
+var (
+	ErrCantBeDecorated = errors.New("can't be decorated")
+	ErrOutputsEmmpty   = errors.New("length is empty")
+)
 
 const (
 	skipDecorator   = "no decorator"
