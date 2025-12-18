@@ -1,4 +1,3 @@
-// nolint:all
 package config
 
 import (
@@ -12,7 +11,7 @@ type Config struct {
 	LogLevel    string `yaml:"log_level"`
 }
 
-func ParseConfig() (*Config, error) {
+func LoadConfig() (*Config, error) {
 	var config Config
 
 	err := yaml.Unmarshal(configFile, &config)

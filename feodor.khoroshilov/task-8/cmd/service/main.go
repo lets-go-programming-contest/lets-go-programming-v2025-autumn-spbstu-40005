@@ -1,19 +1,17 @@
-//nolint:all
 package main
 
 import (
 	"fmt"
+	"log"
 
 	"feodor.khoroshilov/task-8/config"
 )
 
 func main() {
-	config, err := config.ParseConfig()
+	cfg, err := config.LoadConfig()
 	if err != nil {
-		fmt.Println("Error: ", err)
-
-		return
+		log.Fatal(err)
 	}
 
-	fmt.Print(config.Environment, " ", config.LogLevel)
+	fmt.Printf("%s %s", cfg.Environment, cfg.LogLevel)
 }
