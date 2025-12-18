@@ -18,17 +18,12 @@ var (
 
 const undefined = "undefined"
 
-type taskItem struct {
-	kind    string
-	fn      interface{}
-	inputs  []string
-	outputs []string
-}
+type task func(context.Context) error
 
 type Conveyer struct {
 	channels map[string]chan string
 	size     int
-	tasks    []taskItem
+	tasks    []task
 	mu       sync.RWMutex
 }
 
@@ -36,7 +31,7 @@ func New(size int) *Conveyer {
 	return &Conveyer{
 		channels: make(map[string]chan string),
 		size:     size,
-		tasks:    []taskItem{},
+		tasks:    []task{},
 		mu:       sync.RWMutex{},
 	}
 }
@@ -135,115 +130,43 @@ func (c *Conveyer) Recv(name string) (string, error) {
 	return val, nil
 }
 
-func (c *Conveyer) executeTask(ctx context.Context, item taskItem) error {
-	switch item.kind {
-	case "decorator":
-		decFn, ok := item.fn.(func(context.Context, chan string, chan string) error)
-
-		if !ok {
-			return ErrInvalidTaskFunc
-		}
-
-		inputChannel := c.createChannel(item.inputs[0])
-
-		outputChannel := c.createChannel(item.outputs[0])
-
-		return decFn(ctx, inputChannel, outputChannel)
-
-	case "multiplexer":
-		muxFn, ok := item.fn.(func(context.Context, []chan string, chan string) error)
-
-		if !ok {
-			return ErrInvalidTaskFunc
-		}
-
-		ins := make([]chan string, len(item.inputs))
-
-		for index, name := range item.inputs {
-			ins[index] = c.createChannel(name)
-		}
-
-		outputChannel := c.createChannel(item.outputs[0])
-
-		return muxFn(ctx, ins, outputChannel)
-
-	case "separator":
-		sepFn, ok := item.fn.(func(context.Context, chan string, []chan string) error)
-
-		if !ok {
-			return ErrInvalidTaskFunc
-		}
-
-		outs := make([]chan string, len(item.outputs))
-
-		for index, name := range item.outputs {
-			outs[index] = c.createChannel(name)
-		}
-
-		inputChannel := c.createChannel(item.inputs[0])
-
-		return sepFn(ctx, inputChannel, outs)
-	}
-
-	return ErrUnknownTask
-}
-
-func (c *Conveyer) RegisterDecorator(
-	decFunc func(context.Context, chan string, chan string) error,
-	input string,
-	output string,
-) {
-	c.createChannel(input)
-	c.createChannel(output)
+func (c *Conveyer) RegisterDecorator(fn func(context.Context, chan string, chan string) error, input, output string) {
+	inChannel := c.createChannel(input)
+	outChannel := c.createChannel(output)
 
 	c.mu.Lock()
-	c.tasks = append(c.tasks, taskItem{
-		kind:    "decorator",
-		fn:      decFunc,
-		inputs:  []string{input},
-		outputs: []string{output},
+	c.tasks = append(c.tasks, func(ctx context.Context) error {
+		return fn(ctx, inChannel, outChannel)
 	})
 	c.mu.Unlock()
 }
 
-func (c *Conveyer) RegisterMultiplexer(
-	decFunc func(context.Context, []chan string, chan string) error,
-	inputs []string,
-	output string,
-) {
-	for _, name := range inputs {
-		c.createChannel(name)
+func (c *Conveyer) RegisterMultiplexer(fn func(context.Context, []chan string, chan string) error, inputs []string, output string) {
+	ins := make([]chan string, len(inputs))
+	for i, name := range inputs {
+		ins[i] = c.createChannel(name)
 	}
 
-	c.createChannel(output)
+	outChannel := c.createChannel(output)
 
 	c.mu.Lock()
-	c.tasks = append(c.tasks, taskItem{
-		kind:    "multiplexer",
-		fn:      decFunc,
-		inputs:  inputs,
-		outputs: []string{output},
+	c.tasks = append(c.tasks, func(ctx context.Context) error {
+		return fn(ctx, ins, outChannel)
 	})
 	c.mu.Unlock()
 }
 
-func (c *Conveyer) RegisterSeparator(
-	decFunc func(context.Context, chan string, []chan string) error,
-	input string,
-	outputs []string,
-) {
-	c.createChannel(input)
+func (c *Conveyer) RegisterSeparator(fn func(context.Context, chan string, []chan string) error, input string, outputs []string) {
+	inChannel := c.createChannel(input)
+	outs := make([]chan string, len(outputs))
 
-	for _, name := range outputs {
-		c.createChannel(name)
+	for i, name := range outputs {
+		outs[i] = c.createChannel(name)
 	}
 
 	c.mu.Lock()
-	c.tasks = append(c.tasks, taskItem{
-		kind:    "separator",
-		fn:      decFunc,
-		inputs:  []string{input},
-		outputs: outputs,
+	c.tasks = append(c.tasks, func(ctx context.Context) error {
+		return fn(ctx, inChannel, outs)
 	})
 	c.mu.Unlock()
 }
