@@ -8,7 +8,7 @@ import (
 )
 
 var ErrCantBeDecorated = errors.New("can't be decorated")
-var ErrLenIsEmmpty = errors.New("Length is empty")
+var ErrOutputsEmmpty = errors.New("Length is empty")
 
 const (
 	skipDecorator   = "no decorator"
@@ -45,7 +45,7 @@ func PrefixDecoratorFunc(ctx context.Context, input chan string, output chan str
 
 func SeparatorFunc(ctx context.Context, input chan string, outputs []chan string) error {
 	if len(outputs) == 0 {
-		return ErrLenIsEmmpty
+		return ErrOutputsEmmpty
 	}
 
 	counter := 0
