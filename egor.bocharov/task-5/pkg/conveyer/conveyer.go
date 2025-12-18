@@ -11,9 +11,10 @@ import (
 
 const undefined = "undefined"
 
-var ErrChannelNotFound = errors.New("chan not found")
-
-var ErrChannelFullOrClosed = errors.New("channel is full or closed")
+var (
+	ErrChannelNotFound     = errors.New("chan not found")
+	ErrChannelFullOrClosed = errors.New("channel is full or closed")
+)
 
 type conveyerImpl struct {
 	size     int
