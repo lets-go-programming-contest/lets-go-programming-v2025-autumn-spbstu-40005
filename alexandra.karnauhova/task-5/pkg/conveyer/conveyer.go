@@ -37,6 +37,7 @@ func (c *ConveyerStruct) getChannel(name string) (chan string, error) {
 	if !ok {
 		channel := make(chan string, c.sizeChan)
 		c.channels[name] = channel
+
 		return channel, ErrChanNotFound
 	}
 
