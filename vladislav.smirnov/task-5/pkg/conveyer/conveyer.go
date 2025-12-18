@@ -130,7 +130,11 @@ func (c *Conveyer) Recv(name string) (string, error) {
 	return val, nil
 }
 
-func (c *Conveyer) RegisterDecorator(fn func(context.Context, chan string, chan string) error, input, output string) {
+func (c *Conveyer) RegisterDecorator(
+	decFunc func(context.Context, chan string, chan string) error,
+	input string,
+	output string,
+) {
 	inChannel := c.createChannel(input)
 	outChannel := c.createChannel(output)
 
@@ -141,7 +145,11 @@ func (c *Conveyer) RegisterDecorator(fn func(context.Context, chan string, chan 
 	c.mu.Unlock()
 }
 
-func (c *Conveyer) RegisterMultiplexer(fn func(context.Context, []chan string, chan string) error, inputs []string, output string) {
+func (c *Conveyer) RegisterMultiplexer(
+	muxFunc func(context.Context, []chan string, chan string) error,
+	inputs []string,
+	output string,
+) {
 	ins := make([]chan string, len(inputs))
 	for i, name := range inputs {
 		ins[i] = c.createChannel(name)
@@ -156,7 +164,11 @@ func (c *Conveyer) RegisterMultiplexer(fn func(context.Context, []chan string, c
 	c.mu.Unlock()
 }
 
-func (c *Conveyer) RegisterSeparator(fn func(context.Context, chan string, []chan string) error, input string, outputs []string) {
+func (c *Conveyer) RegisterSeparator(
+	sepFunc func(context.Context, chan string, []chan string) error,
+	input string,
+	outputs []string,
+) {
 	inChannel := c.createChannel(input)
 	outs := make([]chan string, len(outputs))
 
