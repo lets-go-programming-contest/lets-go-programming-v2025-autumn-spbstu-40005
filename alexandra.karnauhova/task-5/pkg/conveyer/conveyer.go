@@ -11,10 +11,12 @@ import (
 
 var ErrChanNotFound = errors.New("chan not found")
 
+type Task func(ctx context.Context) error
+
 type ConveyerStruct struct {
 	channels map[string]chan string
 	mute     sync.RWMutex
-	tasks    []func(context.Context) error
+	tasks    []Task
 	sizeChan int
 }
 
@@ -22,7 +24,7 @@ func New(size int) *ConveyerStruct {
 	return &ConveyerStruct{
 		channels: make(map[string]chan string),
 		mute:     sync.RWMutex{},
-		tasks:    make([]func(ctx context.Context) error, 0),
+		tasks:    make([]Task, 0),
 		sizeChan: size,
 	}
 }
