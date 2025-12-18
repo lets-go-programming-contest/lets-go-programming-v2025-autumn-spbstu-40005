@@ -25,6 +25,7 @@ func (service DBService) GetNames() ([]string, error) {
 	defer rows.Close()
 
 	var names []string
+
 	for rows.Next() {
 		var name string
 		if err := rows.Scan(&name); err != nil {
@@ -48,6 +49,7 @@ func (service DBService) GetUniqueNames() ([]string, error) {
 	defer rows.Close()
 
 	var names []string
+
 	for rows.Next() {
 		var name string
 		if err := rows.Scan(&name); err != nil {

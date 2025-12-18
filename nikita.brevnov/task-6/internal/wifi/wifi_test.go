@@ -86,5 +86,6 @@ func parseMAC(s string) net.HardwareAddr {
 	if err != nil {
 		return nil
 	}
+
 	return hwAddr
 }
