@@ -140,7 +140,7 @@ func (c *Conveyer) RegisterDecorator(
 
 	c.mu.Lock()
 	c.tasks = append(c.tasks, func(ctx context.Context) error {
-		return fn(ctx, inChannel, outChannel)
+		return decFunc(ctx, inChannel, outChannel)
 	})
 	c.mu.Unlock()
 }
@@ -159,7 +159,7 @@ func (c *Conveyer) RegisterMultiplexer(
 
 	c.mu.Lock()
 	c.tasks = append(c.tasks, func(ctx context.Context) error {
-		return fn(ctx, ins, outChannel)
+		return muxFunc(ctx, ins, outChannel)
 	})
 	c.mu.Unlock()
 }
@@ -178,7 +178,7 @@ func (c *Conveyer) RegisterSeparator(
 
 	c.mu.Lock()
 	c.tasks = append(c.tasks, func(ctx context.Context) error {
-		return fn(ctx, inChannel, outs)
+		return sepFunc(ctx, inChannel, outs)
 	})
 	c.mu.Unlock()
 }
