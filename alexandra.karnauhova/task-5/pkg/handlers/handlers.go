@@ -12,6 +12,12 @@ var (
 	ErrEmptyChannel = errors.New("empty channel")
 )
 
+const (
+	decoratorPrefix = "decorated: "
+	stopDecorator   = "no decorator"
+	stopMultiplexer = "no multiplexer"
+)
+
 func PrefixDecoratorFunc(ctx context.Context, input chan string, output chan string) error {
 	for {
 		select {
@@ -22,11 +28,11 @@ func PrefixDecoratorFunc(ctx context.Context, input chan string, output chan str
 				return nil
 			}
 
-			if strings.Contains(data, "no decorator") {
+			if strings.Contains(data, stopDecorator) {
 				return ErrCantDecorate
 			}
 
-			prefix := "decorated: "
+			prefix := decoratorPrefix
 			if !strings.HasPrefix(data, prefix) {
 				data = prefix + data
 			}
@@ -61,7 +67,7 @@ func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan stri
 						return
 					}
 
-					if strings.Contains(data, "no multiplexer") {
+					if strings.Contains(data, stopMultiplexer) {
 						continue
 					}
 
