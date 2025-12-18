@@ -114,18 +114,21 @@ func (c *conveyer) closeAll() {
 	}
 }
 
-func (c *conveyer) getChannel(name string) (chan string, bool) {
+func (c *conveyer) getChannel(name string) (chan string, error) {
 	c.mutex.RLock()
 	defer c.mutex.RUnlock()
 
 	ch, ok := c.channels[name]
+	if !ok {
+		return nil, ErrChannelNotFound
+	}
 
-	return ch, ok
+	return ch, nil
 }
 
 func (c *conveyer) Send(name string, data string) error {
 	ch, exists := c.getChannel(name)
-	if !exists {
+	if exists != nil {
 		return ErrChannelNotFound
 	}
 
@@ -136,7 +139,7 @@ func (c *conveyer) Send(name string, data string) error {
 
 func (c *conveyer) Recv(name string) (string, error) {
 	ch, exists := c.getChannel(name)
-	if !exists {
+	if exists != nil {
 		return "", ErrChannelNotFound
 	}
 
