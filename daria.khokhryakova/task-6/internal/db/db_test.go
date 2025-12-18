@@ -66,7 +66,7 @@ func TestDBService_GetNames_ScanFailure(t *testing.T) {
 	service := db.New(mockDB)
 	result, err := service.GetNames()
 
-	assert.ErrorContains(t, err, "rows scanning:")
+	require.ErrorContains(t, err, "rows scanning:")
 	assert.Nil(t, result)
 }
 
@@ -142,7 +142,7 @@ func TestDBService_GetUniqueNames_DBError(t *testing.T) {
 	service := db.New(mockDB)
 	result, err := service.GetUniqueNames()
 
-	assert.ErrorContains(t, err, "db query:")
+	require.ErrorContains(t, err, "db query:")
 	assert.Nil(t, result)
 }
 
@@ -180,7 +180,7 @@ func TestDBService_GetUniqueNames_RowIterationError(t *testing.T) {
 	service := db.New(mockDB)
 	result, err := service.GetUniqueNames()
 
-	assert.ErrorContains(t, err, "rows error:")
+	require.ErrorContains(t, err, "rows error:")
 	assert.Nil(t, result)
 }
 
