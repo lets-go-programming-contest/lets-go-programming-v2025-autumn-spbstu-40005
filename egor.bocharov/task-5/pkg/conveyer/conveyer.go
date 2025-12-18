@@ -118,10 +118,16 @@ func (c *conveyerImpl) closeAllChannels() {
 	}
 }
 
-func (c *conveyerImpl) Send(input string, data string) error {
+func (c *conveyerImpl) getChannel(name string) (chan string, bool) {
 	c.mu.RLock()
-	channel, exists := c.channels[input]
-	c.mu.RUnlock()
+	defer c.mu.RUnlock()
+
+	channel, exists := c.channels[name]
+	return channel, exists
+}
+
+func (c *conveyerImpl) Send(input string, data string) error {
+	channel, exists := c.getChannel(input)
 
 	if !exists {
 		return fmt.Errorf("conveyer send failed: %w", ErrChannelNotFound)
@@ -136,9 +142,7 @@ func (c *conveyerImpl) Send(input string, data string) error {
 }
 
 func (c *conveyerImpl) Recv(output string) (string, error) {
-	c.mu.RLock()
-	channel, exists := c.channels[output]
-	c.mu.RUnlock()
+	channel, exists := c.getChannel(output)
 
 	if !exists {
 		return "", fmt.Errorf("conveyer recv failed: %w", ErrChannelNotFound)
