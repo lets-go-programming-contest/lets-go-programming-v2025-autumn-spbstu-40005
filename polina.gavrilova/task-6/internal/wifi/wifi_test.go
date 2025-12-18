@@ -46,7 +46,6 @@ func TestWiFiService_GetAddresses(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -94,7 +93,6 @@ func TestWiFiService_GetNames(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -121,5 +119,6 @@ func mustParseMAC(s string) net.HardwareAddr {
 	if err != nil {
 		panic("invalid MAC in test: " + s)
 	}
+
 	return hw
 }
