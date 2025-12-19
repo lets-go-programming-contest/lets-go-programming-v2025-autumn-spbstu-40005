@@ -11,10 +11,7 @@ import (
 
 const undefinedValue = "undefined"
 
-var (
-	ErrChannelNotFound    = errors.New("chan not found")
-	ErrContextCannotBeNil = errors.New("context cannot be nil")
-)
+var ErrChannelNotFound = errors.New("chan not found")
 
 type WorkerFunc func(ctx context.Context) error
 
@@ -114,9 +111,6 @@ func (c *conveyer) RegisterSeparator(
 }
 
 func (c *conveyer) Run(ctx context.Context) error {
-	if ctx == nil {
-		return ErrContextCannotBeNil
-	}
 
 	c.mutex.RLock()
 	workers := make([]WorkerFunc, len(c.workers))
