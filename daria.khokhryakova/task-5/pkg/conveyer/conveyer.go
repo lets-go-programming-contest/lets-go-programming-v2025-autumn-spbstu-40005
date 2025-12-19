@@ -120,6 +120,8 @@ func (c *Conveyer) closeAllChannels() {
 }
 
 func (c *Conveyer) Run(ctx context.Context) error {
+	defer c.closeAllChannels()
+
 	group, ctx := errgroup.WithContext(ctx)
 
 	for _, h := range c.handlers {
@@ -129,9 +131,6 @@ func (c *Conveyer) Run(ctx context.Context) error {
 	}
 
 	err := group.Wait()
-
-	c.closeAllChannels()
-
 	if err != nil {
 		return fmt.Errorf("conveyer execution failed: %w", err)
 	}
