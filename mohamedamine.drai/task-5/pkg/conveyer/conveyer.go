@@ -78,9 +78,11 @@ func (p *Pipeline) RegisterDecorator(
 	inCh := p.getOrCreateChannel(input)
 	outCh := p.getOrCreateChannel(output)
 
+	p.mu.Lock()
 	p.workers = append(p.workers, func(ctx context.Context) error {
 		return handler(ctx, inCh, outCh)
 	})
+	p.mu.Unlock()
 }
 
 func (p *Pipeline) RegisterMultiplexer(
@@ -131,10 +133,11 @@ func (p *Pipeline) Run(ctx context.Context) error {
 	err := group.Wait()
 
 	p.mu.Lock()
+	defer p.mu.Unlock()
+
 	for _, ch := range p.channels {
 		close(ch)
 	}
-	p.mu.Unlock()
 
 	if err != nil {
 		return fmt.Errorf("conveyer run failed: %w", err)
