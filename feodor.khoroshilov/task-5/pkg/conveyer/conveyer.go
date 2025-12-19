@@ -126,7 +126,7 @@ func (c *conveyer) Run(ctx context.Context) error {
 
 	err := errGroup.Wait()
 
-	c.closeAll()
+	defer c.closeAll()
 
 	if err != nil {
 		return fmt.Errorf("execution failed: %w", err)
