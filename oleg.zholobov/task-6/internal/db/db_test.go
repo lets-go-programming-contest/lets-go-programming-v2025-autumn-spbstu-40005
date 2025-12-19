@@ -61,6 +61,7 @@ func TestDBService_GetNames(t *testing.T) {
 				for _, name := range scenario.expectedData {
 					resultRows.AddRow(name)
 				}
+
 				sqlMock.ExpectQuery("SELECT name FROM users").
 					WillReturnRows(resultRows)
 			}

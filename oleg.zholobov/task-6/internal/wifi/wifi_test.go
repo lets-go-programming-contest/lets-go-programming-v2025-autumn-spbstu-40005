@@ -7,6 +7,7 @@ import (
 
 	"github.com/mdlayher/wifi"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	wifiService "oleg.zholobov/task-6/internal/wifi"
 )
 
@@ -74,7 +75,7 @@ func TestWiFiService_GetHardwareAddresses(t *testing.T) {
 			addresses, err := serviceInstance.GetAddresses()
 
 			if scenario.expectError {
-				assert.Error(t, err)
+				require.Error(t, err)
 				assert.Contains(t, err.Error(), "getting interfaces")
 				assert.Nil(t, addresses)
 			} else {
@@ -134,7 +135,7 @@ func TestWiFiService_GetInterfaceNames(t *testing.T) {
 			names, err := serviceInstance.GetNames()
 
 			if scenario.expectError {
-				assert.Error(t, err)
+				require.Error(t, err)
 				assert.Contains(t, err.Error(), "getting interfaces")
 				assert.Nil(t, names)
 			} else {
