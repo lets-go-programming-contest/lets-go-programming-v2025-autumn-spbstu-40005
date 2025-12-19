@@ -16,10 +16,10 @@ var (
 )
 
 type wifiTestCase struct {
-	testName      string
-	mockError     error
+	testName       string
+	mockError      error
 	mockInterfaces []*wifi.Interface
-	expectError   bool
+	expectError    bool
 	expectedResult interface{}
 }
 
@@ -39,12 +39,12 @@ func TestWiFiService_GetHardwareAddresses(t *testing.T) {
 			},
 		},
 		{
-			testName:      "interface access error",
-			mockError:     errAccessDenied,
-			expectError:   true,
+			testName:    "interface access error",
+			mockError:   errAccessDenied,
+			expectError: true,
 		},
 		{
-			testName:      "empty interface list",
+			testName:       "empty interface list",
 			mockInterfaces: []*wifi.Interface{},
 			expectedResult: []net.HardwareAddr{},
 		},
@@ -62,7 +62,6 @@ func TestWiFiService_GetHardwareAddresses(t *testing.T) {
 	}
 
 	for _, scenario := range testScenarios {
-		scenario := scenario
 		t.Run(scenario.testName, func(t *testing.T) {
 			t.Parallel()
 
@@ -80,6 +79,7 @@ func TestWiFiService_GetHardwareAddresses(t *testing.T) {
 				assert.Nil(t, addresses)
 			} else {
 				assert.NoError(t, err)
+
 				if expectedAddrs, ok := scenario.expectedResult.([]net.HardwareAddr); ok {
 					assert.Equal(t, expectedAddrs, addresses)
 				}
@@ -101,12 +101,12 @@ func TestWiFiService_GetInterfaceNames(t *testing.T) {
 			expectedResult: []string{"eth0", "eth1"},
 		},
 		{
-			testName:      "driver error",
-			mockError:     errHardwareMissing,
-			expectError:   true,
+			testName:    "driver error",
+			mockError:   errHardwareMissing,
+			expectError: true,
 		},
 		{
-			testName:      "no interfaces found",
+			testName:       "no interfaces found",
 			mockInterfaces: []*wifi.Interface{},
 			expectedResult: []string{},
 		},
@@ -122,7 +122,6 @@ func TestWiFiService_GetInterfaceNames(t *testing.T) {
 	}
 
 	for _, scenario := range testScenarios {
-		scenario := scenario
 		t.Run(scenario.testName, func(t *testing.T) {
 			t.Parallel()
 
@@ -140,6 +139,7 @@ func TestWiFiService_GetInterfaceNames(t *testing.T) {
 				assert.Nil(t, names)
 			} else {
 				assert.NoError(t, err)
+
 				if expectedNames, ok := scenario.expectedResult.([]string); ok {
 					assert.Equal(t, expectedNames, names)
 				}
@@ -165,7 +165,7 @@ func createInterface(name string, mac string) *wifi.Interface {
 	}
 
 	return &wifi.Interface{
-		Name: name,
+		Name:         name,
 		HardwareAddr: hwAddr,
 	}
 }

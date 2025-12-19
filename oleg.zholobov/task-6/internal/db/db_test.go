@@ -44,7 +44,6 @@ func TestDBService_GetNames(t *testing.T) {
 	}
 
 	for _, scenario := range scenarios {
-		scenario := scenario
 		t.Run(scenario.description, func(t *testing.T) {
 			t.Parallel()
 
@@ -69,13 +68,15 @@ func TestDBService_GetNames(t *testing.T) {
 			results, err := service.GetNames()
 
 			if scenario.shouldFail {
-				assert.Error(t, err, "expected error but got none")
+				require.Error(t, err, "expected error but got none")
+
 				if scenario.failReason == "query" {
 					assert.Contains(t, err.Error(), "db query")
 				}
+
 				assert.Nil(t, results, "results should be nil on error")
 			} else {
-				assert.NoError(t, err, "unexpected error")
+				require.NoError(t, err, "unexpected error")
 				assert.Equal(t, scenario.expectedData, results)
 			}
 
@@ -97,7 +98,7 @@ func TestDBService_GetNames(t *testing.T) {
 			WillReturnRows(sqlmock.NewRows([]string{"name"}).AddRow(nil))
 
 		results, err := service.GetNames()
-		assert.Error(t, err)
+		require.Error(t, err)
 		assert.Contains(t, err.Error(), "rows scanning")
 		assert.Nil(t, results)
 		assert.NoError(t, sqlMock.ExpectationsWereMet())
@@ -117,7 +118,7 @@ func TestDBService_GetNames(t *testing.T) {
 		sqlMock.ExpectQuery("SELECT name FROM users").WillReturnRows(testRows)
 
 		results, err := service.GetNames()
-		assert.Error(t, err)
+		require.Error(t, err)
 		assert.Contains(t, err.Error(), "rows error")
 		assert.Nil(t, results)
 		assert.NoError(t, sqlMock.ExpectationsWereMet())
@@ -136,7 +137,7 @@ func TestDBService_GetNames(t *testing.T) {
 			WillReturnRows(sqlmock.NewRows([]string{"name"}))
 
 		results, err := service.GetNames()
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Nil(t, results)
 		assert.NoError(t, sqlMock.ExpectationsWereMet())
 	})
@@ -167,7 +168,6 @@ func TestDBService_GetUniqueNames(t *testing.T) {
 	}
 
 	for _, scenario := range scenarios {
-		scenario := scenario
 		t.Run(scenario.description, func(t *testing.T) {
 			t.Parallel()
 
@@ -185,6 +185,7 @@ func TestDBService_GetUniqueNames(t *testing.T) {
 				for _, name := range scenario.expectedData {
 					resultRows.AddRow(name)
 				}
+
 				sqlMock.ExpectQuery("SELECT DISTINCT name FROM users").
 					WillReturnRows(resultRows)
 			}
@@ -192,13 +193,15 @@ func TestDBService_GetUniqueNames(t *testing.T) {
 			results, err := service.GetUniqueNames()
 
 			if scenario.shouldFail {
-				assert.Error(t, err, "expected error but got none")
+				require.Error(t, err, "expected error but got none")
+
 				if scenario.failReason == "query" {
 					assert.Contains(t, err.Error(), "db query")
 				}
+
 				assert.Nil(t, results, "results should be nil on error")
 			} else {
-				assert.NoError(t, err, "unexpected error")
+				require.NoError(t, err, "unexpected error")
 				assert.Equal(t, scenario.expectedData, results)
 			}
 
@@ -220,7 +223,7 @@ func TestDBService_GetUniqueNames(t *testing.T) {
 			WillReturnRows(sqlmock.NewRows([]string{"name"}).AddRow(nil))
 
 		results, err := service.GetUniqueNames()
-		assert.Error(t, err)
+		require.Error(t, err)
 		assert.Contains(t, err.Error(), "rows scanning")
 		assert.Nil(t, results)
 		assert.NoError(t, sqlMock.ExpectationsWereMet())
@@ -240,7 +243,7 @@ func TestDBService_GetUniqueNames(t *testing.T) {
 		sqlMock.ExpectQuery("SELECT DISTINCT name FROM users").WillReturnRows(testRows)
 
 		results, err := service.GetUniqueNames()
-		assert.Error(t, err)
+		require.Error(t, err)
 		assert.Contains(t, err.Error(), "rows error")
 		assert.Nil(t, results)
 		assert.NoError(t, sqlMock.ExpectationsWereMet())
@@ -259,7 +262,7 @@ func TestDBService_GetUniqueNames(t *testing.T) {
 			WillReturnRows(sqlmock.NewRows([]string{"name"}))
 
 		results, err := service.GetUniqueNames()
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Nil(t, results)
 		assert.NoError(t, sqlMock.ExpectationsWereMet())
 	})
