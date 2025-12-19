@@ -5,60 +5,83 @@ import (
 	"net"
 	"testing"
 
-	wifi "anton.mezentsev/task-6/internal/wifi"
+	myWifi "anton.mezentsev/task-6/internal/wifi"
 	"github.com/mdlayher/wifi"
 	"github.com/stretchr/testify/require"
 )
 
 //go:generate mockery --all --testonly --quiet --outpkg wifi_test --output .
 
-var ErrMock = errors.New("mock error")
+var ErrExpected = errors.New("expected error")
 
-func TestGetMACs_Success(t *testing.T) {
+func TestGetAddresses_Success(t *testing.T) {
 	t.Parallel()
 
 	mockWiFi := NewWiFiHandle(t)
-	service := wifi.NewService(mockWiFi)
+	service := myWifi.New(mockWiFi)
 
 	ifaces := []*wifi.Interface{
-		{Name: "wlan0", HardwareAddr: parseMAC(t, "08:00:27:ab:cd:ef")},
-		{Name: "wlan1", HardwareAddr: parseMAC(t, "08:00:27:12:34:56")},
+		{Name: "wlan0", HardwareAddr: parseMAC(t, "00:11:22:33:44:55")},
+		{Name: "wlan1", HardwareAddr: parseMAC(t, "aa:bb:cc:dd:ee:ff")},
 	}
-	mockWiFi.On("GetInterfaces").Return(ifaces, nil)
+	mockWiFi.On("Interfaces").Return(ifaces, nil)
 
-	addrs, err := service.GetMACs()
+	addrs, err := service.GetAddresses()
 	require.NoError(t, err)
 	require.Equal(t, []net.HardwareAddr{
-		parseMAC(t, "08:00:27:ab:cd:ef"),
-		parseMAC(t, "08:00:27:12:34:56"),
+		parseMAC(t, "00:11:22:33:44:55"),
+		parseMAC(t, "aa:bb:cc:dd:ee:ff"),
 	}, addrs)
 }
 
-func TestGetMACs_Error(t *testing.T) {
+func TestGetAddresses_Error(t *testing.T) {
 	t.Parallel()
 
 	mockWiFi := NewWiFiHandle(t)
-	service := wifi.NewService(mockWiFi)
+	service := myWifi.New(mockWiFi)
 
-	mockWiFi.On("GetInterfaces").Return(nil, ErrMock)
+	mockWiFi.On("Interfaces").Return(nil, ErrExpected)
 
-	addrs, err := service.GetMACs()
-	require.ErrorContains(t, err, "failed to get interfaces")
+	addrs, err := service.GetAddresses()
+	require.ErrorContains(t, err, "getting interfaces")
 	require.Nil(t, addrs)
 }
 
-func TestGetInterfaceNames_Success(t *testing.T) {
+func TestGetNames_Success(t *testing.T) {
 	t.Parallel()
 
 	mockWiFi := NewWiFiHandle(t)
-	service := wifi.NewService(mockWiFi)
+	service := myWifi.New(mockWiFi)
 
 	ifaces := []*wifi.Interface{
-		{Name: "wlp2s0", HardwareAddr: parseMAC(t, "aa:bb:cc:dd:ee:ff")},
-		{Name: "eth0", HardwareAddr: parseMAC(t, "11:22:33:44:55:66")},
+		{Name: "wlan0", HardwareAddr: parseMAC(t, "00:11:22:33:44:55")},
+		{Name: "eth1", HardwareAddr: parseMAC(t, "11:22:33:44:55:66")},
 	}
-	mockWiFi.On("GetInterfaces").Return(ifaces, nil)
+	mockWiFi.On("Interfaces").Return(ifaces, nil)
 
-	names, err := service.GetInterfaceNames()
+	names, err := service.GetNames()
 	require.NoError(t, err)
-	require.Equal(t, []string{"wlp2s0", "eth0"}, names)
+	require.Equal(t, []string{"wlan0", "eth1"}, names)
+}
+
+func TestGetNames_Error(t *testing.T) {
+	t.Parallel()
+
+	mockWiFi := NewWiFiHandle(t)
+	service := myWifi.New(mockWiFi)
+
+	mockWiFi.On("Interfaces").Return(nil, ErrExpected)
+
+	names, err := service.GetNames()
+	require.ErrorContains(t, err, "getting interfaces")
+	require.Nil(t, names)
+}
+
+func parseMAC(t *testing.T, s string) net.HardwareAddr {
+	t.Helper()
+
+	hwAddr, err := net.ParseMAC(s)
+	require.NoError(t, err)
+
+	return hwAddr
+}
