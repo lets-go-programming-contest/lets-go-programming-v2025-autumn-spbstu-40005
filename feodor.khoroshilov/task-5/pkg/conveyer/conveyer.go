@@ -111,7 +111,6 @@ func (c *conveyer) RegisterSeparator(
 }
 
 func (c *conveyer) Run(ctx context.Context) error {
-
 	c.mutex.RLock()
 	workers := make([]WorkerFunc, len(c.workers))
 	copy(workers, c.workers)
