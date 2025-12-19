@@ -42,7 +42,6 @@ func TestGetNames_QueryError(t *testing.T) {
 
 	service := db.DBService{DB: mockDB}
 	mock.ExpectQuery(queryNames).WillReturnError(ErrExpected)
-
 	names, err := service.GetNames()
 	require.ErrorContains(t, err, "db query")
 	require.Nil(t, names)
@@ -109,7 +108,6 @@ func TestGetUniqueNames_QueryError(t *testing.T) {
 
 	service := db.DBService{DB: mockDB}
 	mock.ExpectQuery(queryUniqueNames).WillReturnError(ErrExpected)
-
 	names, err := service.GetUniqueNames()
 	require.ErrorContains(t, err, "db query")
 	require.Nil(t, names)
