@@ -56,8 +56,7 @@ func TestGetUniqueNames_QueryFailure(t *testing.T) {
 	mock.ExpectQuery(selectUnique).WillReturnError(ErrTest)
 
 	names, err := service.GetUniqueNames()
-	require.Error(t, err)
-	require.Contains(t, err.Error(), "db query")
+	require.ErrorContains(t, err, "db query")
 	require.Nil(t, names)
 }
 
@@ -74,8 +73,7 @@ func TestGetUniqueNames_InvalidData(t *testing.T) {
 	mock.ExpectQuery(selectUnique).WillReturnRows(rows)
 
 	names, err := service.GetUniqueNames()
-	require.Error(t, err)
-	require.Contains(t, err.Error(), "rows scanning")
+	require.ErrorContains(t, err, "rows scanning")
 	require.Nil(t, names)
 }
 
@@ -93,8 +91,7 @@ func TestGetUniqueNames_RowIssue(t *testing.T) {
 	mock.ExpectQuery(selectUnique).WillReturnRows(rows)
 
 	names, err := service.GetUniqueNames()
-	require.Error(t, err)
-	require.Contains(t, err.Error(), "rows error")
+	require.ErrorContains(t, err, "rows error")
 	require.Nil(t, names)
 }
 
@@ -127,8 +124,7 @@ func TestGetNames_FailedQuery(t *testing.T) {
 	mock.ExpectQuery(selectAllNames).WillReturnError(ErrTest)
 
 	names, err := service.GetNames()
-	require.Error(t, err)
-	require.Contains(t, err.Error(), "db query")
+	require.ErrorContains(t, err, "db query")
 	require.Nil(t, names)
 }
 
@@ -145,8 +141,7 @@ func TestGetNames_BadScan(t *testing.T) {
 	mock.ExpectQuery(selectAllNames).WillReturnRows(rows)
 
 	names, err := service.GetNames()
-	require.Error(t, err)
-	require.Contains(t, err.Error(), "rows scanning")
+	require.ErrorContains(t, err, "rows scanning")
 	require.Nil(t, names)
 }
 
@@ -164,7 +159,6 @@ func TestGetNames_ProblemRows(t *testing.T) {
 	mock.ExpectQuery(selectAllNames).WillReturnRows(rows)
 
 	names, err := service.GetNames()
-	require.Error(t, err)
-	require.Contains(t, err.Error(), "rows error")
+	require.ErrorContains(t, err, "rows error")
 	require.Nil(t, names)
 }

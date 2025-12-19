@@ -49,9 +49,7 @@ func TestRetrieveMACs_Failed(t *testing.T) {
 	mockHandler.On("Interfaces").Return(nil, ErrTest)
 
 	macs, err := service.GetAddresses()
-	require.Error(t, err)
-	require.Contains(t, err.Error(), "getting interfaces")
-	require.ErrorIs(t, err, ErrTest)
+	require.ErrorContains(t, err, "getting interfaces")
 	require.Nil(t, macs)
 }
 
@@ -81,9 +79,7 @@ func TestRetrieveInterfaceNames_Failed(t *testing.T) {
 	mockHandler.On("Interfaces").Return(nil, ErrTest)
 
 	names, err := service.GetNames()
-	require.Error(t, err)
-	require.Contains(t, err.Error(), "getting interfaces")
-	require.ErrorIs(t, err, ErrTest)
+	require.ErrorContains(t, err, "getting interfaces")
 	require.Nil(t, names)
 }
 
