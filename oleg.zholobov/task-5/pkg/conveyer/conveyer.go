@@ -50,6 +50,7 @@ func (c *Conveyer) getChannel(name string) (chan string, error) {
 	if !exists {
 		return nil, errMsgChannelNotFound
 	}
+
 	return channel, nil
 }
 
