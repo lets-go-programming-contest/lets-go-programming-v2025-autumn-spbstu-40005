@@ -11,7 +11,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-//go:generate mockery --name=WiFiHandle --testonly --quiet --outpkg wifi_test --output .
+//go:generate mockery --all --testonly --quiet --outpkg wifi_test --output .
 
 var errExpected = errors.New("expected error")
 
@@ -21,29 +21,36 @@ type testCase struct {
 }
 
 func TestNew(t *testing.T) {
+	t.Parallel()
+
 	mockHandle := NewWiFiHandle(t)
 	service := myWifi.New(mockHandle)
 	require.Equal(t, mockHandle, service.WiFi)
 }
 
 func TestGetAddresses(t *testing.T) {
+	t.Parallel()
+
 	cases := []testCase{
 		{addrs: []string{"00:11:22:33:44:55", "aa:bb:cc:dd:ee:ff"}},
 		{addrs: []string{}},
 		{err: errExpected},
 	}
 
+	mockHandle := NewWiFiHandle(t)
+	service := myWifi.WiFiService{WiFi: mockHandle}
+
 	for i, tc := range cases {
-		mockHandle := NewWiFiHandle(t)
+		mockHandle.On("Interfaces").Unset()
 		mockHandle.On("Interfaces").Return(makeIfaces(t, tc.addrs), tc.err)
 
-		service := myWifi.New(mockHandle)
 		got, err := service.GetAddresses()
 
 		if tc.err != nil {
 			require.ErrorIs(t, err, tc.err, "case %d", i)
 			require.ErrorContains(t, err, "getting interfaces", "case %d", i)
 			require.Nil(t, got, "case %d", i)
+
 			continue
 		}
 
@@ -53,23 +60,28 @@ func TestGetAddresses(t *testing.T) {
 }
 
 func TestGetNames(t *testing.T) {
+	t.Parallel()
+
 	cases := []testCase{
 		{addrs: []string{"00:11:22:33:44:55", "aa:bb:cc:dd:ee:ff"}},
 		{addrs: []string{}},
 		{err: errExpected},
 	}
 
+	mockHandle := NewWiFiHandle(t)
+	service := myWifi.WiFiService{WiFi: mockHandle}
+
 	for i, tc := range cases {
-		mockHandle := NewWiFiHandle(t)
+		mockHandle.On("Interfaces").Unset()
 		mockHandle.On("Interfaces").Return(makeIfaces(t, tc.addrs), tc.err)
 
-		service := myWifi.New(mockHandle)
 		got, err := service.GetNames()
 
 		if tc.err != nil {
 			require.ErrorIs(t, err, tc.err, "case %d", i)
 			require.ErrorContains(t, err, "getting interfaces", "case %d", i)
 			require.Nil(t, got, "case %d", i)
+
 			continue
 		}
 
@@ -83,6 +95,7 @@ func wantNames(addrs []string) []string {
 	for i := range addrs {
 		names = append(names, fmt.Sprintf("wlan%d", i+1))
 	}
+
 	return names
 }
 
@@ -90,6 +103,7 @@ func makeIfaces(t *testing.T, addrs []string) []*wifi.Interface {
 	t.Helper()
 
 	ifaces := make([]*wifi.Interface, 0, len(addrs))
+
 	for i, macStr := range addrs {
 		hw := parseMAC(t, macStr)
 
@@ -103,6 +117,7 @@ func makeIfaces(t *testing.T, addrs []string) []*wifi.Interface {
 			Frequency:    0,
 		})
 	}
+
 	return ifaces
 }
 
@@ -110,9 +125,11 @@ func parseMACs(t *testing.T, addrs []string) []net.HardwareAddr {
 	t.Helper()
 
 	result := make([]net.HardwareAddr, 0, len(addrs))
+
 	for _, s := range addrs {
 		result = append(result, parseMAC(t, s))
 	}
+
 	return result
 }
 
@@ -121,5 +138,6 @@ func parseMAC(t *testing.T, macStr string) net.HardwareAddr {
 
 	hw, err := net.ParseMAC(macStr)
 	require.NoError(t, err)
+
 	return hw
 }

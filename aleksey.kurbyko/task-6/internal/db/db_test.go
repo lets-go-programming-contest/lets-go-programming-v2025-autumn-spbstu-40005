@@ -4,10 +4,9 @@ import (
 	"errors"
 	"testing"
 
+	"aleksey.kurbyko/task-6/internal/db"
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/stretchr/testify/require"
-
-	"aleksey.kurbyko/task-6/internal/db"
 )
 
 const (
@@ -18,6 +17,8 @@ const (
 var errExpected = errors.New("expected error")
 
 func TestNew(t *testing.T) {
+	t.Parallel()
+
 	dbConn, _, err := sqlmock.New()
 	require.NoError(t, err)
 	defer dbConn.Close()
@@ -27,6 +28,8 @@ func TestNew(t *testing.T) {
 }
 
 func TestGetNames(t *testing.T) {
+	t.Parallel()
+
 	type testCase struct {
 		rows       *sqlmock.Rows
 		queryErr   error
@@ -81,12 +84,15 @@ func TestGetNames(t *testing.T) {
 
 		if tc.errIs != nil || tc.errContain != "" {
 			require.Error(t, err, "case %d", i)
+
 			if tc.errIs != nil {
 				require.ErrorIs(t, err, tc.errIs, "case %d", i)
 			}
+
 			if tc.errContain != "" {
 				require.ErrorContains(t, err, tc.errContain, "case %d", i)
 			}
+
 			require.Nil(t, got, "case %d", i)
 		} else {
 			require.NoError(t, err, "case %d", i)
@@ -100,6 +106,8 @@ func TestGetNames(t *testing.T) {
 }
 
 func TestGetUniqueNames(t *testing.T) {
+	t.Parallel()
+
 	type testCase struct {
 		rows       *sqlmock.Rows
 		queryErr   error
@@ -154,12 +162,15 @@ func TestGetUniqueNames(t *testing.T) {
 
 		if tc.errIs != nil || tc.errContain != "" {
 			require.Error(t, err, "case %d", i)
+
 			if tc.errIs != nil {
 				require.ErrorIs(t, err, tc.errIs, "case %d", i)
 			}
+
 			if tc.errContain != "" {
 				require.ErrorContains(t, err, tc.errContain, "case %d", i)
 			}
+
 			require.Nil(t, got, "case %d", i)
 		} else {
 			require.NoError(t, err, "case %d", i)
