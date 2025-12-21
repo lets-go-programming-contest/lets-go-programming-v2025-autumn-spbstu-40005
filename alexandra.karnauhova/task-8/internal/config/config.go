@@ -23,5 +23,5 @@ func getConfig(dataYaml []byte) (*Config, error) {
 }
 
 func (c *Config) PrintToConfig() {
-	fmt.Printf("%s %s\n", c.Environment, c.LogLevel)
+	fmt.Printf("%s %s", c.Environment, c.LogLevel)
 }
