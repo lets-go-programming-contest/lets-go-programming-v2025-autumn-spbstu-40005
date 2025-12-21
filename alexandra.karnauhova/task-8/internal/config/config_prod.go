@@ -5,4 +5,8 @@ package config
 import _ "embed"
 
 //go:embed prod.yaml
-var prodYAML []byte
+var dataYAML []byte
+
+func Initial() (*Config, error) {
+	return getConfig(dataYAML)
+}

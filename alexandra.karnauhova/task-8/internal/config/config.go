@@ -6,7 +6,6 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-// Config структура для хранения конфигурации
 type Config struct {
 	Environment string `yaml:"environment"`
 	LogLevel    string `yaml:"log_level"`
@@ -23,6 +22,6 @@ func getConfig(dataYaml []byte) (*Config, error) {
 	return &it, nil
 }
 
-func (c *Config) printToConfig() {
+func (c *Config) PrintToConfig() {
 	fmt.Printf("%s %s\n", c.Environment, c.LogLevel)
 }
