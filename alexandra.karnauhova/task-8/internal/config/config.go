@@ -12,14 +12,14 @@ type Config struct {
 }
 
 func getConfig(dataYaml []byte) (*Config, error) {
-	var it Config
+	var cnfg Config
 
-	err := yaml.Unmarshal(dataYaml, &it)
+	err := yaml.Unmarshal(dataYaml, &cnfg)
 	if err != nil {
-		return nil, fmt.Errorf("error in parsing config: %v", err)
+		return nil, fmt.Errorf("error in parsing config: %w", err)
 	}
 
-	return &it, nil
+	return &cnfg, nil
 }
 
 func (c *Config) PrintToConfig() {
