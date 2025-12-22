@@ -14,5 +14,5 @@ func main() {
 		return
 	}
 
-	fmt.Printf(cfg.String())
+	fmt.Print(cfg.String())
 }
