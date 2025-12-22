@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+
 	"gopkg.in/yaml.v3"
 )
 
@@ -15,10 +16,15 @@ func (c *Config) String() string {
 }
 
 func GetConfig(configData []byte) (*Config, error) {
-	cfg := &Config{}
+	cfg := &Config{
+		Environment: "",
+		LogLevel: "",
+	}
+
 	err := yaml.Unmarshal(configData, cfg)
 	if err != nil {
 		return nil, fmt.Errorf("failed to unmarshal config: %w", err)
 	}
+
 	return cfg, nil
 }
