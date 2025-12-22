@@ -18,7 +18,7 @@ func (c *Config) String() string {
 func GetConfig(configData []byte) (*Config, error) {
 	cfg := &Config{
 		Environment: "",
-		LogLevel: "",
+		LogLevel:    "",
 	}
 
 	err := yaml.Unmarshal(configData, cfg)

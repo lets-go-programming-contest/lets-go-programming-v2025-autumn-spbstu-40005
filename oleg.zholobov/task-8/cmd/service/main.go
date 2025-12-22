@@ -10,9 +10,9 @@ func main() {
 	cfg, err := config.LoadConfig()
 	if err != nil {
 		fmt.Printf("Failed to load config: %v\n", err)
-		
+
 		return
 	}
-	
+
 	fmt.Println(cfg.String())
 }
