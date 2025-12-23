@@ -8,17 +8,19 @@ import (
 	myWifi "github.com/smirnov-vladislav/task-6/internal/wifi"
 	"github.com/mdlayher/wifi"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 )
 
 //go:generate mockery --name=WiFiHandle --dir=../wifi --output=. --outpkg=wifi_test --testonly --quiet
 
-var testError = errors.New("test error")
+var errTest = errors.New("test error")
 
 func makeMAC(addr string) net.HardwareAddr {
-	mac, _ := net.ParseMAC(addr)
-	return mac
+	mac, err := net.ParseMAC(addr)
+    	if err != nil {
+        	panic("invalid MAC address: " + addr)
+    	}
+    return mac
 }
 
 func TestNew(t *testing.T) {
@@ -71,7 +73,7 @@ func TestGetNames_Failure(t *testing.T) {
 	mockHandler := NewWiFiHandle(t)
 	service := myWifi.New(mockHandler)
 
-	mockHandler.On("Interfaces").Return(nil, testError).Once()
+	mockHandler.On("Interfaces").Return(nil, errTest).Once()
 
 	names, err := service.GetNames()
 
@@ -145,7 +147,7 @@ func TestGetAddresses_Failure(t *testing.T) {
 	mockHandler := NewWiFiHandle(t)
 	service := myWifi.New(mockHandler)
 
-	mockHandler.On("Interfaces").Return(nil, testError).Once()
+	mockHandler.On("Interfaces").Return(nil, errTest).Once()
 
 	macs, err := service.GetAddresses()
 
