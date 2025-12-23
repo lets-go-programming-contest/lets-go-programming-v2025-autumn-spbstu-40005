@@ -13,10 +13,12 @@ const Undefined = "undefined"
 
 var ErrChanNotFound = errors.New("chan not found")
 
+type Task func(context.Context) error
+
 type Conveyor struct {
 	mu     sync.RWMutex
 	chans  map[string]chan string
-	tasks  []func(context.Context) error
+	tasks  []Task
 	buffer int
 }
 
@@ -24,7 +26,7 @@ func New(size int) *Conveyor {
 	return &Conveyor{
 		mu:     sync.RWMutex{},
 		chans:  make(map[string]chan string),
-		tasks:  make([]func(context.Context) error, 0),
+		tasks:  make([]Task, 0),
 		buffer: size,
 	}
 }
