@@ -5,8 +5,8 @@ import (
 	"net"
 	"testing"
 
-	myWifi "github.com/smirnov-vladislav/task-6/internal/wifi"
 	"github.com/mdlayher/wifi"
+	myWifi "github.com/smirnov-vladislav/task-6/internal/wifi"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -17,10 +17,10 @@ var errTest = errors.New("test error")
 
 func makeMAC(addr string) net.HardwareAddr {
 	mac, err := net.ParseMAC(addr)
-    	if err != nil {
-        	panic("invalid MAC address: " + addr)
-    	}
-    return mac
+	if err != nil {
+		panic("invalid MAC address: " + addr)
+	}
+	return mac
 }
 
 func TestNew(t *testing.T) {
