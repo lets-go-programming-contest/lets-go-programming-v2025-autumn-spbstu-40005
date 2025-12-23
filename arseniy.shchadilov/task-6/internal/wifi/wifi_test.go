@@ -25,6 +25,7 @@ type wifiTestCase struct {
 
 func parseMAC(t *testing.T, s string) net.HardwareAddr {
 	t.Helper()
+
 	hwAddr, err := net.ParseMAC(s)
 	if err != nil {
 		return nil
@@ -35,6 +36,7 @@ func parseMAC(t *testing.T, s string) net.HardwareAddr {
 
 func createTestInterface(t *testing.T, name string, mac string) *wifi.Interface {
 	t.Helper()
+
 	return &wifi.Interface{
 		Name:         name,
 		HardwareAddr: parseMAC(t, mac),
