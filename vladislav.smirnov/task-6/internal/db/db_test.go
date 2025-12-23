@@ -1,7 +1,6 @@
 package db_test
 
 import (
-	"database/sql"
 	"errors"
 	"testing"
 
@@ -16,10 +15,6 @@ const (
 )
 
 var errTest = errors.New("test error")
-
-func closeRows(rows *sql.Rows) {
-	_ = rows.Close()
-}
 
 func TestNew(t *testing.T) {
 	t.Parallel()

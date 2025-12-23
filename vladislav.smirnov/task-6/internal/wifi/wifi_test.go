@@ -20,6 +20,7 @@ func makeMAC(addr string) net.HardwareAddr {
 	if err != nil {
 		panic("invalid MAC address: " + addr)
 	}
+
 	return mac
 }
 
