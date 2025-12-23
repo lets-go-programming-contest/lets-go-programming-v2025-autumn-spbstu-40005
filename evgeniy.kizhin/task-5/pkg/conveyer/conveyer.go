@@ -33,8 +33,9 @@ func New(size int) *Conveyor {
 
 func (c *Conveyor) get(name string) (chan string, error) {
 	c.mu.RLock()
+	defer c.mu.RUnlock()
+
 	inch, ok := c.chans[name]
-	c.mu.RUnlock()
 
 	if !ok {
 		return nil, ErrChanNotFound
