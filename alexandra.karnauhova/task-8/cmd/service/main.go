@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	cnfg, err := config.Initial()
+	cnfg, err := config.GetConfig()
 	if err != nil {
 		fmt.Println("failed config: %w", err)
 
