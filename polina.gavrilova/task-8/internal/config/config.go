@@ -16,7 +16,7 @@ func LoadConfig() (*Config, error) {
 
 	err := yaml.Unmarshal(configFile, &cfg)
 	if err != nil {
-		return nil, fmt.Errorf("cannot unmarshal file: %w", err)
+		return nil, fmt.Errorf("error in unmarshal fiile: %w", err)
 	}
 
 	return &cfg, nil
