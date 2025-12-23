@@ -23,7 +23,8 @@ type wifiTestCase struct {
 	errContains    string
 }
 
-func parseMAC(s string) net.HardwareAddr {
+func parseMAC(t *testing.T, s string) net.HardwareAddr {
+	t.Helper()
 	hwAddr, err := net.ParseMAC(s)
 	if err != nil {
 		return nil
@@ -32,10 +33,11 @@ func parseMAC(s string) net.HardwareAddr {
 	return hwAddr
 }
 
-func createTestInterface(name string, mac string) *wifi.Interface {
+func createTestInterface(t *testing.T, name string, mac string) *wifi.Interface {
+	t.Helper()
 	return &wifi.Interface{
 		Name:         name,
-		HardwareAddr: parseMAC(mac),
+		HardwareAddr: parseMAC(t, mac),
 		Index:        1,
 		PHY:          1,
 		Device:       1,
@@ -51,13 +53,13 @@ func TestGetAddresses(t *testing.T) {
 		{
 			name: "success with multiple interfaces",
 			mockInterfaces: []*wifi.Interface{
-				createTestInterface("wlan0", "00:11:22:33:44:55"),
-				createTestInterface("eth1", "aa:bb:cc:dd:ee:ff"),
+				createTestInterface(t, "wlan0", "00:11:22:33:44:55"),
+				createTestInterface(t, "eth1", "aa:bb:cc:dd:ee:ff"),
 			},
 			mockErr: nil,
 			expectedAddrs: []net.HardwareAddr{
-				parseMAC("00:11:22:33:44:55"),
-				parseMAC("aa:bb:cc:dd:ee:ff"),
+				parseMAC(t, "00:11:22:33:44:55"),
+				parseMAC(t, "aa:bb:cc:dd:ee:ff"),
 			},
 			errContains: "",
 		},
@@ -123,9 +125,9 @@ func TestGetNames(t *testing.T) {
 		{
 			name: "success with multiple interfaces",
 			mockInterfaces: []*wifi.Interface{
-				createTestInterface("wlan0", "00:11:22:33:44:55"),
-				createTestInterface("eth1", "aa:bb:cc:dd:ee:ff"),
-				createTestInterface("lo", "00:00:00:00:00:00"),
+				createTestInterface(t, "wlan0", "00:11:22:33:44:55"),
+				createTestInterface(t, "eth1", "aa:bb:cc:dd:ee:ff"),
+				createTestInterface(t, "lo", "00:00:00:00:00:00"),
 			},
 			mockErr:       nil,
 			expectedNames: []string{"wlan0", "eth1", "lo"},
@@ -150,7 +152,7 @@ func TestGetNames(t *testing.T) {
 			mockInterfaces: []*wifi.Interface{
 				{
 					Name:         "",
-					HardwareAddr: parseMAC("00:11:22:33:44:55"),
+					HardwareAddr: parseMAC(t, "00:11:22:33:44:55"),
 					Index:        1,
 				},
 			},
