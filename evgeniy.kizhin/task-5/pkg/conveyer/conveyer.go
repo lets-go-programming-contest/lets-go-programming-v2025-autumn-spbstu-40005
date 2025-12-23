@@ -29,12 +29,16 @@ func New(size int) *Conveyor {
 	}
 }
 
-func (c *Conveyor) get(name string) (chan string, bool) {
+func (c *Conveyor) get(name string) (chan string, error) {
 	c.mu.RLock()
 	inch, ok := c.chans[name]
 	c.mu.RUnlock()
 
-	return inch, ok
+	if !ok {
+		return nil, ErrChanNotFound
+	}
+
+	return inch, nil
 }
 
 func (c *Conveyor) getOrCreate(name string) chan string {
@@ -139,8 +143,8 @@ func (c *Conveyor) Run(ctx context.Context) error {
 }
 
 func (c *Conveyor) Send(input string, data string) error {
-	inch, ok := c.get(input)
-	if !ok {
+	inch, err := c.get(input)
+	if err != nil {
 		return ErrChanNotFound
 	}
 
@@ -150,8 +154,8 @@ func (c *Conveyor) Send(input string, data string) error {
 }
 
 func (c *Conveyor) Recv(output string) (string, error) {
-	inch, found := c.get(output)
-	if !found {
+	inch, err := c.get(output)
+	if err != nil {
 		return "", ErrChanNotFound
 	}
 
