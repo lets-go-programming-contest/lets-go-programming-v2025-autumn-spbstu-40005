@@ -1,6 +1,7 @@
 package db_test
 
 import (
+	"database/sql"
 	"errors"
 	"testing"
 
@@ -16,131 +17,132 @@ var (
 	errSelectFailed = errors.New("select failed")
 )
 
-func TestNewAndGetNames(t *testing.T) {
-	t.Parallel()
+func setupDB(t *testing.T) (*sql.DB, sqlmock.Sqlmock, db.DBService) { //nolint:ireturn
+	t.Helper()
 
 	dbConn, mock, err := sqlmock.New()
 	require.NoError(t, err)
-	t.Cleanup(func() { _ = dbConn.Close() })
-
-	svc := db.New(dbConn)
-
-	t.Run("New returns service with same DB", func(t *testing.T) {
-		t.Parallel()
-		require.Equal(t, dbConn, svc.DB)
+	t.Cleanup(func() {
+		_ = dbConn.Close()
 	})
 
-	t.Run("GetNames returns list on success", func(t *testing.T) {
-		t.Parallel()
-
-		rows := sqlmock.NewRows([]string{"name"})
-		rows.AddRow("Alice")
-		rows.AddRow("Bob")
-		mock.ExpectQuery("SELECT name FROM users").WillReturnRows(rows)
-
-		names, err := svc.GetNames()
-		require.NoError(t, err)
-		require.Equal(t, []string{"Alice", "Bob"}, names)
-		require.NoError(t, mock.ExpectationsWereMet())
-	})
-
-	t.Run("GetNames returns error when query fails", func(t *testing.T) {
-		t.Parallel()
-
-		mock.ExpectQuery("SELECT name FROM users").WillReturnError(errQueryFailed)
-
-		names, err := svc.GetNames()
-		require.ErrorContains(t, err, "db query")
-		require.Nil(t, names)
-		require.NoError(t, mock.ExpectationsWereMet())
-	})
-
-	t.Run("GetNames returns error scanning nil value", func(t *testing.T) {
-		t.Parallel()
-
-		rows := sqlmock.NewRows([]string{"name"})
-		rows.AddRow(nil)
-		mock.ExpectQuery("SELECT name FROM users").WillReturnRows(rows)
-
-		names, err := svc.GetNames()
-		require.ErrorContains(t, err, "rows scanning")
-		require.Nil(t, names)
-		require.NoError(t, mock.ExpectationsWereMet())
-	})
-
-	t.Run("GetNames returns error when row has RowError", func(t *testing.T) {
-		t.Parallel()
-
-		rows := sqlmock.NewRows([]string{"name"})
-		rows.AddRow("Alice")
-		rows.RowError(0, errRowRead)
-		mock.ExpectQuery("SELECT name FROM users").WillReturnRows(rows)
-
-		names, err := svc.GetNames()
-		require.ErrorContains(t, err, "rows error")
-		require.Nil(t, names)
-		require.NoError(t, mock.ExpectationsWereMet())
-	})
+	return dbConn, mock, db.New(dbConn)
 }
 
-func TestGetUniqueNames(t *testing.T) {
+func TestNewServiceReturnsSameDB(t *testing.T) {
+	dbConn, _, svc := setupDB(t)
+	t.Parallel()
+	require.Equal(t, dbConn, svc.DB)
+}
+
+func TestGetNamesSuccess(t *testing.T) {
+	_, mock, svc := setupDB(t)
 	t.Parallel()
 
-	dbConn, mock, err := sqlmock.New()
+	rows := sqlmock.NewRows([]string{"name"})
+	rows.AddRow("Alice")
+	rows.AddRow("Bob")
+	mock.ExpectQuery("SELECT name FROM users").WillReturnRows(rows)
+
+	names, err := svc.GetNames()
 	require.NoError(t, err)
-	t.Cleanup(func() { _ = dbConn.Close() })
+	require.Equal(t, []string{"Alice", "Bob"}, names)
+	require.NoError(t, mock.ExpectationsWereMet())
+}
 
-	svc := db.New(dbConn)
+func TestGetNamesQueryFailed(t *testing.T) {
+	_, mock, svc := setupDB(t)
+	t.Parallel()
 
-	t.Run("GetUniqueNames returns list on success", func(t *testing.T) {
-		t.Parallel()
+	mock.ExpectQuery("SELECT name FROM users").WillReturnError(errQueryFailed)
 
-		rows := sqlmock.NewRows([]string{"name"})
-		rows.AddRow("Alice")
-		rows.AddRow("Bob")
-		mock.ExpectQuery("SELECT DISTINCT name FROM users").WillReturnRows(rows)
+	names, err := svc.GetNames()
+	require.ErrorContains(t, err, "db query")
+	require.Nil(t, names)
+	require.NoError(t, mock.ExpectationsWereMet())
+}
 
-		names, err := svc.GetUniqueNames()
-		require.NoError(t, err)
-		require.Equal(t, []string{"Alice", "Bob"}, names)
-		require.NoError(t, mock.ExpectationsWereMet())
-	})
+func TestGetNamesScanningNilValue(t *testing.T) {
+	_, mock, svc := setupDB(t)
+	t.Parallel()
 
-	t.Run("GetUniqueNames returns error when query fails", func(t *testing.T) {
-		t.Parallel()
+	rows := sqlmock.NewRows([]string{"name"})
+	rows.AddRow(nil)
+	mock.ExpectQuery("SELECT name FROM users").WillReturnRows(rows)
 
-		mock.ExpectQuery("SELECT DISTINCT name FROM users").WillReturnError(errSelectFailed)
+	names, err := svc.GetNames()
+	require.ErrorContains(t, err, "rows scanning")
+	require.Nil(t, names)
+	require.NoError(t, mock.ExpectationsWereMet())
+}
 
-		names, err := svc.GetUniqueNames()
-		require.ErrorContains(t, err, "db query")
-		require.Nil(t, names)
-		require.NoError(t, mock.ExpectationsWereMet())
-	})
+func TestGetNamesRowError(t *testing.T) {
+	_, mock, svc := setupDB(t)
+	t.Parallel()
 
-	t.Run("GetUniqueNames scanning nil value returns error", func(t *testing.T) {
-		t.Parallel()
+	rows := sqlmock.NewRows([]string{"name"})
+	rows.AddRow("Alice")
+	rows.RowError(0, errRowRead)
+	mock.ExpectQuery("SELECT name FROM users").WillReturnRows(rows)
 
-		rows := sqlmock.NewRows([]string{"name"})
-		rows.AddRow(nil)
-		mock.ExpectQuery("SELECT DISTINCT name FROM users").WillReturnRows(rows)
+	names, err := svc.GetNames()
+	require.ErrorContains(t, err, "rows error")
+	require.Nil(t, names)
+	require.NoError(t, mock.ExpectationsWereMet())
+}
 
-		names, err := svc.GetUniqueNames()
-		require.ErrorContains(t, err, "rows scanning")
-		require.Nil(t, names)
-		require.NoError(t, mock.ExpectationsWereMet())
-	})
+func TestGetUniqueNamesSuccess(t *testing.T) {
+	_, mock, svc := setupDB(t)
+	t.Parallel()
 
-	t.Run("GetUniqueNames rows RowError returns error", func(t *testing.T) {
-		t.Parallel()
+	rows := sqlmock.NewRows([]string{"name"})
+	rows.AddRow("Alice")
+	rows.AddRow("Bob")
+	mock.ExpectQuery("SELECT DISTINCT name FROM users").WillReturnRows(rows)
 
-		rows := sqlmock.NewRows([]string{"name"})
-		rows.AddRow("Alice")
-		rows.RowError(0, errRowRead)
-		mock.ExpectQuery("SELECT DISTINCT name FROM users").WillReturnRows(rows)
+	names, err := svc.GetUniqueNames()
+	require.NoError(t, err)
+	require.Equal(t, []string{"Alice", "Bob"}, names)
+	require.NoError(t, mock.ExpectationsWereMet())
+}
 
-		names, err := svc.GetUniqueNames()
-		require.ErrorContains(t, err, "rows error")
-		require.Nil(t, names)
-		require.NoError(t, mock.ExpectationsWereMet())
-	})
+func TestGetUniqueNamesQueryFailed(t *testing.T) {
+	_, mock, svc := setupDB(t)
+	t.Parallel()
+
+	mock.ExpectQuery("SELECT DISTINCT name FROM users").WillReturnError(errSelectFailed)
+
+	names, err := svc.GetUniqueNames()
+	require.ErrorContains(t, err, "db query")
+	require.Nil(t, names)
+	require.NoError(t, mock.ExpectationsWereMet())
+}
+
+func TestGetUniqueNamesScanningNilValue(t *testing.T) {
+	_, mock, svc := setupDB(t)
+	t.Parallel()
+
+	rows := sqlmock.NewRows([]string{"name"})
+	rows.AddRow(nil)
+	mock.ExpectQuery("SELECT DISTINCT name FROM users").WillReturnRows(rows)
+
+	names, err := svc.GetUniqueNames()
+	require.ErrorContains(t, err, "rows scanning")
+	require.Nil(t, names)
+	require.NoError(t, mock.ExpectationsWereMet())
+}
+
+func TestGetUniqueNamesRowError(t *testing.T) {
+	_, mock, svc := setupDB(t)
+	t.Parallel()
+
+	rows := sqlmock.NewRows([]string{"name"})
+	rows.AddRow("Alice")
+	rows.RowError(0, errRowRead)
+	mock.ExpectQuery("SELECT DISTINCT name FROM users").WillReturnRows(rows)
+
+	names, err := svc.GetUniqueNames()
+	require.ErrorContains(t, err, "rows error")
+	require.Nil(t, names)
+	require.NoError(t, mock.ExpectationsWereMet())
 }
