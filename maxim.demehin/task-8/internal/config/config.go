@@ -11,10 +11,10 @@ type Config struct {
 	LogLevel    string `yaml:"log_level"`
 }
 
-func parseConfig(data []byte) (*Config, error) {
+func ParseConfig() (*Config, error) {
 	var config Config
 
-	err := yaml.Unmarshal(data, &config)
+	err := yaml.Unmarshal(configData, &config)
 	if err != nil {
 		return nil, fmt.Errorf("error while parsing config: %w", err)
 	}
