@@ -12,11 +12,12 @@ type Config struct {
 }
 
 func LoadConfig() (*Config, error) {
-	var config Config
+	var cfg Config
 
-	if err := yaml.Unmarshal(configFile, &config); err != nil {
-		return nil, fmt.Errorf("invalid unmarshal config: %w", err)
+	err := yaml.Unmarshal(configFile, &cfg)
+	if err != nil {
+		return nil, fmt.Errorf("cannot unmarshal file: %w", err)
 	}
 
-	return &config, nil
+	return &cfg, nil
 }
