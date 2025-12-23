@@ -31,12 +31,12 @@ func TestWiFiService_GetHardwareAddresses(t *testing.T) {
 		{
 			testName: "successful address retrieval",
 			mockInterfaces: []*wifi.Interface{
-				createInterface("wlp2s0", "11:22:33:44:55:66"),
-				createInterface("wlp3s0", "aa:bb:cc:dd:ee:ff"),
+				createInterface(t, "wlp2s0", "11:22:33:44:55:66"),
+				createInterface(t, "wlp3s0", "aa:bb:cc:dd:ee:ff"),
 			},
 			expectedResult: []net.HardwareAddr{
-				parseMACAddress("11:22:33:44:55:66"),
-				parseMACAddress("aa:bb:cc:dd:ee:ff"),
+				parseMACAddress(t, "11:22:33:44:55:66"),
+				parseMACAddress(t, "aa:bb:cc:dd:ee:ff"),
 			},
 		},
 		{
@@ -52,12 +52,12 @@ func TestWiFiService_GetHardwareAddresses(t *testing.T) {
 		{
 			testName: "interface with nil address",
 			mockInterfaces: []*wifi.Interface{
-				createInterface("wlan0", ""),
-				createInterface("wlan1", "11:22:33:44:55:66"),
+				createInterface(t, "wlan0", ""),
+				createInterface(t, "wlan1", "11:22:33:44:55:66"),
 			},
 			expectedResult: []net.HardwareAddr{
 				nil,
-				parseMACAddress("11:22:33:44:55:66"),
+				parseMACAddress(t, "11:22:33:44:55:66"),
 			},
 		},
 	}
@@ -96,8 +96,8 @@ func TestWiFiService_GetInterfaceNames(t *testing.T) {
 		{
 			testName: "successful name retrieval",
 			mockInterfaces: []*wifi.Interface{
-				createInterface("eth0", "11:22:33:44:55:66"),
-				createInterface("eth1", "aa:bb:cc:dd:ee:ff"),
+				createInterface(t, "eth0", "11:22:33:44:55:66"),
+				createInterface(t, "eth1", "aa:bb:cc:dd:ee:ff"),
 			},
 			expectedResult: []string{"eth0", "eth1"},
 		},
@@ -114,9 +114,9 @@ func TestWiFiService_GetInterfaceNames(t *testing.T) {
 		{
 			testName: "multiple interfaces",
 			mockInterfaces: []*wifi.Interface{
-				createInterface("wlan0", "11:22:33:44:55:66"),
-				createInterface("wlp2s0", "aa:bb:cc:dd:ee:ff"),
-				createInterface("wlp3s0", "00:11:22:33:44:55"),
+				createInterface(t, "wlan0", "11:22:33:44:55:66"),
+				createInterface(t, "wlp2s0", "aa:bb:cc:dd:ee:ff"),
+				createInterface(t, "wlp3s0", "00:11:22:33:44:55"),
 			},
 			expectedResult: []string{"wlan0", "wlp2s0", "wlp3s0"},
 		},
@@ -159,10 +159,11 @@ func TestWiFiService_New(t *testing.T) {
 	assert.Equal(t, mockHandler, serviceInstance.WiFi)
 }
 
-func createInterface(name string, mac string) *wifi.Interface {
+func createInterface(t *testing.T, name string, mac string) *wifi.Interface {
+	t.Helper()
 	var hwAddr net.HardwareAddr
 	if mac != "" {
-		hwAddr = parseMACAddress(mac)
+		hwAddr = parseMACAddress(t, mac)
 	}
 
 	return &wifi.Interface{
@@ -171,7 +172,8 @@ func createInterface(name string, mac string) *wifi.Interface {
 	}
 }
 
-func parseMACAddress(addr string) net.HardwareAddr {
+func parseMACAddress(t *testing.T, addr string) net.HardwareAddr {
+	t.Helper()
 	hw, err := net.ParseMAC(addr)
 	if err != nil {
 		panic("invalid MAC address in test: " + addr)
