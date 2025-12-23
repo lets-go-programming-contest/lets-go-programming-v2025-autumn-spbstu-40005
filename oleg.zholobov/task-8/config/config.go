@@ -11,11 +11,13 @@ type Config struct {
 	LogLevel    string `yaml:"log_level"`
 }
 
+var configData []byte
+
 func (c *Config) String() string {
 	return fmt.Sprintf("%s %s", c.Environment, c.LogLevel)
 }
 
-func GetConfig(configData []byte) (*Config, error) {
+func LoadConfig() (*Config, error) {
 	cfg := &Config{
 		Environment: "",
 		LogLevel:    "",
