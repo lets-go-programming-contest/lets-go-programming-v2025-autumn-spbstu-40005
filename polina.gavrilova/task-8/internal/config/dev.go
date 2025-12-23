@@ -1,5 +1,4 @@
-//go:build !prod
-// +build !prod
+//go:build dev
 
 package config
 
