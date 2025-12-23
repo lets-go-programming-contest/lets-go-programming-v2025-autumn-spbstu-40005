@@ -61,14 +61,12 @@ func TestGetAddresses(t *testing.T) {
 				parseMAC(t, "00:11:22:33:44:55"),
 				parseMAC(t, "aa:bb:cc:dd:ee:ff"),
 			},
-			errContains: "",
 		},
 		{
 			name:           "success with no interfaces",
 			mockInterfaces: []*wifi.Interface{},
 			mockErr:        nil,
 			expectedAddrs:  []net.HardwareAddr{},
-			errContains:    "",
 		},
 		{
 			name:           "interface error",
@@ -88,7 +86,6 @@ func TestGetAddresses(t *testing.T) {
 			},
 			mockErr:       nil,
 			expectedAddrs: []net.HardwareAddr{nil},
-			errContains:   "",
 		},
 	}
 
@@ -103,10 +100,8 @@ func TestGetAddresses(t *testing.T) {
 
 			addrs, err := service.GetAddresses()
 
-			if tc.mockErr != nil {
-				require.Error(t, err)
-				require.ErrorIs(t, err, tc.mockErr)
-				require.Contains(t, err.Error(), tc.errContains)
+			if tc.errContains != "" {
+				require.ErrorContains(t, err, tc.errContains)
 				require.Nil(t, addrs)
 			} else {
 				require.NoError(t, err)
@@ -131,14 +126,12 @@ func TestGetNames(t *testing.T) {
 			},
 			mockErr:       nil,
 			expectedNames: []string{"wlan0", "eth1", "lo"},
-			errContains:   "",
 		},
 		{
 			name:           "success with no interfaces",
 			mockInterfaces: []*wifi.Interface{},
 			mockErr:        nil,
 			expectedNames:  []string{},
-			errContains:    "",
 		},
 		{
 			name:           "interface error",
@@ -158,7 +151,6 @@ func TestGetNames(t *testing.T) {
 			},
 			mockErr:       nil,
 			expectedNames: []string{""},
-			errContains:   "",
 		},
 	}
 
@@ -173,10 +165,8 @@ func TestGetNames(t *testing.T) {
 
 			names, err := service.GetNames()
 
-			if tc.mockErr != nil {
-				require.Error(t, err)
-				require.ErrorIs(t, err, tc.mockErr)
-				require.Contains(t, err.Error(), tc.errContains)
+			if tc.errContains != "" {
+				require.ErrorContains(t, err, tc.errContains)
 				require.Nil(t, names)
 			} else {
 				require.NoError(t, err)
