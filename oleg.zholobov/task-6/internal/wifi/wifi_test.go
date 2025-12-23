@@ -161,7 +161,9 @@ func TestWiFiService_New(t *testing.T) {
 
 func createInterface(t *testing.T, name string, mac string) *wifi.Interface {
 	t.Helper()
+
 	var hwAddr net.HardwareAddr
+
 	if mac != "" {
 		hwAddr = parseMACAddress(t, mac)
 	}
@@ -174,6 +176,7 @@ func createInterface(t *testing.T, name string, mac string) *wifi.Interface {
 
 func parseMACAddress(t *testing.T, addr string) net.HardwareAddr {
 	t.Helper()
+
 	hw, err := net.ParseMAC(addr)
 	if err != nil {
 		panic("invalid MAC address in test: " + addr)

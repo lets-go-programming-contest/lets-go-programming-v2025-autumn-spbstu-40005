@@ -26,7 +26,7 @@ type testScenario struct {
 func TestDBService_GetNames_RegularQueryExecution(t *testing.T) {
 	t.Parallel()
 
-	testDBService_GetNames(t, testScenario{
+	testDBServiceGetNames(t, testScenario{
 		description:  "regular query execution",
 		expectedData: []string{"Dmitry", "Anna", "Sergey"},
 	})
@@ -35,7 +35,7 @@ func TestDBService_GetNames_RegularQueryExecution(t *testing.T) {
 func TestDBService_GetNames_QueryExecutionFailure(t *testing.T) {
 	t.Parallel()
 
-	testDBService_GetNames(t, testScenario{
+	testDBServiceGetNames(t, testScenario{
 		description: "query execution failure",
 		dbError:     errDatabaseFailure,
 		shouldFail:  true,
@@ -46,13 +46,13 @@ func TestDBService_GetNames_QueryExecutionFailure(t *testing.T) {
 func TestDBService_GetNames_SingleRecordResult(t *testing.T) {
 	t.Parallel()
 
-	testDBService_GetNames(t, testScenario{
+	testDBServiceGetNames(t, testScenario{
 		description:  "single record result",
 		expectedData: []string{"Ekaterina"},
 	})
 }
 
-func testDBService_GetNames(t *testing.T, scenario testScenario) {
+func testDBServiceGetNames(t *testing.T, scenario testScenario) {
 	t.Helper()
 
 	sqlDB, sqlMock, err := sqlmock.New()
@@ -80,7 +80,7 @@ func testDBService_GetNames(t *testing.T, scenario testScenario) {
 		require.Error(t, err, "expected error but got none")
 
 		if scenario.failReason == "query" {
-			assert.ErrorContains(t, err, "db query")
+			require.ErrorContains(t, err, "db query")
 		}
 
 		assert.Nil(t, results, "results should be nil on error")
@@ -107,7 +107,7 @@ func TestDBService_GetNames_ScanError_NullValueHandling(t *testing.T) {
 
 	results, err := service.GetNames()
 	require.Error(t, err)
-	assert.ErrorContains(t, err, "rows scanning")
+	require.ErrorContains(t, err, "rows scanning")
 	assert.Nil(t, results)
 	assert.NoError(t, sqlMock.ExpectationsWereMet())
 }
@@ -127,7 +127,7 @@ func TestDBService_GetNames_RowIterationError(t *testing.T) {
 
 	results, err := service.GetNames()
 	require.Error(t, err)
-	assert.ErrorContains(t, err, "rows error")
+	require.ErrorContains(t, err, "rows error")
 	assert.Nil(t, results)
 	assert.NoError(t, sqlMock.ExpectationsWereMet())
 }
@@ -153,7 +153,7 @@ func TestDBService_GetNames_EmptyResultSet_NilSlice(t *testing.T) {
 func TestDBService_GetUniqueNames_DistinctQueryExecution(t *testing.T) {
 	t.Parallel()
 
-	testDBService_GetUniqueNames(t, testScenario{
+	testDBServiceGetUniqueNames(t, testScenario{
 		description:  "distinct query execution",
 		expectedData: []string{"Dmitry", "Anna", "Sergey"},
 	})
@@ -162,7 +162,7 @@ func TestDBService_GetUniqueNames_DistinctQueryExecution(t *testing.T) {
 func TestDBService_GetUniqueNames_DistinctQueryFailure(t *testing.T) {
 	t.Parallel()
 
-	testDBService_GetUniqueNames(t, testScenario{
+	testDBServiceGetUniqueNames(t, testScenario{
 		description: "distinct query failure",
 		dbError:     errDatabaseFailure,
 		shouldFail:  true,
@@ -173,7 +173,7 @@ func TestDBService_GetUniqueNames_DistinctQueryFailure(t *testing.T) {
 func TestDBService_GetUniqueNames_SingleDistinctRecord(t *testing.T) {
 	t.Parallel()
 
-	testDBService_GetUniqueNames(t, testScenario{
+	testDBServiceGetUniqueNames(t, testScenario{
 		description:  "single distinct record",
 		expectedData: []string{"Ekaterina"},
 	})
@@ -182,13 +182,13 @@ func TestDBService_GetUniqueNames_SingleDistinctRecord(t *testing.T) {
 func TestDBService_GetUniqueNames_DuplicateNamesInDistinctQuery(t *testing.T) {
 	t.Parallel()
 
-	testDBService_GetUniqueNames(t, testScenario{
+	testDBServiceGetUniqueNames(t, testScenario{
 		description:  "duplicate names in distinct query",
 		expectedData: []string{"Dmitry", "Dmitry", "Anna"},
 	})
 }
 
-func testDBService_GetUniqueNames(t *testing.T, scenario testScenario) {
+func testDBServiceGetUniqueNames(t *testing.T, scenario testScenario) {
 	t.Helper()
 
 	sqlDB, sqlMock, err := sqlmock.New()
@@ -216,7 +216,7 @@ func testDBService_GetUniqueNames(t *testing.T, scenario testScenario) {
 		require.Error(t, err, "expected error but got none")
 
 		if scenario.failReason == "query" {
-			assert.ErrorContains(t, err, "db query")
+			require.ErrorContains(t, err, "db query")
 		}
 
 		assert.Nil(t, results, "results should be nil on error")
@@ -243,7 +243,7 @@ func TestDBService_GetUniqueNames_DistinctScanError_NullHandling(t *testing.T) {
 
 	results, err := service.GetUniqueNames()
 	require.Error(t, err)
-	assert.ErrorContains(t, err, "rows scanning")
+	require.ErrorContains(t, err, "rows scanning")
 	assert.Nil(t, results)
 	assert.NoError(t, sqlMock.ExpectationsWereMet())
 }
@@ -263,7 +263,7 @@ func TestDBService_GetUniqueNames_DistinctRowIterationError(t *testing.T) {
 
 	results, err := service.GetUniqueNames()
 	require.Error(t, err)
-	assert.ErrorContains(t, err, "rows error")
+	require.ErrorContains(t, err, "rows error")
 	assert.Nil(t, results)
 	assert.NoError(t, sqlMock.ExpectationsWereMet())
 }
