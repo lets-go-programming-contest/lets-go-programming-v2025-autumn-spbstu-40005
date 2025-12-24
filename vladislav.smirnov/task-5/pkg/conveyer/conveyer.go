@@ -93,7 +93,6 @@ func (c *Conveyer) Run(ctx context.Context) error {
 	c.mu.RUnlock()
 
 	err := errGroup.Wait()
-
 	if err != nil {
 		return fmt.Errorf("run tasks failed: %w", err)
 	}
