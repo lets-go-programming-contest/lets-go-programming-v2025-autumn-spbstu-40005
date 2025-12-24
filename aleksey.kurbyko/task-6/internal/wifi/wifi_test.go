@@ -111,6 +111,7 @@ func makeIfaces(t *testing.T, addrs []string) []*wifi.Interface {
 	t.Helper()
 
 	ifaces := make([]*wifi.Interface, 0, len(addrs))
+
 	for i, macStr := range addrs {
 		hw := parseMAC(t, macStr)
 		ifaces = append(ifaces, &wifi.Interface{
