@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	cfg, err := config.loadConfig()
+	cfg, err := config.LoadConfig()
 	if err != nil {
 		fmt.Println("Failed to load config: %w", err)
 
