@@ -12,6 +12,9 @@ import (
 const (
 	selectNamesQuery    = "SELECT name FROM users"
 	selectDistinctQuery = "SELECT DISTINCT name FROM users"
+	msgDbQuery = "db query"
+	msgRowsError = "rows error"
+	msgRowsScan = "rows scanning"
 )
 
 var errTest = errors.New("test error")
@@ -71,7 +74,7 @@ func TestGetNames_RowProblem(t *testing.T) {
 
 	names, err := service.GetNames()
 
-	require.ErrorContains(t, err, "rows error")
+	require.ErrorContains(t, err, msgRowsError)
 	require.Nil(t, names)
 }
 
@@ -90,9 +93,8 @@ func TestGetNames_QueryError(t *testing.T) {
 
 	names, err := service.GetNames()
 
-	require.Error(t, err)
+	require.ErrorContains(t, err, msgDbQuery)
 	require.Nil(t, names)
-	require.ErrorContains(t, err, "db query")
 }
 
 func TestGetNames_ScanError(t *testing.T) {
@@ -112,9 +114,8 @@ func TestGetNames_ScanError(t *testing.T) {
 
 	names, err := service.GetNames()
 
-	require.Error(t, err)
 	require.Nil(t, names)
-	require.ErrorContains(t, err, "rows scanning")
+	require.ErrorContains(t, err, msgRowsScan)
 }
 
 func TestGetUniqueNames_Success(t *testing.T) {
@@ -152,7 +153,8 @@ func TestGetUniqueNames_QueryFail(t *testing.T) {
 	mock.ExpectQuery(selectDistinctQuery).WillReturnError(errTest)
 
 	names, err := service.GetUniqueNames()
-	require.ErrorContains(t, err, "db query")
+
+	require.ErrorContains(t, err, msgDbQuery)
 	require.Nil(t, names)
 }
 
@@ -173,7 +175,7 @@ func TestGetUniqueNames_InvalData(t *testing.T) {
 
 	names, err := service.GetUniqueNames()
 
-	require.ErrorContains(t, err, "rows scanning")
+	require.ErrorContains(t, err, msgRowsScan)
 	require.Nil(t, names)
 }
 
@@ -195,7 +197,6 @@ func TestGetUniqueNames_RowsError(t *testing.T) {
 
 	names, err := service.GetUniqueNames()
 
-	require.Error(t, err)
 	require.Nil(t, names)
-	require.ErrorContains(t, err, "rows error")
+	require.ErrorContains(t, err, msgRowsError)
 }

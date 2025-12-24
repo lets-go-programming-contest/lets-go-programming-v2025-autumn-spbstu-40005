@@ -13,12 +13,16 @@ import (
 
 //go:generate mockery --name=WiFiHandle --dir=../wifi --output=. --outpkg=wifi_test --testonly --quiet
 
+const msgGetInterface = "getting interfaces"
+
 var errTest = errors.New("test error")
 
-func makeMAC(addr string) net.HardwareAddr {
+func makeMAC(t *testing.T, addr string) net.HardwareAddr {
+	t.Helper()
+
 	mac, err := net.ParseMAC(addr)
 	if err != nil {
-		panic("invalid MAC address: " + addr)
+		t.Fatalf("invalid MAC address: %s", addr)
 	}
 
 	return mac
@@ -41,8 +45,8 @@ func TestGetNames_Success(t *testing.T) {
 	service := myWifi.New(mockHandler)
 
 	interfaces := []*wifi.Interface{
-		{Name: "wlan0", HardwareAddr: makeMAC("00:11:22:33:44:55")},
-		{Name: "wlan1", HardwareAddr: makeMAC("AA:BB:CC:DD:EE:FF")},
+		{Name: "wlan0", HardwareAddr: makeMAC(t, "00:11:22:33:44:55")},
+		{Name: "wlan1", HardwareAddr: makeMAC(t, "AA:BB:CC:DD:EE:FF")},
 	}
 	mockHandler.On("Interfaces").Return(interfaces, nil).Once()
 
@@ -65,7 +69,6 @@ func TestGetNames_EmptyList(t *testing.T) {
 
 	require.NoError(t, err)
 	require.Empty(t, names)
-	mockHandler.AssertExpectations(t)
 }
 
 func TestGetNames_Failure(t *testing.T) {
@@ -78,10 +81,8 @@ func TestGetNames_Failure(t *testing.T) {
 
 	names, err := service.GetNames()
 
-	require.Error(t, err)
 	require.Nil(t, names)
-	require.ErrorContains(t, err, "getting interfaces")
-	mockHandler.AssertExpectations(t)
+	require.ErrorContains(t, err, msgGetInterface)
 }
 
 func TestGetAddresses_Success(t *testing.T) {
@@ -91,8 +92,8 @@ func TestGetAddresses_Success(t *testing.T) {
 	service := myWifi.New(mockHandler)
 
 	interfaces := []*wifi.Interface{
-		{Name: "wifi0", HardwareAddr: makeMAC("11:22:33:44:55:66")},
-		{Name: "wifi1", HardwareAddr: makeMAC("AA:BB:CC:DD:EE:FF")},
+		{Name: "wifi0", HardwareAddr: makeMAC(t, "11:22:33:44:55:66")},
+		{Name: "wifi1", HardwareAddr: makeMAC(t, "AA:BB:CC:DD:EE:FF")},
 	}
 	mockHandler.On("Interfaces").Return(interfaces, nil).Once()
 
@@ -100,10 +101,9 @@ func TestGetAddresses_Success(t *testing.T) {
 
 	require.NoError(t, err)
 	require.Equal(t, []net.HardwareAddr{
-		makeMAC("11:22:33:44:55:66"),
-		makeMAC("AA:BB:CC:DD:EE:FF"),
+		makeMAC(t, "11:22:33:44:55:66"),
+		makeMAC(t, "AA:BB:CC:DD:EE:FF"),
 	}, macs)
-	mockHandler.AssertExpectations(t)
 }
 
 func TestGetAddresses_WithNilAddress(t *testing.T) {
@@ -114,7 +114,7 @@ func TestGetAddresses_WithNilAddress(t *testing.T) {
 
 	interfaces := []*wifi.Interface{
 		{Name: "wifi0", HardwareAddr: nil},
-		{Name: "wifi1", HardwareAddr: makeMAC("11:22:33:44:55:66")},
+		{Name: "wifi1", HardwareAddr: makeMAC(t, "11:22:33:44:55:66")},
 	}
 	mockHandler.On("Interfaces").Return(interfaces, nil).Once()
 
@@ -123,8 +123,7 @@ func TestGetAddresses_WithNilAddress(t *testing.T) {
 	require.NoError(t, err)
 	require.Len(t, macs, 2)
 	require.Nil(t, macs[0])
-	require.Equal(t, makeMAC("11:22:33:44:55:66"), macs[1])
-	mockHandler.AssertExpectations(t)
+	require.Equal(t, makeMAC(t, "11:22:33:44:55:66"), macs[1])
 }
 
 func TestGetAddresses_EmptyResult(t *testing.T) {
@@ -139,7 +138,6 @@ func TestGetAddresses_EmptyResult(t *testing.T) {
 
 	require.NoError(t, err)
 	require.Empty(t, macs)
-	mockHandler.AssertExpectations(t)
 }
 
 func TestGetAddresses_Failure(t *testing.T) {
@@ -152,10 +150,8 @@ func TestGetAddresses_Failure(t *testing.T) {
 
 	macs, err := service.GetAddresses()
 
-	require.Error(t, err)
 	require.Nil(t, macs)
-	require.ErrorContains(t, err, "getting interfaces")
-	mockHandler.AssertExpectations(t)
+	require.ErrorContains(t, err, msgGetInterface)
 }
 
 func TestMultipleCalls(t *testing.T) {
@@ -165,7 +161,7 @@ func TestMultipleCalls(t *testing.T) {
 	service := myWifi.New(mockHandler)
 
 	interfaces := []*wifi.Interface{
-		{Name: "wlan0", HardwareAddr: makeMAC("00:11:22:33:44:55")},
+		{Name: "wlan0", HardwareAddr: makeMAC(t, "00:11:22:33:44:55")},
 	}
 
 	mockHandler.On("Interfaces").Return(interfaces, nil).Twice()
@@ -177,6 +173,4 @@ func TestMultipleCalls(t *testing.T) {
 	names2, err2 := service.GetNames()
 	require.NoError(t, err2)
 	require.Equal(t, []string{"wlan0"}, names2)
-
-	mockHandler.AssertExpectations(t)
 }
