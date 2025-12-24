@@ -30,16 +30,16 @@ func TestRetrieveMACs_Successful(t *testing.T) {
 	service := myWifi.New(mockHandler)
 
 	networkIfaces := []*wifi.Interface{
-		{Name: "wifi0", HardwareAddr: createMAC("11:22:33:44:55:66")},
-		{Name: "wifi1", HardwareAddr: createMAC("aa:bb:cc:dd:ee:ff")},
+		{Name: "wifi0", HardwareAddr: createMAC(t, "11:22:33:44:55:66")},
+		{Name: "wifi1", HardwareAddr: createMAC(t, "aa:bb:cc:dd:ee:ff")},
 	}
 	mockHandler.On("Interfaces").Return(networkIfaces, nil)
 
 	macs, err := service.GetAddresses()
 	require.NoError(t, err)
 	require.Equal(t, []net.HardwareAddr{
-		createMAC("11:22:33:44:55:66"),
-		createMAC("aa:bb:cc:dd:ee:ff"),
+		createMAC(t, "11:22:33:44:55:66"),
+		createMAC(t, "aa:bb:cc:dd:ee:ff"),
 	}, macs)
 }
 
@@ -63,8 +63,8 @@ func TestRetrieveInterfaceNames_Successful(t *testing.T) {
 	service := myWifi.New(mockHandler)
 
 	networkIfaces := []*wifi.Interface{
-		{Name: "wireless0", HardwareAddr: createMAC("11:22:33:44:55:66")},
-		{Name: "ethernet1", HardwareAddr: createMAC("aa:bb:cc:dd:ee:ff")},
+		{Name: "wireless0", HardwareAddr: createMAC(t, "11:22:33:44:55:66")},
+		{Name: "ethernet1", HardwareAddr: createMAC(t, "aa:bb:cc:dd:ee:ff")},
 	}
 	mockHandler.On("Interfaces").Return(networkIfaces, nil)
 
