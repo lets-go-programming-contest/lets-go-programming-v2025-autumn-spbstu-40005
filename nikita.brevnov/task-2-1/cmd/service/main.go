@@ -5,7 +5,10 @@ import (
 	"fmt"
 )
 
-var ErrOperator = errors.New("invalid operator")
+var (
+	ErrOperator = errors.New("invalid operator")
+	ErrOperlow  = errors.New("lowTemp cannot be greater than highTemp")
+)
 
 const (
 	MinTemp = 15
@@ -17,11 +20,14 @@ type climate struct {
 	highTemp int
 }
 
-func climateController() *climate {
-	return &climate{
-		lowTemp:  MinTemp,
-		highTemp: MaxTemp,
+func newClimate(low, high int) (*climate, error) {
+	if low > high {
+		return nil, ErrOperlow
 	}
+	return &climate{
+		lowTemp:  low,
+		highTemp: high,
+	}, nil
 }
 
 func (oc *climate) AdjustSetting(condition string, value int) error {
@@ -51,14 +57,16 @@ func (oc *climate) FindComfortTemp() int {
 
 func handleDep() error {
 	var employeeCount int
-
 	if _, err := fmt.Scan(&employeeCount); err != nil {
 		return fmt.Errorf("error reading employee count: %w", err)
 	}
 
-	climateControl := climateController()
+	climateControl := &climate{
+		lowTemp:  MinTemp,
+		highTemp: MaxTemp,
+	}
 
-	for range employeeCount {
+	for i := 0; i < employeeCount; i++ {
 		var (
 			condition string
 			tempValue int
