@@ -12,9 +12,9 @@ import (
 const (
 	selectNamesQuery    = "SELECT name FROM users"
 	selectDistinctQuery = "SELECT DISTINCT name FROM users"
-	msgDbQuery = "db query"
-	msgRowsError = "rows error"
-	msgRowsScan = "rows scanning"
+	msgDbQuery          = "db query"
+	msgRowsError        = "rows error"
+	msgRowsScan         = "rows scanning"
 )
 
 var errTest = errors.New("test error")
