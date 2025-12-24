@@ -69,15 +69,12 @@ func TestGetNames(t *testing.T) {
 	}
 
 	for i, tc := range cases {
-		i := i
-		tc := tc
-
 		func() {
 			dbConn, mock, err := sqlmock.New()
 			require.NoError(t, err)
 
-			mock.ExpectClose()
 			defer func() {
+				mock.ExpectClose()
 				require.NoError(t, dbConn.Close())
 				require.NoError(t, mock.ExpectationsWereMet(), "case %d", i)
 			}()
@@ -104,10 +101,12 @@ func TestGetNames(t *testing.T) {
 				}
 
 				require.Nil(t, got, "case %d", i)
-			} else {
-				require.NoError(t, err, "case %d", i)
-				require.Equal(t, tc.want, got, "case %d", i)
+
+				return
 			}
+
+			require.NoError(t, err, "case %d", i)
+			require.Equal(t, tc.want, got, "case %d", i)
 		}()
 	}
 }
@@ -154,15 +153,12 @@ func TestGetUniqueNames(t *testing.T) {
 	}
 
 	for i, tc := range cases {
-		i := i
-		tc := tc
-
 		func() {
 			dbConn, mock, err := sqlmock.New()
 			require.NoError(t, err)
 
-			mock.ExpectClose()
 			defer func() {
+				mock.ExpectClose()
 				require.NoError(t, dbConn.Close())
 				require.NoError(t, mock.ExpectationsWereMet(), "case %d", i)
 			}()
@@ -189,10 +185,12 @@ func TestGetUniqueNames(t *testing.T) {
 				}
 
 				require.Nil(t, got, "case %d", i)
-			} else {
-				require.NoError(t, err, "case %d", i)
-				require.Equal(t, tc.want, got, "case %d", i)
+
+				return
 			}
+
+			require.NoError(t, err, "case %d", i)
+			require.Equal(t, tc.want, got, "case %d", i)
 		}()
 	}
 }

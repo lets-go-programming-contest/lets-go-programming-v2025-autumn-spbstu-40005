@@ -37,15 +37,13 @@ func TestGetAddresses(t *testing.T) {
 		{err: errExpected},
 	}
 
-	mockHandle := NewWiFiHandle(t)
-	service := myWifi.WiFiService{WiFi: mockHandle}
-
 	for i, tc := range cases {
-		i := i
-		tc := tc
-
 		t.Run(fmt.Sprintf("case_%d", i), func(t *testing.T) {
-			mockHandle.On("Interfaces").Unset()
+			t.Parallel()
+
+			mockHandle := NewWiFiHandle(t)
+			service := myWifi.WiFiService{WiFi: mockHandle}
+
 			mockHandle.On("Interfaces").Return(makeIfaces(t, tc.addrs), tc.err)
 
 			got, err := service.GetAddresses()
@@ -73,15 +71,13 @@ func TestGetNames(t *testing.T) {
 		{err: errExpected},
 	}
 
-	mockHandle := NewWiFiHandle(t)
-	service := myWifi.WiFiService{WiFi: mockHandle}
-
 	for i, tc := range cases {
-		i := i
-		tc := tc
-
 		t.Run(fmt.Sprintf("case_%d", i), func(t *testing.T) {
-			mockHandle.On("Interfaces").Unset()
+			t.Parallel()
+
+			mockHandle := NewWiFiHandle(t)
+			service := myWifi.WiFiService{WiFi: mockHandle}
+
 			mockHandle.On("Interfaces").Return(makeIfaces(t, tc.addrs), tc.err)
 
 			got, err := service.GetNames()
@@ -115,10 +111,8 @@ func makeIfaces(t *testing.T, addrs []string) []*wifi.Interface {
 	t.Helper()
 
 	ifaces := make([]*wifi.Interface, 0, len(addrs))
-
 	for i, macStr := range addrs {
 		hw := parseMAC(t, macStr)
-
 		ifaces = append(ifaces, &wifi.Interface{
 			Index:        i + 1,
 			Name:         fmt.Sprintf("wlan%d", i+1),
