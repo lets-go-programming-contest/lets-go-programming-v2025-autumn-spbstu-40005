@@ -82,7 +82,7 @@ func (c *Conveyer) Run(ctx context.Context) error {
 
 	c.mu.RLock()
 
-	for _, task := range tasks {
+	for _, task := range c.tasks {
 		currentTask := task
 
 		errGroup.Go(func() error {
