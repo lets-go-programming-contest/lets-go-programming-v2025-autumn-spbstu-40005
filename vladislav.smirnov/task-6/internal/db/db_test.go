@@ -12,7 +12,7 @@ import (
 const (
 	selectNamesQuery    = "SELECT name FROM users"
 	selectDistinctQuery = "SELECT DISTINCT name FROM users"
-	msgDbQuery          = "db query"
+	msgDBQuery          = "db query"
 	msgRowsError        = "rows error"
 	msgRowsScan         = "rows scanning"
 )
@@ -93,7 +93,7 @@ func TestGetNames_QueryError(t *testing.T) {
 
 	names, err := service.GetNames()
 
-	require.ErrorContains(t, err, msgDbQuery)
+	require.ErrorContains(t, err, msgDBQuery)
 	require.Nil(t, names)
 }
 
@@ -154,7 +154,7 @@ func TestGetUniqueNames_QueryFail(t *testing.T) {
 
 	names, err := service.GetUniqueNames()
 
-	require.ErrorContains(t, err, msgDbQuery)
+	require.ErrorContains(t, err, msgDBQuery)
 	require.Nil(t, names)
 }
 
