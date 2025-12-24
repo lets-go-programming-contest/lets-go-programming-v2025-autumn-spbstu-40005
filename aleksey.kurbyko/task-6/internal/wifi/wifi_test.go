@@ -41,21 +41,26 @@ func TestGetAddresses(t *testing.T) {
 	service := myWifi.WiFiService{WiFi: mockHandle}
 
 	for i, tc := range cases {
-		mockHandle.On("Interfaces").Unset()
-		mockHandle.On("Interfaces").Return(makeIfaces(t, tc.addrs), tc.err)
+		i := i
+		tc := tc
 
-		got, err := service.GetAddresses()
+		t.Run(fmt.Sprintf("case_%d", i), func(t *testing.T) {
+			mockHandle.On("Interfaces").Unset()
+			mockHandle.On("Interfaces").Return(makeIfaces(t, tc.addrs), tc.err)
 
-		if tc.err != nil {
-			require.ErrorIs(t, err, tc.err, "case %d", i)
-			require.ErrorContains(t, err, "getting interfaces", "case %d", i)
-			require.Nil(t, got, "case %d", i)
+			got, err := service.GetAddresses()
 
-			continue
-		}
+			if tc.err != nil {
+				require.ErrorIs(t, err, tc.err, "case %d", i)
+				require.ErrorContains(t, err, "getting interfaces")
+				require.Nil(t, got, "case %d", i)
 
-		require.NoError(t, err, "case %d", i)
-		require.Equal(t, parseMACs(t, tc.addrs), got, "case %d", i)
+				return
+			}
+
+			require.NoError(t, err, "case %d", i)
+			require.Equal(t, parseMACs(t, tc.addrs), got, "case %d", i)
+		})
 	}
 }
 
@@ -72,25 +77,32 @@ func TestGetNames(t *testing.T) {
 	service := myWifi.WiFiService{WiFi: mockHandle}
 
 	for i, tc := range cases {
-		mockHandle.On("Interfaces").Unset()
-		mockHandle.On("Interfaces").Return(makeIfaces(t, tc.addrs), tc.err)
+		i := i
+		tc := tc
 
-		got, err := service.GetNames()
+		t.Run(fmt.Sprintf("case_%d", i), func(t *testing.T) {
+			mockHandle.On("Interfaces").Unset()
+			mockHandle.On("Interfaces").Return(makeIfaces(t, tc.addrs), tc.err)
 
-		if tc.err != nil {
-			require.ErrorIs(t, err, tc.err, "case %d", i)
-			require.ErrorContains(t, err, "getting interfaces", "case %d", i)
-			require.Nil(t, got, "case %d", i)
+			got, err := service.GetNames()
 
-			continue
-		}
+			if tc.err != nil {
+				require.ErrorIs(t, err, tc.err, "case %d", i)
+				require.ErrorContains(t, err, "getting interfaces")
+				require.Nil(t, got, "case %d", i)
 
-		require.NoError(t, err, "case %d", i)
-		require.Equal(t, wantNames(tc.addrs), got, "case %d", i)
+				return
+			}
+
+			require.NoError(t, err, "case %d", i)
+			require.Equal(t, wantNames(t, tc.addrs), got, "case %d", i)
+		})
 	}
 }
 
-func wantNames(addrs []string) []string {
+func wantNames(t *testing.T, addrs []string) []string {
+	t.Helper()
+
 	names := make([]string, 0, len(addrs))
 	for i := range addrs {
 		names = append(names, fmt.Sprintf("wlan%d", i+1))

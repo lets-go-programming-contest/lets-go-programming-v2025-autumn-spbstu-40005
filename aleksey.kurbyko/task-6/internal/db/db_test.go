@@ -69,39 +69,46 @@ func TestGetNames(t *testing.T) {
 	}
 
 	for i, tc := range cases {
-		dbConn, mock, err := sqlmock.New()
-		require.NoError(t, err)
+		i := i
+		tc := tc
 
-		service := db.DBService{DB: dbConn}
+		func() {
+			dbConn, mock, err := sqlmock.New()
+			require.NoError(t, err)
 
-		if tc.queryErr != nil {
-			mock.ExpectQuery(queryGetNames).WillReturnError(tc.queryErr)
-		} else {
-			mock.ExpectQuery(queryGetNames).WillReturnRows(tc.rows)
-		}
+			mock.ExpectClose()
+			defer func() {
+				require.NoError(t, dbConn.Close())
+				require.NoError(t, mock.ExpectationsWereMet(), "case %d", i)
+			}()
 
-		got, err := service.GetNames()
+			service := db.DBService{DB: dbConn}
 
-		if tc.errIs != nil || tc.errContain != "" {
-			require.Error(t, err, "case %d", i)
-
-			if tc.errIs != nil {
-				require.ErrorIs(t, err, tc.errIs, "case %d", i)
+			if tc.queryErr != nil {
+				mock.ExpectQuery(queryGetNames).WillReturnError(tc.queryErr)
+			} else {
+				mock.ExpectQuery(queryGetNames).WillReturnRows(tc.rows)
 			}
 
-			if tc.errContain != "" {
-				require.ErrorContains(t, err, tc.errContain, "case %d", i)
+			got, err := service.GetNames()
+
+			if tc.errIs != nil || tc.errContain != "" {
+				require.Error(t, err, "case %d", i)
+
+				if tc.errIs != nil {
+					require.ErrorIs(t, err, tc.errIs, "case %d", i)
+				}
+
+				if tc.errContain != "" {
+					require.ErrorContains(t, err, tc.errContain, "case %d", i)
+				}
+
+				require.Nil(t, got, "case %d", i)
+			} else {
+				require.NoError(t, err, "case %d", i)
+				require.Equal(t, tc.want, got, "case %d", i)
 			}
-
-			require.Nil(t, got, "case %d", i)
-		} else {
-			require.NoError(t, err, "case %d", i)
-			require.Equal(t, tc.want, got, "case %d", i)
-		}
-
-		mock.ExpectClose()
-		require.NoError(t, dbConn.Close())
-		require.NoError(t, mock.ExpectationsWereMet(), "case %d", i)
+		}()
 	}
 }
 
@@ -147,38 +154,45 @@ func TestGetUniqueNames(t *testing.T) {
 	}
 
 	for i, tc := range cases {
-		dbConn, mock, err := sqlmock.New()
-		require.NoError(t, err)
+		i := i
+		tc := tc
 
-		service := db.DBService{DB: dbConn}
+		func() {
+			dbConn, mock, err := sqlmock.New()
+			require.NoError(t, err)
 
-		if tc.queryErr != nil {
-			mock.ExpectQuery(queryGetUniqueNames).WillReturnError(tc.queryErr)
-		} else {
-			mock.ExpectQuery(queryGetUniqueNames).WillReturnRows(tc.rows)
-		}
+			mock.ExpectClose()
+			defer func() {
+				require.NoError(t, dbConn.Close())
+				require.NoError(t, mock.ExpectationsWereMet(), "case %d", i)
+			}()
 
-		got, err := service.GetUniqueNames()
+			service := db.DBService{DB: dbConn}
 
-		if tc.errIs != nil || tc.errContain != "" {
-			require.Error(t, err, "case %d", i)
-
-			if tc.errIs != nil {
-				require.ErrorIs(t, err, tc.errIs, "case %d", i)
+			if tc.queryErr != nil {
+				mock.ExpectQuery(queryGetUniqueNames).WillReturnError(tc.queryErr)
+			} else {
+				mock.ExpectQuery(queryGetUniqueNames).WillReturnRows(tc.rows)
 			}
 
-			if tc.errContain != "" {
-				require.ErrorContains(t, err, tc.errContain, "case %d", i)
+			got, err := service.GetUniqueNames()
+
+			if tc.errIs != nil || tc.errContain != "" {
+				require.Error(t, err, "case %d", i)
+
+				if tc.errIs != nil {
+					require.ErrorIs(t, err, tc.errIs, "case %d", i)
+				}
+
+				if tc.errContain != "" {
+					require.ErrorContains(t, err, tc.errContain, "case %d", i)
+				}
+
+				require.Nil(t, got, "case %d", i)
+			} else {
+				require.NoError(t, err, "case %d", i)
+				require.Equal(t, tc.want, got, "case %d", i)
 			}
-
-			require.Nil(t, got, "case %d", i)
-		} else {
-			require.NoError(t, err, "case %d", i)
-			require.Equal(t, tc.want, got, "case %d", i)
-		}
-
-		mock.ExpectClose()
-		require.NoError(t, dbConn.Close())
-		require.NoError(t, mock.ExpectationsWereMet(), "case %d", i)
+		}()
 	}
 }
