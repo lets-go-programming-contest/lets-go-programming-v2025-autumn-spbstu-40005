@@ -14,8 +14,11 @@ import (
 
 var ErrTest = errors.New("test error")
 
-func createMAC(s string) net.HardwareAddr {
-	addr, _ := net.ParseMAC(s)
+func createMAC(t *testing.T, s string) net.HardwareAddr {
+	t.Helper()
+
+	addr, err := net.ParseMAC(s)
+	require.NoError(t, err)
 
 	return addr
 }
