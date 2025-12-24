@@ -160,14 +160,12 @@ func (p *pipeline) closeChannels() {
 }
 
 func (p *pipeline) Run(ctx context.Context) error {
+	p.rwMutex.RLock()
+	defer p.rwMutex.RUnlock()
+
 	group, ctx := errgroup.WithContext(ctx)
 
-	p.rwMutex.RLock()
-	workersCopy := make([]workerFunc, len(p.workers))
-	copy(workersCopy, p.workers)
-	p.rwMutex.RUnlock()
-
-	for _, w := range workersCopy {
+	for _, w := range p.workers {
 		workerFunc := w
 
 		group.Go(func() error {
