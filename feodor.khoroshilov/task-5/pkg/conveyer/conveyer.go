@@ -126,7 +126,6 @@ func (c *conveyer) Run(ctx context.Context) error {
 	}
 
 	err := errGroup.Wait()
-
 	if err != nil {
 		return fmt.Errorf("execution failed: %w", err)
 	}
