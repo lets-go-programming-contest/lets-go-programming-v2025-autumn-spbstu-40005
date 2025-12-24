@@ -2,9 +2,7 @@
 
 package config
 
-//go:embed dev.yaml
-var devConfig []byte
+import _ "embed"
 
-func LoadConfig() (*Config, error) {
-	return loadConfig(devConfig)
-}
+//go:embed dev.yaml
+var config []byte

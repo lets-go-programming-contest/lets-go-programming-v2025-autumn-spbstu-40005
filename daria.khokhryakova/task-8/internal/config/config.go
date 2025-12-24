@@ -1,7 +1,6 @@
 package config
 
 import (
-	_ "embed"
 	"fmt"
 
 	"gopkg.in/yaml.v3"
@@ -12,10 +11,7 @@ type Config struct {
 	LogLevel    string `yaml:"log_level"`
 }
 
-//go:embed default.yaml
-var defaultConfig []byte
-
-func loadConfig(data []byte) (*Config, error) {
+func loadConfig() (*Config, error) {
 	var cfg Config
 	if err := yaml.Unmarshal(data, &cfg); err != nil {
 		return nil, fmt.Errorf("failed to parse config: %w", err)

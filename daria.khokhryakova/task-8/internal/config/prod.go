@@ -1,10 +1,8 @@
-//go:build prod
+//go:build !dev
 
 package config
 
-//go:embed prod.yaml
-var prodConfig []byte
+import _ "embed"
 
-func LoadConfig() (*Config, error) {
-	return loadConfig(prodConfig)
-}
+//go:embed prod.yaml
+var config []byte
