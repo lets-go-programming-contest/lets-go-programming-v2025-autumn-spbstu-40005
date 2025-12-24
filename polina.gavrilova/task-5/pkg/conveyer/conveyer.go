@@ -169,11 +169,9 @@ func (p *pipeline) Run(ctx context.Context) error {
 
 	err := group.Wait()
 
-	p.rwMutex.Lock()
 	for _, ch := range p.channels {
 		close(ch)
 	}
-	p.rwMutex.Unlock()
 
 	if err != nil {
 		return fmt.Errorf("pipeline run failed: %w", err)
