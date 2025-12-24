@@ -82,18 +82,18 @@ func (c *Conveyer) Run(ctx context.Context) error {
 
 	c.mu.RLock()
 
-	tasks := make([]task, len(c.tasks))
-	copy(tasks, c.tasks)
+	for _, task := range tasks {
+		currentTask := task
 
-	c.mu.RUnlock()
-
-	for _, item := range tasks {
 		errGroup.Go(func() error {
-			return item(gCtx)
+			return currentTask(gCtx)
 		})
 	}
 
+	c.mu.RUnlock()
+
 	err := errGroup.Wait()
+
 	if err != nil {
 		return fmt.Errorf("run tasks failed: %w", err)
 	}
