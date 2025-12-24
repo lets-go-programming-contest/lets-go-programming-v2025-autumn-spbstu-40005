@@ -144,14 +144,11 @@ func (p *pipeline) Recv(output string) (string, error) {
 	return data, nil
 }
 
-// func (p *pipeline) closeChannels() {
-// 	p.rwMutex.Lock()
-// 	defer p.rwMutex.Unlock()
-
-// 	for _, ch := range p.channels {
-// 		close(ch)
-// 	}
-// }
+func (p *pipeline) closeChannels() {
+	for _, ch := range p.channels {
+		close(ch)
+	}
+}
 
 func (p *pipeline) Run(ctx context.Context) error {
 	p.rwMutex.RLock()
@@ -169,9 +166,7 @@ func (p *pipeline) Run(ctx context.Context) error {
 
 	err := group.Wait()
 
-	for _, ch := range p.channels {
-		close(ch)
-	}
+	p.closeChannels()
 
 	if err != nil {
 		return fmt.Errorf("pipeline run failed: %w", err)
