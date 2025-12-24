@@ -16,6 +16,8 @@ var (
 	ErrSendFailed   = errors.New("send failed: channel closed or full")
 )
 
+type taskFunc func(context.Context) error
+
 type Conveyer interface {
 	RegisterDecorator(
 		decoratorFunc func(ctx context.Context, input chan string, output chan string) error,
@@ -43,7 +45,7 @@ type Conveyer interface {
 type conveyerImpl struct {
 	mu            sync.RWMutex
 	channels      map[string]chan string
-	tasks         []func(context.Context) error
+	tasks         []taskFunc
 	channelBuffer int
 	closed        bool
 }
@@ -52,19 +54,22 @@ func New(size int) *conveyerImpl {
 	return &conveyerImpl{
 		mu:            sync.RWMutex{},
 		channels:      make(map[string]chan string),
-		tasks:         make([]func(context.Context) error, 0),
+		tasks:         make([]taskFunc, 0),
 		channelBuffer: size,
 		closed:        false,
 	}
 }
 
-func (c *conveyerImpl) getChannel(name string) (chan string, bool) {
+func (c *conveyerImpl) getChannel(name string) (chan string, error) {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
 
 	channel, exists := c.channels[name]
+	if !exists {
+		return nil, ErrChanNotFound
+	}
 
-	return channel, exists
+	return channel, nil
 }
 
 func (c *conveyerImpl) getOrCreateChannel(name string) chan string {
@@ -82,9 +87,9 @@ func (c *conveyerImpl) getOrCreateChannel(name string) chan string {
 }
 
 func (c *conveyerImpl) Send(input string, data string) error {
-	channel, exists := c.getChannel(input)
-	if !exists {
-		return fmt.Errorf("send failed: %w", ErrChanNotFound)
+	channel, err := c.getChannel(input)
+	if err != nil {
+		return fmt.Errorf("send failed: %w", err)
 	}
 
 	c.mu.RLock()
@@ -104,9 +109,9 @@ func (c *conveyerImpl) Send(input string, data string) error {
 }
 
 func (c *conveyerImpl) Recv(output string) (string, error) {
-	channel, exists := c.getChannel(output)
-	if !exists {
-		return "", fmt.Errorf("receive failed: %w", ErrChanNotFound)
+	channel, err := c.getChannel(output)
+	if err != nil {
+		return "", fmt.Errorf("receive failed: %w", err)
 	}
 
 	value, ok := <-channel
@@ -198,7 +203,7 @@ func (c *conveyerImpl) Run(ctx context.Context) error {
 	group, groupCtx := errgroup.WithContext(ctx)
 
 	c.mu.RLock()
-	tasks := make([]func(context.Context) error, len(c.tasks))
+	tasks := make([]taskFunc, len(c.tasks))
 	copy(tasks, c.tasks)
 	c.mu.RUnlock()
 
