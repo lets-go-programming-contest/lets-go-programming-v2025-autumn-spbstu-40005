@@ -57,9 +57,8 @@ func (p *pipeline) getOrCreateChannel(name string) chan string {
 }
 
 func (p *pipeline) getChannel(name string) (chan string, error) {
-	if p.rwMutex.TryLock() {
-		defer p.rwMutex.RUnlock()
-	}
+	p.rwMutex.RLock()
+	defer p.rwMutex.RUnlock()
 
 	if ch, ok := p.channels[name]; ok {
 		return ch, nil
@@ -79,9 +78,7 @@ func (p *pipeline) RegisterDecorator(
 		return handler(ctx, inChan, outChan)
 	}
 
-	p.rwMutex.Lock()
-	defer p.rwMutex.Unlock()
-	p.workers = append(p.workers, worker)
+	p.addWorker(worker)
 }
 
 func (p *pipeline) RegisterMultiplexer(
@@ -100,9 +97,7 @@ func (p *pipeline) RegisterMultiplexer(
 		return handler(ctx, inChans, outChan)
 	}
 
-	p.rwMutex.Lock()
-	defer p.rwMutex.Unlock()
-	p.workers = append(p.workers, worker)
+	p.addWorker(worker)
 }
 
 func (p *pipeline) RegisterSeparator(
@@ -121,9 +116,7 @@ func (p *pipeline) RegisterSeparator(
 		return handler(ctx, inChan, outChans)
 	}
 
-	p.rwMutex.Lock()
-	defer p.rwMutex.Unlock()
-	p.workers = append(p.workers, worker)
+	p.addWorker(worker)
 }
 
 func (p *pipeline) Send(input string, data string) error {
@@ -151,14 +144,14 @@ func (p *pipeline) Recv(output string) (string, error) {
 	return data, nil
 }
 
-func (p *pipeline) closeChannels() {
-	p.rwMutex.Lock()
-	defer p.rwMutex.Unlock()
+// func (p *pipeline) closeChannels() {
+// 	p.rwMutex.Lock()
+// 	defer p.rwMutex.Unlock()
 
-	for _, ch := range p.channels {
-		close(ch)
-	}
-}
+// 	for _, ch := range p.channels {
+// 		close(ch)
+// 	}
+// }
 
 func (p *pipeline) Run(ctx context.Context) error {
 	p.rwMutex.RLock()
@@ -176,11 +169,21 @@ func (p *pipeline) Run(ctx context.Context) error {
 
 	err := group.Wait()
 
-	p.closeChannels()
+	p.rwMutex.Lock()
+	for _, ch := range p.channels {
+		close(ch)
+	}
+	p.rwMutex.Unlock()
 
 	if err != nil {
 		return fmt.Errorf("pipeline run failed: %w", err)
 	}
 
 	return nil
+}
+
+func (p *pipeline) addWorker(worker workerFunc) {
+	p.rwMutex.Lock()
+	defer p.rwMutex.Unlock()
+	p.workers = append(p.workers, worker)
 }
