@@ -106,7 +106,7 @@ func TestGetNames(t *testing.T) {
 			names, err := service.GetNames()
 
 			if tc.expectedErr != nil {
-				require.Error(t, err)
+				require.ErrorContains(t, err, "")
 				require.ErrorIs(t, err, tc.expectedErr)
 
 				if tc.errContains != "" {
@@ -116,7 +116,7 @@ func TestGetNames(t *testing.T) {
 				require.Nil(t, names)
 			} else {
 				if tc.errContains != "" {
-					require.Error(t, err)
+					require.ErrorContains(t, err, "")
 					require.ErrorContains(t, err, tc.errContains)
 					require.Nil(t, names)
 				} else {
@@ -213,7 +213,7 @@ func TestGetUniqueNames(t *testing.T) {
 			names, err := service.GetUniqueNames()
 
 			if tc.expectedErr != nil {
-				require.Error(t, err)
+				require.ErrorContains(t, err, "")
 				require.ErrorIs(t, err, tc.expectedErr)
 
 				if tc.errContains != "" {
@@ -223,7 +223,7 @@ func TestGetUniqueNames(t *testing.T) {
 				require.Nil(t, names)
 			} else {
 				if tc.errContains != "" {
-					require.Error(t, err)
+					require.ErrorContains(t, err, "")
 					require.ErrorContains(t, err, tc.errContains)
 					require.Nil(t, names)
 				} else {
