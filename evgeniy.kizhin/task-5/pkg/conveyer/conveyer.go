@@ -116,6 +116,15 @@ func (c *Conveyor) RegisterSeparator(
 	c.mu.Unlock()
 }
 
+func (c *Conveyor) closeAllChans() {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
+	for _, ch := range c.chans {
+		close(ch)
+	}
+}
+
 func (c *Conveyor) Run(ctx context.Context) error {
 	c.mu.RLock()
 	group, gctx := errgroup.WithContext(ctx)
@@ -131,12 +140,7 @@ func (c *Conveyor) Run(ctx context.Context) error {
 
 	err := group.Wait()
 
-	c.mu.Lock()
-	for _, ch := range c.chans {
-		close(ch)
-	}
-
-	c.mu.Unlock()
+	c.closeAllChans()
 
 	if err != nil {
 		return fmt.Errorf("pipeline error: %w", err)
