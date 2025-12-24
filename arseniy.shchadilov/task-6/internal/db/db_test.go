@@ -24,6 +24,7 @@ type testCase struct {
 	errContains   string
 }
 
+//nolint:gochecknoglobals
 var testCasesGetNames = []testCase{
 	{
 		name: "success with multiple names",
@@ -88,6 +89,7 @@ var testCasesGetNames = []testCase{
 	},
 }
 
+//nolint:gochecknoglobals
 var testCasesGetUniqueNames = []testCase{
 	{
 		name: "success with unique names",

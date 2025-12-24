@@ -48,6 +48,7 @@ func createTestInterface(t *testing.T, name string, mac string) *wifi.Interface 
 	}
 }
 
+//nolint:gochecknoglobals
 var testCasesGetAddresses = []wifiTestCase{
 	{
 		name: "success with multiple interfaces",
@@ -115,6 +116,7 @@ func TestGetAddresses(t *testing.T) {
 	}
 }
 
+//nolint:gochecknoglobals
 var testCasesGetNames = []wifiTestCase{
 	{
 		name: "success with multiple interfaces",
