@@ -106,7 +106,6 @@ func TestDBService_GetNames_ScanError_NullValueHandling(t *testing.T) {
 		WillReturnRows(sqlmock.NewRows([]string{"name"}).AddRow(nil))
 
 	results, err := service.GetNames()
-	require.Error(t, err)
 	require.ErrorContains(t, err, "rows scanning")
 	assert.Nil(t, results)
 	assert.NoError(t, sqlMock.ExpectationsWereMet())
@@ -126,7 +125,6 @@ func TestDBService_GetNames_RowIterationError(t *testing.T) {
 	sqlMock.ExpectQuery("SELECT name FROM users").WillReturnRows(testRows)
 
 	results, err := service.GetNames()
-	require.Error(t, err)
 	require.ErrorContains(t, err, "rows error")
 	assert.Nil(t, results)
 	assert.NoError(t, sqlMock.ExpectationsWereMet())
@@ -242,7 +240,6 @@ func TestDBService_GetUniqueNames_DistinctScanError_NullHandling(t *testing.T) {
 		WillReturnRows(sqlmock.NewRows([]string{"name"}).AddRow(nil))
 
 	results, err := service.GetUniqueNames()
-	require.Error(t, err)
 	require.ErrorContains(t, err, "rows scanning")
 	assert.Nil(t, results)
 	assert.NoError(t, sqlMock.ExpectationsWereMet())
@@ -262,7 +259,6 @@ func TestDBService_GetUniqueNames_DistinctRowIterationError(t *testing.T) {
 	sqlMock.ExpectQuery("SELECT DISTINCT name FROM users").WillReturnRows(testRows)
 
 	results, err := service.GetUniqueNames()
-	require.Error(t, err)
 	require.ErrorContains(t, err, "rows error")
 	assert.Nil(t, results)
 	assert.NoError(t, sqlMock.ExpectationsWereMet())
