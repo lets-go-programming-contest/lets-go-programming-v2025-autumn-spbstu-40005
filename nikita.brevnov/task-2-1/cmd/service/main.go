@@ -20,16 +20,6 @@ type climate struct {
 	highTemp int
 }
 
-func newClimate(low, high int) (*climate, error) {
-	if low > high {
-		return nil, ErrOperlow
-	}
-	return &climate{
-		lowTemp:  low,
-		highTemp: high,
-	}, nil
-}
-
 func (oc *climate) AdjustSetting(condition string, value int) error {
 	switch condition {
 	case ">=":
@@ -66,7 +56,7 @@ func handleDep() error {
 		highTemp: MaxTemp,
 	}
 
-	for i := 0; i < employeeCount; i++ {
+	for range employeeCount {
 		var (
 			condition string
 			tempValue int
