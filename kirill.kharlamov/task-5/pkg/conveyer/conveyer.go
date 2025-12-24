@@ -164,14 +164,6 @@ func (c *Conveyer) Recv(channelName string) (string, error) {
 }
 
 func (c *Conveyer) ensureChannel(name string) chan string {
-	c.mutex.RLock()
-	channel, exists := c.channels[name]
-	c.mutex.RUnlock()
-
-	if exists {
-		return channel
-	}
-
 	c.mutex.Lock()
 	defer c.mutex.Unlock()
 
