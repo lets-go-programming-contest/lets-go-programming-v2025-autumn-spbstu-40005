@@ -34,6 +34,7 @@ func parseMAC(t *testing.T, s string) net.HardwareAddr {
 	return hwAddr
 }
 
+//nolint:unparam
 func createTestInterface(t *testing.T, name string, mac string) *wifi.Interface {
 	t.Helper()
 
