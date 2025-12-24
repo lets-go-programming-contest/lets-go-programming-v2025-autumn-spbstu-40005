@@ -45,9 +45,6 @@ func (c *Conveyor) get(name string) (chan string, error) {
 }
 
 func (c *Conveyor) getOrCreate(name string) chan string {
-	c.mu.Lock()
-	defer c.mu.Unlock()
-
 	if inch, ok := c.chans[name]; ok {
 		return inch
 	}
@@ -63,14 +60,15 @@ func (c *Conveyor) RegisterDecorator(
 	input string,
 	output string,
 ) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
 	inch := c.getOrCreate(input)
 	out := c.getOrCreate(output)
 	task := func(ctx context.Context) error {
 		return handlerFn(ctx, inch, out)
 	}
 
-	c.mu.Lock()
-	defer c.mu.Unlock()
 	c.tasks = append(c.tasks, task)
 }
 
@@ -79,6 +77,9 @@ func (c *Conveyor) RegisterMultiplexer(
 	inputs []string,
 	output string,
 ) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
 	ins := make([]chan string, 0, len(inputs))
 	for _, name := range inputs {
 		ins = append(ins, c.getOrCreate(name))
@@ -90,8 +91,6 @@ func (c *Conveyor) RegisterMultiplexer(
 		return handlerFn(ctx, ins, out)
 	}
 
-	c.mu.Lock()
-	defer c.mu.Unlock()
 	c.tasks = append(c.tasks, task)
 }
 
@@ -100,6 +99,9 @@ func (c *Conveyor) RegisterSeparator(
 	input string,
 	outputs []string,
 ) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
 	inch := c.getOrCreate(input)
 	outs := make([]chan string, 0, len(outputs))
 
@@ -111,8 +113,6 @@ func (c *Conveyor) RegisterSeparator(
 		return handlerFn(ctx, inch, outs)
 	}
 
-	c.mu.Lock()
-	defer c.mu.Unlock()
 	c.tasks = append(c.tasks, task)
 }
 
