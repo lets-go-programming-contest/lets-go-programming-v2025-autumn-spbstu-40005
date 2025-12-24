@@ -70,8 +70,8 @@ func (c *Conveyor) RegisterDecorator(
 	}
 
 	c.mu.Lock()
+	defer c.mu.Unlock()
 	c.tasks = append(c.tasks, task)
-	c.mu.Unlock()
 }
 
 func (c *Conveyor) RegisterMultiplexer(
@@ -91,8 +91,8 @@ func (c *Conveyor) RegisterMultiplexer(
 	}
 
 	c.mu.Lock()
+	defer c.mu.Unlock()
 	c.tasks = append(c.tasks, task)
-	c.mu.Unlock()
 }
 
 func (c *Conveyor) RegisterSeparator(
@@ -112,8 +112,8 @@ func (c *Conveyor) RegisterSeparator(
 	}
 
 	c.mu.Lock()
+	defer c.mu.Unlock()
 	c.tasks = append(c.tasks, task)
-	c.mu.Unlock()
 }
 
 func (c *Conveyor) closeAllChans() {
