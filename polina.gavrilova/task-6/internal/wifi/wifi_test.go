@@ -30,12 +30,12 @@ func TestWiFiService_GetAddresses(t *testing.T) {
 		{
 			name: "success",
 			returnIfaces: []*wifi.Interface{
-				{Name: "wlan0", HardwareAddr: mustParseMAC("01:23:45:67:89:00")},
-				{Name: "eth0", HardwareAddr: mustParseMAC("ab:cd:ef:01:23:45")},
+				{Name: "wlan0", HardwareAddr: mustParseMAC(t, "01:23:45:67:89:00")},
+				{Name: "eth0", HardwareAddr: mustParseMAC(t, "ab:cd:ef:01:23:45")},
 			},
 			wantAddrs: []net.HardwareAddr{
-				mustParseMAC("01:23:45:67:89:00"),
-				mustParseMAC("ab:cd:ef:01:23:45"),
+				mustParseMAC(t, "01:23:45:67:89:00"),
+				mustParseMAC(t, "ab:cd:ef:01:23:45"),
 			},
 		},
 		{
@@ -80,8 +80,8 @@ func TestWiFiService_GetNames(t *testing.T) {
 		{
 			name: "success",
 			returnIfaces: []*wifi.Interface{
-				{Name: "wlan0", HardwareAddr: mustParseMAC("ab:cd:ef:01:23:45")},
-				{Name: "eth1", HardwareAddr: mustParseMAC("01:23:45:67:89:00")},
+				{Name: "wlan0", HardwareAddr: mustParseMAC(t, "ab:cd:ef:01:23:45")},
+				{Name: "eth1", HardwareAddr: mustParseMAC(t, "01:23:45:67:89:00")},
 			},
 			wantNames: []string{"wlan0", "eth1"},
 		},
@@ -114,10 +114,12 @@ func TestWiFiService_GetNames(t *testing.T) {
 	}
 }
 
-func mustParseMAC(s string) net.HardwareAddr {
+func mustParseMAC(t *testing.T, s string) net.HardwareAddr {
+	t.Helper()
+
 	hw, err := net.ParseMAC(s)
 	if err != nil {
-		panic("invalid MAC in test: " + s)
+		t.Fatalf("invalid MAC in test: %s", s)
 	}
 
 	return hw
