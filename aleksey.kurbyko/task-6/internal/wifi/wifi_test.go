@@ -23,9 +23,13 @@ type testCase struct {
 func TestNew(t *testing.T) {
 	t.Parallel()
 
-	mockHandle := NewWiFiHandle(t)
-	service := myWifi.New(mockHandle)
-	require.Equal(t, mockHandle, service.WiFi)
+	t.Run("new", func(t *testing.T) {
+		t.Parallel()
+
+		mockHandle := NewWiFiHandle(t)
+		service := myWifi.New(mockHandle)
+		require.Equal(t, mockHandle, service.WiFi)
+	})
 }
 
 func TestGetAddresses(t *testing.T) {
@@ -49,15 +53,15 @@ func TestGetAddresses(t *testing.T) {
 			got, err := service.GetAddresses()
 
 			if tc.err != nil {
-				require.ErrorIs(t, err, tc.err, "case %d", i)
+				require.ErrorIs(t, err, tc.err)
 				require.ErrorContains(t, err, "getting interfaces")
-				require.Nil(t, got, "case %d", i)
+				require.Nil(t, got)
 
 				return
 			}
 
-			require.NoError(t, err, "case %d", i)
-			require.Equal(t, parseMACs(t, tc.addrs), got, "case %d", i)
+			require.NoError(t, err)
+			require.Equal(t, parseMACs(t, tc.addrs), got)
 		})
 	}
 }
@@ -83,15 +87,15 @@ func TestGetNames(t *testing.T) {
 			got, err := service.GetNames()
 
 			if tc.err != nil {
-				require.ErrorIs(t, err, tc.err, "case %d", i)
+				require.ErrorIs(t, err, tc.err)
 				require.ErrorContains(t, err, "getting interfaces")
-				require.Nil(t, got, "case %d", i)
+				require.Nil(t, got)
 
 				return
 			}
 
-			require.NoError(t, err, "case %d", i)
-			require.Equal(t, wantNames(t, tc.addrs), got, "case %d", i)
+			require.NoError(t, err)
+			require.Equal(t, wantNames(t, tc.addrs), got)
 		})
 	}
 }
@@ -100,6 +104,7 @@ func wantNames(t *testing.T, addrs []string) []string {
 	t.Helper()
 
 	names := make([]string, 0, len(addrs))
+
 	for i := range addrs {
 		names = append(names, fmt.Sprintf("wlan%d", i+1))
 	}
@@ -114,6 +119,7 @@ func makeIfaces(t *testing.T, addrs []string) []*wifi.Interface {
 
 	for i, macStr := range addrs {
 		hw := parseMAC(t, macStr)
+
 		ifaces = append(ifaces, &wifi.Interface{
 			Index:        i + 1,
 			Name:         fmt.Sprintf("wlan%d", i+1),

@@ -16,11 +16,20 @@ const (
 
 var errExpected = errors.New("expected error")
 
+type testCase struct {
+	rows       *sqlmock.Rows
+	queryErr   error
+	want       []string
+	errIs      error
+	errContain string
+}
+
 func TestNew(t *testing.T) {
 	t.Parallel()
 
 	dbConn, _, err := sqlmock.New()
 	require.NoError(t, err)
+
 	defer dbConn.Close()
 
 	service := db.New(dbConn)
@@ -29,14 +38,6 @@ func TestNew(t *testing.T) {
 
 func TestGetNames(t *testing.T) {
 	t.Parallel()
-
-	type testCase struct {
-		rows       *sqlmock.Rows
-		queryErr   error
-		want       []string
-		errIs      error
-		errContain string
-	}
 
 	cases := []testCase{
 		{
@@ -113,14 +114,6 @@ func TestGetNames(t *testing.T) {
 
 func TestGetUniqueNames(t *testing.T) {
 	t.Parallel()
-
-	type testCase struct {
-		rows       *sqlmock.Rows
-		queryErr   error
-		want       []string
-		errIs      error
-		errContain string
-	}
 
 	cases := []testCase{
 		{
