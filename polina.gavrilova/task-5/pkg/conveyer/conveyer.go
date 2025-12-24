@@ -57,8 +57,9 @@ func (p *pipeline) getOrCreateChannel(name string) chan string {
 }
 
 func (p *pipeline) getChannel(name string) (chan string, error) {
-	p.rwMutex.RLock()
-	defer p.rwMutex.RUnlock()
+	if p.rwMutex.TryLock() {
+		defer p.rwMutex.RUnlock()
+	}
 
 	if ch, ok := p.channels[name]; ok {
 		return ch, nil
