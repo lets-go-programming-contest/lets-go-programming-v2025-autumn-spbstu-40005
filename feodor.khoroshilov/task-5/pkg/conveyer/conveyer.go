@@ -112,9 +112,10 @@ func (c *conveyer) RegisterSeparator(
 
 func (c *conveyer) Run(ctx context.Context) error {
 	c.mutex.RLock()
-	workers := make([]WorkerFunc, len(c.workers))
-	copy(workers, c.workers)
+	workers := c.workers
 	c.mutex.RUnlock()
+
+	defer c.closeAll()
 
 	errGroup, ctx := errgroup.WithContext(ctx)
 
@@ -125,8 +126,6 @@ func (c *conveyer) Run(ctx context.Context) error {
 	}
 
 	err := errGroup.Wait()
-
-	defer c.closeAll()
 
 	if err != nil {
 		return fmt.Errorf("execution failed: %w", err)
