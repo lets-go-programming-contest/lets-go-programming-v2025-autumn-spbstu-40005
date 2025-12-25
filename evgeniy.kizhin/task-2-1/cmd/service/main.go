@@ -1,10 +1,21 @@
 package main
 
-import "errors"
-import "fmt"
+import (
+	"errors"
+	"fmt"
+)
 
-const minTempLimit = 15
-const maxTempLimit = 30
+const (
+	minTempLimit = 15
+	maxTempLimit = 30
+)
+
+var (
+	ErrInvalidOperator = errors.New("invalid operator")
+	ErrReadingWorkers  = errors.New("error reading number of workers")
+	ErrReadingInput    = errors.New("error reading worker input")
+	ErrUpdatingTemp    = errors.New("error updating temperature manager")
+)
 
 type TempController struct {
 	minTemp int
@@ -29,8 +40,9 @@ func (tc *TempController) ApplyConstraint(operator string, temp int) error {
 			tc.maxTemp = temp
 		}
 	default:
-		return errors.New("invalid operator")
+		return ErrInvalidOperator
 	}
+
 	return nil
 }
 
@@ -38,50 +50,60 @@ func (tc *TempController) GetOptimalTemp() int {
 	if tc.minTemp > tc.maxTemp {
 		return -1
 	}
+
 	return tc.minTemp
 }
 
 func readWorkerInput() (string, int, error) {
-	var operator string
-	var temp int
+	var (
+		operator string
+		temp     int
+	)
+
 	if _, err := fmt.Scan(&operator, &temp); err != nil {
-		return "", 0, err
+		return "", 0, ErrReadingInput
 	}
+
 	return operator, temp, nil
 }
 
-func processDepartment(workers_count int) {
+func processDepartment() error {
+	var workers int
+	if _, err := fmt.Scan(&workers); err != nil {
+		return ErrReadingWorkers
+	}
+
 	controller := NewTempController()
 
-	for range workers_count {
+	for range workers {
 		operator, temp, err := readWorkerInput()
 		if err != nil {
-			fmt.Println("Error reading input:", err)
-			return
+			return err
 		}
 
 		if err := controller.ApplyConstraint(operator, temp); err != nil {
-			fmt.Println("Invalid operator:", err)
-			return
+			return ErrUpdatingTemp
 		}
 
 		fmt.Println(controller.GetOptimalTemp())
 	}
+
+	return nil
 }
 
 func main() {
 	var departments int
-	var workers int
 	if _, err := fmt.Scan(&departments); err != nil {
-		fmt.Println("Error reading number of departments:", err)
-		return
-	}
-	if _, err := fmt.Scan(&workers); err != nil {
-		fmt.Println("Error reading number of workers:", err)
+		fmt.Println(ErrReadingWorkers)
+
 		return
 	}
 
 	for range departments {
-		processDepartment(workers)
+		if err := processDepartment(); err != nil {
+			fmt.Println(err)
+
+			return
+		}
 	}
 }
