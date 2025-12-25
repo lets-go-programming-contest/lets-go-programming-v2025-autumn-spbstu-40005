@@ -1,10 +1,15 @@
 package main
 
-import "container/heap"
-import "errors"
-import "fmt"
+import (
+	"container/heap"
+	"errors"
+	"fmt"
+)
 
-var ErrHeapSize = errors.New("heap size is smaller than the required number")
+var (
+	ErrHeapSize         = errors.New("heap size is smaller than the required number")
+	ErrFailedToGetValue = errors.New("failed to get value from heap")
+)
 
 type DishHeap []int
 
@@ -21,7 +26,12 @@ func (heap *DishHeap) Swap(i, j int) {
 }
 
 func (heap *DishHeap) Push(x any) {
-	*heap = append(*heap, x.(int))
+	value, ok := x.(int)
+	if !ok {
+		panic("Invalid type")
+	}
+
+	*heap = append(*heap, value)
 }
 
 func (heap *DishHeap) Pop() any {
@@ -29,11 +39,12 @@ func (heap *DishHeap) Pop() any {
 	n := len(old)
 	x := old[n-1]
 	*heap = old[0 : n-1]
+
 	return x
 }
 
-func findKthLargest(dishHeap *DishHeap, k int) (int, error) {
-	if dishHeap.Len() < k {
+func findKthLargest(dishHeap *DishHeap, kthPos int) (int, error) {
+	if dishHeap.Len() < kthPos {
 		return 0, ErrHeapSize
 	}
 
@@ -41,7 +52,7 @@ func findKthLargest(dishHeap *DishHeap, k int) (int, error) {
 	copy(heapCopy, *dishHeap)
 	heap.Init(&heapCopy)
 
-	for i := 1; i < k; i++ {
+	for i := 1; i < kthPos; i++ {
 		heap.Pop(&heapCopy)
 	}
 
@@ -50,14 +61,15 @@ func findKthLargest(dishHeap *DishHeap, k int) (int, error) {
 		return value, nil
 	}
 
-	return 0, errors.New("Failed to retrieve value from heap")
+	return 0, ErrFailedToGetValue
 }
 
 func main() {
-	var numberOfDishes, k int
+	var numberOfDishes, kthPos int
 
 	if _, err := fmt.Scan(&numberOfDishes); err != nil {
 		fmt.Println("Error reading number of dishes:", err)
+
 		return
 	}
 
@@ -68,24 +80,29 @@ func main() {
 		var dishPreference int
 		if _, err := fmt.Scan(&dishPreference); err != nil {
 			fmt.Println("Error reading dish preference:", err)
+
 			return
 		}
+
 		heap.Push(dishHeap, dishPreference)
 	}
 
-	if _, err := fmt.Scan(&k); err != nil {
+	if _, err := fmt.Scan(&kthPos); err != nil {
 		fmt.Println("Error reading k:", err)
+
 		return
 	}
 
-	if k < 1 || k > numberOfDishes {
+	if kthPos < 1 || kthPos > numberOfDishes {
 		fmt.Println("Invalid value for k")
+
 		return
 	}
 
-	result, err := findKthLargest(dishHeap, k)
+	result, err := findKthLargest(dishHeap, kthPos)
 	if err != nil {
 		fmt.Println("Error:", err)
+
 		return
 	}
 
