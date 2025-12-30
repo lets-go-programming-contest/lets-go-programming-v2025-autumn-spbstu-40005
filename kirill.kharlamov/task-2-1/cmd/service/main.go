@@ -10,7 +10,11 @@ const (
 	MaxAllowed = 30
 )
 
-var ErrInvalidOperator = errors.New("invalid operator")
+var (
+	ErrInvalidOperator = errors.New("invalid operator")
+	ErrTempOutOfRange  = errors.New("temperature out of allowed range")
+	ErrNoComfortTemp   = errors.New("no comfortable temperature found")
+)
 
 type OfficeClimate struct {
 	lowBound  int
@@ -25,6 +29,10 @@ func CreateClimateController() *OfficeClimate {
 }
 
 func (oc *OfficeClimate) AdjustSetting(condition string, value int) error {
+	if value < MinAllowed || value > MaxAllowed {
+		return ErrTempOutOfRange
+	}
+
 	switch condition {
 	case ">=":
 		if value > oc.lowBound {
@@ -41,12 +49,12 @@ func (oc *OfficeClimate) AdjustSetting(condition string, value int) error {
 	return nil
 }
 
-func (oc *OfficeClimate) FindComfortTemp() int {
+func (oc *OfficeClimate) FindComfortTemp() (int, error) {
 	if oc.lowBound > oc.highBound {
-		return -1
+		return 0, ErrNoComfortTemp
 	}
 
-	return oc.lowBound
+	return oc.lowBound, nil
 }
 
 func handleDepartment() error {
@@ -71,7 +79,16 @@ func handleDepartment() error {
 			return fmt.Errorf("error adjusting climate settings: %w", err)
 		}
 
-		comfortTemp := climateControl.FindComfortTemp()
+		comfortTemp, err := climateControl.FindComfortTemp()
+
+		if err != nil {
+			if errors.Is(err, ErrNoComfortTemp) {
+				fmt.Println(-1)
+				continue
+			}
+			return err
+		}
+
 		fmt.Println(comfortTemp)
 	}
 
@@ -82,15 +99,13 @@ func main() {
 	var departmentCount int
 	if _, err := fmt.Scan(&departmentCount); err != nil {
 		fmt.Printf("error reading department count: %v\n", err)
-
 		return
 	}
 
-	for range departmentCount {
+	for i := 0; i < departmentCount; i++ {
 		if err := handleDepartment(); err != nil {
-			fmt.Printf("error processing department: %v\n", err)
-
-			return
+			fmt.Printf("error processing department %d: %v\n", i+1, err)
+			continue
 		}
 	}
 }
