@@ -15,6 +15,7 @@ func (h *CustomHeap) Less(i, j int) bool {
 	if i >= h.Len() || j >= h.Len() {
 		panic(fmt.Sprintf("index out of range: i=%d, j=%d, len=%d", i, j, h.Len()))
 	}
+
 	return (*h)[i] < (*h)[j]
 }
 
@@ -22,6 +23,7 @@ func (h *CustomHeap) Swap(i, j int) {
 	if i >= h.Len() || j >= h.Len() {
 		panic(fmt.Sprintf("index out of range: i=%d, j=%d, len=%d", i, j, h.Len()))
 	}
+
 	(*h)[i], (*h)[j] = (*h)[j], (*h)[i]
 }
 
@@ -47,16 +49,16 @@ func (h *CustomHeap) Pop() interface{} {
 	return lastElement
 }
 
-func FindKthPreference(ratings []int, k int) int {
-	if len(ratings) == 0 || k <= 0 || k > len(ratings) {
-		panic(fmt.Sprintf("invalid parameters: ratings len=%d, k=%d", len(ratings), k))
+func FindKthPreference(ratings []int, preferenceOrder int) int {
+	if len(ratings) == 0 || preferenceOrder <= 0 || preferenceOrder > len(ratings) {
+		panic(fmt.Sprintf("invalid parameters: ratings len=%d, preference order=%d", len(ratings), preferenceOrder))
 	}
 
 	heapContainer := &CustomHeap{}
 	heap.Init(heapContainer)
 
 	for _, currentRating := range ratings {
-		if heapContainer.Len() < k {
+		if heapContainer.Len() < preferenceOrder {
 			heap.Push(heapContainer, currentRating)
 		} else if currentRating > (*heapContainer)[0] {
 			heap.Pop(heapContainer)
