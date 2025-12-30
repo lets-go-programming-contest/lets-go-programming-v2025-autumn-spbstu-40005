@@ -12,7 +12,6 @@ const (
 
 var (
 	ErrInvalidOperator = errors.New("invalid operator")
-	ErrTempOutOfRange  = errors.New("temperature out of allowed range")
 	ErrNoComfortTemp   = errors.New("no comfortable temperature found")
 )
 
@@ -29,10 +28,6 @@ func CreateClimateController() *OfficeClimate {
 }
 
 func (oc *OfficeClimate) AdjustSetting(condition string, value int) error {
-	if value < MinAllowed || value > MaxAllowed {
-		return ErrTempOutOfRange
-	}
-
 	switch condition {
 	case ">=":
 		if value > oc.lowBound {
@@ -51,7 +46,7 @@ func (oc *OfficeClimate) AdjustSetting(condition string, value int) error {
 
 func (oc *OfficeClimate) FindComfortTemp() (int, error) {
 	if oc.lowBound > oc.highBound {
-		return 0, ErrNoComfortTemp
+		return -1, ErrNoComfortTemp
 	}
 
 	return oc.lowBound, nil
@@ -80,17 +75,10 @@ func handleDepartment() error {
 		}
 
 		comfortTemp, err := climateControl.FindComfortTemp()
-
 		if err != nil {
-			if errors.Is(err, ErrNoComfortTemp) {
-				fmt.Println(-1)
-
-				continue
-			}
-
-			return err
+			fmt.Println(-1)
+			continue
 		}
-
 		fmt.Println(comfortTemp)
 	}
 
@@ -101,15 +89,13 @@ func main() {
 	var departmentCount int
 	if _, err := fmt.Scan(&departmentCount); err != nil {
 		fmt.Printf("error reading department count: %v\n", err)
-
 		return
 	}
 
 	for range departmentCount {
 		if err := handleDepartment(); err != nil {
 			fmt.Printf("error processing department: %v\n", err)
-
-			continue
+			return
 		}
 	}
 }
