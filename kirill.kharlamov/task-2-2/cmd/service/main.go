@@ -35,6 +35,12 @@ func main() {
 		return
 	}
 
+	defer func() {
+		if r := recover(); r != nil {
+			fmt.Printf("Error: %v\n", r)
+		}
+	}()
+
 	finalChoice := intheap.FindKthPreference(scores, selectionIndex)
 	fmt.Println(finalChoice)
 }
