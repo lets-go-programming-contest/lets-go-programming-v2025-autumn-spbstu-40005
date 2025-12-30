@@ -77,6 +77,7 @@ func handleDepartment() error {
 		comfortTemp, err := climateControl.FindComfortTemp()
 		if err != nil {
 			fmt.Println(-1)
+
 			continue
 		}
 
