@@ -84,6 +84,7 @@ func handleDepartment() error {
 		if err != nil {
 			if errors.Is(err, ErrNoComfortTemp) {
 				fmt.Println(-1)
+
 				continue
 			}
 
