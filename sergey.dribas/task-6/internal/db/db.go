@@ -1,4 +1,4 @@
-package db
+package internaldb
 
 import (
 	"database/sql"
@@ -67,7 +67,6 @@ func (service DBService) GetUniqueNames() ([]string, error) {
 	}
 
 	if err := rows.Err(); err != nil {
-
 		return nil, fmt.Errorf("rows error: %w", err)
 	}
 

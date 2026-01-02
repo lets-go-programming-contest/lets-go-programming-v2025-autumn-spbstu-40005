@@ -1,5 +1,4 @@
-// wifi/wifi_test.go
-package wifi
+package internalwifi_test
 
 import (
 	"errors"
@@ -8,9 +7,14 @@ import (
 
 	"github.com/mdlayher/wifi"
 	"github.com/stretchr/testify/require"
+	internalwifi "sergey.dribas/task-6/internal/wifi"
 )
 
-// MockWiFi implements WiFiHandle
+var (
+	errWifi    = errors.New("wifi error")
+	errWifiGet = errors.New("getting interfaces: wifi error")
+)
+
 type MockWiFi struct {
 	InterfacesFunc func() ([]*wifi.Interface, error)
 }
@@ -24,10 +28,13 @@ func mustParseMAC(s string) net.HardwareAddr {
 	if err != nil {
 		panic(err)
 	}
+
 	return addr
 }
 
 func TestWiFiService_GetAddresses(t *testing.T) {
+	t.Parallel()
+
 	tests := []struct {
 		name        string
 		mockFunc    func() ([]*wifi.Interface, error)
@@ -59,17 +66,19 @@ func TestWiFiService_GetAddresses(t *testing.T) {
 		{
 			name: "error from Interfaces()",
 			mockFunc: func() ([]*wifi.Interface, error) {
-				return nil, errors.New("wifi error")
+				return nil, errWifi
 			},
 			expectAddrs: nil,
-			expectErr:   errors.New("getting interfaces: wifi error"),
+			expectErr:   errWifiGet,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
 			mock := &MockWiFi{InterfacesFunc: tt.mockFunc}
-			service := New(mock)
+			service := internalwifi.New(mock)
 
 			addrs, err := service.GetAddresses()
 
@@ -86,6 +95,8 @@ func TestWiFiService_GetAddresses(t *testing.T) {
 }
 
 func TestWiFiService_GetNames(t *testing.T) {
+	t.Parallel()
+
 	tests := []struct {
 		name        string
 		mockFunc    func() ([]*wifi.Interface, error)
@@ -114,17 +125,19 @@ func TestWiFiService_GetNames(t *testing.T) {
 		{
 			name: "error from Interfaces()",
 			mockFunc: func() ([]*wifi.Interface, error) {
-				return nil, errors.New("wifi error")
+				return nil, errWifi
 			},
 			expectNames: nil,
-			expectErr:   errors.New("getting interfaces: wifi error"),
+			expectErr:   errWifiGet,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
 			mock := &MockWiFi{InterfacesFunc: tt.mockFunc}
-			service := New(mock)
+			service := internalwifi.New(mock)
 
 			names, err := service.GetNames()
 
