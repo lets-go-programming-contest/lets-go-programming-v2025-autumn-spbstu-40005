@@ -1,4 +1,4 @@
-package internaldb_test
+package db_test
 
 import (
 	"errors"
@@ -6,7 +6,7 @@ import (
 
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/stretchr/testify/require"
-	internaldb "sergey.dribas/task-6/internal/db"
+	"sergey.dribas/task-6/internal/db"
 )
 
 var (
@@ -83,7 +83,7 @@ func TestDBService_GetNames(t *testing.T) {
 
 			defer mockDB.Close()
 
-			service := internaldb.New(mockDB)
+			service := db.New(mockDB)
 
 			if tt.setupMock != nil {
 				tt.setupMock(mock)
@@ -175,7 +175,7 @@ func TestDBService_GetUniqueNames(t *testing.T) {
 			require.NoError(t, err)
 			defer mockDB.Close()
 
-			service := internaldb.New(mockDB)
+			service := db.New(mockDB)
 
 			if tt.setupMock != nil {
 				tt.setupMock(mock)
