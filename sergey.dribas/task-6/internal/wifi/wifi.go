@@ -1,4 +1,4 @@
-package internalwifi
+package wifi
 
 import (
 	"fmt"
