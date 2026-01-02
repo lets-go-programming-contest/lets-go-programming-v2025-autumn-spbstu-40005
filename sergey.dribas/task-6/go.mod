@@ -22,5 +22,3 @@ require (
 	golang.org/x/sys v0.25.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
-
-replace github.com/Rassoha/lets-go-programming-v2025-autumn-spbstu-40005/task-5 => ../task-5
