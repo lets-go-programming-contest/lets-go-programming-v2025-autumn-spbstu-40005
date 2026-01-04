@@ -44,8 +44,8 @@ type ValCurs struct {
 }
 
 type Valute struct {
-	ID       string        `xml:"-"`
-	NumCode  int           `xml:"-"`
+	ID       string        `xml:"ID,attr"`
+	NumCode  int           `xml:"NumCode"`
 	CharCode string        `xml:"CharCode"`
 	Nominal  int           `xml:"Nominal"`
 	Name     string        `xml:"Name"`
@@ -53,32 +53,19 @@ type Valute struct {
 }
 
 func (v *Valute) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
-	for _, attr := range start.Attr {
-		if attr.Name.Local == "ID" {
-			v.ID = attr.Value
-			break
-		}
+	type Alias Valute
+	aux := &struct {
+		NumCode string `xml:"NumCode"`
+		*Alias
+	}{
+		Alias: (*Alias)(v),
 	}
 
-	type ValuteInner struct {
-		NumCode  string        `xml:"NumCode"`
-		CharCode string        `xml:"CharCode"`
-		Nominal  int           `xml:"Nominal"`
-		Name     string        `xml:"Name"`
-		Value    CurrencyValue `xml:"Value"`
-	}
-
-	var inner ValuteInner
-	if err := d.DecodeElement(&inner, &start); err != nil {
+	if err := d.DecodeElement(aux, &start); err != nil {
 		return err
 	}
 
-	v.CharCode = inner.CharCode
-	v.Nominal = inner.Nominal
-	v.Name = inner.Name
-	v.Value = inner.Value
-
-	s := strings.TrimSpace(inner.NumCode)
+	s := strings.TrimSpace(aux.NumCode)
 	if s == "" {
 		return fmt.Errorf("NumCode is empty")
 	}
@@ -90,7 +77,7 @@ func (v *Valute) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
 	}
 	num, err := strconv.Atoi(s)
 	if err != nil {
-		return fmt.Errorf("invalid NumCode '%s': %w", inner.NumCode, err)
+		return fmt.Errorf("invalid NumCode '%s': %w", aux.NumCode, err)
 	}
 	v.NumCode = num
 
