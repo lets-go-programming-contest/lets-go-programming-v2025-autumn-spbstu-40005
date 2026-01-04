@@ -143,6 +143,19 @@ func (c *Conveyer) closeChannels() {
 }
 
 func (c *Conveyer) Send(inputID, data string) error {
+	if c.ctx == nil {
+		ch, err := c.getChan(inputID)
+		if err != nil {
+			return err
+		}
+		select {
+		case ch <- data:
+			return nil
+		default:
+			return errors.New("send failed")
+		}
+	}
+
 	ch, err := c.getChan(inputID)
 	if err != nil {
 		return err
@@ -157,6 +170,22 @@ func (c *Conveyer) Send(inputID, data string) error {
 }
 
 func (c *Conveyer) Recv(outputID string) (string, error) {
+	if c.ctx == nil {
+		ch, err := c.getChan(outputID)
+		if err != nil {
+			return "", err
+		}
+		select {
+		case data, ok := <-ch:
+			if !ok {
+				return "", errors.New("channel closed")
+			}
+			return data, nil
+		default:
+			return "", errors.New("no data")
+		}
+	}
+
 	ch, err := c.getChan(outputID)
 	if err != nil {
 		return "", err
@@ -165,7 +194,7 @@ func (c *Conveyer) Recv(outputID string) (string, error) {
 	select {
 	case data, ok := <-ch:
 		if !ok {
-			return "undefined", nil
+			return "", nil
 		}
 		return data, nil
 	case <-c.ctx.Done():
