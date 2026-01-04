@@ -40,7 +40,7 @@ type ValCurs struct {
 
 type Valute struct {
 	ID       string        `xml:"ID,attr"`
-	NumCode  string        `xml:"ISO_Num_Code"`
+	NumCode  int           `xml:"ISO_Num_Code"` // Изменено на int
 	CharCode string        `xml:"ISO_Char_Code"`
 	Nominal  int           `xml:"Nominal"`
 	Name     string        `xml:"Name"`
@@ -48,7 +48,7 @@ type Valute struct {
 }
 
 type OutputCurrency struct {
-	NumCode  string  `json:"iso_num_code"`
+	NumCode  int     `json:"iso_num_code"` // Изменено на int
 	CharCode string  `json:"iso_char_code"`
 	Value    float64 `json:"value"`
 }
