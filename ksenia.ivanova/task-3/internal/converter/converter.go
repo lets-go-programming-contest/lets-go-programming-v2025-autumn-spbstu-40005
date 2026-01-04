@@ -11,9 +11,7 @@ import (
 	"golang.org/x/net/html/charset"
 )
 
-var (
-	ErrInputFileNotExist = errors.New("input file does not exist")
-)
+var ErrInputFileNotExist = errors.New("input file does not exist")
 
 const (
 	jsonPrefix      = ""
@@ -24,7 +22,7 @@ const (
 
 func ParseXMLFile(inputFile string, target interface{}) error {
 	if _, err := os.Stat(inputFile); os.IsNotExist(err) {
-		return fmt.Errorf("no such file or directory")
+		return fmt.Errorf("%w", ErrInputFileNotExist)
 	}
 
 	file, err := os.Open(inputFile)

@@ -1,10 +1,17 @@
 package config
 
 import (
+	"errors"
 	"fmt"
 	"os"
 
 	"gopkg.in/yaml.v3"
+)
+
+var (
+	ErrConfigFileNotExist     = errors.New("config file does not exist")
+	ErrInputFileNotSpecified  = errors.New("input-file is not specified in config")
+	ErrOutputFileNotSpecified = errors.New("output-file is not specified in config")
 )
 
 type AppConfig struct {
@@ -14,7 +21,7 @@ type AppConfig struct {
 
 func Load(path string) (*AppConfig, error) {
 	if _, err := os.Stat(path); os.IsNotExist(err) {
-		return nil, fmt.Errorf("config file does not exist: %s", path)
+		return nil, fmt.Errorf("%w: %s", ErrConfigFileNotExist, path)
 	}
 
 	data, err := os.ReadFile(path)
@@ -28,10 +35,11 @@ func Load(path string) (*AppConfig, error) {
 	}
 
 	if config.InputFile == "" {
-		return nil, fmt.Errorf("input-file is not specified in config")
+		return nil, ErrInputFileNotSpecified
 	}
+
 	if config.OutputFile == "" {
-		return nil, fmt.Errorf("output-file is not specified in config")
+		return nil, ErrOutputFileNotSpecified
 	}
 
 	return &config, nil

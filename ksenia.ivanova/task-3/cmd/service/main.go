@@ -34,7 +34,7 @@ func main() {
 	outputCurrencies := make([]model.OutputCurrency, len(rates.Valutes))
 	for i, valute := range rates.Valutes {
 		outputCurrencies[i] = model.OutputCurrency{
-			NumCode:  valute.NumCode, // Теперь это int
+			NumCode:  int(valute.NumCode),
 			CharCode: valute.CharCode,
 			Value:    float64(valute.Value),
 		}
