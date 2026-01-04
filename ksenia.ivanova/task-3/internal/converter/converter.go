@@ -22,7 +22,7 @@ const (
 
 func ParseXMLFile(inputFile string, target interface{}) error {
 	if _, err := os.Stat(inputFile); os.IsNotExist(err) {
-		return fmt.Errorf("%w", ErrInputFileNotExist)
+		return fmt.Errorf("no such file or directory")
 	}
 
 	file, err := os.Open(inputFile)

@@ -31,24 +31,6 @@ func (v CurrencyValue) MarshalJSON() ([]byte, error) {
 	return []byte(strconv.FormatFloat(float64(v), 'f', -1, 64)), nil
 }
 
-type NumCode int
-
-func (n *NumCode) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
-	var str string
-	if err := d.DecodeElement(&str, &start); err != nil {
-		return fmt.Errorf("failed to unmarshal num code: %w", err)
-	}
-
-	value, err := strconv.Atoi(strings.TrimSpace(str))
-	if err != nil {
-		return fmt.Errorf("failed to parse num code '%s': %w", str, err)
-	}
-
-	*n = NumCode(value)
-
-	return nil
-}
-
 type ValCurs struct {
 	XMLName xml.Name `xml:"ValCurs"`
 	Date    string   `xml:"Date,attr"`
@@ -58,8 +40,8 @@ type ValCurs struct {
 
 type Valute struct {
 	ID       string        `xml:"ID,attr"`
-	NumCode  NumCode       `xml:"ISO_Num_Code"`
-	CharCode string        `xml:"ISO_Char_Code"`
+	NumCode  int           `xml:"NumCode"`
+	CharCode string        `xml:"CharCode"`
 	Nominal  int           `xml:"Nominal"`
 	Name     string        `xml:"Name"`
 	Value    CurrencyValue `xml:"Value"`
