@@ -21,20 +21,11 @@ const (
 )
 
 func ParseXMLFile(inputFile string, target interface{}) error {
-	if _, err := os.Stat(inputFile); os.IsNotExist(err) {
-		return fmt.Errorf("no such file or directory")
-	}
-
 	file, err := os.Open(inputFile)
 	if err != nil {
-		return fmt.Errorf("failed reading file %s: %w", inputFile, err)
+		return err
 	}
-
-	defer func() {
-		if err := file.Close(); err != nil {
-			fmt.Printf("warning: failed to close file: %v\n", err)
-		}
-	}()
+	defer file.Close()
 
 	decoder := xml.NewDecoder(file)
 	decoder.CharsetReader = charset.NewReaderLabel
