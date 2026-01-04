@@ -7,9 +7,7 @@ import (
 )
 
 var (
-	ErrChanNotFound   = errors.New("chan not found")
-	ErrUndefined      = errors.New("undefined")
-	ErrAlreadyStarted = errors.New("conveyer already started")
+	ErrChanNotFound = errors.New("chan not found")
 )
 
 type Conveyer struct {
@@ -21,6 +19,8 @@ type Conveyer struct {
 	wg         sync.WaitGroup
 	ctx        context.Context
 	cancel     context.CancelFunc
+	errOnce    sync.Once
+	firstErr   error
 }
 
 func New(size int) *Conveyer {
@@ -57,7 +57,13 @@ func (c *Conveyer) RegisterDecorator(
 	fn func(context.Context, chan string, chan string) error,
 	inputID, outputID string,
 ) {
-	c.registerProcessor(func(ctx context.Context) error {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	if c.started {
+		return
+	}
+
+	c.processors = append(c.processors, func(ctx context.Context) error {
 		input := c.getOrCreateChan(inputID)
 		output := c.getOrCreateChan(outputID)
 		return fn(ctx, input, output)
@@ -68,7 +74,13 @@ func (c *Conveyer) RegisterMultiplexer(
 	fn func(context.Context, []chan string, chan string) error,
 	inputIDs []string, outputID string,
 ) {
-	c.registerProcessor(func(ctx context.Context) error {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	if c.started {
+		return
+	}
+
+	c.processors = append(c.processors, func(ctx context.Context) error {
 		inputs := make([]chan string, len(inputIDs))
 		for i, id := range inputIDs {
 			inputs[i] = c.getOrCreateChan(id)
@@ -82,7 +94,13 @@ func (c *Conveyer) RegisterSeparator(
 	fn func(context.Context, chan string, []chan string) error,
 	inputID string, outputIDs []string,
 ) {
-	c.registerProcessor(func(ctx context.Context) error {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	if c.started {
+		return
+	}
+
+	c.processors = append(c.processors, func(ctx context.Context) error {
 		input := c.getOrCreateChan(inputID)
 		outputs := make([]chan string, len(outputIDs))
 		for i, id := range outputIDs {
@@ -92,20 +110,11 @@ func (c *Conveyer) RegisterSeparator(
 	})
 }
 
-func (c *Conveyer) registerProcessor(fn func(context.Context) error) {
-	c.mu.Lock()
-	defer c.mu.Unlock()
-	if c.started {
-		return
-	}
-	c.processors = append(c.processors, fn)
-}
-
 func (c *Conveyer) Run(ctx context.Context) error {
 	c.mu.Lock()
 	if c.started {
 		c.mu.Unlock()
-		return ErrAlreadyStarted
+		return errors.New("conveyer already started")
 	}
 	c.started = true
 	c.ctx, c.cancel = context.WithCancel(ctx)
@@ -113,34 +122,42 @@ func (c *Conveyer) Run(ctx context.Context) error {
 
 	defer c.cleanup()
 
-	errCh := make(chan error, len(c.processors))
-
 	for _, proc := range c.processors {
 		c.wg.Add(1)
 		go func(p func(context.Context) error) {
 			defer c.wg.Done()
 			if err := p(c.ctx); err != nil {
-				select {
-				case errCh <- err:
-				default:
-				}
+				c.setError(err)
 				c.cancel()
 			}
 		}(proc)
 	}
 
-	select {
-	case err := <-errCh:
-		return err
-	case <-c.ctx.Done():
-		return c.ctx.Err()
+	<-c.ctx.Done()
+	c.wg.Wait()
+
+	c.mu.RLock()
+	err := c.firstErr
+	c.mu.RUnlock()
+
+	if errors.Is(err, context.Canceled) {
+		return nil
 	}
+	return err
+}
+
+func (c *Conveyer) setError(err error) {
+	c.errOnce.Do(func() {
+		c.mu.Lock()
+		c.firstErr = err
+		c.mu.Unlock()
+	})
 }
 
 func (c *Conveyer) cleanup() {
-	c.wg.Wait()
 	c.mu.Lock()
 	defer c.mu.Unlock()
+
 	for id, ch := range c.channels {
 		close(ch)
 		delete(c.channels, id)
