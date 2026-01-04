@@ -42,11 +42,12 @@ func main() {
 			operator := requestParts[0]
 			temp, _ := strconv.Atoi(requestParts[1])
 
-			if operator == ">=" {
+			switch operator {
+			case ">=":
 				if temp > minTemp {
 					minTemp = temp
 				}
-			} else if operator == "<=" {
+			case "<=":
 				if temp < maxTemp {
 					maxTemp = temp
 				}
@@ -55,7 +56,7 @@ func main() {
 			if minTemp > maxTemp {
 				fmt.Println(-1)
 			} else {
-				fmt.Println(maxTemp)
+				fmt.Println(minTemp)
 			}
 		}
 	}
