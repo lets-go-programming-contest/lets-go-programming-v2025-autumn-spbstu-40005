@@ -7,9 +7,9 @@ import (
 
 type MinHeap []int
 
-func (h MinHeap) Len() int           { return len(h) }
-func (h MinHeap) Less(i, j int) bool { return h[i] < h[j] }
-func (h MinHeap) Swap(i, j int)      { h[i], h[j] = h[j], h[i] }
+func (h *MinHeap) Len() int           { return len(*h) }
+func (h *MinHeap) Less(i, j int) bool { return (*h)[i] < (*h)[j] }
+func (h *MinHeap) Swap(i, j int)      { (*h)[i], (*h)[j] = (*h)[j], (*h)[i] }
 
 func (h *MinHeap) Push(x interface{}) {
 	if val, ok := x.(int); ok {
@@ -54,14 +54,14 @@ func main() {
 	minHeap := &MinHeap{}
 	heap.Init(minHeap)
 
-	for index := 0; index < kValue; index++ {
-		heap.Push(minHeap, ratings[index])
+	for _, rating := range ratings[:kValue] {
+		heap.Push(minHeap, rating)
 	}
 
-	for index := kValue; index < dishCount; index++ {
-		if ratings[index] > (*minHeap)[0] {
+	for _, rating := range ratings[kValue:] {
+		if rating > (*minHeap)[0] {
 			heap.Pop(minHeap)
-			heap.Push(minHeap, ratings[index])
+			heap.Push(minHeap, rating)
 		}
 	}
 
