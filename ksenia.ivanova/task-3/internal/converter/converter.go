@@ -1,4 +1,3 @@
-// internal/converter/parse.go
 package converter
 
 import (
