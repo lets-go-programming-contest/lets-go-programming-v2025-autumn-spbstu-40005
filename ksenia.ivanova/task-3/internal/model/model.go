@@ -53,6 +53,34 @@ type OutputCurrency struct {
 	Value    float64 `json:"value"`
 }
 
+type ByNumCode []Valute
+
+func (v ByNumCode) Len() int {
+	return len(v)
+}
+
+func (v ByNumCode) Swap(i, j int) {
+	v[i], v[j] = v[j], v[i]
+}
+
+func (v ByNumCode) Less(i, j int) bool {
+	return v[i].NumCode < v[j].NumCode
+}
+
+type ByNumCodeDesc []Valute
+
+func (v ByNumCodeDesc) Len() int {
+	return len(v)
+}
+
+func (v ByNumCodeDesc) Swap(i, j int) {
+	v[i], v[j] = v[j], v[i]
+}
+
+func (v ByNumCodeDesc) Less(i, j int) bool {
+	return v[i].NumCode > v[j].NumCode
+}
+
 type ByValueDesc []Valute
 
 func (v ByValueDesc) Len() int {
