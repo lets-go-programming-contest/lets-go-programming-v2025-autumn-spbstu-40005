@@ -3,15 +3,13 @@ package handlers
 import (
 	"context"
 	"errors"
-	"reflect"
 	"strings"
-	"sync/atomic"
 )
 
 func PrefixDecoratorFunc(ctx context.Context, input chan string, output chan string) error {
 	const prefix = "decorated: "
 	const errorSubstring = "no decorator"
-	const errorMsg = "can’t be decorated"
+	const errorMsg = "can't be decorated"
 
 	for {
 		select {
@@ -44,7 +42,7 @@ func SeparatorFunc(ctx context.Context, input chan string, outputs []chan string
 		return nil
 	}
 
-	var counter int64 = -1
+	counter := 0
 
 	for {
 		select {
@@ -55,7 +53,9 @@ func SeparatorFunc(ctx context.Context, input chan string, outputs []chan string
 				return nil
 			}
 
-			idx := atomic.AddInt64(&counter, 1) % int64(len(outputs))
+			idx := counter % len(outputs)
+			counter++
+
 			select {
 			case outputs[idx] <- data:
 			case <-ctx.Done():
@@ -72,37 +72,44 @@ func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan stri
 		return nil
 	}
 
-	cases := make([]reflect.SelectCase, len(inputs)+1)
-	for i, ch := range inputs {
-		cases[i] = reflect.SelectCase{
-			Dir:  reflect.SelectRecv,
-			Chan: reflect.ValueOf(ch),
-		}
-	}
-	cases[len(inputs)] = reflect.SelectCase{
-		Dir:  reflect.SelectRecv,
-		Chan: reflect.ValueOf(ctx.Done()),
+	merged := make(chan string)
+
+	for _, in := range inputs {
+		go func(inputChan chan string) {
+			for {
+				select {
+				case <-ctx.Done():
+					return
+				case data, ok := <-inputChan:
+					if !ok {
+						return
+					}
+					select {
+					case merged <- data:
+					case <-ctx.Done():
+						return
+					}
+				}
+			}
+		}(in)
 	}
 
 	for {
-		chosen, value, ok := reflect.Select(cases)
-		if chosen == len(inputs) {
-			return ctx.Err()
-		}
-
-		if !ok {
-			return nil
-		}
-
-		data := value.String()
-		if strings.Contains(data, skipSubstring) {
-			continue
-		}
-
 		select {
-		case output <- data:
 		case <-ctx.Done():
 			return ctx.Err()
+		case data, ok := <-merged:
+			if !ok {
+				return nil
+			}
+			if strings.Contains(data, skipSubstring) {
+				continue
+			}
+			select {
+			case output <- data:
+			case <-ctx.Done():
+				return ctx.Err()
+			}
 		}
 	}
 }
