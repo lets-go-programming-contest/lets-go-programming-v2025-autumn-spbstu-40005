@@ -21,7 +21,6 @@ func (v *CurrencyValue) UnmarshalXML(d *xml.Decoder, start xml.StartElement) err
 	}
 
 	str = strings.ReplaceAll(str, ",", ".")
-
 	str = strings.ReplaceAll(str, " ", "")
 
 	value, err := strconv.ParseFloat(str, 64)
@@ -45,12 +44,57 @@ type ValCurs struct {
 }
 
 type Valute struct {
-	ID       string        `xml:"ID,attr"`
-	NumCode  int           `xml:"NumCode"`
+	ID       string        `xml:"-"`
+	NumCode  int           `xml:"-"`
 	CharCode string        `xml:"CharCode"`
 	Nominal  int           `xml:"Nominal"`
 	Name     string        `xml:"Name"`
 	Value    CurrencyValue `xml:"Value"`
+}
+
+func (v *Valute) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
+	for _, attr := range start.Attr {
+		if attr.Name.Local == "ID" {
+			v.ID = attr.Value
+			break
+		}
+	}
+
+	type ValuteInner struct {
+		NumCode  string        `xml:"NumCode"`
+		CharCode string        `xml:"CharCode"`
+		Nominal  int           `xml:"Nominal"`
+		Name     string        `xml:"Name"`
+		Value    CurrencyValue `xml:"Value"`
+	}
+
+	var inner ValuteInner
+	if err := d.DecodeElement(&inner, &start); err != nil {
+		return err
+	}
+
+	v.CharCode = inner.CharCode
+	v.Nominal = inner.Nominal
+	v.Name = inner.Name
+	v.Value = inner.Value
+
+	s := strings.TrimSpace(inner.NumCode)
+	if s == "" {
+		return fmt.Errorf("NumCode is empty")
+	}
+	if len(s) > 1 {
+		s = strings.TrimLeft(s, "0")
+		if s == "" {
+			s = "0"
+		}
+	}
+	num, err := strconv.Atoi(s)
+	if err != nil {
+		return fmt.Errorf("invalid NumCode '%s': %w", inner.NumCode, err)
+	}
+	v.NumCode = num
+
+	return nil
 }
 
 type OutputCurrency struct {
