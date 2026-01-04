@@ -5,82 +5,58 @@ import (
 	"fmt"
 	"os"
 	"strconv"
-	"strings"
 )
 
 const (
-	MinAllowed        = 15
-	MaxAllowed        = 30
-	MinPartsCount     = 2
-	ExpectedPartsSize = 2
+	MinTemp = 15
+	MaxTemp = 30
 )
-
-type TemperatureRange struct {
-	min int
-	max int
-}
-
-func NewTemperatureRange() *TemperatureRange {
-	return &TemperatureRange{
-		min: MinAllowed,
-		max: MaxAllowed,
-	}
-}
-
-func (tr *TemperatureRange) ApplyConstraint(operator string, value int) {
-	switch operator {
-	case ">=":
-		if value > tr.min {
-			tr.min = value
-		}
-	case "<=":
-		if value < tr.max {
-			tr.max = value
-		}
-	}
-}
-
-func (tr *TemperatureRange) OptimalTemperature() int {
-	if tr.min > tr.max {
-		return -1
-	}
-
-	return tr.min
-}
 
 func main() {
 	scanner := bufio.NewScanner(os.Stdin)
+	scanner.Split(bufio.ScanWords)
 
 	if !scanner.Scan() {
 		return
 	}
+	N, _ := strconv.Atoi(scanner.Text())
 
-	headerParts := strings.Fields(scanner.Text())
-	if len(headerParts) < ExpectedPartsSize {
+	if !scanner.Scan() {
 		return
 	}
+	K, _ := strconv.Atoi(scanner.Text())
 
-	departmentsCount, _ := strconv.Atoi(headerParts[0])
-	employeesPerDept, _ := strconv.Atoi(headerParts[1])
+	for i := 0; i < N; i++ {
+		minTemp := MinTemp
+		maxTemp := MaxTemp
 
-	for range departmentsCount {
-		tempRange := NewTemperatureRange()
-
-		for range employeesPerDept {
+		for j := 0; j < K; j++ {
 			if !scanner.Scan() {
 				return
 			}
+			operator := scanner.Text()
 
-			requestParts := strings.Fields(scanner.Text())
-			if len(requestParts) < MinPartsCount {
-				continue
+			if !scanner.Scan() {
+				return
+			}
+			value, _ := strconv.Atoi(scanner.Text())
+
+			switch operator {
+			case ">=":
+				if value > minTemp {
+					minTemp = value
+				}
+			case "<=":
+				if value < maxTemp {
+					maxTemp = value
+				}
 			}
 
-			operator := requestParts[0]
-			value, _ := strconv.Atoi(requestParts[1])
-
-			tempRange.ApplyConstraint(operator, value)
-			fmt.Println(tempRange.OptimalTemperature())
+			if minTemp > maxTemp {
+				fmt.Println(-1)
+			} else {
+				fmt.Println(minTemp)
+			}
 		}
 	}
 }
