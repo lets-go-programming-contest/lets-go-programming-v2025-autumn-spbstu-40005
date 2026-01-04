@@ -44,6 +44,7 @@ func (tr *TemperatureRange) OptimalTemperature() int {
 	if tr.min > tr.max {
 		return -1
 	}
+
 	return tr.min
 }
 
