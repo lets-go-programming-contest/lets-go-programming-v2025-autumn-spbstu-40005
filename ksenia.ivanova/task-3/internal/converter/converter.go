@@ -1,17 +1,15 @@
+// internal/converter/parse.go
 package converter
 
 import (
 	"encoding/json"
 	"encoding/xml"
-	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
 
 	"golang.org/x/net/html/charset"
 )
-
-var ErrInputFileNotExist = errors.New("input file does not exist")
 
 const (
 	jsonPrefix      = ""

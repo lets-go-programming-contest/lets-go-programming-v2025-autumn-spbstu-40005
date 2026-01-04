@@ -30,6 +30,10 @@ func main() {
 		log.Fatal(err)
 	}
 
+	if len(rates.Valutes) == 0 {
+		log.Fatal("input XML contains no Valute entries")
+	}
+
 	sort.Sort(model.ByNumCode(rates.Valutes))
 
 	outputCurrencies := make([]model.OutputCurrency, len(rates.Valutes))
