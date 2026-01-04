@@ -56,11 +56,13 @@ func main() {
 	if !scanner.Scan() {
 		return
 	}
+
 	departmentsCount, _ := strconv.Atoi(scanner.Text())
 
 	if !scanner.Scan() {
 		return
 	}
+
 	employeesPerDept, _ := strconv.Atoi(scanner.Text())
 
 	for range departmentsCount {
@@ -70,13 +72,14 @@ func main() {
 			if !scanner.Scan() {
 				return
 			}
+
 			operator := scanner.Text()
 
 			if !scanner.Scan() {
 				return
 			}
-			tempValue, _ := strconv.Atoi(scanner.Text())
 
+			tempValue, _ := strconv.Atoi(scanner.Text())
 			UpdateTemperature(operator, tempValue, tempRange)
 			fmt.Println(tempRange.GetResult())
 		}
