@@ -100,6 +100,10 @@ func (c *Conveyer) Run(ctx context.Context) error {
 	}
 	c.started = true
 	c.ctx, c.cancel = context.WithCancel(ctx)
+
+	for id := range c.channels {
+		c.channels[id] = make(chan string, c.size)
+	}
 	c.mu.Unlock()
 
 	for _, proc := range c.processors {
@@ -139,26 +143,21 @@ func (c *Conveyer) closeChannels() {
 	for _, ch := range c.channels {
 		close(ch)
 	}
-	c.channels = make(map[string]chan string)
 }
 
 func (c *Conveyer) Send(inputID, data string) error {
+	ch, err := c.getChan(inputID)
+	if err != nil {
+		return err
+	}
+
 	if c.ctx == nil {
-		ch, err := c.getChan(inputID)
-		if err != nil {
-			return err
-		}
 		select {
 		case ch <- data:
 			return nil
 		default:
 			return errors.New("send failed")
 		}
-	}
-
-	ch, err := c.getChan(inputID)
-	if err != nil {
-		return err
 	}
 
 	select {
@@ -170,11 +169,12 @@ func (c *Conveyer) Send(inputID, data string) error {
 }
 
 func (c *Conveyer) Recv(outputID string) (string, error) {
+	ch, err := c.getChan(outputID)
+	if err != nil {
+		return "", err
+	}
+
 	if c.ctx == nil {
-		ch, err := c.getChan(outputID)
-		if err != nil {
-			return "", err
-		}
 		select {
 		case data, ok := <-ch:
 			if !ok {
@@ -184,11 +184,6 @@ func (c *Conveyer) Recv(outputID string) (string, error) {
 		default:
 			return "", errors.New("no data")
 		}
-	}
-
-	ch, err := c.getChan(outputID)
-	if err != nil {
-		return "", err
 	}
 
 	select {
