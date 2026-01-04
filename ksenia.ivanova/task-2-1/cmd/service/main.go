@@ -8,6 +8,45 @@ import (
 	"strings"
 )
 
+const (
+	MinAllowed        = 15
+	MaxAllowed        = 30
+	MinPartsCount     = 2
+	ExpectedPartsSize = 2
+)
+
+type TemperatureRange struct {
+	min int
+	max int
+}
+
+func NewTemperatureRange() *TemperatureRange {
+	return &TemperatureRange{
+		min: MinAllowed,
+		max: MaxAllowed,
+	}
+}
+
+func (tr *TemperatureRange) ApplyConstraint(operator string, value int) {
+	switch operator {
+	case ">=":
+		if value > tr.min {
+			tr.min = value
+		}
+	case "<=":
+		if value < tr.max {
+			tr.max = value
+		}
+	}
+}
+
+func (tr *TemperatureRange) OptimalTemperature() int {
+	if tr.min > tr.max {
+		return -1
+	}
+	return tr.min
+}
+
 func main() {
 	scanner := bufio.NewScanner(os.Stdin)
 
@@ -15,49 +54,32 @@ func main() {
 		return
 	}
 
-	firstLine := scanner.Text()
-	parts := strings.Fields(firstLine)
-	if len(parts) < 2 {
+	headerParts := strings.Fields(scanner.Text())
+	if len(headerParts) < ExpectedPartsSize {
 		return
 	}
 
-	N, _ := strconv.Atoi(parts[0])
-	K, _ := strconv.Atoi(parts[1])
+	departmentsCount, _ := strconv.Atoi(headerParts[0])
+	employeesPerDept, _ := strconv.Atoi(headerParts[1])
 
-	for i := 0; i < N; i++ {
-		minTemp := 15
-		maxTemp := 30
+	for range departmentsCount {
+		tempRange := NewTemperatureRange()
 
-		for j := 0; j < K; j++ {
+		for range employeesPerDept {
 			if !scanner.Scan() {
 				return
 			}
 
-			request := scanner.Text()
-			requestParts := strings.Fields(request)
-			if len(requestParts) < 2 {
+			requestParts := strings.Fields(scanner.Text())
+			if len(requestParts) < MinPartsCount {
 				continue
 			}
 
 			operator := requestParts[0]
-			temp, _ := strconv.Atoi(requestParts[1])
+			value, _ := strconv.Atoi(requestParts[1])
 
-			switch operator {
-			case ">=":
-				if temp > minTemp {
-					minTemp = temp
-				}
-			case "<=":
-				if temp < maxTemp {
-					maxTemp = temp
-				}
-			}
-
-			if minTemp > maxTemp {
-				fmt.Println(-1)
-			} else {
-				fmt.Println(minTemp)
-			}
+			tempRange.ApplyConstraint(operator, value)
+			fmt.Println(tempRange.OptimalTemperature())
 		}
 	}
 }
