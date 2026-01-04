@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"strings"
+	"sync"
 )
 
 func PrefixDecoratorFunc(ctx context.Context, input chan string, output chan string) error {
@@ -72,21 +73,28 @@ func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan stri
 		return nil
 	}
 
-	merged := make(chan string)
+	done := ctx.Done()
+	errChan := make(chan error, len(inputs))
+	var wg sync.WaitGroup
 
 	for _, in := range inputs {
+		wg.Add(1)
 		go func(inputChan chan string) {
+			defer wg.Done()
 			for {
 				select {
-				case <-ctx.Done():
+				case <-done:
 					return
 				case data, ok := <-inputChan:
 					if !ok {
 						return
 					}
+					if strings.Contains(data, skipSubstring) {
+						continue
+					}
 					select {
-					case merged <- data:
-					case <-ctx.Done():
+					case output <- data:
+					case <-done:
 						return
 					}
 				}
@@ -94,22 +102,18 @@ func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan stri
 		}(in)
 	}
 
-	for {
+	go func() {
+		wg.Wait()
 		select {
-		case <-ctx.Done():
-			return ctx.Err()
-		case data, ok := <-merged:
-			if !ok {
-				return nil
-			}
-			if strings.Contains(data, skipSubstring) {
-				continue
-			}
-			select {
-			case output <- data:
-			case <-ctx.Done():
-				return ctx.Err()
-			}
+		case errChan <- nil:
+		default:
 		}
+	}()
+
+	select {
+	case <-done:
+		return ctx.Err()
+	case err := <-errChan:
+		return err
 	}
 }

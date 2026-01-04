@@ -19,14 +19,14 @@ type Conveyer struct {
 	wg         sync.WaitGroup
 	ctx        context.Context
 	cancel     context.CancelFunc
-	errOnce    sync.Once
-	firstErr   error
+	errChan    chan error
 }
 
 func New(size int) *Conveyer {
 	return &Conveyer{
 		size:     size,
 		channels: make(map[string]chan string),
+		errChan:  make(chan error, 1),
 	}
 }
 
@@ -57,12 +57,6 @@ func (c *Conveyer) RegisterDecorator(
 	fn func(context.Context, chan string, chan string) error,
 	inputID, outputID string,
 ) {
-	c.mu.Lock()
-	defer c.mu.Unlock()
-	if c.started {
-		return
-	}
-
 	c.processors = append(c.processors, func(ctx context.Context) error {
 		input := c.getOrCreateChan(inputID)
 		output := c.getOrCreateChan(outputID)
@@ -74,12 +68,6 @@ func (c *Conveyer) RegisterMultiplexer(
 	fn func(context.Context, []chan string, chan string) error,
 	inputIDs []string, outputID string,
 ) {
-	c.mu.Lock()
-	defer c.mu.Unlock()
-	if c.started {
-		return
-	}
-
 	c.processors = append(c.processors, func(ctx context.Context) error {
 		inputs := make([]chan string, len(inputIDs))
 		for i, id := range inputIDs {
@@ -94,12 +82,6 @@ func (c *Conveyer) RegisterSeparator(
 	fn func(context.Context, chan string, []chan string) error,
 	inputID string, outputIDs []string,
 ) {
-	c.mu.Lock()
-	defer c.mu.Unlock()
-	if c.started {
-		return
-	}
-
 	c.processors = append(c.processors, func(ctx context.Context) error {
 		input := c.getOrCreateChan(inputID)
 		outputs := make([]chan string, len(outputIDs))
@@ -120,25 +102,30 @@ func (c *Conveyer) Run(ctx context.Context) error {
 	c.ctx, c.cancel = context.WithCancel(ctx)
 	c.mu.Unlock()
 
-	defer c.cleanup()
-
 	for _, proc := range c.processors {
 		c.wg.Add(1)
 		go func(p func(context.Context) error) {
 			defer c.wg.Done()
 			if err := p(c.ctx); err != nil {
-				c.setError(err)
+				select {
+				case c.errChan <- err:
+				default:
+				}
 				c.cancel()
 			}
 		}(proc)
 	}
 
-	<-c.ctx.Done()
-	c.wg.Wait()
+	var err error
+	select {
+	case err = <-c.errChan:
+		c.cancel()
+	case <-c.ctx.Done():
+		err = c.ctx.Err()
+	}
 
-	c.mu.RLock()
-	err := c.firstErr
-	c.mu.RUnlock()
+	c.wg.Wait()
+	c.closeChannels()
 
 	if errors.Is(err, context.Canceled) {
 		return nil
@@ -146,22 +133,13 @@ func (c *Conveyer) Run(ctx context.Context) error {
 	return err
 }
 
-func (c *Conveyer) setError(err error) {
-	c.errOnce.Do(func() {
-		c.mu.Lock()
-		c.firstErr = err
-		c.mu.Unlock()
-	})
-}
-
-func (c *Conveyer) cleanup() {
+func (c *Conveyer) closeChannels() {
 	c.mu.Lock()
 	defer c.mu.Unlock()
-
-	for id, ch := range c.channels {
+	for _, ch := range c.channels {
 		close(ch)
-		delete(c.channels, id)
 	}
+	c.channels = make(map[string]chan string)
 }
 
 func (c *Conveyer) Send(inputID, data string) error {
