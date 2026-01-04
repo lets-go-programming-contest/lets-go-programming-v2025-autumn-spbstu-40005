@@ -29,7 +29,7 @@ func main() {
 		panic(err)
 	}
 
-	sort.Sort(model.ByValueDesc(rates.Valutes))
+	sort.Sort(model.ByNumCode(rates.Valutes))
 
 	outputCurrencies := make([]model.OutputCurrency, len(rates.Valutes))
 	for i, valute := range rates.Valutes {
