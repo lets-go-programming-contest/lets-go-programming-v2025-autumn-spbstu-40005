@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"log"
 	"sort"
 
 	"ksenia.ivanova/task-3/internal/config"
@@ -21,12 +22,12 @@ func main() {
 
 	appConfig, err := config.Load(*configPath)
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 
 	var rates model.ValCurs
 	if err := converter.ParseXMLFile(appConfig.InputFile, &rates); err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 
 	sort.Sort(model.ByNumCode(rates.Valutes))
@@ -41,6 +42,6 @@ func main() {
 	}
 
 	if err := converter.WriteToJSON(outputCurrencies, appConfig.OutputFile); err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 }
