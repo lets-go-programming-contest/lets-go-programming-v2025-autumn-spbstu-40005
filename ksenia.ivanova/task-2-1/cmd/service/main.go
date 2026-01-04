@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+	"strings"
 )
 
 const (
@@ -51,36 +52,46 @@ func UpdateTemperature(operator string, temperature int, tempRange *TemperatureR
 
 func main() {
 	scanner := bufio.NewScanner(os.Stdin)
-	scanner.Split(bufio.ScanWords)
 
 	if !scanner.Scan() {
 		return
 	}
 
-	departmentsCount, _ := strconv.Atoi(scanner.Text())
-
-	if !scanner.Scan() {
+	N, err := strconv.Atoi(strings.TrimSpace(scanner.Text()))
+	if err != nil || N <= 0 {
 		return
 	}
 
-	employeesPerDept, _ := strconv.Atoi(scanner.Text())
+	for i := 0; i < N; i++ {
+		if !scanner.Scan() {
+			return
+		}
 
-	for range departmentsCount {
+		K, err := strconv.Atoi(strings.TrimSpace(scanner.Text()))
+		if err != nil || K <= 0 {
+			return
+		}
+
 		tempRange := NewTemperatureRange(minLimit, maxLimit)
 
-		for range employeesPerDept {
+		for j := 0; j < K; j++ {
 			if !scanner.Scan() {
 				return
 			}
 
-			operator := scanner.Text()
-
-			if !scanner.Scan() {
-				return
+			line := strings.TrimSpace(scanner.Text())
+			parts := strings.Fields(line)
+			if len(parts) < 2 {
+				continue
 			}
 
-			tempValue, _ := strconv.Atoi(scanner.Text())
-			UpdateTemperature(operator, tempValue, tempRange)
+			operator := parts[0]
+			value, err := strconv.Atoi(parts[1])
+			if err != nil {
+				continue
+			}
+
+			UpdateTemperature(operator, value, tempRange)
 			fmt.Println(tempRange.GetResult())
 		}
 	}
