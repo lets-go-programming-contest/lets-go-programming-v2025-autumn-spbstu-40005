@@ -9,8 +9,10 @@ import (
 )
 
 const (
-	minLimit = 15
-	maxLimit = 30
+	minLimit      = 15
+	maxLimit      = 30
+	minPartsCount = 2
+	expectedParts = 2
 )
 
 type TemperatureRange struct {
@@ -57,37 +59,39 @@ func main() {
 		return
 	}
 
-	N, err := strconv.Atoi(strings.TrimSpace(scanner.Text()))
-	if err != nil || N <= 0 {
+	departmentsCount, err := strconv.Atoi(strings.TrimSpace(scanner.Text()))
+	if err != nil || departmentsCount <= 0 {
 		return
 	}
 
-	for i := 0; i < N; i++ {
+	for range departmentsCount {
 		if !scanner.Scan() {
 			return
 		}
 
-		K, err := strconv.Atoi(strings.TrimSpace(scanner.Text()))
-		if err != nil || K <= 0 {
+		employeesCount, err := strconv.Atoi(strings.TrimSpace(scanner.Text()))
+		if err != nil || employeesCount <= 0 {
 			return
 		}
 
 		tempRange := NewTemperatureRange(minLimit, maxLimit)
 
-		for j := 0; j < K; j++ {
+		for range employeesCount {
 			if !scanner.Scan() {
 				return
 			}
 
 			line := strings.TrimSpace(scanner.Text())
 			parts := strings.Fields(line)
-			if len(parts) < 2 {
+
+			if len(parts) < minPartsCount {
 				continue
 			}
 
 			operator := parts[0]
-			value, err := strconv.Atoi(parts[1])
-			if err != nil {
+			value, parseErr := strconv.Atoi(parts[1])
+
+			if parseErr != nil {
 				continue
 			}
 
