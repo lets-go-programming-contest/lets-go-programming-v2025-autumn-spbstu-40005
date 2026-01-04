@@ -8,9 +8,46 @@ import (
 )
 
 const (
-	MinTemp = 15
-	MaxTemp = 30
+	minLimit = 15
+	maxLimit = 30
 )
+
+type TemperatureRange struct {
+	minTemp int
+	maxTemp int
+}
+
+func NewTemperatureRange(minVal, maxVal int) *TemperatureRange {
+	return &TemperatureRange{
+		minTemp: minVal,
+		maxTemp: maxVal,
+	}
+}
+
+func (temp *TemperatureRange) IsValid() bool {
+	return temp.minTemp <= temp.maxTemp
+}
+
+func (temp *TemperatureRange) GetResult() int {
+	if !temp.IsValid() {
+		return -1
+	}
+
+	return temp.minTemp
+}
+
+func UpdateTemperature(operator string, temperature int, tempRange *TemperatureRange) {
+	switch operator {
+	case ">=":
+		if temperature > tempRange.minTemp {
+			tempRange.minTemp = temperature
+		}
+	case "<=":
+		if temperature < tempRange.maxTemp {
+			tempRange.maxTemp = temperature
+		}
+	}
+}
 
 func main() {
 	scanner := bufio.NewScanner(os.Stdin)
@@ -19,18 +56,17 @@ func main() {
 	if !scanner.Scan() {
 		return
 	}
-	N, _ := strconv.Atoi(scanner.Text())
+	departmentsCount, _ := strconv.Atoi(scanner.Text())
 
 	if !scanner.Scan() {
 		return
 	}
-	K, _ := strconv.Atoi(scanner.Text())
+	employeesPerDept, _ := strconv.Atoi(scanner.Text())
 
-	for i := 0; i < N; i++ {
-		minTemp := MinTemp
-		maxTemp := MaxTemp
+	for range departmentsCount {
+		tempRange := NewTemperatureRange(minLimit, maxLimit)
 
-		for j := 0; j < K; j++ {
+		for range employeesPerDept {
 			if !scanner.Scan() {
 				return
 			}
@@ -39,24 +75,10 @@ func main() {
 			if !scanner.Scan() {
 				return
 			}
-			value, _ := strconv.Atoi(scanner.Text())
+			tempValue, _ := strconv.Atoi(scanner.Text())
 
-			switch operator {
-			case ">=":
-				if value > minTemp {
-					minTemp = value
-				}
-			case "<=":
-				if value < maxTemp {
-					maxTemp = value
-				}
-			}
-
-			if minTemp > maxTemp {
-				fmt.Println(-1)
-			} else {
-				fmt.Println(minTemp)
-			}
+			UpdateTemperature(operator, tempValue, tempRange)
+			fmt.Println(tempRange.GetResult())
 		}
 	}
 }
