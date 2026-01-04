@@ -99,12 +99,18 @@ func (c *Conveyer) Run(ctx context.Context) error {
 		return errors.New("conveyer already started")
 	}
 	c.started = true
-	c.ctx, c.cancel = context.WithCancel(ctx)
 
+	channelIds := make([]string, 0, len(c.channels))
 	for id := range c.channels {
-		c.channels[id] = make(chan string, c.size)
+		channelIds = append(channelIds, id)
 	}
+
+	c.ctx, c.cancel = context.WithCancel(ctx)
 	c.mu.Unlock()
+
+	for _, id := range channelIds {
+		c.getOrCreateChan(id)
+	}
 
 	for _, proc := range c.processors {
 		c.wg.Add(1)
@@ -146,18 +152,19 @@ func (c *Conveyer) closeChannels() {
 }
 
 func (c *Conveyer) Send(inputID, data string) error {
-	ch, err := c.getChan(inputID)
-	if err != nil {
-		return err
-	}
-
 	if c.ctx == nil {
+		ch := c.getOrCreateChan(inputID)
 		select {
 		case ch <- data:
 			return nil
 		default:
 			return errors.New("send failed")
 		}
+	}
+
+	ch, err := c.getChan(inputID)
+	if err != nil {
+		return err
 	}
 
 	select {
@@ -169,12 +176,8 @@ func (c *Conveyer) Send(inputID, data string) error {
 }
 
 func (c *Conveyer) Recv(outputID string) (string, error) {
-	ch, err := c.getChan(outputID)
-	if err != nil {
-		return "", err
-	}
-
 	if c.ctx == nil {
+		ch := c.getOrCreateChan(outputID)
 		select {
 		case data, ok := <-ch:
 			if !ok {
@@ -184,6 +187,11 @@ func (c *Conveyer) Recv(outputID string) (string, error) {
 		default:
 			return "", errors.New("no data")
 		}
+	}
+
+	ch, err := c.getChan(outputID)
+	if err != nil {
+		return "", err
 	}
 
 	select {
