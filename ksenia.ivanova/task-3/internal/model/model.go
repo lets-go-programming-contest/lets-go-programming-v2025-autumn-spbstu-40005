@@ -23,13 +23,12 @@ func (v *CurrencyValue) UnmarshalXML(d *xml.Decoder, start xml.StartElement) err
 	}
 
 	*v = CurrencyValue(value)
+
 	return nil
 }
 
 func (v CurrencyValue) MarshalJSON() ([]byte, error) {
-	str := strconv.FormatFloat(float64(v), 'f', 4, 64)
-	str = strings.ReplaceAll(str, ".", ",")
-	return []byte(`"` + str + `"`), nil
+	return []byte(strconv.FormatFloat(float64(v), 'f', -1, 64)), nil
 }
 
 type ValCurs struct {
@@ -49,9 +48,9 @@ type Valute struct {
 }
 
 type OutputCurrency struct {
-	NumCode  string        `json:"iso_num_code"`
-	CharCode string        `json:"iso_char_code"`
-	Value    CurrencyValue `json:"value"`
+	NumCode  string  `json:"iso_num_code"`
+	CharCode string  `json:"iso_char_code"`
+	Value    float64 `json:"value"`
 }
 
 type ByValueDesc []Valute

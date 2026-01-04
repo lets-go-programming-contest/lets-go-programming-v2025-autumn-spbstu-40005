@@ -36,7 +36,7 @@ func main() {
 		outputCurrencies[i] = model.OutputCurrency{
 			NumCode:  valute.NumCode,
 			CharCode: valute.CharCode,
-			Value:    valute.Value,
+			Value:    float64(valute.Value),
 		}
 	}
 
