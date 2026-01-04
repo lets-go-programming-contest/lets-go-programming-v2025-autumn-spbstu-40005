@@ -100,17 +100,19 @@ func (c *Conveyer) Run(ctx context.Context) error {
 	}
 	c.started = true
 
+	// Ensure all channels referenced so far are created
 	channelIds := make([]string, 0, len(c.channels))
 	for id := range c.channels {
 		channelIds = append(channelIds, id)
 	}
-
-	c.ctx, c.cancel = context.WithCancel(ctx)
 	c.mu.Unlock()
 
+	// Re-get to ensure channels exist (in case of concurrent access, though unlikely)
 	for _, id := range channelIds {
 		c.getOrCreateChan(id)
 	}
+
+	c.ctx, c.cancel = context.WithCancel(ctx)
 
 	for _, proc := range c.processors {
 		c.wg.Add(1)
@@ -152,8 +154,17 @@ func (c *Conveyer) closeChannels() {
 }
 
 func (c *Conveyer) Send(inputID, data string) error {
-	if c.ctx == nil {
-		ch := c.getOrCreateChan(inputID)
+	ch, err := c.getChan(inputID)
+	if err != nil {
+		return err
+	}
+
+	c.mu.RLock()
+	started := c.started
+	ctx := c.ctx
+	c.mu.RUnlock()
+
+	if !started {
 		select {
 		case ch <- data:
 			return nil
@@ -162,22 +173,26 @@ func (c *Conveyer) Send(inputID, data string) error {
 		}
 	}
 
-	ch, err := c.getChan(inputID)
-	if err != nil {
-		return err
-	}
-
 	select {
 	case ch <- data:
 		return nil
-	case <-c.ctx.Done():
-		return c.ctx.Err()
+	case <-ctx.Done():
+		return ctx.Err()
 	}
 }
 
 func (c *Conveyer) Recv(outputID string) (string, error) {
-	if c.ctx == nil {
-		ch := c.getOrCreateChan(outputID)
+	ch, err := c.getChan(outputID)
+	if err != nil {
+		return "", err
+	}
+
+	c.mu.RLock()
+	started := c.started
+	ctx := c.ctx
+	c.mu.RUnlock()
+
+	if !started {
 		select {
 		case data, ok := <-ch:
 			if !ok {
@@ -189,18 +204,13 @@ func (c *Conveyer) Recv(outputID string) (string, error) {
 		}
 	}
 
-	ch, err := c.getChan(outputID)
-	if err != nil {
-		return "", err
-	}
-
 	select {
 	case data, ok := <-ch:
 		if !ok {
-			return "", nil
+			return "", errors.New("channel closed")
 		}
 		return data, nil
-	case <-c.ctx.Done():
-		return "", c.ctx.Err()
+	case <-ctx.Done():
+		return "", ctx.Err()
 	}
 }
