@@ -6,14 +6,13 @@ import (
 	"sync"
 )
 
-var (
-	ErrChanNotFound = errors.New("chan not found")
-)
+var ErrChanNotFound = errors.New("chan not found")
 
 type Conveyer struct {
 	mu         sync.RWMutex
 	size       int
 	channels   map[string]chan string
+	outputs    map[string]struct{}
 	processors []func(context.Context) error
 	started    bool
 	wg         sync.WaitGroup
@@ -26,6 +25,7 @@ func New(size int) *Conveyer {
 	return &Conveyer{
 		size:     size,
 		channels: make(map[string]chan string),
+		outputs:  make(map[string]struct{}),
 		errChan:  make(chan error, 1),
 	}
 }
@@ -60,11 +60,10 @@ func (c *Conveyer) RegisterDecorator(
 ) {
 	c.getOrCreateChan(inputID)
 	c.getOrCreateChan(outputID)
+	c.outputs[outputID] = struct{}{}
 
 	c.processors = append(c.processors, func(ctx context.Context) error {
-		input := c.getOrCreateChan(inputID)
-		output := c.getOrCreateChan(outputID)
-		return fn(ctx, input, output)
+		return fn(ctx, c.channels[inputID], c.channels[outputID])
 	})
 }
 
@@ -76,14 +75,14 @@ func (c *Conveyer) RegisterMultiplexer(
 		c.getOrCreateChan(id)
 	}
 	c.getOrCreateChan(outputID)
+	c.outputs[outputID] = struct{}{}
 
 	c.processors = append(c.processors, func(ctx context.Context) error {
 		inputs := make([]chan string, len(inputIDs))
 		for i, id := range inputIDs {
-			inputs[i] = c.getOrCreateChan(id)
+			inputs[i] = c.channels[id]
 		}
-		output := c.getOrCreateChan(outputID)
-		return fn(ctx, inputs, output)
+		return fn(ctx, inputs, c.channels[outputID])
 	})
 }
 
@@ -94,15 +93,15 @@ func (c *Conveyer) RegisterSeparator(
 	c.getOrCreateChan(inputID)
 	for _, id := range outputIDs {
 		c.getOrCreateChan(id)
+		c.outputs[id] = struct{}{}
 	}
 
 	c.processors = append(c.processors, func(ctx context.Context) error {
-		input := c.getOrCreateChan(inputID)
-		outputs := make([]chan string, len(outputIDs))
+		outs := make([]chan string, len(outputIDs))
 		for i, id := range outputIDs {
-			outputs[i] = c.getOrCreateChan(id)
+			outs[i] = c.channels[id]
 		}
-		return fn(ctx, input, outputs)
+		return fn(ctx, c.channels[inputID], outs)
 	})
 }
 
@@ -130,23 +129,25 @@ func (c *Conveyer) Run(ctx context.Context) error {
 		}(proc)
 	}
 
-	c.closeChannels()
+	for id, ch := range c.channels {
+		if _, ok := c.outputs[id]; !ok {
+			close(ch)
+		}
+	}
 
 	c.wg.Wait()
+
+	for id, ch := range c.channels {
+		if _, ok := c.outputs[id]; ok {
+			close(ch)
+		}
+	}
 
 	select {
 	case err := <-c.errChan:
 		return err
 	default:
 		return nil
-	}
-}
-func (c *Conveyer) closeChannels() {
-	c.mu.Lock()
-	defer c.mu.Unlock()
-
-	for _, ch := range c.channels {
-		close(ch)
 	}
 }
 
@@ -188,6 +189,7 @@ func (c *Conveyer) Recv(outputID string) (string, error) {
 	started := c.started
 	ctx := c.ctx
 	c.mu.RUnlock()
+
 	if !started {
 		select {
 		case data, ok := <-ch:
