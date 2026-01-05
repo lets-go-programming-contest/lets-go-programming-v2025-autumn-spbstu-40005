@@ -32,7 +32,7 @@ func main() {
 
 	filtered := make([]model.Valute, 0, len(rates.Valutes))
 	for _, v := range rates.Valutes {
-		if v.NumCode != 0 {
+		if v.NumCode > 0 {
 			filtered = append(filtered, v)
 		}
 	}
