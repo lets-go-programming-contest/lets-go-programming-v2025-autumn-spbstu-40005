@@ -12,42 +12,47 @@ func (heap *MinHeap) Len() int {
 }
 
 func (heap *MinHeap) Less(i, j int) bool {
+	if i < 0 || i >= heap.Len() || j < 0 || j >= heap.Len() {
+		panic(fmt.Sprintf("MinHeap.Less: indices out of range: i=%d, j=%d, len=%d", i, j, heap.Len()))
+	}
 	return (*heap)[i] < (*heap)[j]
 }
 
 func (heap *MinHeap) Swap(i, j int) {
+	if i < 0 || i >= heap.Len() || j < 0 || j >= heap.Len() {
+		panic(fmt.Sprintf("MinHeap.Swap: indices out of range: i=%d, j=%d, len=%d", i, j, heap.Len()))
+	}
 	(*heap)[i], (*heap)[j] = (*heap)[j], (*heap)[i]
 }
 
 func (heap *MinHeap) Push(x any) {
 	v, ok := x.(int)
 	if !ok {
-		panic("MinHeap: expected int value")
+		panic(fmt.Sprintf("MinHeap.Push: expected int, got %T", x))
 	}
 
 	*heap = append(*heap, v)
 }
 
 func (heap *MinHeap) Pop() any {
-	old := *heap
-
-	length := len(old)
-	if length == 0 {
+	if heap.Len() == 0 {
 		return nil
 	}
 
+	old := *heap
+	length := len(old)
 	x := old[length-1]
 	*heap = old[0 : length-1]
 
 	return x
 }
 
-func (heap *MinHeap) Peek() (int, bool) {
-	if len(*heap) == 0 {
-		return 0, false
+func (heap *MinHeap) Peek() (int, error) {
+	if heap.Len() == 0 {
+		return 0, fmt.Errorf("heap is empty")
 	}
 
-	return (*heap)[0], true
+	return (*heap)[0], nil
 }
 
 func main() {
@@ -103,9 +108,12 @@ func main() {
 		}
 	}
 
-	if result, ok := dishesHeap.Peek(); ok {
-		fmt.Println(result)
-	} else {
+	result, err := dishesHeap.Peek()
+	if err != nil {
 		fmt.Println("No dish available")
+
+		return
 	}
+
+	fmt.Println(result)
 }
