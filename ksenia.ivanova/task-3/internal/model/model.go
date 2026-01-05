@@ -78,11 +78,6 @@ func (v *Valute) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
 		return nil
 	}
 
-	s = strings.TrimLeft(s, "0")
-	if s == "" {
-		s = "0"
-	}
-
 	num, err := strconv.Atoi(s)
 	if err != nil {
 		return fmt.Errorf("invalid NumCode '%s': %w", raw.NumCode, err)
