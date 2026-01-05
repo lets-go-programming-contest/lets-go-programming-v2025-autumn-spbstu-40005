@@ -74,7 +74,8 @@ func (v *Valute) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
 
 	s := strings.TrimSpace(raw.NumCode)
 	if s == "" {
-		return fmt.Errorf("NumCode is empty")
+		v.NumCode = 0
+		return nil
 	}
 
 	num, err := strconv.Atoi(s)
