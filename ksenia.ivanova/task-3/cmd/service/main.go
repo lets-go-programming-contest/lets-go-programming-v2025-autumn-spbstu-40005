@@ -30,10 +30,17 @@ func main() {
 		log.Fatal(err)
 	}
 
-	sort.Sort(model.ByNumCode(rates.Valutes))
+	filtered := make([]model.Valute, 0, len(rates.Valutes))
+	for _, v := range rates.Valutes {
+		if v.NumCode != 0 {
+			filtered = append(filtered, v)
+		}
+	}
 
-	output := make([]model.OutputCurrency, len(rates.Valutes))
-	for i, v := range rates.Valutes {
+	sort.Sort(model.ByNumCode(filtered))
+
+	output := make([]model.OutputCurrency, len(filtered))
+	for i, v := range filtered {
 		output[i] = model.OutputCurrency{
 			NumCode:  v.NumCode,
 			CharCode: v.CharCode,
