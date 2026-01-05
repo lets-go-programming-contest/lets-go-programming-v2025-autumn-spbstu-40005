@@ -2,6 +2,7 @@ package main
 
 import (
 	"container/heap"
+	"errors"
 	"fmt"
 )
 
@@ -15,6 +16,7 @@ func (heap *MinHeap) Less(i, j int) bool {
 	if i < 0 || i >= heap.Len() || j < 0 || j >= heap.Len() {
 		panic(fmt.Sprintf("MinHeap.Less: indices out of range: i=%d, j=%d, len=%d", i, j, heap.Len()))
 	}
+
 	return (*heap)[i] < (*heap)[j]
 }
 
@@ -22,6 +24,7 @@ func (heap *MinHeap) Swap(i, j int) {
 	if i < 0 || i >= heap.Len() || j < 0 || j >= heap.Len() {
 		panic(fmt.Sprintf("MinHeap.Swap: indices out of range: i=%d, j=%d, len=%d", i, j, heap.Len()))
 	}
+
 	(*heap)[i], (*heap)[j] = (*heap)[j], (*heap)[i]
 }
 
@@ -47,9 +50,11 @@ func (heap *MinHeap) Pop() any {
 	return x
 }
 
+var ErrHeapEmpty = errors.New("heap is empty")
+
 func (heap *MinHeap) Peek() (int, error) {
 	if heap.Len() == 0 {
-		return 0, fmt.Errorf("heap is empty")
+		return 0, ErrHeapEmpty
 	}
 
 	return (*heap)[0], nil
