@@ -116,8 +116,6 @@ func (c *Conveyer) Run(ctx context.Context) error {
 	c.ctx, c.cancel = context.WithCancel(ctx)
 	c.mu.Unlock()
 
-	done := make(chan struct{})
-
 	for _, proc := range c.processors {
 		c.wg.Add(1)
 		go func(p func(context.Context) error) {
@@ -132,23 +130,17 @@ func (c *Conveyer) Run(ctx context.Context) error {
 		}(proc)
 	}
 
-	go func() {
-		c.wg.Wait()
-		close(done)
-	}()
-
-	var err error
-	select {
-	case err = <-c.errChan:
-		c.cancel()
-	case <-done:
-		err = nil
-	}
-
 	c.closeChannels()
-	return err
-}
 
+	c.wg.Wait()
+
+	select {
+	case err := <-c.errChan:
+		return err
+	default:
+		return nil
+	}
+}
 func (c *Conveyer) closeChannels() {
 	c.mu.Lock()
 	defer c.mu.Unlock()
