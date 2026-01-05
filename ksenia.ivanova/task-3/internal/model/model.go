@@ -67,20 +67,21 @@ func (v *Valute) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
 
 	s := strings.TrimSpace(aux.NumCode)
 	if s == "" {
-		return fmt.Errorf("NumCode is empty")
+		v.NumCode = 0
+		return nil
 	}
-	if len(s) > 1 {
-		s = strings.TrimLeft(s, "0")
-		if s == "" {
-			s = "0"
-		}
+
+	s = strings.TrimLeft(s, "0")
+	if s == "" {
+		s = "0"
 	}
+
 	num, err := strconv.Atoi(s)
 	if err != nil {
 		return fmt.Errorf("invalid NumCode '%s': %w", aux.NumCode, err)
 	}
-	v.NumCode = num
 
+	v.NumCode = num
 	return nil
 }
 
@@ -92,42 +93,6 @@ type OutputCurrency struct {
 
 type ByNumCode []Valute
 
-func (v ByNumCode) Len() int {
-	return len(v)
-}
-
-func (v ByNumCode) Swap(i, j int) {
-	v[i], v[j] = v[j], v[i]
-}
-
-func (v ByNumCode) Less(i, j int) bool {
-	return v[i].NumCode < v[j].NumCode
-}
-
-type ByNumCodeDesc []Valute
-
-func (v ByNumCodeDesc) Len() int {
-	return len(v)
-}
-
-func (v ByNumCodeDesc) Swap(i, j int) {
-	v[i], v[j] = v[j], v[i]
-}
-
-func (v ByNumCodeDesc) Less(i, j int) bool {
-	return v[i].NumCode > v[j].NumCode
-}
-
-type ByValueDesc []Valute
-
-func (v ByValueDesc) Len() int {
-	return len(v)
-}
-
-func (v ByValueDesc) Swap(i, j int) {
-	v[i], v[j] = v[j], v[i]
-}
-
-func (v ByValueDesc) Less(i, j int) bool {
-	return float64(v[i].Value) > float64(v[j].Value)
-}
+func (v ByNumCode) Len() int           { return len(v) }
+func (v ByNumCode) Swap(i, j int)      { v[i], v[j] = v[j], v[i] }
+func (v ByNumCode) Less(i, j int) bool { return v[i].NumCode < v[j].NumCode }

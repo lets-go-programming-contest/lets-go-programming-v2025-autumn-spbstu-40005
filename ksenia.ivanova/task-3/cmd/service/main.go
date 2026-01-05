@@ -30,22 +30,18 @@ func main() {
 		log.Fatal(err)
 	}
 
-	if len(rates.Valutes) == 0 {
-		log.Fatal("input XML contains no Valute entries")
-	}
-
 	sort.Sort(model.ByNumCode(rates.Valutes))
 
-	outputCurrencies := make([]model.OutputCurrency, len(rates.Valutes))
-	for i, valute := range rates.Valutes {
-		outputCurrencies[i] = model.OutputCurrency{
-			NumCode:  valute.NumCode,
-			CharCode: valute.CharCode,
-			Value:    float64(valute.Value),
+	output := make([]model.OutputCurrency, len(rates.Valutes))
+	for i, v := range rates.Valutes {
+		output[i] = model.OutputCurrency{
+			NumCode:  v.NumCode,
+			CharCode: v.CharCode,
+			Value:    float64(v.Value),
 		}
 	}
 
-	if err := converter.WriteToJSON(outputCurrencies, appConfig.OutputFile); err != nil {
+	if err := converter.WriteToJSON(output, appConfig.OutputFile); err != nil {
 		log.Fatal(err)
 	}
 }
