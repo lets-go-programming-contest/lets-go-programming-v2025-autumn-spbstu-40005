@@ -34,9 +34,10 @@ func (c *Conveyer) getOrCreateChan(id string) chan string {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
-	if ch, exists := c.channels[id]; exists {
+	if ch, ok := c.channels[id]; ok {
 		return ch
 	}
+
 	ch := make(chan string, c.size)
 	c.channels[id] = ch
 	return ch
@@ -46,8 +47,8 @@ func (c *Conveyer) getChan(id string) (chan string, error) {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
 
-	ch, exists := c.channels[id]
-	if !exists {
+	ch, ok := c.channels[id]
+	if !ok {
 		return nil, ErrChanNotFound
 	}
 	return ch, nil
@@ -57,6 +58,9 @@ func (c *Conveyer) RegisterDecorator(
 	fn func(context.Context, chan string, chan string) error,
 	inputID, outputID string,
 ) {
+	c.getOrCreateChan(inputID)
+	c.getOrCreateChan(outputID)
+
 	c.processors = append(c.processors, func(ctx context.Context) error {
 		input := c.getOrCreateChan(inputID)
 		output := c.getOrCreateChan(outputID)
@@ -68,6 +72,11 @@ func (c *Conveyer) RegisterMultiplexer(
 	fn func(context.Context, []chan string, chan string) error,
 	inputIDs []string, outputID string,
 ) {
+	for _, id := range inputIDs {
+		c.getOrCreateChan(id)
+	}
+	c.getOrCreateChan(outputID)
+
 	c.processors = append(c.processors, func(ctx context.Context) error {
 		inputs := make([]chan string, len(inputIDs))
 		for i, id := range inputIDs {
@@ -82,6 +91,11 @@ func (c *Conveyer) RegisterSeparator(
 	fn func(context.Context, chan string, []chan string) error,
 	inputID string, outputIDs []string,
 ) {
+	c.getOrCreateChan(inputID)
+	for _, id := range outputIDs {
+		c.getOrCreateChan(id)
+	}
+
 	c.processors = append(c.processors, func(ctx context.Context) error {
 		input := c.getOrCreateChan(inputID)
 		outputs := make([]chan string, len(outputIDs))
@@ -99,20 +113,8 @@ func (c *Conveyer) Run(ctx context.Context) error {
 		return errors.New("conveyer already started")
 	}
 	c.started = true
-
-	// Ensure all channels referenced so far are created
-	channelIds := make([]string, 0, len(c.channels))
-	for id := range c.channels {
-		channelIds = append(channelIds, id)
-	}
-	c.mu.Unlock()
-
-	// Re-get to ensure channels exist (in case of concurrent access, though unlikely)
-	for _, id := range channelIds {
-		c.getOrCreateChan(id)
-	}
-
 	c.ctx, c.cancel = context.WithCancel(ctx)
+	c.mu.Unlock()
 
 	for _, proc := range c.processors {
 		c.wg.Add(1)
@@ -148,6 +150,7 @@ func (c *Conveyer) Run(ctx context.Context) error {
 func (c *Conveyer) closeChannels() {
 	c.mu.Lock()
 	defer c.mu.Unlock()
+
 	for _, ch := range c.channels {
 		close(ch)
 	}
@@ -191,7 +194,6 @@ func (c *Conveyer) Recv(outputID string) (string, error) {
 	started := c.started
 	ctx := c.ctx
 	c.mu.RUnlock()
-
 	if !started {
 		select {
 		case data, ok := <-ch:
