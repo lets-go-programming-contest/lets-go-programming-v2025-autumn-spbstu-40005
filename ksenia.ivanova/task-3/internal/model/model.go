@@ -25,8 +25,7 @@ func (value *CurrencyValue) UnmarshalXML(decoder *xml.Decoder, start xml.StartEl
 		return fmt.Errorf("failed to unmarshal currency value: %w", err)
 	}
 
-	str = strings.ReplaceAll(strings.TrimSpace(str), ",", ".")
-	result, err := strconv.ParseFloat(str, 64)
+	result, err := strconv.ParseFloat(strings.ReplaceAll(strings.TrimSpace(str), ",", "."), 64)
 	if err != nil {
 		return fmt.Errorf("failed to parse currency value '%s': %w", str, err)
 	}
