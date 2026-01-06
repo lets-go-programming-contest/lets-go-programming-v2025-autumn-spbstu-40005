@@ -10,13 +10,13 @@ import (
 type CurrencyValue float64
 
 type Currency struct {
-	NumCode  int           `json:"num_code"  xml:"NumCode"`
+	NumCode  int           `json:"num_code" xml:"NumCode"`
 	CharCode string        `json:"char_code" xml:"CharCode"`
-	Value    CurrencyValue `json:"value"     xml:"Value"`
+	Value    CurrencyValue `json:"value" xml:"Valute"`
 }
 
 type CurrencyData struct {
-	Values []Currency ` json:"value" xml:"Valute"`
+	Values []Currency `json:"value" xml:"Valute"`
 }
 
 func (value *CurrencyValue) UnmarshalXML(decoder *xml.Decoder, start xml.StartElement) error {
