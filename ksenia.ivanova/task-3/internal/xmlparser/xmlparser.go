@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"os"
 
-	"ksenia.ivanova/task-3/internal/model"
-
 	"golang.org/x/net/html/charset"
+
+	"ksenia.ivanova/task-3/internal/model"
 )
 
 func ParseFile(path string) (*model.CurrencyData, error) {
