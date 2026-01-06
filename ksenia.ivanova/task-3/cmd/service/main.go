@@ -2,53 +2,38 @@ package main
 
 import (
 	"flag"
-	"log"
 	"sort"
 
 	"ksenia.ivanova/task-3/internal/config"
-	"ksenia.ivanova/task-3/internal/converter"
-	"ksenia.ivanova/task-3/internal/model"
+	"ksenia.ivanova/task-3/internal/jsonwriter"
+	"ksenia.ivanova/task-3/internal/xmlparser"
 )
 
 const (
-	configFlagName    = "config"
-	configFlagDefault = "config.yaml"
-	configFlagUsage   = "path to config file"
+	flagConfigName    = "config"
+	flagConfigDefault = "config.yaml"
+	flagConfigUsage   = "path to config file"
 )
 
 func main() {
-	configPath := flag.String(configFlagName, configFlagDefault, configFlagUsage)
+	configPath := flag.String(flagConfigName, flagConfigDefault, flagConfigUsage)
 	flag.Parse()
 
 	appConfig, err := config.Load(*configPath)
 	if err != nil {
-		log.Fatal(err)
+		panic(err)
 	}
 
-	var rates model.ValCurs
-	if err := converter.ParseXMLFile(appConfig.InputFile, &rates); err != nil {
-		log.Fatal(err)
+	curensies, err := xmlparser.ParseFile(appConfig.InputFile)
+	if err != nil {
+		panic(err)
 	}
 
-	filtered := make([]model.Valute, 0, len(rates.Valutes))
-	for _, v := range rates.Valutes {
-		if v.NumCode != 0 {
-			filtered = append(filtered, v)
-		}
-	}
+	sort.Slice(curensies.Values, func(i, j int) bool {
+		return curensies.Values[i].Value > curensies.Values[j].Value
+	})
 
-	sort.Sort(model.ByNumCode(filtered))
-
-	output := make([]model.OutputCurrency, len(filtered))
-	for i, v := range filtered {
-		output[i] = model.OutputCurrency{
-			NumCode:  v.NumCode,
-			CharCode: v.CharCode,
-			Value:    float64(v.Value),
-		}
-	}
-
-	if err := converter.WriteToJSON(output, appConfig.OutputFile); err != nil {
-		log.Fatal(err)
+	if err := jsonwriter.Dump(curensies, appConfig.OutputFile); err != nil {
+		panic(err)
 	}
 }
