@@ -6,7 +6,6 @@ import (
 	"os"
 
 	"golang.org/x/net/html/charset"
-
 	"ksenia.ivanova/task-3/internal/model"
 )
 
