@@ -6,9 +6,9 @@ import (
 	"net"
 	"testing"
 
+	myWifi "egor.bocharov/task-6/internal/wifi"
 	"github.com/mdlayher/wifi"
 	"github.com/stretchr/testify/require"
-	myWifi "egor.bocharov/task-6/internal/wifi"
 )
 
 var testTable = []struct { //nolint:gochecknoglobals
