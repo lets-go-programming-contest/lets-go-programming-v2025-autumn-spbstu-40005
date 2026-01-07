@@ -14,15 +14,15 @@ var (
 )
 
 func PrefixDecoratorFunc(ctx context.Context, input chan string, output chan string) error {
-	const prefix = "decorated: "
-
-	const noDecorator = "no decorator"
+	const (
+		prefix      = "decorated: "
+		noDecorator = "no decorator"
+	)
 
 	for {
 		select {
 		case <-ctx.Done():
 			return nil
-
 		case data, ok := <-input:
 			if !ok {
 				return nil
@@ -56,16 +56,16 @@ func SeparatorFunc(ctx context.Context, input chan string, outputs []chan string
 		select {
 		case <-ctx.Done():
 			return nil
-
 		case data, ok := <-input:
 			if !ok {
 				return nil
 			}
 
-			select {
-			case outputs[index] <- data:
-				index = (index + 1) % len(outputs)
+			channel := outputs[index]
+			index = (index + 1) % len(outputs)
 
+			select {
+			case channel <- data:
 			case <-ctx.Done():
 				return nil
 			}
@@ -84,8 +84,8 @@ func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan stri
 
 	waitGroup.Add(len(inputs))
 
-	for _, inp := range inputs {
-		go func(inputChan chan string) {
+	for _, input := range inputs {
+		go func(channel chan string) {
 			defer waitGroup.Done()
 
 			for {
@@ -93,7 +93,7 @@ func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan stri
 				case <-ctx.Done():
 					return
 
-				case data, ok := <-inputChan:
+				case data, ok := <-channel:
 					if !ok {
 						return
 					}
@@ -109,19 +109,10 @@ func MultiplexerFunc(ctx context.Context, inputs []chan string, output chan stri
 					}
 				}
 			}
-		}(inp)
+		}(input)
 	}
 
-	done := make(chan struct{})
-	go func() {
-		waitGroup.Wait()
-		close(done)
-	}()
+	waitGroup.Wait()
 
-	select {
-	case <-done:
-		return nil
-	case <-ctx.Done():
-		return nil
-	}
+	return nil
 }
