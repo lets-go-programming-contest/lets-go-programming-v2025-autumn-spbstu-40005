@@ -61,19 +61,22 @@ func (b *Bounds) Apply(sign string, temperature int) error {
 
 func readInt() (int, error) {
 	var value int
+
 	if _, err := fmt.Scan(&value); err != nil {
-		return 0, err
+		return 0, fmt.Errorf("scan int: %w", err)
 	}
 
 	return value, nil
 }
 
 func readWorkerRequest() (string, int, error) {
-	var sign string
-	var temperature int
+	var (
+		sign        string
+		temperature int
+	)
 
 	if _, err := fmt.Scan(&sign, &temperature); err != nil {
-		return "", 0, err
+		return "", 0, fmt.Errorf("scan worker request: %w", err)
 	}
 
 	return sign, temperature, nil
