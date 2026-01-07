@@ -6,89 +6,134 @@ import (
 )
 
 const (
-	MinTemp = 15
-	MaxTemp = 30
+	TemperatureMin = 15
+	TemperatureMax = 30
 
-	MinCount = 1
-	MaxCount = 1000
+	CountMin = 1
+	CountMax = 1000
 )
 
 var (
-	ErrBadDeptCount   = errors.New("incorrect amount of departments")
-	ErrBadWorkerCount = errors.New("incorrect amount of employees")
-	ErrBadSign        = errors.New("incorrect sign")
-	ErrBadTemp        = errors.New("incorrect border")
+	ErrIncorrectSign        = errors.New("incorrect sign")
+	ErrIncorrectBorder      = errors.New("incorrect border")
+	ErrIncorrectDepartments = errors.New("incorrect amount of departments")
+	ErrIncorrectEmployees   = errors.New("incorrect amount of employees")
 )
 
-func updateBounds(minVal int, maxVal int, sign string, t int) (int, int, bool, error) {
-	if t < MinTemp || t > MaxTemp {
-		return minVal, maxVal, false, ErrBadTemp
+type Bounds struct {
+	minTemp  int
+	maxTemp  int
+	possible bool
+}
+
+func NewBounds() Bounds {
+	return Bounds{
+		minTemp:  TemperatureMin,
+		maxTemp:  TemperatureMax,
+		possible: true,
+	}
+}
+
+func (b *Bounds) Apply(sign string, temperature int) error {
+	if temperature < TemperatureMin || temperature > TemperatureMax {
+		return ErrIncorrectBorder
 	}
 
 	switch sign {
 	case ">=":
-		if t > minVal {
-			minVal = t
+		if temperature > b.minTemp {
+			b.minTemp = temperature
 		}
 	case "<=":
-		if t < maxVal {
-			maxVal = t
+		if temperature < b.maxTemp {
+			b.maxTemp = temperature
 		}
 	default:
-		return minVal, maxVal, false, ErrBadSign
+		return ErrIncorrectSign
 	}
 
-	if minVal > maxVal {
-		return minVal, maxVal, false, nil
+	if b.minTemp > b.maxTemp {
+		b.possible = false
 	}
 
-	return minVal, maxVal, true, nil
+	return nil
+}
+
+func readInt() (int, error) {
+	var value int
+	if _, err := fmt.Scan(&value); err != nil {
+		return 0, err
+	}
+
+	return value, nil
+}
+
+func readWorkerRequest() (string, int, error) {
+	var sign string
+	var temperature int
+
+	if _, err := fmt.Scan(&sign, &temperature); err != nil {
+		return "", 0, err
+	}
+
+	return sign, temperature, nil
+}
+
+func processDepartment(employeeCount int) error {
+	bounds := NewBounds()
+
+	for range employeeCount {
+		sign, temperature, err := readWorkerRequest()
+		if err != nil {
+			return err
+		}
+
+		if bounds.possible {
+			if err := bounds.Apply(sign, temperature); err != nil {
+				return err
+			}
+		}
+
+		if bounds.possible {
+			fmt.Println(bounds.minTemp)
+		} else {
+			fmt.Println(-1)
+		}
+	}
+
+	return nil
+}
+
+func run() error {
+	departmentCount, err := readInt()
+	if err != nil {
+		return ErrIncorrectDepartments
+	}
+
+	if departmentCount < CountMin || departmentCount > CountMax {
+		return ErrIncorrectDepartments
+	}
+
+	for range departmentCount {
+		employeeCount, err := readInt()
+		if err != nil {
+			return ErrIncorrectEmployees
+		}
+
+		if employeeCount < CountMin || employeeCount > CountMax {
+			return ErrIncorrectEmployees
+		}
+
+		if err := processDepartment(employeeCount); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func main() {
-	var deptCount int
-	if _, err := fmt.Scan(&deptCount); err != nil || deptCount < MinCount || deptCount > MaxCount {
-		fmt.Println("Error:", ErrBadDeptCount)
+	if err := run(); err != nil {
 		return
-	}
-
-	for i := 0; i < deptCount; i++ {
-		var workerCount int
-		if _, err := fmt.Scan(&workerCount); err != nil || workerCount < MinCount || workerCount > MaxCount {
-			fmt.Println("Error:", ErrBadWorkerCount)
-			return
-		}
-
-		minVal := MinTemp
-		maxVal := MaxTemp
-		possible := true
-
-		for j := 0; j < workerCount; j++ {
-			var sign string
-			var t int
-
-			if _, err := fmt.Scan(&sign, &t); err != nil {
-				fmt.Println("Error:", ErrBadTemp)
-				return
-			}
-
-			if !possible {
-				fmt.Println(-1)
-				continue
-			}
-
-			var err error
-			minVal, maxVal, possible, err = updateBounds(minVal, maxVal, sign, t)
-			if err != nil {
-				fmt.Println("Error:", err)
-				return
-			}
-
-			if !possible {
-				fmt.Println(-1)
-			} else {
-				fmt.Println(minVal)
-			}
-		}
 	}
 }
