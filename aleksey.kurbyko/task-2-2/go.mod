@@ -1,3 +1,3 @@
-module github.com/aleksey.kurbyko/task-2-2
+module aleksey.kurbyko/task-2-2
 
 go 1.22.7
