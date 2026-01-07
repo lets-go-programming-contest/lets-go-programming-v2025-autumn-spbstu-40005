@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/aleksey.kurbyko/task-2-2/internal/dishheap"
+	"aleksey.kurbyko/task-2-2/internal/dishheap"
 )
 
 const (
