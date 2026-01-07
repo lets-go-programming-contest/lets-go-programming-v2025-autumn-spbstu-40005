@@ -17,10 +17,10 @@ type TemperatureManager struct {
 	currentMaxTemp int
 }
 
-func NewTemperatureManager() *TemperatureManager {
+func NewTemperatureManager(minTemp, maxTemp int) *TemperatureManager {
 	return &TemperatureManager{
-		currentMinTemp: GlobalMinTemp,
-		currentMaxTemp: GlobalMaxTemp,
+		currentMinTemp: minTemp,
+		currentMaxTemp: maxTemp,
 	}
 }
 
@@ -59,8 +59,6 @@ func main() {
 		return
 	}
 
-	var results []int
-
 	for range departments {
 		var workers int
 
@@ -71,7 +69,7 @@ func main() {
 			return
 		}
 
-		manager := NewTemperatureManager()
+		manager := NewTemperatureManager(GlobalMinTemp, GlobalMaxTemp)
 
 		for range workers {
 			var (
@@ -93,11 +91,7 @@ func main() {
 				return
 			}
 
-			results = append(results, manager.GetOptimalTemp())
+			fmt.Println(manager.GetOptimalTemp())
 		}
-	}
-
-	for _, res := range results {
-		fmt.Println(res)
 	}
 }
