@@ -16,9 +16,9 @@ const undefined = "undefined"
 type Conveyer struct {
 	size int
 
-	mu       sync.RWMutex
 	channels map[string]chan string
 	handlers []func(context.Context) error
+	mu       sync.RWMutex
 }
 
 func New(size int) Conveyer {
@@ -30,11 +30,12 @@ func New(size int) Conveyer {
 		size:     size,
 		channels: make(map[string]chan string),
 		handlers: make([]func(context.Context) error, 0),
+		mu:       sync.RWMutex{},
 	}
 }
 
 func (c *Conveyer) RegisterDecorator(
-	fn func(ctx context.Context, input chan string, output chan string) error,
+	handlerFunc func(ctx context.Context, input chan string, output chan string) error,
 	input string,
 	output string,
 ) {
@@ -43,16 +44,16 @@ func (c *Conveyer) RegisterDecorator(
 
 	c.makeChannels(input, output)
 
-	inCh := c.channels[input]
-	outCh := c.channels[output]
+	inputChannel := c.channels[input]
+	outputChannel := c.channels[output]
 
 	c.handlers = append(c.handlers, func(ctx context.Context) error {
-		return fn(ctx, inCh, outCh)
+		return handlerFunc(ctx, inputChannel, outputChannel)
 	})
 }
 
 func (c *Conveyer) RegisterMultiplexer(
-	fn func(ctx context.Context, inputs []chan string, output chan string) error,
+	handlerFunc func(ctx context.Context, inputs []chan string, output chan string) error,
 	inputs []string,
 	output string,
 ) {
@@ -62,20 +63,20 @@ func (c *Conveyer) RegisterMultiplexer(
 	c.makeChannels(output)
 	c.makeChannels(inputs...)
 
-	inChans := make([]chan string, 0, len(inputs))
+	inputChannels := make([]chan string, 0, len(inputs))
 	for _, name := range inputs {
-		inChans = append(inChans, c.channels[name])
+		inputChannels = append(inputChannels, c.channels[name])
 	}
 
-	outCh := c.channels[output]
+	outputChannel := c.channels[output]
 
 	c.handlers = append(c.handlers, func(ctx context.Context) error {
-		return fn(ctx, inChans, outCh)
+		return handlerFunc(ctx, inputChannels, outputChannel)
 	})
 }
 
 func (c *Conveyer) RegisterSeparator(
-	fn func(ctx context.Context, input chan string, outputs []chan string) error,
+	handlerFunc func(ctx context.Context, input chan string, outputs []chan string) error,
 	input string,
 	outputs []string,
 ) {
@@ -85,33 +86,32 @@ func (c *Conveyer) RegisterSeparator(
 	c.makeChannels(input)
 	c.makeChannels(outputs...)
 
-	inCh := c.channels[input]
+	inputChannel := c.channels[input]
 
-	outChans := make([]chan string, 0, len(outputs))
+	outputChannels := make([]chan string, 0, len(outputs))
 	for _, name := range outputs {
-		outChans = append(outChans, c.channels[name])
+		outputChannels = append(outputChannels, c.channels[name])
 	}
 
 	c.handlers = append(c.handlers, func(ctx context.Context) error {
-		return fn(ctx, inCh, outChans)
+		return handlerFunc(ctx, inputChannel, outputChannels)
 	})
 }
 
 func (c *Conveyer) Run(ctx context.Context) error {
 	defer c.closeAllChannels()
 
-	group, runCtx := errgroup.WithContext(ctx)
+	group, groupCtx := errgroup.WithContext(ctx)
 
-	c.mu.RLock()
-	handlers := make([]func(context.Context) error, len(c.handlers))
-	copy(handlers, c.handlers)
-	c.mu.RUnlock()
+	handlers := c.snapshotHandlers()
+	for _, handlerFunc := range handlers {
+		currentHandler := handlerFunc
 
-	for _, h := range handlers {
-		handler := h
-		group.Go(func() error {
-			return handler(runCtx)
-		})
+		task := func() error {
+			return currentHandler(groupCtx)
+		}
+
+		group.Go(task)
 	}
 
 	if err := group.Wait(); err != nil {
@@ -123,32 +123,43 @@ func (c *Conveyer) Run(ctx context.Context) error {
 
 func (c *Conveyer) Send(input string, data string) error {
 	c.mu.RLock()
-	ch, ok := c.channels[input]
+	channel, ok := c.channels[input]
 	c.mu.RUnlock()
 
 	if !ok {
 		return ErrNoChannel
 	}
 
-	ch <- data
+	channel <- data
+
 	return nil
 }
 
 func (c *Conveyer) Recv(output string) (string, error) {
 	c.mu.RLock()
-	ch, ok := c.channels[output]
+	channel, ok := c.channels[output]
 	c.mu.RUnlock()
 
 	if !ok {
 		return "", ErrNoChannel
 	}
 
-	data, opened := <-ch
+	data, opened := <-channel
 	if !opened {
 		return undefined, nil
 	}
 
 	return data, nil
+}
+
+func (c *Conveyer) snapshotHandlers() []func(context.Context) error {
+	c.mu.RLock()
+	defer c.mu.RUnlock()
+
+	handlers := make([]func(context.Context) error, len(c.handlers))
+	copy(handlers, c.handlers)
+
+	return handlers
 }
 
 func (c *Conveyer) makeChannel(name string) {
@@ -169,7 +180,7 @@ func (c *Conveyer) closeAllChannels() {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
-	for _, ch := range c.channels {
-		close(ch)
+	for _, channel := range c.channels {
+		close(channel)
 	}
 }

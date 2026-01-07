@@ -27,23 +27,23 @@ func PrefixDecoratorFunc(
 		select {
 		case <-ctx.Done():
 			return nil
-		case msg, ok := <-input:
+		case message, ok := <-input:
 			if !ok {
 				return nil
 			}
 
-			if strings.Contains(msg, noDecoratorMark) {
+			if strings.Contains(message, noDecoratorMark) {
 				return ErrCantBeDecorated
 			}
 
-			if !strings.HasPrefix(msg, decoratedPrefix) {
-				msg = decoratedPrefix + msg
+			if !strings.HasPrefix(message, decoratedPrefix) {
+				message = decoratedPrefix + message
 			}
 
 			select {
 			case <-ctx.Done():
 				return nil
-			case output <- msg:
+			case output <- message:
 			}
 		}
 	}
@@ -64,21 +64,18 @@ func SeparatorFunc(
 		select {
 		case <-ctx.Done():
 			return nil
-		case msg, ok := <-input:
+		case message, ok := <-input:
 			if !ok {
 				return nil
 			}
 
-			outCh := outputs[index]
-			index++
-			if index >= len(outputs) {
-				index = 0
-			}
+			outputChannel := outputs[index]
+			index = (index + 1) % len(outputs)
 
 			select {
 			case <-ctx.Done():
 				return nil
-			case outCh <- msg:
+			case outputChannel <- message:
 			}
 		}
 	}
@@ -93,37 +90,42 @@ func MultiplexerFunc(
 		return nil
 	}
 
-	var wg sync.WaitGroup
-	wg.Add(len(inputs))
+	var waitGroup sync.WaitGroup
 
-	for _, in := range inputs {
-		inCh := in
-		go func() {
-			defer wg.Done()
+	waitGroup.Add(len(inputs))
+
+	for _, inputChannel := range inputs {
+		currentInput := inputChannel
+
+		worker := func() {
+			defer waitGroup.Done()
 
 			for {
 				select {
 				case <-ctx.Done():
 					return
-				case msg, ok := <-inCh:
+				case message, ok := <-currentInput:
 					if !ok {
 						return
 					}
 
-					if strings.Contains(msg, noMultiplexMark) {
+					if strings.Contains(message, noMultiplexMark) {
 						continue
 					}
 
 					select {
 					case <-ctx.Done():
 						return
-					case output <- msg:
+					case output <- message:
 					}
 				}
 			}
-		}()
+		}
+
+		go worker()
 	}
 
-	wg.Wait()
+	waitGroup.Wait()
+
 	return nil
 }
