@@ -9,23 +9,35 @@ func (h *MinIntHeap) Len() int {
 }
 
 func (h *MinIntHeap) Less(i, j int) bool {
+	if i < 0 || j < 0 || i >= len(*h) || j >= len(*h) {
+		panic("MinIntHeap.Less: index out of range")
+	}
+
 	return (*h)[i] < (*h)[j]
 }
 
 func (h *MinIntHeap) Swap(i, j int) {
+	if i < 0 || j < 0 || i >= len(*h) || j >= len(*h) {
+		panic("MinIntHeap.Swap: index out of range")
+	}
+
 	(*h)[i], (*h)[j] = (*h)[j], (*h)[i]
 }
 
 func (h *MinIntHeap) Push(x interface{}) {
 	value, ok := x.(int)
 	if !ok {
-		return
+		panic("MinIntHeap.Push: expected int")
 	}
 
 	*h = append(*h, value)
 }
 
 func (h *MinIntHeap) Pop() interface{} {
+	if len(*h) == 0 {
+		panic("MinIntHeap.Pop: heap is empty")
+	}
+
 	old := *h
 	n := len(old)
 	x := old[n-1]
@@ -35,8 +47,11 @@ func (h *MinIntHeap) Pop() interface{} {
 }
 
 func KthLargest(values []int, k int) int {
+	if len(values) == 0 || k <= 0 || k > len(values) {
+		panic("KthLargest: invalid arguments - empty values or k out of range")
+	}
+
 	heapData := &MinIntHeap{}
-	heap.Init(heapData)
 
 	for _, value := range values {
 		if heapData.Len() < k {
@@ -45,6 +60,10 @@ func KthLargest(values []int, k int) int {
 			heap.Pop(heapData)
 			heap.Push(heapData, value)
 		}
+	}
+
+	if heapData.Len() == 0 {
+		panic("KthLargest: unexpected empty heap")
 	}
 
 	return (*heapData)[0]
