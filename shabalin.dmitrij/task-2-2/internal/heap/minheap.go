@@ -2,6 +2,8 @@ package heap
 
 import "fmt"
 
+var errPositionOutOfRange = fmt.Errorf("position out of range")
+
 type MinHeap []int
 
 func (h *MinHeap) Len() int {
@@ -26,33 +28,33 @@ func (h *MinHeap) Push(x any) {
 }
 
 func (h *MinHeap) Pop() any {
-	old := *h
-	n := len(old)
-	if n == 0 {
+	oldSlice := *h
+	length := len(oldSlice)
+	if length == 0 {
 		return nil
 	}
 
-	value := old[n-1]
-	*h = old[:n-1]
+	value := oldSlice[length-1]
+	*h = oldSlice[:length-1]
 
 	return value
 }
 
 func FindKthPreferred(ratings []int, position int) (int, error) {
 	if position <= 0 || position > len(ratings) {
-		return 0, fmt.Errorf("position %d out of range 1..%d", position, len(ratings))
+		return 0, fmt.Errorf("%w: %d not in [1,%d]", errPositionOutOfRange, position, len(ratings))
 	}
 
-	h := &MinHeap{}
-	for _, r := range ratings {
-		h.Push(r)
+	heapInstance := &MinHeap{}
+	for _, rating := range ratings {
+		heapInstance.Push(rating)
 
-		if h.Len() > position {
-			_ = h.Pop()
+		if heapInstance.Len() > position {
+			_ = heapInstance.Pop()
 		}
 	}
 
-	result := (*h)[0]
+	result := (*heapInstance)[0]
 
 	return result, nil
 }
