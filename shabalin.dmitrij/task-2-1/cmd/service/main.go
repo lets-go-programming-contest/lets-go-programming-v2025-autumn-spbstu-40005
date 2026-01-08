@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 	"os"
 	"strconv"
@@ -12,10 +13,22 @@ import (
 
 const expectedPartsCount = 2
 
+var (
+	errReadDepartments    = errors.New("failed to read number of departments")
+	errInvalidDepartments = errors.New("invalid department count")
+
+	errReadEmployees    = errors.New("failed to read number of employees")
+	errInvalidEmployees = errors.New("invalid employee count")
+
+	errReadEmployeeData   = errors.New("failed to read employee data")
+	errInvalidInputFormat = errors.New("invalid input format")
+	errInvalidTemperature = errors.New("invalid temperature value")
+)
+
 func main() {
 	scanner := bufio.NewScanner(os.Stdin)
 
-	numDepartments, err := readInt(scanner, "number of departments")
+	numDepartments, err := readDepartmentsCount(scanner)
 	if err != nil {
 		fmt.Println(err)
 
@@ -31,21 +44,34 @@ func main() {
 	}
 }
 
-func readInt(scanner *bufio.Scanner, what string) (int, error) {
+func readDepartmentsCount(scanner *bufio.Scanner) (int, error) {
 	if !scanner.Scan() {
-		return 0, fmt.Errorf("Error: failed to read %s", what)
+		return 0, errReadDepartments
 	}
 
 	value, err := strconv.Atoi(strings.TrimSpace(scanner.Text()))
 	if err != nil {
-		return 0, fmt.Errorf("Error: invalid %s", what)
+		return 0, errInvalidDepartments
+	}
+
+	return value, nil
+}
+
+func readEmployeesCount(scanner *bufio.Scanner) (int, error) {
+	if !scanner.Scan() {
+		return 0, errReadEmployees
+	}
+
+	value, err := strconv.Atoi(strings.TrimSpace(scanner.Text()))
+	if err != nil {
+		return 0, errInvalidEmployees
 	}
 
 	return value, nil
 }
 
 func processDepartment(scanner *bufio.Scanner) error {
-	numEmployees, err := readInt(scanner, "number of employees")
+	numEmployees, err := readEmployeesCount(scanner)
 	if err != nil {
 		return err
 	}
@@ -63,23 +89,23 @@ func processDepartment(scanner *bufio.Scanner) error {
 
 func processEmployee(scanner *bufio.Scanner, controller *climate.Controller) error {
 	if !scanner.Scan() {
-		return fmt.Errorf("Error: failed to read employee data")
+		return errReadEmployeeData
 	}
 
 	parts := strings.Fields(strings.TrimSpace(scanner.Text()))
 	if len(parts) != expectedPartsCount {
-		return fmt.Errorf("Error: invalid input format")
+		return errInvalidInputFormat
 	}
 
 	operator := parts[0]
 
 	temp, err := strconv.Atoi(parts[1])
 	if err != nil {
-		return fmt.Errorf("Error: invalid temperature value")
+		return errInvalidTemperature
 	}
 
 	if err := controller.AddConstraint(operator, temp); err != nil {
-		return fmt.Errorf("Error: %w", err)
+		return fmt.Errorf("failed to apply constraint: %w", err)
 	}
 
 	fmt.Println(controller.ComfortTemp())
