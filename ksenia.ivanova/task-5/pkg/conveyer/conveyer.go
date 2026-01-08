@@ -39,7 +39,7 @@ func (conveyor *Conveyor) getOrCreateChannel(name string) chan string {
 
 	channel, ok := conveyor.channels[name]
 	if !ok {
-		channel := make(chan string, conveyor.size)
+		channel = make(chan string, conveyor.size)
 		conveyor.channels[name] = channel
 	}
 
