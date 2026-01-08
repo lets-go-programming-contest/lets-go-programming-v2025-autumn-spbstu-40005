@@ -5,8 +5,9 @@ import (
 	"fmt"
 
 	"arseniy.shchadilov/task-3/internal/config"
-	"arseniy.shchadilov/task-3/internal/converter"
+	"arseniy.shchadilov/task-3/internal/jsonwriter"
 	"arseniy.shchadilov/task-3/internal/model"
+	"arseniy.shchadilov/task-3/internal/xmlparser"
 )
 
 func main() {
@@ -23,13 +24,13 @@ func main() {
 	}
 
 	var currencyData model.ValCurs
-	if err := converter.ParseXMLFile(cfg.InputFile, &currencyData); err != nil {
+	if err := xmlparser.ReadXML(cfg.InputFile, &currencyData); err != nil {
 		panic(fmt.Sprintf("ERROR: Failed to parse XML: %v", err))
 	}
 
 	currencyData.SortByValueDesc()
 
-	if err := converter.WriteToJSON(currencyData.Valutes, cfg.OutputFile, 0o755, 0o644); err != nil {
+	if err := jsonwriter.Write(cfg.OutputFile, currencyData.Valutes); err != nil {
 		panic(fmt.Sprintf("ERROR: Failed to write JSON: %v", err))
 	}
 

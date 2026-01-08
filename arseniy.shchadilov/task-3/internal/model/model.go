@@ -29,8 +29,6 @@ func (v *CurrencyValue) UnmarshalXML(d *xml.Decoder, start xml.StartElement) err
 }
 
 type ValCurs struct {
-	XMLName xml.Name `xml:"ValCurs"`
-	Date    string   `xml:"Date,attr"`
 	Valutes []Valute `xml:"Valute"`
 }
 
