@@ -46,15 +46,15 @@ func (h *MinIntHeap) Pop() interface{} {
 	return x
 }
 
-func KthLargest(values []int, k int) int {
-	if len(values) == 0 || k <= 0 || k > len(values) {
-		panic("KthLargest: invalid arguments - empty values or k out of range")
+func KthLargest(values []int, kth int) int {
+	if len(values) == 0 || kth <= 0 || kth > len(values) {
+		panic("KthLargest: invalid arguments - empty values or kth out of range")
 	}
 
 	heapData := &MinIntHeap{}
 
 	for _, value := range values {
-		if heapData.Len() < k {
+		if heapData.Len() < kth {
 			heap.Push(heapData, value)
 		} else if value > (*heapData)[0] {
 			heap.Pop(heapData)
