@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"strings"
 
-	"task-2-1/internal/climate"
+	"github.com/dmitei/task-2-1/internal/climate"
 )
 
 func main() {
