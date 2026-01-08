@@ -14,8 +14,10 @@ type Config struct {
 func ParseConfig() (*Config, error) {
 	var cfg Config
 	err := yaml.Unmarshal(configFile, &cfg)
+
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse config: %w", err)
 	}
+
 	return &cfg, nil
 }

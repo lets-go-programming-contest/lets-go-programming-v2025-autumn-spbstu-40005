@@ -10,6 +10,7 @@ func main() {
 	cfg, err := config.ParseConfig()
 	if err != nil {
 		fmt.Println("Error:", err)
+
 		return
 	}
 
