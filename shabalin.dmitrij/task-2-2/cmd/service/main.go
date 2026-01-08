@@ -7,17 +7,31 @@ import (
 )
 
 func main() {
-	var n int
-	fmt.Scan(&n)
-
-	ratings := make([]int, n)
-	for i := 0; i < n; i++ {
-		fmt.Scan(&ratings[i])
+	var dishesCount int
+	if _, err := fmt.Scan(&dishesCount); err != nil {
+		fmt.Println("scan dishesCount:", err)
+		return
 	}
 
-	var k int
-	fmt.Scan(&k)
+	ratings := make([]int, dishesCount)
+	for i := range ratings {
+		if _, err := fmt.Scan(&ratings[i]); err != nil {
+			fmt.Println("scan rating:", err)
+			return
+		}
+	}
 
-	result := heap.FindKthPreferred(ratings, k)
+	var position int
+	if _, err := fmt.Scan(&position); err != nil {
+		fmt.Println("scan position:", err)
+		return
+	}
+
+	result, err := heap.FindKthPreferred(ratings, position)
+	if err != nil {
+		fmt.Println("find kth preferred:", err)
+		return
+	}
+
 	fmt.Println(result)
 }
