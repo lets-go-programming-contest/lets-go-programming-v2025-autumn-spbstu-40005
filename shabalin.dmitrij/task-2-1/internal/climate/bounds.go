@@ -1,11 +1,16 @@
 package climate
 
-import "fmt"
+import (
+	"errors"
+	"fmt"
+)
 
 const (
-	InitialMin = 15
-	InitialMax = 30
+	initialMin = 15
+	initialMax = 30
 )
+
+var ErrInvalidOperator = errors.New("invalid operator")
 
 type Bounds struct {
 	min int
@@ -19,26 +24,26 @@ type Controller struct {
 func NewController() *Controller {
 	return &Controller{
 		bounds: &Bounds{
-			min: InitialMin,
-			max: InitialMax,
+			min: initialMin,
+			max: initialMax,
 		},
 	}
 }
 
-func (c *Controller) AddConstraint(op string, temp int) error {
-	switch op {
+func (c *Controller) AddConstraint(operator string, temperature int) error {
+	switch operator {
 	case ">=":
-		if temp > c.bounds.min {
-			c.bounds.min = temp
+		if temperature > c.bounds.min {
+			c.bounds.min = temperature
 		}
 
 	case "<=":
-		if temp < c.bounds.max {
-			c.bounds.max = temp
+		if temperature < c.bounds.max {
+			c.bounds.max = temperature
 		}
 
 	default:
-		return fmt.Errorf("invalid operator: %s", op)
+		return fmt.Errorf("%w: %s", ErrInvalidOperator, operator)
 	}
 
 	return nil
@@ -48,5 +53,6 @@ func (c *Controller) ComfortTemp() int {
 	if c.bounds.min <= c.bounds.max {
 		return c.bounds.min
 	}
+
 	return -1
 }
