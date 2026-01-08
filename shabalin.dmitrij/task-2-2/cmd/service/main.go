@@ -8,6 +8,7 @@ import (
 
 func main() {
 	var dishesCount int
+
 	if _, err := fmt.Scan(&dishesCount); err != nil {
 		fmt.Println("scan dishesCount:", err)
 
@@ -15,6 +16,7 @@ func main() {
 	}
 
 	ratings := make([]int, dishesCount)
+
 	for i := range ratings {
 		if _, err := fmt.Scan(&ratings[i]); err != nil {
 			fmt.Println("scan rating:", err)
@@ -24,6 +26,7 @@ func main() {
 	}
 
 	var position int
+
 	if _, err := fmt.Scan(&position); err != nil {
 		fmt.Println("scan position:", err)
 
