@@ -10,6 +10,11 @@ import (
 	"arseniy.shchadilov/task-3/internal/xmlparser"
 )
 
+const (
+	dirPermissions  = 0o755
+	filePermissions = 0o644
+)
+
 func main() {
 	configPath := flag.String("config", "config.yaml", "path to YAML config file")
 	flag.Parse()
@@ -30,7 +35,7 @@ func main() {
 
 	currencyData.SortByValueDesc()
 
-	if err := jsonwriter.Write(cfg.OutputFile, currencyData.Valutes); err != nil {
+	if err := jsonwriter.Write(cfg.OutputFile, currencyData.Valutes, dirPermissions, filePermissions); err != nil {
 		panic(fmt.Sprintf("ERROR: Failed to write JSON: %v", err))
 	}
 
