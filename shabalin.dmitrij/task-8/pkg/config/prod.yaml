@@ -1,5 +1,2 @@
-
 environment: "prod"
 log_level: "error"
-app_name: "MyApp"
-version: "1.0.0"

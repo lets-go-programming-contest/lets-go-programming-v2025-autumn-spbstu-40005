@@ -1,5 +1,2 @@
-
 environment: "dev"
 log_level: "debug"
-app_name: "MyApp"
-version: "0.1.0"

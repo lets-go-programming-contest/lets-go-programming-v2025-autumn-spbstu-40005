@@ -9,9 +9,7 @@ import (
 
 type Config struct {
 	Environment string `json:"environment" yaml:"environment"`
-	LogLevel    string `json:"log_level" yaml:"log_level"`
-	AppName     string `json:"app_name" yaml:"app_name"`
-	Version     string `json:"version" yaml:"version"`
+	LogLevel    string `json:"log_level"   yaml:"log_level"`
 }
 
 func Load(data []byte) (Config, error) {

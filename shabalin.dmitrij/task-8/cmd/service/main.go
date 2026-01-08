@@ -13,5 +13,5 @@ func main() {
 		log.Fatal(err)
 	}
 
-	fmt.Printf("%s %s %s %s", cfg.Environment, cfg.LogLevel, cfg.AppName, cfg.Version)
+	fmt.Printf("%s %s", cfg.Environment, cfg.LogLevel)
 }
