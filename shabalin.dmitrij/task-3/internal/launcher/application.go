@@ -22,7 +22,11 @@ func StartApplication(configurationFilePath string) error {
 		return fmt.Errorf("cannot read source file %q: %w", appConfiguration.SourceFile, fileReadError)
 	}
 
-	currencyContainer := models.CurrencyContainer{}
+	currencyContainer := models.CurrencyContainer{
+		ReportDate:   "",
+		ReportName:   "",
+		CurrencyList: nil,
+	}
 
 	if xmlParseError := xmlhandler.ParseXMLFile(sourceFileContent, &currencyContainer); xmlParseError != nil {
 		return fmt.Errorf("failed to parse XML file: %w", xmlParseError)

@@ -19,6 +19,7 @@ func LoadApplicationConfig(configFilePath string) (*ApplicationConfig, error) {
 	}
 
 	appConfig := new(ApplicationConfig)
+
 	if unmarshalError := yaml.Unmarshal(configurationContent, appConfig); unmarshalError != nil {
 		return nil, fmt.Errorf("cannot unmarshal YAML configuration: %w", unmarshalError)
 	}

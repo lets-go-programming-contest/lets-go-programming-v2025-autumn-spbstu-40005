@@ -24,13 +24,14 @@ func (currencyValue *CurrencyValue) UnmarshalXML(decoder *xml.Decoder, startElem
 	}
 
 	*currencyValue = CurrencyValue(parsedFloatValue)
+
 	return nil
 }
 
 type CurrencyInfo struct {
-	NumericCode  int           `json:"num_code" xml:"NumCode"`
+	NumericCode  int           `json:"num_code"  xml:"NumCode"`
 	AlphaCode    string        `json:"char_code" xml:"CharCode"`
-	ExchangeRate CurrencyValue `json:"value" xml:"Value"`
+	ExchangeRate CurrencyValue `json:"value"     xml:"Value"`
 }
 
 type CurrencyContainer struct {

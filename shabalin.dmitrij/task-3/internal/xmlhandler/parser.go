@@ -20,6 +20,7 @@ func ParseXMLFile(xmlContent []byte, currencyContainer *models.CurrencyContainer
 	contentDecoder.CharsetReader = func(charsetName string, inputReader io.Reader) (io.Reader, error) {
 		if strings.ToLower(charsetName) == "windows-1251" {
 			decodedReader := charmap.Windows1251.NewDecoder().Reader(inputReader)
+
 			return decodedReader, nil
 		}
 

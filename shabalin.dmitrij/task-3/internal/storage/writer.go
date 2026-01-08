@@ -9,8 +9,10 @@ import (
 	"github.com/dmitei/task-3/internal/models"
 )
 
-const DirectoryPermissions = 0o755
-const FilePermissions = 0o600
+const (
+	DirectoryPermissions = 0o755
+	FilePermissions      = 0o600
+)
 
 func SaveToJSONFile(destinationPath string, processedCurrencies []models.CurrencyInfo) error {
 	destinationDirectory := filepath.Dir(destinationPath)
