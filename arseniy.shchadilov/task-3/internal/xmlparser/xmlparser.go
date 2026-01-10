@@ -1,0 +1,31 @@
+package xmlparser
+
+import (
+	"encoding/xml"
+	"fmt"
+	"os"
+
+	"golang.org/x/net/html/charset"
+)
+
+func ReadXML(filePath string, target interface{}) error {
+	file, err := os.Open(filePath)
+	if err != nil {
+		return fmt.Errorf("failed to open XML file: %w", err)
+	}
+
+	defer func() {
+		if closeErr := file.Close(); closeErr != nil {
+			panic(fmt.Errorf("failed to close file %s: %w", filePath, closeErr))
+		}
+	}()
+
+	decoder := xml.NewDecoder(file)
+	decoder.CharsetReader = charset.NewReaderLabel
+
+	if err := decoder.Decode(target); err != nil {
+		return fmt.Errorf("failed to decode XML: %w", err)
+	}
+
+	return nil
+}

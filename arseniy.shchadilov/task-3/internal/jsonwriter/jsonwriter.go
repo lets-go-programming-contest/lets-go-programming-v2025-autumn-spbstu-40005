@@ -1,0 +1,31 @@
+package jsonwriter
+
+import (
+	"encoding/json"
+	"fmt"
+	"os"
+	"path/filepath"
+)
+
+const (
+	jsonPrefix = ""
+	jsonIndent = "    "
+)
+
+func Write(outputPath string, data interface{}, dirPerm, filePerm os.FileMode) error {
+	jsonData, err := json.MarshalIndent(data, jsonPrefix, jsonIndent)
+	if err != nil {
+		return fmt.Errorf("failed to marshal JSON: %w", err)
+	}
+
+	outputDir := filepath.Dir(outputPath)
+	if err := os.MkdirAll(outputDir, dirPerm); err != nil {
+		return fmt.Errorf("failed to create output directory: %w", err)
+	}
+
+	if err := os.WriteFile(outputPath, jsonData, filePerm); err != nil {
+		return fmt.Errorf("failed to write JSON file: %w", err)
+	}
+
+	return nil
+}
